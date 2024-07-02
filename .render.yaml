@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: linebot-gemini
+    env: python
+    region: oregon
+    plan: free
+    buildCommand: "pip install -r requirements.txt"
+    startCommand: "uvicorn main:app --host 0.0.0.0 --port 8000"
+    envVars:
+      - key: LINE_BOT_TOKEN
+        fromDatabase: true
+      - key: LINE_BOT_SECRET
+        fromDatabase: true
+      - key: GEMINI_API_KEY
+        fromDatabase: true
