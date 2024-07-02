@@ -38,11 +38,11 @@ async def callback(request: Request):
 @handler.add(PostbackEvent)
 def handle_postback(event):
     data = event.postback.data
-    if data == "role=seller":
+    if data == "action=seller":
         handle_seller(event, line_bot_api)
-    elif data == "role=buyer":
+    elif data == "action=buyer":
         handle_buyer(event, line_bot_api)
-    elif data == "role=driver":
+    elif data == "action=driver":
         handle_driver(event, line_bot_api)
     elif data == "action=platform_info":
         handle_platform_info(event, line_bot_api)
