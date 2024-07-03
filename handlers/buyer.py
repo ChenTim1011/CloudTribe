@@ -5,7 +5,7 @@ from linebot.models import FlexSendMessage, TemplateSendMessage, ButtonsTemplate
 
 logger = logging.getLogger(__name__)
 
-def handle_driver(event, line_bot_api):
+def handle_buyer(event, line_bot_api):
     logger.info("Handling driver action")
 
     current_dir = os.path.dirname(os.path.abspath(__file__))

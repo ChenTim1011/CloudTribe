@@ -30,19 +30,18 @@ def get_all_orders():
     return orders
 
 # 添加新訂單
-def add_order(order_number, status, expected_delivery, image_url):
+def add_order(order_number, status, expected_delivery):
     order_data = {
         "order_number": order_number,
         "status": status,
         "expected_delivery": expected_delivery,
-        "image_url": image_url
     }
     sheet.append_row(list(order_data.values()))
 
 # 測試
 if __name__ == "__main__":
     # 添加測試訂單
-    add_order("12345", "進行中", "2024-07-15", "http://example.com/image.jpg")
+    add_order("12345", "進行中", "2024-07-15")
     # 獲取所有訂單
     orders = get_all_orders()
     print(orders)
