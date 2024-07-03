@@ -47,26 +47,26 @@ async def callback(request: Request):
 
     return 'OK'
 
-@handler.add(PostbackEvent)
-def handle_postback(event):
-    data = event.postback.data
-    logger.info(f"Postback data: {data}")
-    if data == "action=seller":
-        handle_seller(event, line_bot_api)
-    elif data == "action=buyer":
-        handle_buyer(event, line_bot_api)
-    elif data == "action=driver":
-        handle_driver(event, line_bot_api)
-    elif data == "action=platform_info":
-        handle_platform_info(event, line_bot_api)
-    elif data == "action=query_order":
-        handle_order_query(event, line_bot_api)
-    elif data == "action=ask_ai":
-        handle_customer_service(event, line_bot_api)
-    else:
-        logger.warning(f"Unknown action: {data}")
-        reply_message = TextSendMessage(text="未知的選擇。")
-        line_bot_api.reply_message(event.reply_token, reply_message)
+# @handler.add(PostbackEvent)
+# def handle_postback(event):
+#     data = event.postback.data
+#     logger.info(f"Postback data: {data}")
+#     if data == "action=seller":
+#         handle_seller(event, line_bot_api)
+#     elif data == "action=buyer":
+#         handle_buyer(event, line_bot_api)
+#     elif data == "action=driver":
+#         handle_driver(event, line_bot_api)
+#     elif data == "action=platform_info":
+#         handle_platform_info(event, line_bot_api)
+#     elif data == "action=query_order":
+#         handle_order_query(event, line_bot_api)
+    # if data == "action=ask_ai":
+    #     handle_customer_service(event, line_bot_api)
+#     else:
+#         logger.warning(f"Unknown action: {data}")
+#         reply_message = TextSendMessage(text="未知的選擇。")
+#         line_bot_api.reply_message(event.reply_token, reply_message)
 
 @handler.add(MessageEvent, message=TextMessage)
 def handle_message(event):
@@ -75,9 +75,19 @@ def handle_message(event):
 
     if user_message in ["客服", "詢問客服", "詢問"]:
         handle_customer_service(event, line_bot_api)
-   
-
-
+    elif user_message == "司機":
+        handle_driver(event, line_bot_api)
+    elif user_message == "賣家":
+        handle_seller(event, line_bot_api)
+    elif user_message == "買家":
+        handle_buyer(event, line_bot_api)
+    elif user_message in ["訂單資訊", "訂單"]:
+        handle_order_query(event, line_bot_api)
+    elif user_message in ["平台介紹", "介紹"]:
+        handle_platform_info(event, line_bot_api)
+    else:
+        reply_message = TextMessage(text="未知的選擇。")
+        line_bot_api.reply_message(event.reply_token, reply_message)
 
 if __name__ == "__main__":
     import uvicorn
