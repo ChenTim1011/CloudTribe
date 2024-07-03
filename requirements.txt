@@ -3,3 +3,7 @@ uvicorn
 line-bot-sdk
 requests
 google.generativeai
+psycopg2-binary
+sqlalchemy 
+gspread 
+oauth2client
