@@ -1,0 +1,62 @@
+{
+  "type": "bubble",
+  "header": {
+    "type": "box",
+    "layout": "vertical",
+    "contents": [
+      {
+        "type": "text",
+        "text": "平台介紹",
+        "weight": "bold",
+        "size": "xl",
+        "align": "center",
+        "color": "#000000"
+      }
+    ],
+    "backgroundColor": "#EFEFEF"
+  },
+  "body": {
+    "type": "box",
+    "layout": "vertical",
+    "spacing": "md",
+    "contents": [
+      {
+        "type": "button",
+        "action": {
+          "type": "postback",
+          "label": "功能介紹",
+          "data": "action=introduce",
+          "displayText": "功能介紹"
+        },
+        "style": "primary",
+        "color": "#709775"
+      }
+    ]
+  },
+  "footer": {
+    "type": "box",
+    "layout": "horizontal",
+    "spacing": "sm",
+    "contents": [
+      {
+        "type": "button",
+        "action": {
+          "type": "uri",
+          "label": "官方網站",
+          "uri": "https://harshmyth.wixsite.com/ontheway"
+        },
+        "style": "link"
+      },
+      {
+        "type": "button",
+        "action": {
+          "type": "uri",
+          "label": "臉書",
+          "uri": "https://www.facebook.com/profile.php?id=100064245121280"
+        },
+        "style": "link"
+      }
+    ],
+    "flex": 0
+  }
+}
