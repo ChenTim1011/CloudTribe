@@ -16,7 +16,7 @@ def handle_driver(event, line_bot_api):
         flex_content = json.load(f)
     # 建立 Flex Message
     flex_message = FlexSendMessage(
-        alt_text="司機功能選項",
+        alt_text="司機功能",
         contents=flex_content
     )
 

@@ -6,7 +6,7 @@
     "contents": [
       {
         "type": "text",
-        "text": "司機功能",
+        "text": "買家功能",
         "weight": "bold",
         "size": "xl",
         "align": "center",
@@ -24,9 +24,9 @@
         "type": "button",
         "action": {
           "type": "postback",
-          "label": "查詢訂單",
-          "data": "action=query_order",
-          "displayText": "查詢訂單"
+          "label": "我想買東西",
+          "data": "action=one_buy",
+          "displayText": "我想買東西"
         },
         "style": "primary",
         "color": "#709775"
@@ -35,20 +35,13 @@
         "type": "button",
         "action": {
           "type": "postback",
-          "label": "設定司機條件",
-          "data": "action=set_conditions",
-          "displayText": "設定司機條件"
+          "label": "我想團購",
+          "data": "action=group_buying",
+          "displayText": "我想團購"
         },
         "style": "primary",
         "color": "#709775"
       }
     ]
-  },
-  "footer": {
-    "type": "box",
-    "layout": "horizontal",
-    "spacing": "sm",
-    "contents": [],
-    "flex": 0
   }
 }
