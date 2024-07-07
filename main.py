@@ -2,7 +2,8 @@ import logging
 from fastapi import FastAPI, Request, HTTPException
 from linebot import LineBotApi, WebhookHandler
 from linebot.exceptions import InvalidSignatureError
-from linebot.models import MessageEvent, TextMessage
+from linebot.models import MessageEvent, TextMessage, PostbackEvent
+
 import os
 from dotenv import load_dotenv
 
@@ -11,8 +12,11 @@ from handlers.order_query import handle_order_query
 from handlers.platform_info import handle_platform_info
 from handlers.customer_service import handle_customer_service
 from handlers.seller import handle_seller
-from handlers.buyer import handle_buyer
+from handlers.buyer import handle_buyer, handle_postback
 from handlers.driver import handle_driver
+
+from shopping.cart import add_to_cart, view_cart, checkout
+from shopping.search import search_products
 
 # 加載環境變數
 load_dotenv()
@@ -46,8 +50,9 @@ async def callback(request: Request):
 
 @handler.add(MessageEvent, message=TextMessage)
 def handle_message(event):
+    user_id = event.source.user_id
     user_message = event.message.text
-    logger.info(f"Message from user: {user_message}")
+    logger.info("Message from user: %s", user_message)
 
     if user_message in ["客服", "詢問客服", "詢問"]:
         handle_customer_service(event, line_bot_api)
@@ -65,6 +70,18 @@ def handle_message(event):
         reply_message = TextMessage(text="未知的選擇。")
         line_bot_api.reply_message(event.reply_token, reply_message)
 
+@handler.add(PostbackEvent)
+def handle_postback_event(event):
+    handle_postback(event, line_bot_api)
+
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)
+
+
+
+
+
+
+
+    
