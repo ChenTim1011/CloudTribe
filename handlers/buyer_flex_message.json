@@ -41,6 +41,28 @@
         },
         "style": "primary",
         "color": "#709775"
+      },
+      {
+        "type": "button",
+        "action": {
+          "type": "postback",
+          "label": "查看購物車",
+          "data": "action=view_cart",
+          "displayText": "查看購物車"
+        },
+        "style": "primary",
+        "color": "#709775"
+      },
+      {
+        "type": "button",
+        "action": {
+          "type": "postback",
+          "label": "結帳",
+          "data": "action=checkout",
+          "displayText": "結帳"
+        },
+        "style": "primary",
+        "color": "#709775"
       }
     ]
   }
