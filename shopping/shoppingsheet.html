@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>商品展示</title>
+    <title>家樂福商品展示</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
         body {
@@ -24,6 +24,53 @@
             padding: 20px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
             border-radius: 10px;
+            display: flex;
+        }
+
+        .sidebar {
+            width: 200px;
+            margin-right: 20px;
+        }
+
+        .category-buttons {
+            background-color: #fff;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            padding: 10px;
+        }
+
+        .category-buttons h3 {
+            margin: 0 0 10px 0;
+            font-size: 18px;
+            color: #333;
+        }
+
+        .category-buttons ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .category-buttons li {
+            padding: 5px 0;
+            cursor: pointer;
+            color: #3498db;
+        }
+
+        .category-buttons li:hover {
+            text-decoration: underline;
+        }
+
+        .category-buttons li ul {
+            list-style: none;
+            padding: 0;
+            margin: 0 0 0 20px;
+            display: none;
+        }
+
+        .category-buttons li.active > ul {
+            display: block;
         }
 
         .commodityTitleShell {
@@ -37,64 +84,8 @@
             color: #333;
         }
 
-        .search-box {
-            width: 100%;
-            max-width: 400px;
-            margin: 0 auto 20px auto;
-            display: flex;
-            justify-content: center;
-        }
-
-        .search-box input {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 5px 0 0 5px;
-            border-right: none;
-            outline: none;
-        }
-
-        .search-box button {
-            padding: 10px 15px;
-            font-size: 16px;
-            background-color: #3498db;
-            color: #fff;
-            border: none;
-            border-radius: 0 5px 5px 0;
-            cursor: pointer;
-        }
-
-        .search-box button:hover {
-            background-color: #2980b9;
-        }
-
-        .category-buttons {
-            margin-bottom: 20px;
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-        }
-
-        .category-buttons button {
-            padding: 10px 20px;
-            margin: 5px;
-            font-size: 16px;
-            background-color: #3498db;
-            color: #fff;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-
-        .category-buttons button:hover {
-            background-color: #2980b9;
-        }
-
-        .category-buttons button.active {
-            background-color: #2ecc71;
-        }
-
         .commodityItemsShell {
+            flex: 1;
             display: flex;
             flex-wrap: wrap;
             justify-content: space-between;
@@ -280,61 +271,94 @@
         .checkout-form button:hover {
             background-color: #27ae60;
         }
-
-        .category-list {
-            margin-bottom: 20px;
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-        }
-        .category-list li {
-            width: calc(33.333% - 10px);
-            height: 50px; 
-            background-size: cover;
-            background-position: center;
-            margin-bottom: 20px;
-            border-radius: 10px;
-            overflow: hidden;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-            position: relative;
-        }
-
-
-        .category-list a {
-            display: block;
-            width: 100%;
-            height: 100%;
-            color: white;
-            text-decoration: none;
-        }
-
-        .mask {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background-color: rgba(0, 0, 0, 0.5);
-            color: white;
-            text-align: center;
-            padding: 10px;
-        }
-
-        .mask .text {
-            font-size: 16px;
-        }
-
-        @media (max-width: 900px) {
-            .category-list li {
-                width: calc(50% - 10px);
-            }
-        }
-
-        @media (max-width: 600px) {
-            .category-list li {
-                width: 100%;
-            }
-        }
     </style>
+</head>
+<body>
+    <div class="commodityShell">
+        <div class="sidebar">
+            <div class="category-buttons">
+                <h3>商品分類</h3>
+                <ul>
+                    <li onclick="toggleCategory('蔬菜水果．農特產')">蔬菜水果．農特產
+                        <ul>
+                            <li onclick="filterCategory('微笑小農')">微笑小農</li>
+                            <li onclick="filterCategory('各式蔬菜')">各式蔬菜</li>
+                            <li onclick="filterCategory('季節水果')">季節水果</li>
+                            <li onclick="filterCategory('菇菌類')">菇菌類</li>
+                            <li onclick="filterCategory('日本青森縣蘋果')">日本青森縣蘋果</li>
+                            <li onclick="filterCategory('蔬果箱')">蔬果箱</li>
+                            <li onclick="filterCategory('佐料')">佐料</li>
+                            <li onclick="filterCategory('福和生鮮')">福和生鮮</li>
+                            <li onclick="filterCategory('禮盒')">禮盒</li>
+                            <li onclick="filterCategory('調理藥膳')">調理藥膳</li>
+                            <li onclick="filterCategory('一起買水果')">一起買水果</li>
+                        </ul>
+                    </li>
+                    <li onclick="filterCategory('冰品')">冰品</li>
+                    <li onclick="filterCategory('奶蛋點心食品')">奶蛋點心食品</li>
+                    <li onclick="filterCategory('肉品')">肉品</li>
+                    <li onclick="filterCategory('海鮮水產')">海鮮水產</li>
+                    <li onclick="filterCategory('火鍋料理')">火鍋料理</li>
+                    <li onclick="filterCategory('自製品預售')">自製品預售</li>
+                    <li onclick="filterCategory('冷凍調理')">冷凍調理</li>
+                </ul>
+            </div>
+        </div>
+        <div class="commodityItemsShell">
+            <!-- 商品項目 -->
+            <div class="groupItems 各式蔬菜">
+                <div class="box-img">
+                    <a class="gtm-product-alink" style="position: relative;" href="/zh/2200052600101.html">
+                        <img class="m_lazyload" src="https://online.carrefour.com.tw/dw/image/v2/BFHC_PRD/on/demandware.static/-/Sites-carrefour-tw-m-inner/default/dwedd10068/images/large/2200052600101-2023.png?sw=300&amp;bgcolor=FFFFFF" alt="家樂福有機蚵仔白菜 (每袋約250g)" title="家樂福有機蚵仔白菜250g/袋, " />
+                    </a>
+                </div>
+                <div class="desc-operation-wrapper">
+                    <div class="commodity-desc">
+                        <div>
+                            <a href="/zh/2200052600101.html" title="家樂福有機蚵仔白菜 (每袋約250g)">家樂福有機蚵仔白菜 (每袋約250g)</a>
+                        </div>
+                    </div>
+                    <div class="commodity-operation">
+                        <div class="price-shopcart">
+                            <div class="price-layout">
+                                <div class="current-price"><em>$39</em><i></i></div>
+                            </div>
+                            <div class="favorite">
+                                <div class="like 2200052600101" data-likepid="2200052600101" data-price="39.0">
+                                    <img src="/on/demandware.static/Sites-Carrefour-Site/-/default/dw7b0f2ad6/images/icon-favorite-w.svg" alt class="hand-cursor 2200052600101" />
+                                </div>
+                                <div class="shopcart add-to-cart gtm-addToCart" data-pid="2200052600101" data-price="39.0">
+                                    <img class="loadingimg" src="/on/demandware.static/Sites-Carrefour-Site/-/default/dwebb22f61/images/skeleton-loading.gif" alt="loading" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- 更多商品可以這樣添加 -->
+        </div>
+        <div class="clear"></div>
+    </div>
+
+    <div class="cart" onclick="showCart()">🛒 查看購物車</div>
+
+    <div id="cart-modal" class="cart-modal">
+        <div class="cart-modal-content">
+            <span onclick="closeCart()" style="cursor:pointer;float:right;">&times;</span>
+            <h2>購物車</h2>
+            <div id="cart-items"></div>
+            <div id="cart-total" class="cart-total"></div>
+            <div class="checkout-form">
+                <h3>購買人資訊</h3>
+                <input type="text" placeholder="姓名">
+                <input type="tel" placeholder="電話">
+                <input type="email" placeholder="電子郵件">
+                <input type="text" placeholder="地址">
+                <button>提交訂單</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         let cart = [];
 
@@ -396,208 +420,18 @@
                     item.style.display = 'none';
                 }
             });
-            document.querySelectorAll('.category-buttons button').forEach(button => {
-                button.classList.remove('active');
-            });
-            document.getElementById(category + '-btn').classList.add('active');
         }
 
-        document.addEventListener('DOMContentLoaded', () => {
-            filterCategory('all');
-        });
+        function toggleCategory(category) {
+            const categoryItem = document.querySelector(`[onclick="toggleCategory('${category}')"]`);
+            const subCategoryList = categoryItem.querySelector('ul');
+
+            if (subCategoryList.style.display === 'block') {
+                subCategoryList.style.display = 'none';
+            } else {
+                subCategoryList.style.display = 'block';
+            }
+        }
     </script>
-</head>
-<body>
-    <div class="commodityShell">
-        <div class="commodityTitleShell">
-            <h1>商品展示</h1>
-        </div>
-        <div class="search-box">
-            <input type="text" id="search-input" placeholder="搜尋商品...">
-            <button onclick="searchProducts()"><i class="fas fa-search"></i></button>
-        </div>
- 
-        <ul class="category-list">
-            <li class="category_list" style="background: url('https://img.stapro.com.tw/webimgs/product/thumbs/19/193401.jpg') center center no-repeat;">
-                <a href="#" onclick="filterCategory('大捲筒衛生紙')">
-                    <div class="mask">
-                        <div class="text" data-d="大捲筒衛生紙" data-s="大捲筒衛生紙">大捲筒衛生紙</div>
-                    </div>
-                </a>
-            </li>
-            <li class="category_list" style="background: url('https://img.stapro.com.tw/webimgs/product/thumbs/19/193402.jpg') center center no-repeat;">
-                <a href="#" onclick="filterCategory('小捲筒衛生紙')">
-                    <div class="mask">
-                        <div class="text" data-d="小捲筒衛生紙" data-s="小捲筒衛生紙">小捲筒衛生紙</div>
-                    </div>
-                </a>
-            </li>
-            <li class="category_list" style="background: url('https://img.stapro.com.tw/webimgs/product/thumbs/19/193405.jpg') center center no-repeat;">
-                <a href="#" onclick="filterCategory('多折式擦手紙')">
-                    <div class="mask">
-                        <div class="text" data-d="多折式擦手紙" data-s="多折式擦手紙">多折式擦手紙</div>
-                    </div>
-                </a>
-            </li>
-            <li class="category_list" style="background: url('https://img.stapro.com.tw/webimgs/product/thumbs/19/193412.jpg') center center no-repeat;">
-                <a href="#" onclick="filterCategory('大捲筒擦手紙')">
-                    <div class="mask">
-                        <div class="text" data-d="大捲筒擦手紙" data-s="大捲筒擦手紙">大捲筒擦手紙</div>
-                    </div>
-                </a>
-            </li>
-            <li class="category_list" style="background: url('https://img.stapro.com.tw/webimgs/product/thumbs/19/193403.jpg') center center no-repeat;">
-                <a href="#" onclick="filterCategory('抽取式衛生紙')">
-                    <div class="mask">
-                        <div class="text" data-d="抽取式衛生紙" data-s="抽取式衛生紙">抽取式衛生紙</div>
-                    </div>
-                </a>
-            </li>
-            <li class="category_list" style="background: url('https://img.stapro.com.tw/webimgs/product/thumbs/19/193406.jpg') center center no-repeat;">
-                <a href="#" onclick="filterCategory('平版衛生紙')">
-                    <div class="mask">
-                        <div class="text" data-d="平版衛生紙" data-s="平版衛生紙">平版衛生紙</div>
-                    </div>
-                </a>
-            </li>
-            <li class="category_list" style="background: url('https://img.stapro.com.tw/webimgs/product/thumbs/19/193404.jpg') center center no-repeat;">
-                <a href="#" onclick="filterCategory('盒裝面紙')">
-                    <div class="mask">
-                        <div class="text" data-d="盒裝面紙" data-s="盒裝面紙">盒裝面紙</div>
-                    </div>
-                </a>
-            </li>
-            <li class="category_list" style="background: url('https://img.stapro.com.tw/webimgs/product/thumbs/19/193407.jpg') center center no-repeat;">
-                <a href="#" onclick="filterCategory('廚房紙巾')">
-                    <div class="mask">
-                        <div class="text" data-d="廚房紙巾" data-s="廚房紙巾">廚房紙巾</div>
-                    </div>
-                </a>
-            </li>
-            <li class="category_list" style="background: url('https://img.stapro.com.tw/webimgs/product/thumbs/19/193413.jpg') center center no-repeat;">
-                <a href="#" onclick="filterCategory('桌上型')">
-                    <div class="mask">
-                        <div class="text" data-d="桌上型" data-s="桌上型">桌上型</div>
-                    </div>
-                </a>
-            </li>
-        </ul>
-        <div class="commodityItemsShell">
-            <!-- 商品項目 -->
-            <div class="groupItems 桌上型">
-                <div class="discount"><div class="text"></div></div>
-                <a href="/product_detail.php?id=430242">
-                    <img src="https://img.stapro.com.tw/images/150_new/430/430242_1.jpg" alt="奈芙P&Life衛生紙/桌上型/單抽式/PL-168/250抽/6包/串">
-                    <div class="g_item_description">
-                        <p>奈芙P&Life衛生紙/桌上型/單抽式/PL-168/250抽/6包/串</p>
-                    </div>
-                </a>
-                <div class="priceShell">
-                    <div class="new">售價: $117/串</div>
-                </div>
-                <div class="order">
-                    <label for="quantity-430242">數量：</label>
-                    <input type="number" id="quantity-430242" min="1" value="1">
-                    <button onclick="addToCart('430242', '奈芙P&Life衛生紙', '117')"><span class="cart-icon">🛒</span>購物車</button>
-                </div>
-            </div>
-            <div class="groupItems 桌上型">
-                <div class="discount"><div class="text"></div></div>
-                <a href="/product_detail.php?id=194510">
-                    <img src="https://img.stapro.com.tw/images/150_new/194/194510_1.jpg" alt="奈芙P&Life抽取式面紙巾/PLS-300/雙層300抽/包/30包/箱">
-                    <div class="g_item_description">
-                        <p>奈芙P&Life抽取式面紙巾/PLS-300/雙層300抽/包/30包/箱</p>
-                    </div>
-                </a>
-                <div class="priceShell">
-                    <div class="new">售價: $468/箱</div>
-                </div>
-                <div class="order">
-                    <label for="quantity-194510">數量：</label>
-                    <input type="number" id="quantity-194510" min="1" value="1">
-                    <button onclick="addToCart('194510', '奈芙P&Life抽取式面紙巾', '468')"><span class="cart-icon">🛒</span>購物車</button>
-                </div>
-            </div>
-            <div class="groupItems 桌上型">
-                <div class="discount"><div class="text"></div></div>
-                <a href="/product_detail.php?id=192615">
-                    <img src="https://img.stapro.com.tw/images/150_new/192/192615_1.jpg" alt="優活Livi單抽式柔拭紙巾/TR1BL3-2B/300抽/30包/箱">
-                    <div class="g_item_description">
-                        <p>優活Livi單抽式柔拭紙巾/TR1BL3-2B/300抽/30包/箱</p>
-                    </div>
-                </a>
-                <div class="priceShell">
-                    <div class="new">售價: $480/箱</div>
-                </div>
-                <div class="order">
-                    <label for="quantity-192615">數量：</label>
-                    <input type="number" id="quantity-192615" min="1" value="1">
-                    <button onclick="addToCart('192615', '優活Livi單抽式柔拭紙巾', '480')"><span class="cart-icon">🛒</span>購物車</button>
-                </div>
-            </div>
-            <div class="groupItems 桌上型">
-                <div class="discount">
-                    <div class="text"></div>
-                </div>
-                <a href="/product_detail.php?id=195191">
-                    <img src="https://img.stapro.com.tw/images/150_new/195/195191_1.jpg" alt="五月花單抽式衛生紙/桌上型/0102262 /0102216/250抽/48包/箱">
-                    <div class="g_item_description">
-                        <p>五月花單抽式衛生紙/桌上型/0102262 /0102216/250抽/48包/箱</p>
-                    </div>
-                </a>
-                <div class="priceShell">
-                    <div class="new">售價: $885/箱</div>
-                </div>
-                <div class="order">
-                    <label for="quantity-195191">數量：</label>
-                    <input type="number" id="quantity-195191" min="1" value="1">
-                    <button onclick="addToCart('195191', '五月花單抽式衛生紙', '885')">
-                        <span class="cart-icon">🛒</span>購物車
-                    </button>
-                </div>
-            </div>
-            <div class="groupItems 桌上型">
-                <div class="discount">
-                    <div class="text"></div>
-                </div>
-                <a href="/product_detail.php?id=430150">
-                    <img src="https://img.stapro.com.tw/images/150_new/430/430150_1.jpg" alt="舒潔 柔嫩潔淨衛生紙/單抽式/25708N/200抽/48包/箱">
-                    <div class="g_item_description">
-                        <p>舒潔 柔嫩潔淨衛生紙/單抽式/25708N/200抽/48包/箱</p>
-                    </div>
-                </a>
-                <div class="priceShell">
-                    <div class="new">售價: $990/箱</div>
-                </div>
-                <div class="order">
-                    <label for="quantity-430150">數量：</label>
-                    <input type="number" id="quantity-430150" min="1" value="1">
-                    <button onclick="addToCart('430150', '舒潔 柔嫩潔淨衛生紙', '990')">
-                        <span class="cart-icon">🛒</span>購物車
-                    </button>
-                </div>
-            </div>
-        </div>
-        <div class="clear"></div>
-    </div>
-
-    <div class="cart" onclick="showCart()">🛒 查看購物車</div>
-
-    <div id="cart-modal" class="cart-modal">
-        <div class="cart-modal-content">
-            <span onclick="closeCart()" style="cursor:pointer;float:right;">&times;</span>
-            <h2>購物車</h2>
-            <div id="cart-items"></div>
-            <div id="cart-total" class="cart-total"></div>
-            <div class="checkout-form">
-                <h3>購買人資訊</h3>
-                <input type="text" placeholder="姓名">
-                <input type="tel" placeholder="電話">
-                <input type="email" placeholder="電子郵件">
-                <input type="text" placeholder="地址">
-                <button>提交訂單</button>
-            </div>
-        </div>
-    </div>
 </body>
 </html>
