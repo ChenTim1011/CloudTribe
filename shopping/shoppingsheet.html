@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>商品展示</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .commodityShell {
+            width: 80%;
+            max-width: 1200px;
+            margin: 20px auto;
+            background-color: #fff;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+        }
+
+        .commodityTitleShell {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .commodityTitleShell h1 {
+            margin: 0;
+            font-size: 24px;
+            color: #333;
+        }
+
+        .search-box {
+            width: 100%;
+            max-width: 400px;
+            margin: 0 auto 20px auto;
+            display: flex;
+            justify-content: center;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px 0 0 5px;
+            border-right: none;
+            outline: none;
+        }
+
+        .search-box button {
+            padding: 10px;
+            background-color: #3498db;
+            color: #fff;
+            border: none;
+            border-radius: 0 5px 5px 0;
+            cursor: pointer;
+        }
+
+        .search-box button:hover {
+            background-color: #2980b9;
+        }
+
+        .commodityItemsShell {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+        }
+
+        .groupItems {
+            width: calc(33.333% - 10px);
+            background-color: #f9f9f9;
+            margin-bottom: 15px;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            display: none; /* 隱藏，等待搜索顯示 */
+        }
+
+        .groupItems img {
+            width: 100%;
+            height: auto;
+        }
+
+        .g_item_description {
+            padding: 10px;
+            text-align: center;
+        }
+
+        .g_item_description p {
+            margin: 0;
+            font-size: 16px;
+            color: #333;
+        }
+
+        .priceShell {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 10px;
+            background-color: #fff;
+            border-top: 1px solid #ddd;
+        }
+
+        .priceShell .new {
+            font-size: 18px;
+            color: #e74c3c;
+            font-weight: bold;
+        }
+
+        .order {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 10px;
+            background-color: #fff;
+            border-top: 1px solid #ddd;
+        }
+
+        .order input[type="number"] {
+            width: 50px;
+            padding: 5px;
+            margin-right: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            text-align: center;
+        }
+
+        .order button {
+            padding: 5px 10px;
+            background-color: #3498db;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+        }
+
+        .order button:hover {
+            background-color: #2980b9;
+        }
+
+        .order button .cart-icon {
+            margin-right: 5px;
+        }
+
+        .clear {
+            clear: both;
+        }
+    </style>
+    <script>
+        function searchProducts() {
+            const searchTerm = document.getElementById('search-input').value.toLowerCase();
+            const items = document.querySelectorAll('.groupItems');
+            items.forEach(item => {
+                const description = item.querySelector('.g_item_description p').textContent.toLowerCase();
+                if (description.includes(searchTerm)) {
+                    item.style.display = 'block';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+        }
+    </script>
+</head>
+<body>
+    <div class="commodityShell">
+        <div class="commodityTitleShell">
+            <h1>商品展示</h1>
+        </div>
+        <div class="search-box">
+            <input type="text" id="search-input" placeholder="搜尋商品...">
+            <button onclick="searchProducts()">搜尋</button>
+        </div>
+        <div class="commodityItemsShell">
+            <!-- 商品項目 -->
+            <div class="groupItems fm_奈芙P_Life">
+                <div class="discount"><div class="text"></div></div>
+                <a href="/product_detail.php?id=430242">
+                    <img src="https://img.stapro.com.tw/images/150_new/430/430242_1.jpg" alt="奈芙P&Life衛生紙/桌上型/單抽式/PL-168/250抽/6包/串">
+                    <div class="g_item_description">
+                        <p>奈芙P&Life衛生紙/桌上型/單抽式/PL-168/250抽/6包/串</p>
+                    </div>
+                </a>
+                <div class="priceShell">
+                    <div class="new">售價: $117/串</div>
+                </div>
+                <div class="order">
+                    <input type="number" min="1" value="1">
+                    <button><span class="cart-icon">🛒</span>加入購物車</button>
+                </div>
+            </div>
+            <div class="groupItems fm_奈芙P_Life">
+                <div class="discount"><div class="text"></div></div>
+                <a href="/product_detail.php?id=194510">
+                    <img src="https://img.stapro.com.tw/images/150_new/194/194510_1.jpg" alt="奈芙P&Life抽取式面紙巾/PLS-300/雙層300抽/包/30包/箱">
+                    <div class="g_item_description">
+                        <p>奈芙P&Life抽取式面紙巾/PLS-300/雙層300抽/包/30包/箱</p>
+                    </div>
+                </a>
+                <div class="priceShell">
+                    <div class="new">售價: $468/箱</div>
+                </div>
+                <div class="order">
+                    <input type="number" min="1" value="1">
+                    <button><span class="cart-icon">🛒</span>加入購物車</button>
+                </div>
+            </div>
+            <div class="groupItems fm_優活Livi">
+                <div class="discount"><div class="text"></div></div>
+                <a href="/product_detail.php?id=192615">
+                    <img src="https://img.stapro.com.tw/images/150_new/192/192615_1.jpg" alt="優活Livi單抽式柔拭紙巾/TR1BL3-2B/300抽/30包/箱">
+                    <div class="g_item_description">
+                        <p>優活Livi單抽式柔拭紙巾/TR1BL3-2B/300抽/30包/箱</p>
+                    </div>
+                </a>
+                <div class="priceShell">
+                    <div class="new">售價: $480/箱</div>
+                </div>
+                <div class="order">
+                    <input type="number" min="1" value="1">
+                    <button><span class="cart-icon">🛒</span>加入購物車</button>
+                </div>
+            </div>
+            <!-- 可以繼續添加更多商品項目 -->
+        </div>
+        <div class="clear"></div>
+    </div>
+</body>
+</html>
