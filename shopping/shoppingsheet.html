@@ -68,6 +68,32 @@
             background-color: #2980b9;
         }
 
+        .category-buttons {
+            margin-bottom: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .category-buttons button {
+            padding: 10px 20px;
+            margin: 5px;
+            font-size: 16px;
+            background-color: #3498db;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .category-buttons button:hover {
+            background-color: #2980b9;
+        }
+
+        .category-buttons button.active {
+            background-color: #2ecc71;
+        }
+
         .commodityItemsShell {
             display: flex;
             flex-wrap: wrap;
@@ -254,6 +280,60 @@
         .checkout-form button:hover {
             background-color: #27ae60;
         }
+
+        .category-list {
+            margin-bottom: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .category-list li {
+            width: calc(33.333% - 10px);
+            height: 50px; 
+            background-size: cover;
+            background-position: center;
+            margin-bottom: 20px;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            position: relative;
+        }
+
+
+        .category-list a {
+            display: block;
+            width: 100%;
+            height: 100%;
+            color: white;
+            text-decoration: none;
+        }
+
+        .mask {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            color: white;
+            text-align: center;
+            padding: 10px;
+        }
+
+        .mask .text {
+            font-size: 16px;
+        }
+
+        @media (max-width: 900px) {
+            .category-list li {
+                width: calc(50% - 10px);
+            }
+        }
+
+        @media (max-width: 600px) {
+            .category-list li {
+                width: 100%;
+            }
+        }
     </style>
     <script>
         let cart = [];
@@ -306,6 +386,25 @@
         function closeCart() {
             document.getElementById('cart-modal').style.display = 'none';
         }
+
+        function filterCategory(category) {
+            const items = document.querySelectorAll('.groupItems');
+            items.forEach(item => {
+                if (item.classList.contains(category) || category === 'all') {
+                    item.style.display = 'block';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+            document.querySelectorAll('.category-buttons button').forEach(button => {
+                button.classList.remove('active');
+            });
+            document.getElementById(category + '-btn').classList.add('active');
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            filterCategory('all');
+        });
     </script>
 </head>
 <body>
@@ -314,14 +413,78 @@
             <h1>商品展示</h1>
         </div>
         <div class="search-box">
-            <input type="text
-
-" id="search-input" placeholder="搜尋商品...">
+            <input type="text" id="search-input" placeholder="搜尋商品...">
             <button onclick="searchProducts()"><i class="fas fa-search"></i></button>
         </div>
+ 
+        <ul class="category-list">
+            <li class="category_list" style="background: url('https://img.stapro.com.tw/webimgs/product/thumbs/19/193401.jpg') center center no-repeat;">
+                <a href="#" onclick="filterCategory('大捲筒衛生紙')">
+                    <div class="mask">
+                        <div class="text" data-d="大捲筒衛生紙" data-s="大捲筒衛生紙">大捲筒衛生紙</div>
+                    </div>
+                </a>
+            </li>
+            <li class="category_list" style="background: url('https://img.stapro.com.tw/webimgs/product/thumbs/19/193402.jpg') center center no-repeat;">
+                <a href="#" onclick="filterCategory('小捲筒衛生紙')">
+                    <div class="mask">
+                        <div class="text" data-d="小捲筒衛生紙" data-s="小捲筒衛生紙">小捲筒衛生紙</div>
+                    </div>
+                </a>
+            </li>
+            <li class="category_list" style="background: url('https://img.stapro.com.tw/webimgs/product/thumbs/19/193405.jpg') center center no-repeat;">
+                <a href="#" onclick="filterCategory('多折式擦手紙')">
+                    <div class="mask">
+                        <div class="text" data-d="多折式擦手紙" data-s="多折式擦手紙">多折式擦手紙</div>
+                    </div>
+                </a>
+            </li>
+            <li class="category_list" style="background: url('https://img.stapro.com.tw/webimgs/product/thumbs/19/193412.jpg') center center no-repeat;">
+                <a href="#" onclick="filterCategory('大捲筒擦手紙')">
+                    <div class="mask">
+                        <div class="text" data-d="大捲筒擦手紙" data-s="大捲筒擦手紙">大捲筒擦手紙</div>
+                    </div>
+                </a>
+            </li>
+            <li class="category_list" style="background: url('https://img.stapro.com.tw/webimgs/product/thumbs/19/193403.jpg') center center no-repeat;">
+                <a href="#" onclick="filterCategory('抽取式衛生紙')">
+                    <div class="mask">
+                        <div class="text" data-d="抽取式衛生紙" data-s="抽取式衛生紙">抽取式衛生紙</div>
+                    </div>
+                </a>
+            </li>
+            <li class="category_list" style="background: url('https://img.stapro.com.tw/webimgs/product/thumbs/19/193406.jpg') center center no-repeat;">
+                <a href="#" onclick="filterCategory('平版衛生紙')">
+                    <div class="mask">
+                        <div class="text" data-d="平版衛生紙" data-s="平版衛生紙">平版衛生紙</div>
+                    </div>
+                </a>
+            </li>
+            <li class="category_list" style="background: url('https://img.stapro.com.tw/webimgs/product/thumbs/19/193404.jpg') center center no-repeat;">
+                <a href="#" onclick="filterCategory('盒裝面紙')">
+                    <div class="mask">
+                        <div class="text" data-d="盒裝面紙" data-s="盒裝面紙">盒裝面紙</div>
+                    </div>
+                </a>
+            </li>
+            <li class="category_list" style="background: url('https://img.stapro.com.tw/webimgs/product/thumbs/19/193407.jpg') center center no-repeat;">
+                <a href="#" onclick="filterCategory('廚房紙巾')">
+                    <div class="mask">
+                        <div class="text" data-d="廚房紙巾" data-s="廚房紙巾">廚房紙巾</div>
+                    </div>
+                </a>
+            </li>
+            <li class="category_list" style="background: url('https://img.stapro.com.tw/webimgs/product/thumbs/19/193413.jpg') center center no-repeat;">
+                <a href="#" onclick="filterCategory('桌上型')">
+                    <div class="mask">
+                        <div class="text" data-d="桌上型" data-s="桌上型">桌上型</div>
+                    </div>
+                </a>
+            </li>
+        </ul>
         <div class="commodityItemsShell">
             <!-- 商品項目 -->
-            <div class="groupItems fm_奈芙P_Life">
+            <div class="groupItems 桌上型">
                 <div class="discount"><div class="text"></div></div>
                 <a href="/product_detail.php?id=430242">
                     <img src="https://img.stapro.com.tw/images/150_new/430/430242_1.jpg" alt="奈芙P&Life衛生紙/桌上型/單抽式/PL-168/250抽/6包/串">
@@ -338,7 +501,7 @@
                     <button onclick="addToCart('430242', '奈芙P&Life衛生紙', '117')"><span class="cart-icon">🛒</span>購物車</button>
                 </div>
             </div>
-            <div class="groupItems fm_奈芙P_Life">
+            <div class="groupItems 桌上型">
                 <div class="discount"><div class="text"></div></div>
                 <a href="/product_detail.php?id=194510">
                     <img src="https://img.stapro.com.tw/images/150_new/194/194510_1.jpg" alt="奈芙P&Life抽取式面紙巾/PLS-300/雙層300抽/包/30包/箱">
@@ -355,7 +518,7 @@
                     <button onclick="addToCart('194510', '奈芙P&Life抽取式面紙巾', '468')"><span class="cart-icon">🛒</span>購物車</button>
                 </div>
             </div>
-            <div class="groupItems fm_優活Livi">
+            <div class="groupItems 桌上型">
                 <div class="discount"><div class="text"></div></div>
                 <a href="/product_detail.php?id=192615">
                     <img src="https://img.stapro.com.tw/images/150_new/192/192615_1.jpg" alt="優活Livi單抽式柔拭紙巾/TR1BL3-2B/300抽/30包/箱">
@@ -372,23 +535,44 @@
                     <button onclick="addToCart('192615', '優活Livi單抽式柔拭紙巾', '480')"><span class="cart-icon">🛒</span>購物車</button>
                 </div>
             </div>
-            <div class="groupItems fm_舒潔">
+            <div class="groupItems 桌上型">
                 <div class="discount">
                     <div class="text"></div>
                 </div>
-                <a href="/product_detail.php?id=291374">
-                    <img src="https://img.stapro.com.tw/images/150_new/291/291374_1.jpg" alt="舒潔 精巧餐巾紙/90017N/150抽/60包/箱">
+                <a href="/product_detail.php?id=195191">
+                    <img src="https://img.stapro.com.tw/images/150_new/195/195191_1.jpg" alt="五月花單抽式衛生紙/桌上型/0102262 /0102216/250抽/48包/箱">
                     <div class="g_item_description">
-                        <p>舒潔 精巧餐巾紙/90017N/150抽/60包/箱</p>
+                        <p>五月花單抽式衛生紙/桌上型/0102262 /0102216/250抽/48包/箱</p>
                     </div>
                 </a>
                 <div class="priceShell">
-                    <div class="new">售價: $795/箱</div>
+                    <div class="new">售價: $885/箱</div>
                 </div>
                 <div class="order">
-                    <label for="quantity-291374">數量：</label>
-                    <input type="number" id="quantity-291374" min="1" value="1">
-                    <button onclick="addToCart('291374', '舒潔 精巧餐巾紙', '795')">
+                    <label for="quantity-195191">數量：</label>
+                    <input type="number" id="quantity-195191" min="1" value="1">
+                    <button onclick="addToCart('195191', '五月花單抽式衛生紙', '885')">
+                        <span class="cart-icon">🛒</span>購物車
+                    </button>
+                </div>
+            </div>
+            <div class="groupItems 桌上型">
+                <div class="discount">
+                    <div class="text"></div>
+                </div>
+                <a href="/product_detail.php?id=430150">
+                    <img src="https://img.stapro.com.tw/images/150_new/430/430150_1.jpg" alt="舒潔 柔嫩潔淨衛生紙/單抽式/25708N/200抽/48包/箱">
+                    <div class="g_item_description">
+                        <p>舒潔 柔嫩潔淨衛生紙/單抽式/25708N/200抽/48包/箱</p>
+                    </div>
+                </a>
+                <div class="priceShell">
+                    <div class="new">售價: $990/箱</div>
+                </div>
+                <div class="order">
+                    <label for="quantity-430150">數量：</label>
+                    <input type="number" id="quantity-430150" min="1" value="1">
+                    <button onclick="addToCart('430150', '舒潔 柔嫩潔淨衛生紙', '990')">
                         <span class="cart-icon">🛒</span>購物車
                     </button>
                 </div>
