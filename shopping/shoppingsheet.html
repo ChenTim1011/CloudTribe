@@ -71,13 +71,40 @@
             padding: 20px;
         }
 
+        .search-bar {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        .search-bar input[type="text"] {
+            width: 200px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px 0 0 5px;
+            outline: none;
+        }
+
+        .search-bar button {
+            padding: 10px;
+            background-color: #3498db;
+            color: #fff;
+            border: none;
+            border-radius: 0 5px 5px 0;
+            cursor: pointer;
+        }
+
+        .search-bar button:hover {
+            background-color: #2980b9;
+        }
+
         .groupItems {
             display: flex;
             flex-wrap: wrap;
             justify-content: space-between;
         }
 
-        .groupItems .item {
+        .item {
             width: calc(20% - 10px);
             background-color: #fff;
             margin-bottom: 15px;
@@ -87,17 +114,35 @@
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
         }
 
-        .groupItems .item img {
+        @media (max-width: 1200px) {
+            .item {
+                width: calc(25% - 10px);
+            }
+        }
+
+        @media (max-width: 900px) {
+            .item {
+                width: calc(33.333% - 10px);
+            }
+        }
+
+        @media (max-width: 600px) {
+            .item {
+                width: calc(50% - 10px);
+            }
+        }
+
+        .item img {
             width: 100%;
             height: auto;
         }
 
-        .groupItems .item .description {
+        .description {
             padding: 10px;
             text-align: center;
         }
 
-        .groupItems .item .price {
+        .price {
             padding: 10px;
             text-align: center;
             font-size: 18px;
@@ -105,12 +150,12 @@
             font-weight: bold;
         }
 
-        .groupItems .item .order {
+        .order {
             padding: 10px;
             text-align: center;
         }
 
-        .groupItems .item .order input[type="number"] {
+        .order input[type="number"] {
             width: 40px;
             padding: 5px;
             margin-right: 10px;
@@ -119,7 +164,7 @@
             text-align: center;
         }
 
-        .groupItems .item .order button {
+        .order button {
             padding: 5px 10px;
             background-color: #3498db;
             color: #fff;
@@ -128,7 +173,7 @@
             cursor: pointer;
         }
 
-        .groupItems .item .order button:hover {
+        .order button:hover {
             background-color: #2980b9;
         }
 
@@ -174,7 +219,32 @@
         .cart-item {
             display: flex;
             justify-content: space-between;
+            align-items: center;
             margin-bottom: 10px;
+        }
+
+        .cart-item .item-info {
+            flex-grow: 1;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .cart-item .item-info span {
+            display: inline-block;
+        }
+
+        .cart-item button {
+            background-color: #e74c3c;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            padding: 5px 10px;
+            cursor: pointer;
+        }
+
+        .cart-item button:hover {
+            background-color: #c0392b;
         }
 
         .cart-total {
@@ -215,8 +285,8 @@
         <ul>
             <li onclick="toggleCategory(this)">蔬菜水果．農特產
                 <ul>
-                    <li onclick="filterCategory('微笑小農')">微笑小農</li>
                     <li onclick="filterCategory('各式蔬菜')">各式蔬菜</li>
+                    <li onclick="filterCategory('微笑小農')">微笑小農</li>
                     <li onclick="filterCategory('季節水果')">季節水果</li>
                     <li onclick="filterCategory('菇菌類')">菇菌類</li>
                     <li onclick="filterCategory('日本青森縣蘋果')">日本青森縣蘋果</li>
@@ -283,25 +353,47 @@
         <div class="commodityTitleShell">
             <h1>商品展示</h1>
         </div>
+        <div class="search-bar">
+            <input type="text" id="search-input" placeholder="搜索關鍵字">
+            <button onclick="searchItems()"><i class="fas fa-search"></i></button>
+        </div>
         <div class="groupItems">
-            <div class="item">
-                <img src="https://img.stapro.com.tw/images/150_new/430/430242_1.jpg" alt="奈芙P&Life衛生紙/桌上型/單抽式/PL-168/250抽/6包/串">
-                <div class="description">
-                    奈芙P&Life衛生紙/桌上型/單抽式/PL-168/250抽/6包/串
+            <div class="item fm_各式蔬菜">
+                <div class="box-img">
+                    <img src="https://online.carrefour.com.tw/dw/image/v2/BFHC_PRD/on/demandware.static/-/Sites-carrefour-tw-m-inner/default/dwb0cf6ff1/images/large/2200027700101.jpg?sw=300&bgcolor=FFFFFF" alt="家樂福有機小白菜 (每袋約250g)">
                 </div>
-                <div class="price">售價: $117/串</div>
+                <div class="description">
+                    家樂福有機小白菜 (每袋約250g)
+                </div>
+                <div class="price">
+                    售價: $35/袋
+                </div>
                 <div class="order">
-                    <label for="quantity-430242">數量：</label>
-                    <input type="number" id="quantity-430242" min="1" value="1">
-                    <button onclick="addToCart('430242', '奈芙P&Life衛生紙', '117')"><span class="cart-icon">🛒</span>購物車</button>
+                    數量：<input type="number" id="quantity-2200027700101" min="1" value="1"><br>
+                    <button onclick="addToCart('2200027700101', '家樂福有機小白菜', '35')"><i class="fas fa-shopping-cart"></i>購物車</button>
                 </div>
             </div>
-            <!-- Add more products here -->
+            <div class="item fm_牛">
+                <div class="box-img">
+                    <img src="https://online.carrefour.com.tw/dw/image/v2/BFHC_PRD/on/demandware.static/-/Sites-carrefour-tw-m-inner/default/dw3404be27/images/large/0052506.jpg?sw=300&amp;bgcolor=FFFFFF" alt="雅方牛肉片180g">
+                </div>
+                <div class="description">
+                    雅方牛肉片180g
+                </div>
+                <div class="price">
+                    售價: $99/袋
+                </div>
+                <div class="order">
+                    數量：<input type="number" id="quantity-1528201300101" min="1" value="1"><br>
+                    <button onclick="addToCart('1528201300101', '雅方牛肉片', '99')"><i class="fas fa-shopping-cart"></i>購物車</button>
+                </div>
+            </div>
+            <!-- Add more items here -->
         </div>
         <div class="clear"></div>
     </div>
 
-    <div class="cart" onclick="showCart()">🛒 查看購物車</div>
+    <div class="cart" onclick="showCart()"><i class="fas fa-shopping-cart"></i> 查看購物車</div>
 
     <div id="cart-modal" class="cart-modal">
         <div class="cart-modal-content">
@@ -329,10 +421,22 @@
         }
 
         function filterCategory(category) {
-            const items = document.querySelectorAll('.groupItems .item');
+            const items = document.querySelectorAll('.item');
             items.forEach(item => {
-                const description = item.querySelector('.description').textContent;
-                if (description.includes(category)) {
+                if (item.classList.contains('fm_' + category)) {
+                    item.style.display = 'block';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+        }
+
+        function searchItems() {
+            const searchInput = document.getElementById('search-input').value.toLowerCase();
+            const items = document.querySelectorAll('.item');
+            items.forEach(item => {
+                const description = item.querySelector('.description').textContent.toLowerCase();
+                if (description.includes(searchInput)) {
                     item.style.display = 'block';
                 } else {
                     item.style.display = 'none';
@@ -364,7 +468,12 @@
                 total += item.price * item.quantity;
                 const cartItem = document.createElement('div');
                 cartItem.className = 'cart-item';
-                cartItem.innerHTML = `<span>${item.name} x ${item.quantity}</span><span>$${(item.price * item.quantity).toFixed(2)}</span>`;
+                cartItem.innerHTML = `
+                    <div class="item-info">
+                        <span>${item.name} x ${item.quantity}</span>
+                        <span>$${(item.price * item.quantity).toFixed(2)}</span>
+                    </div>
+                    <button onclick="removeFromCart('${item.id}')">取消購買</button>`;
                 cartItemsContainer.appendChild(cartItem);
             });
 
@@ -372,9 +481,17 @@
             cartModal.style.display = 'flex';
         }
 
+        function removeFromCart(productId) {
+            cart = cart.filter(item => item.id !== productId);
+            showCart();
+        }
+
         function closeCart() {
-            document.getElementById('cart-modal').style.display = 'none';
+            document.get
+
+ElementById('cart-modal').style.display = 'none';
         }
     </script>
 </body>
 </html>
+
