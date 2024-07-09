@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>商品展示</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -17,7 +18,7 @@
 
         .commodityShell {
             width: 100%;
-            max-width: 1200px;
+            max-width: 1400px;
             margin: 20px auto;
             background-color: #fff;
             padding: 20px;
@@ -54,7 +55,8 @@
         }
 
         .search-box button {
-            padding: 10px;
+            padding: 10px 15px;
+            font-size: 16px;
             background-color: #3498db;
             color: #fff;
             border: none;
@@ -73,7 +75,7 @@
         }
 
         .groupItems {
-            width: calc(50% - 10px); /* For mobile view, 2 items per row */
+            width: calc(20% - 10px); /* For 5 items per row */
             background-color: #f9f9f9;
             margin-bottom: 15px;
             border: 1px solid #ddd;
@@ -82,9 +84,21 @@
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
         }
 
-        @media (min-width: 600px) {
+        @media (max-width: 1200px) {
             .groupItems {
-                width: calc(33.333% - 10px); /* For larger screens, 3 items per row */
+                width: calc(25% - 10px); /* For 4 items per row on medium screens */
+            }
+        }
+
+        @media (max-width: 900px) {
+            .groupItems {
+                width: calc(33.333% - 10px); /* For 3 items per row on smaller screens */
+            }
+        }
+
+        @media (max-width: 600px) {
+            .groupItems {
+                width: calc(50% - 10px); /* For 2 items per row on mobile */
             }
         }
 
@@ -100,7 +114,7 @@
 
         .g_item_description p {
             margin: 0;
-            font-size: 16px;
+            font-size: 14px;
             color: #333;
             white-space: pre-wrap; /* Wrap long text */
         }
@@ -115,7 +129,7 @@
         }
 
         .priceShell .new {
-            font-size: 18px;
+            font-size: 16px;
             color: #e74c3c;
             font-weight: bold;
         }
@@ -129,10 +143,14 @@
             border-top: 1px solid #ddd;
         }
 
+        .order label {
+            margin-right: 5px;
+        }
+
         .order input[type="number"] {
             width: 40px;
             padding: 5px;
-            margin-right: 10px;
+            margin-right: 5px;
             border: 1px solid #ddd;
             border-radius: 5px;
             text-align: center;
@@ -296,16 +314,16 @@
             <h1>商品展示</h1>
         </div>
         <div class="search-box">
-            <input type="text" id="search-input" placeholder="搜尋商品...">
-            <button onclick="searchProducts()">搜尋</button>
+            <input type="text
+
+" id="search-input" placeholder="搜尋商品...">
+            <button onclick="searchProducts()"><i class="fas fa-search"></i></button>
         </div>
         <div class="commodityItemsShell">
             <!-- 商品項目 -->
             <div class="groupItems fm_奈芙P_Life">
                 <div class="discount"><div class="text"></div></div>
-                <a href="/product_detail.php?id=430242
-
-">
+                <a href="/product_detail.php?id=430242">
                     <img src="https://img.stapro.com.tw/images/150_new/430/430242_1.jpg" alt="奈芙P&Life衛生紙/桌上型/單抽式/PL-168/250抽/6包/串">
                     <div class="g_item_description">
                         <p>奈芙P&Life衛生紙/桌上型/單抽式/PL-168/250抽/6包/串</p>
@@ -315,6 +333,7 @@
                     <div class="new">售價: $117/串</div>
                 </div>
                 <div class="order">
+                    <label for="quantity-430242">數量：</label>
                     <input type="number" id="quantity-430242" min="1" value="1">
                     <button onclick="addToCart('430242', '奈芙P&Life衛生紙', '117')"><span class="cart-icon">🛒</span>購物車</button>
                 </div>
@@ -331,6 +350,7 @@
                     <div class="new">售價: $468/箱</div>
                 </div>
                 <div class="order">
+                    <label for="quantity-194510">數量：</label>
                     <input type="number" id="quantity-194510" min="1" value="1">
                     <button onclick="addToCart('194510', '奈芙P&Life抽取式面紙巾', '468')"><span class="cart-icon">🛒</span>購物車</button>
                 </div>
@@ -347,11 +367,32 @@
                     <div class="new">售價: $480/箱</div>
                 </div>
                 <div class="order">
+                    <label for="quantity-192615">數量：</label>
                     <input type="number" id="quantity-192615" min="1" value="1">
                     <button onclick="addToCart('192615', '優活Livi單抽式柔拭紙巾', '480')"><span class="cart-icon">🛒</span>購物車</button>
                 </div>
             </div>
-            <!-- 可以繼續添加更多商品項目 -->
+            <div class="groupItems fm_舒潔">
+                <div class="discount">
+                    <div class="text"></div>
+                </div>
+                <a href="/product_detail.php?id=291374">
+                    <img src="https://img.stapro.com.tw/images/150_new/291/291374_1.jpg" alt="舒潔 精巧餐巾紙/90017N/150抽/60包/箱">
+                    <div class="g_item_description">
+                        <p>舒潔 精巧餐巾紙/90017N/150抽/60包/箱</p>
+                    </div>
+                </a>
+                <div class="priceShell">
+                    <div class="new">售價: $795/箱</div>
+                </div>
+                <div class="order">
+                    <label for="quantity-291374">數量：</label>
+                    <input type="number" id="quantity-291374" min="1" value="1">
+                    <button onclick="addToCart('291374', '舒潔 精巧餐巾紙', '795')">
+                        <span class="cart-icon">🛒</span>購物車
+                    </button>
+                </div>
+            </div>
         </div>
         <div class="clear"></div>
     </div>
@@ -376,5 +417,3 @@
     </div>
 </body>
 </html>
-```
-
