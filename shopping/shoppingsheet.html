@@ -16,7 +16,7 @@
         }
 
         .commodityShell {
-            width: 80%;
+            width: 100%;
             max-width: 1200px;
             margin: 20px auto;
             background-color: #fff;
@@ -73,14 +73,19 @@
         }
 
         .groupItems {
-            width: calc(33.333% - 10px);
+            width: calc(50% - 10px); /* For mobile view, 2 items per row */
             background-color: #f9f9f9;
             margin-bottom: 15px;
             border: 1px solid #ddd;
             border-radius: 10px;
             overflow: hidden;
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-            display: none; /* 隱藏，等待搜索顯示 */
+        }
+
+        @media (min-width: 600px) {
+            .groupItems {
+                width: calc(33.333% - 10px); /* For larger screens, 3 items per row */
+            }
         }
 
         .groupItems img {
@@ -97,6 +102,7 @@
             margin: 0;
             font-size: 16px;
             color: #333;
+            white-space: pre-wrap; /* Wrap long text */
         }
 
         .priceShell {
@@ -124,7 +130,7 @@
         }
 
         .order input[type="number"] {
-            width: 50px;
+            width: 40px;
             padding: 5px;
             margin-right: 10px;
             border: 1px solid #ddd;
@@ -154,8 +160,86 @@
         .clear {
             clear: both;
         }
+
+        .cart {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background-color: #3498db;
+            color: #fff;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .cart:hover {
+            background-color: #2980b9;
+        }
+
+        .cart-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+        }
+
+        .cart-modal-content {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            width: 80%;
+            max-width: 500px;
+        }
+
+        .cart-modal-content h2 {
+            margin-top: 0;
+        }
+
+        .cart-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+
+        .cart-total {
+            text-align: right;
+            margin-top: 20px;
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .checkout-form {
+            margin-top: 20px;
+        }
+
+        .checkout-form input,
+        .checkout-form button {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            outline: none;
+        }
+
+        .checkout-form button {
+            background-color: #2ecc71;
+            color: #fff;
+            border: none;
+        }
+
+        .checkout-form button:hover {
+            background-color: #27ae60;
+        }
     </style>
     <script>
+        let cart = [];
+
         function searchProducts() {
             const searchTerm = document.getElementById('search-input').value.toLowerCase();
             const items = document.querySelectorAll('.groupItems');
@@ -167,6 +251,42 @@
                     item.style.display = 'none';
                 }
             });
+        }
+
+        function addToCart(productId, productName, productPrice) {
+            const quantity = parseInt(document.getElementById('quantity-' + productId).value);
+            const product = { id: productId, name: productName, price: parseFloat(productPrice), quantity: quantity };
+
+            const existingProductIndex = cart.findIndex(item => item.id === product.id);
+            if (existingProductIndex !== -1) {
+                cart[existingProductIndex].quantity += product.quantity;
+            } else {
+                cart.push(product);
+            }
+
+            alert('商品已加入購物車');
+        }
+
+        function showCart() {
+            const cartModal = document.getElementById('cart-modal');
+            const cartItemsContainer = document.getElementById('cart-items');
+            cartItemsContainer.innerHTML = '';
+
+            let total = 0;
+            cart.forEach(item => {
+                total += item.price * item.quantity;
+                const cartItem = document.createElement('div');
+                cartItem.className = 'cart-item';
+                cartItem.innerHTML = `<span>${item.name} x ${item.quantity}</span><span>$${(item.price * item.quantity).toFixed(2)}</span>`;
+                cartItemsContainer.appendChild(cartItem);
+            });
+
+            document.getElementById('cart-total').textContent = '總計: $' + total.toFixed(2);
+            cartModal.style.display = 'flex';
+        }
+
+        function closeCart() {
+            document.getElementById('cart-modal').style.display = 'none';
         }
     </script>
 </head>
@@ -183,7 +303,9 @@
             <!-- 商品項目 -->
             <div class="groupItems fm_奈芙P_Life">
                 <div class="discount"><div class="text"></div></div>
-                <a href="/product_detail.php?id=430242">
+                <a href="/product_detail.php?id=430242
+
+">
                     <img src="https://img.stapro.com.tw/images/150_new/430/430242_1.jpg" alt="奈芙P&Life衛生紙/桌上型/單抽式/PL-168/250抽/6包/串">
                     <div class="g_item_description">
                         <p>奈芙P&Life衛生紙/桌上型/單抽式/PL-168/250抽/6包/串</p>
@@ -193,8 +315,8 @@
                     <div class="new">售價: $117/串</div>
                 </div>
                 <div class="order">
-                    <input type="number" min="1" value="1">
-                    <button><span class="cart-icon">🛒</span>加入購物車</button>
+                    <input type="number" id="quantity-430242" min="1" value="1">
+                    <button onclick="addToCart('430242', '奈芙P&Life衛生紙', '117')"><span class="cart-icon">🛒</span>購物車</button>
                 </div>
             </div>
             <div class="groupItems fm_奈芙P_Life">
@@ -209,8 +331,8 @@
                     <div class="new">售價: $468/箱</div>
                 </div>
                 <div class="order">
-                    <input type="number" min="1" value="1">
-                    <button><span class="cart-icon">🛒</span>加入購物車</button>
+                    <input type="number" id="quantity-194510" min="1" value="1">
+                    <button onclick="addToCart('194510', '奈芙P&Life抽取式面紙巾', '468')"><span class="cart-icon">🛒</span>購物車</button>
                 </div>
             </div>
             <div class="groupItems fm_優活Livi">
@@ -225,13 +347,34 @@
                     <div class="new">售價: $480/箱</div>
                 </div>
                 <div class="order">
-                    <input type="number" min="1" value="1">
-                    <button><span class="cart-icon">🛒</span>加入購物車</button>
+                    <input type="number" id="quantity-192615" min="1" value="1">
+                    <button onclick="addToCart('192615', '優活Livi單抽式柔拭紙巾', '480')"><span class="cart-icon">🛒</span>購物車</button>
                 </div>
             </div>
             <!-- 可以繼續添加更多商品項目 -->
         </div>
         <div class="clear"></div>
     </div>
+
+    <div class="cart" onclick="showCart()">🛒 查看購物車</div>
+
+    <div id="cart-modal" class="cart-modal">
+        <div class="cart-modal-content">
+            <span onclick="closeCart()" style="cursor:pointer;float:right;">&times;</span>
+            <h2>購物車</h2>
+            <div id="cart-items"></div>
+            <div id="cart-total" class="cart-total"></div>
+            <div class="checkout-form">
+                <h3>購買人資訊</h3>
+                <input type="text" placeholder="姓名">
+                <input type="tel" placeholder="電話">
+                <input type="email" placeholder="電子郵件">
+                <input type="text" placeholder="地址">
+                <button>提交訂單</button>
+            </div>
+        </div>
+    </div>
 </body>
 </html>
+```
+
