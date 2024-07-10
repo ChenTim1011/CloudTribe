@@ -8,3 +8,4 @@ sqlalchemy
 gspread 
 oauth2client
 beautifulsoup4
+jinja2
