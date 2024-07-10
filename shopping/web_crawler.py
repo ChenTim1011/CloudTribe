@@ -1,6 +1,15 @@
 import requests
 from bs4 import BeautifulSoup
 from jinja2 import Template
+import csv
+
+# 寫入 CSV 文件
+def write_to_csv(data, filename='products.csv'):
+    with open(filename, mode='w', newline='', encoding='utf-8') as file:
+        writer = csv.DictWriter(file, fieldnames=['category', 'img_url', 'product_id', 'product_name', 'price'])
+        writer.writeheader()
+        for item in data:
+            writer.writerow(item)
 
 def scrape_data(url):
     response = requests.get(url)
@@ -15,7 +24,12 @@ def scrape_data(url):
             product_link = item.find('a', class_='gtm-product-alink')
             full_category = product_link['data-category']
             category_parts = full_category.split('/')
-            category = '各式蔬菜' if '各式蔬菜' in category_parts else category_parts[-1]
+
+            if len(category_parts) >= 3:
+                category = category_parts[-2]  # get the second last part
+            else:
+                category = category_parts[-1]  # if there are less than 3 parts, get the last part
+                
             img_url = product_link.find('img')['src']
             product_id = product_link['data-pid']
             product_name = product_link['data-name']
@@ -38,6 +52,7 @@ def scrape_data(url):
 url = 'https://online.carrefour.com.tw/zh/%E7%94%9F%E9%AE%AE%E5%86%B7%E5%87%8D/%E8%94%AC%E8%8F%9C%E6%B0%B4%E6%9E%9C%E8%BE%B2%E7%89%B9%E7%94%A2/%E5%90%84%E5%BC%8F%E8%94%AC%E8%8F%9C'
 data = scrape_data(url)
 
+write_to_csv(data)
 
 template_str = '''
 {% for item in data %}
@@ -49,7 +64,7 @@ template_str = '''
         {{ item.product_name }}
     </div>
     <div class="price">
-        售價: ${{ item.price }}/袋
+        售價: ${{ item.price }}/個
     </div>
     <div class="order">
         數量：<input type="number" id="quantity-{{ item.product_id }}" min="1" value="1"><br>
@@ -61,4 +76,5 @@ template_str = '''
 
 template = Template(template_str)
 rendered_html = template.render(data=data)
-print(rendered_html)
+with open('output.html', 'a', encoding='utf-8') as file:
+    file.write(rendered_html)
