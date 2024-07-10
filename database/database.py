@@ -5,7 +5,7 @@ from oauth2client.service_account import ServiceAccountCredentials
 
 # 配置 Google Sheets API 認證
 scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
-creds = ServiceAccountCredentials.from_json_keyfile_name("path/to/your/credentials.json", scope)
+creds = ServiceAccountCredentials.from_json_keyfile_name("account.json", scope)
 client = gspread.authorize(creds)
 GOOGLE_SHEETS_CREDENTIALS = os.getenv("GOOGLE_SHEETS_CREDENTIALS")
 

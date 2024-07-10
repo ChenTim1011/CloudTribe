@@ -5,13 +5,15 @@ import os
 from dotenv import load_dotenv
 from dataclasses import dataclass
 
-from sqlalchemy import true
-
 # 加載環境變數
 load_dotenv()
 
 # Google Sheets API 憑證文件路徑
 GOOGLE_SHEETS_CREDENTIALS = os.getenv("GOOGLE_SHEETS_CREDENTIALS")
+
+# 檢查變數是否正確設置
+if not GOOGLE_SHEETS_CREDENTIALS:
+    raise ValueError("The GOOGLE_SHEETS_CREDENTIALS environment variable is not set or empty.")
 
 # 認證和初始化gspread客戶端
 scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
@@ -59,20 +61,20 @@ def get_order_carousel(orders, status):
                     {
                         "type": "text",
                         "text": f"Order #{order['order_number']}",
-                        "wrap": true,
+                        "wrap": True,
                         "weight": "bold",
                         "size": "xl"
                     },
                     {
                         "type": "text",
                         "text": f"Status: {order['status']}",
-                        "wrap": true,
+                        "wrap": True,
                         "size": "md"
                     },
                     {
                         "type": "text",
                         "text": f"Expected Delivery: {order['expected_delivery']}",
-                        "wrap": true,
+                        "wrap": True,
                         "size": "md"
                     }
                 ]
