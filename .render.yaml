@@ -11,5 +11,3 @@ services:
         fromDatabase: true
       - key: LINE_BOT_SECRET
         fromDatabase: true
-      - key: GEMINI_API_KEY
-        fromDatabase: true

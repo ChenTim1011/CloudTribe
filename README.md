@@ -10,15 +10,11 @@
     - 在 **Basic Settings** 標籤中取得 `Channel secret`
     - 在 **Messaging API** 標籤中產生 `Channel access token`
 
-3.  **取得 genmini API-Key**
-
-    - 前往 [Genmini API](https://ai.google.dev/aistudio?authuser=1&hl=zh-tw)，建立新的帳號，取得 Genmini API Key.
-
-4.  **部署到 Render**
+3.  **部署到 Render**
 
     - 前往 [Render](https://render.com/)，建立新的 Web Service 並連接到你的 GitHub 儲存庫
 
-5.  **設定 LINE Webhook URL**
+4.  **設定 LINE Webhook URL**
     - 在 LINE Developer Console 中，將 Webhook URL 設置為 `https://your-render-url/callback`
 
 ### 修改後的程式碼
@@ -31,7 +27,6 @@ uvicorn
 line-bot-sdk
 requests
 python-dotenv
-google.generativeai
 ```
 
 #### `.env`
@@ -39,7 +34,6 @@ google.generativeai
 ```env
 LINE_BOT_TOKEN=YOUR_LINE_CHANNEL_ACCESS_TOKEN
 LINE_BOT_SECRET=YOUR_LINE_CHANNEL_SECRET
-GEMINI_API_KEY=YOUR_GEMINI_API_KEY
 ```
 
 ### 部署到 Render
@@ -49,7 +43,6 @@ GEMINI_API_KEY=YOUR_GEMINI_API_KEY
 3. 在 Render 的環境變數設定頁面，手動添加以下環境變數：
    - `LINE_BOT_TOKEN`
    - `LINE_BOT_SECRET`
-   - `GEMINI_API_KEY`
 
 ### 設置 LINE Webhook URL
 
