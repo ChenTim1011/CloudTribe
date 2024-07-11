@@ -1,7 +1,7 @@
 import json
 import os
 import logging
-from linebot.models import FlexSendMessage, TemplateSendMessage, ButtonsTemplate, MessageAction, PostbackEvent
+from linebot.models import FlexSendMessage
 
 logger = logging.getLogger(__name__)
 
@@ -9,9 +9,9 @@ def handle_seller(event, line_bot_api):
     logger.info("Handling seller action")
 
     current_dir = os.path.dirname(os.path.abspath(__file__))
-    json_path = os.path.join(current_dir, 'seller.json')
+    json_path = os.path.join(current_dir, r'flexmessage\seller.json')
 
-    # 讀取 JSON 檔案
+    # 讀取 JSON file
     with open(json_path, 'r', encoding='utf-8') as f:
         flex_content = json.load(f)
     # 建立 Flex Message

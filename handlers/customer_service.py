@@ -1,6 +1,4 @@
-from linebot.models import TextSendMessage, QuickReply, QuickReplyButton, MessageAction, URIAction
-import google.generativeai as genai
-import os
+from linebot.models import TextSendMessage, QuickReply, QuickReplyButton, URIAction
 
 
 
