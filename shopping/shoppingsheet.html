@@ -86,7 +86,6 @@
         }
 
         .search-bar button {
-            padding: 10px;
             background-color: #3498db;
             color: #fff;
             border: none;
@@ -95,7 +94,53 @@
         }
 
         .search-bar button:hover {
+            
             background-color: #2980b9;
+        }
+
+        .add-item-form {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: #fff;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .add-item-form input[type="text"] {
+            width: 300px;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            outline: none;
+        }
+
+        .add-item-form button {
+            padding: 10px;
+            background-color: #2ecc71;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .add-item-form button:hover {
+            background-color: #27ae60;
+        }
+
+        .add-item-form .close-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            cursor: pointer;
+            font-size: 20px;
         }
 
         .groupItems {
@@ -210,6 +255,15 @@
             border-radius: 10px;
             width: 80%;
             max-width: 500px;
+            position: relative;
+        }
+
+        .cart-modal-content .close-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            cursor: pointer;
+            font-size: 20px;
         }
 
         .cart-modal-content h2 {
@@ -259,6 +313,7 @@
         }
 
         .checkout-form input,
+        .checkout-form select,
         .checkout-form button {
             width: 100%;
             padding: 10px;
@@ -269,13 +324,36 @@
         }
 
         .checkout-form button {
-            background-color: #2ecc71;
+            background-color: #3498db;
             color: #fff;
             border: none;
         }
 
         .checkout-form button:hover {
-            background-color: #27ae60;
+            background-color: #2980b9;
+        }
+
+        .pagination {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        .pagination button {
+            padding: 10px 20px;
+            margin: 0 5px;
+            border: none;
+            background-color: #3498db;
+            color: white;
+            cursor: pointer;
+        }
+
+        .pagination button.active {
+            background-color: #2980b9;
+        }
+
+        .pagination button:hover {
+            background-color: #2980b9;
         }
     </style>
 </head>
@@ -286,37 +364,8 @@
             <li onclick="toggleCategory(this)">蔬菜水果．農特產
                 <ul>
                     <li onclick="filterCategory('各式蔬菜')">各式蔬菜</li>
-                    <li onclick="filterCategory('微笑小農')">微笑小農</li>
                     <li onclick="filterCategory('季節水果')">季節水果</li>
                     <li onclick="filterCategory('菇菌類')">菇菌類</li>
-                    <li onclick="filterCategory('日本青森縣蘋果')">日本青森縣蘋果</li>
-                    <li onclick="filterCategory('蔬果箱')">蔬果箱</li>
-                    <li onclick="filterCategory('佐料')">佐料</li>
-                    <li onclick="filterCategory('福和生鮮')">福和生鮮</li>
-                    <li onclick="filterCategory('禮盒')">禮盒</li>
-                    <li onclick="filterCategory('調理藥膳')">調理藥膳</li>
-                    <li onclick="filterCategory('一起買水果')">一起買水果</li>
-                </ul>
-            </li>
-            <li onclick="toggleCategory(this)">奶蛋點心食品
-                <ul>
-                    <li onclick="filterCategory('雞蛋．豆製品')">雞蛋．豆製品</li>
-                    <li onclick="filterCategory('鮮乳．調味乳')">鮮乳．調味乳</li>
-                    <li onclick="filterCategory('豆．米漿')">豆．米漿</li>
-                    <li onclick="filterCategory('優酪乳．優格')">優酪乳．優格</li>
-                    <li onclick="filterCategory('保久乳')">保久乳</li>
-                    <li onclick="filterCategory('奶油．起司')">奶油．起司</li>
-                    <li onclick="filterCategory('味噌．沙拉醬')">味噌．沙拉醬</li>
-                    <li onclick="filterCategory('甜點小菜．冷盤')">甜點小菜．冷盤</li>
-                </ul>
-            </li>
-            <li onclick="toggleCategory(this)">海鮮水產
-                <ul>
-                    <li onclick="filterCategory('加工海鮮')">加工海鮮</li>
-                    <li onclick="filterCategory('軟足/文蛤/貝/蝦類')">軟足/文蛤/貝/蝦類</li>
-                    <li onclick="filterCategory('鮮魚')">鮮魚</li>
-                    <li onclick="filterCategory('家樂福海鮮/產銷履歷')">家樂福海鮮/產銷履歷</li>
-                    <li onclick="filterCategory('紫菜/魚乾/烏魚子')">紫菜/魚乾/烏魚子</li>
                 </ul>
             </li>
             <li onclick="toggleCategory(this)">肉品
@@ -324,27 +373,106 @@
                     <li onclick="filterCategory('牛')">牛</li>
                     <li onclick="filterCategory('豬')">豬</li>
                     <li onclick="filterCategory('雞．鴨')">雞．鴨</li>
-                    <li onclick="filterCategory('羊')">羊</li>
-                    <li onclick="filterCategory('培根．香腸．臘肉')">培根．香腸．臘肉</li>
                     <li onclick="filterCategory('調味肉品')">調味肉品</li>
                     <li onclick="filterCategory('火鍋肉片')">火鍋肉片</li>
                 </ul>
             </li>
-            <li onclick="toggleCategory(this)">火鍋料理
+            <li onclick="toggleCategory(this)">海鮮水產
                 <ul>
-                    <li onclick="filterCategory('火鍋湯底')">火鍋湯底</li>
-                    <li onclick="filterCategory('火鍋肉品')">火鍋肉品</li>
-                    <li onclick="filterCategory('火鍋料．丸類')">火鍋料．丸類</li>
-                    <li onclick="filterCategory('烤肉肉品')">烤肉肉品</li>
+                    <li onclick="filterCategory('加工海鮮')">加工海鮮</li>
+                    <li onclick="filterCategory('鮮魚')">鮮魚</li>
+                    <li onclick="filterCategory('蝦類')">蝦類</li>
+                    <li onclick="filterCategory('魚乾')">魚乾</li>
                 </ul>
             </li>
-            <li onclick="toggleCategory(this)">冷凍調理
+            <li onclick="toggleCategory(this)">調味．罐頭湯品．南北貨
                 <ul>
-                    <li onclick="filterCategory('包子饅頭 餡餅')">包子饅頭 餡餅</li>
-                    <li onclick="filterCategory('蔥油餅 披薩')">蔥油餅 披薩</li>
-                    <li onclick="filterCategory('水餃 麵食')">水餃 麵食</li>
-                    <li onclick="filterCategory('湯圓')">湯圓</li>
-                    <li onclick="filterCategory('微波餐點')">微波餐點</li>
+                    <li onclick="filterCategory('調味品')">調味品</li>
+                    <li onclick="filterCategory('抹醬．沾醬')">抹醬．沾醬</li>
+                    <li onclick="filterCategory('水果抹醬')">水果抹醬</li>
+                    <li onclick="filterCategory('花生．巧克力醬')">花生．巧克力醬</li>
+                    <li onclick="filterCategory('罐頭')">罐頭</li>
+                </ul>
+            </li>
+            <li onclick="toggleCategory(this)">茶飲．咖啡
+                <ul>
+                    <li onclick="filterCategory('綠茶．烏龍茶．其他茶飲')">綠茶．烏龍茶．其他茶飲</li>
+                    <li onclick="filterCategory('紅茶．花茶．水果茶')">紅茶．花茶．水果茶</li>
+                    <li onclick="filterCategory('咖啡')">咖啡</li>
+                    <li onclick="filterCategory('奶精')">奶精</li>
+                    <li onclick="filterCategory('沖泡飲品')">沖泡飲品</li>
+                </ul>
+            </li>
+            <li onclick="toggleCategory(this)">飲品
+                <ul>
+                    <li onclick="filterCategory('機能飲料')">機能飲料</li>
+                    <li onclick="filterCategory('保健養生')">保健養生</li>
+                    <li onclick="filterCategory('蔬果汁')">蔬果汁</li>
+                </ul>
+            </li>
+            <li onclick="toggleCategory(this)">餅乾．巧克力
+                <ul>
+                    <li onclick="filterCategory('精選餅乾')">精選餅乾</li>
+                    <li onclick="filterCategory('鹹餅乾')">鹹餅乾</li>
+                    <li onclick="filterCategory('甜餅乾')">甜餅乾</li>
+                    <li onclick="filterCategory('巧克力')">巧克力</li>
+                </ul>
+            </li>
+            <li onclick="toggleCategory(this)">個人清潔
+                <ul>
+                    <li onclick="filterCategory('洗護造型')">洗護造型</li>
+                    <li onclick="filterCategory('卸妝洗顏')">卸妝洗顏</li>
+                    <li onclick="filterCategory('口腔清潔用品')">口腔清潔用品</li>
+                    <li onclick="filterCategory('刮鬍用品')">刮鬍用品</li>
+                    <li onclick="filterCategory('女性衛生')">女性衛生</li>
+                    <li onclick="filterCategory('衛生棉')">衛生棉</li>
+                    <li onclick="filterCategory('棉條')">棉條</li>
+                    <li onclick="filterCategory('保養洗護')">保養洗護</li>
+                    <li onclick="filterCategory('染髮劑．用品')">染髮劑．用品</li>
+                    <li onclick="filterCategory('彩妝．護唇膏')">彩妝．護唇膏</li>
+                    <li onclick="filterCategory('乳液．防曬．保養')">乳液．防曬．保養</li>
+                </ul>
+            </li>
+            <li onclick="toggleCategory(this)">家庭清潔
+                <ul>
+                    <li onclick="filterCategory('清潔工具')">清潔工具</li>
+                    <li onclick="filterCategory('家用清潔')">家用清潔</li>
+                    <li onclick="filterCategory('衣物洗晾收納')">衣物洗晾收納</li>
+                    <li onclick="filterCategory('除濕．香氛')">除濕．香氛</li>
+                    <li onclick="filterCategory('衛浴用品')">衛浴用品</li>
+                </ul>
+            </li>
+            <li onclick="toggleCategory(this)">廚房用品
+                <ul>
+                    <li onclick="filterCategory('餐廚用品')">餐廚用品</li>
+                    <li onclick="filterCategory('保鮮容器')">保鮮容器</li>
+                    <li onclick="filterCategory('廚房整理')">廚房整理</li>
+                    <li onclick="filterCategory('料理．烘焙器具')">料理．烘焙器具</li>
+                </ul>
+            </li>
+            <li onclick="toggleCategory(this)">家居用品
+                <ul>
+                    <li onclick="filterCategory('燈泡．燈具')">燈泡．燈具</li>
+                    <li onclick="filterCategory('延長線')">延長線</li>
+                    <li onclick="filterCategory('電池')">電池</li>
+                    <li onclick="filterCategory('居家保護用品')">居家保護用品</li>
+                    <li onclick="filterCategory('五金材料')">五金材料</li>
+                    <li onclick="filterCategory('DIY工具')">DIY工具</li>
+                    <li onclick="filterCategory('油漆．粉刷')">油漆．粉刷</li>
+                </ul>
+            </li>
+            <li onclick="toggleCategory(this)">露營．車宿
+                <ul>
+                    <li onclick="filterCategory('BBQ烤肉器具')">BBQ烤肉器具</li>
+                    <li onclick="filterCategory('免洗餐具')">免洗餐具</li>
+                </ul>
+            </li>
+            <li onclick="toggleCategory(this)">其它
+                <ul>
+                    <li onclick="filterCategory('乾淨飲水')">乾淨飲水</li>
+                    <li onclick="filterCategory('濾水壺．濾芯')">濾水壺．濾芯</li>
+                    <li onclick="filterCategory('濾心．濾芯')">濾心．濾芯</li>
+                    <li onclick="filterCategory('飲水壺．保溫保冰')">飲水壺．保溫保冰</li>
                 </ul>
             </li>
         </ul>
@@ -356,48 +484,27 @@
         <div class="search-bar">
             <input type="text" id="search-input" placeholder="搜索關鍵字">
             <button onclick="searchItems()"><i class="fas fa-search"></i></button>
+            <button onclick="showAddItemForm()">沒有要的商品</button>
         </div>
-        <div class="groupItems">
-            <div class="item fm_各式蔬菜">
-                <div class="box-img">
-                    <img src="https://online.carrefour.com.tw/dw/image/v2/BFHC_PRD/on/demandware.static/-/Sites-carrefour-tw-m-inner/default/dwb0cf6ff1/images/large/2200027700101.jpg?sw=300&bgcolor=FFFFFF" alt="家樂福有機小白菜 (每袋約250g)">
-                </div>
-                <div class="description">
-                    家樂福有機小白菜 (每袋約250g)
-                </div>
-                <div class="price">
-                    售價: $35/袋
-                </div>
-                <div class="order">
-                    數量：<input type="number" id="quantity-2200027700101" min="1" value="1"><br>
-                    <button onclick="addToCart('2200027700101', '家樂福有機小白菜', '35')"><i class="fas fa-shopping-cart"></i>購物車</button>
-                </div>
-            </div>
-            <div class="item fm_牛">
-                <div class="box-img">
-                    <img src="https://online.carrefour.com.tw/dw/image/v2/BFHC_PRD/on/demandware.static/-/Sites-carrefour-tw-m-inner/default/dw3404be27/images/large/0052506.jpg?sw=300&amp;bgcolor=FFFFFF" alt="雅方牛肉片180g">
-                </div>
-                <div class="description">
-                    雅方牛肉片180g
-                </div>
-                <div class="price">
-                    售價: $99/袋
-                </div>
-                <div class="order">
-                    數量：<input type="number" id="quantity-1528201300101" min="1" value="1"><br>
-                    <button onclick="addToCart('1528201300101', '雅方牛肉片', '99')"><i class="fas fa-shopping-cart"></i>購物車</button>
-                </div>
-            </div>
-            <!-- Add more items here -->
+        <div class="add-item-form" id="add-item-form">
+            <span class="close-btn" onclick="closeAddItemForm()">&times;</span>
+            <h3>新增商品</h3>
+            <input type="text" id="new-item-name" placeholder="品牌+名稱+份量 (小 中 大)">
+            <input type="text" id="new-item-price" placeholder="價格">
+            <button onclick="addItemToCart()">加入購物車</button>
+        </div>
+        <div class="groupItems" id="item-container">
+            <!-- 商品列表會由 JavaScript 動態生成 -->
+        </div>
+        <div class="pagination" id="pagination">
+            <!-- 分頁按鈕會由 JavaScript 動態生成 -->
         </div>
         <div class="clear"></div>
     </div>
-
     <div class="cart" onclick="showCart()"><i class="fas fa-shopping-cart"></i> 查看購物車</div>
-
     <div id="cart-modal" class="cart-modal">
         <div class="cart-modal-content">
-            <span onclick="closeCart()" style="cursor:pointer;float:right;">&times;</span>
+            <span class="close-btn" onclick="closeCart()">&times;</span>
             <h2>購物車</h2>
             <div id="cart-items"></div>
             <div id="cart-total" class="cart-total"></div>
@@ -407,13 +514,34 @@
                 <input type="tel" placeholder="電話">
                 <input type="email" placeholder="電子郵件">
                 <input type="text" placeholder="地址">
+                最晚接收司機可以接單的時間 否則放棄購買
+                <select id="latest-time" placeholder="最晚接收司機可以接單的時間 否則放棄購買">
+                    <option value="12:00">12:00</option>
+                    <option value="13:00">13:00</option>
+                    <option value="14:00">14:00</option>
+                    <option value="15:00">15:00</option>
+                    <option value="16:00">16:00</option>
+                    <option value="17:00">17:00</option>
+                    <option value="18:00">18:00</option>
+                    <option value="19:00">19:00</option>
+                </select>
+                <select id="delivery-location">
+                    <option value="山上集散地1">山上集散地1</option>
+                    <option value="山上集散地2">山上集散地2</option>
+                    <option value="山上集散地3">山上集散地3</option>
+                </select>
                 <button>提交訂單</button>
             </div>
         </div>
     </div>
-
     <script>
         let cart = [];
+        let items = [
+            { id: '1452401200101', name: 'Tableland丸善海鮮風味即食粥', price: 79.0, img: 'https://online.carrefour.com.tw/dw/image/v2/BFHC_PRD/on/demandware.static/-/Sites-carrefour-tw-m-inner/default/dw40f27f37/images/large/1452401200101.jpg?sw=300&bgcolor=FFFFFF', category: '杯湯．速食袋湯' },
+            
+        ];
+        let currentPage = 1;
+        const itemsPerPage = 16;
 
         function toggleCategory(element) {
             const ul = element.querySelector('ul');
@@ -463,7 +591,7 @@
             const cartItemsContainer = document.getElementById('cart-items');
             cartItemsContainer.innerHTML = '';
 
-            let total = 0;
+            let total = 100; // 運費
             cart.forEach(item => {
                 total += item.price * item.quantity;
                 const cartItem = document.createElement('div');
@@ -487,11 +615,87 @@
         }
 
         function closeCart() {
-            document.get
-
-ElementById('cart-modal').style.display = 'none';
+            document.getElementById('cart-modal').style.display = 'none';
         }
+
+        function displayItems() {
+            const itemContainer = document.getElementById('item-container');
+            itemContainer.innerHTML = '';
+
+            const startIndex = (currentPage - 1) * itemsPerPage;
+            const endIndex = startIndex + itemsPerPage;
+
+            const currentItems = items.slice(startIndex, endIndex);
+            currentItems.forEach(item => {
+                const itemElement = document.createElement('div');
+                itemElement.className = 'item fm_' + item.category;
+                itemElement.innerHTML = `
+                    <div class="box-img">
+                        <img src="${item.img}" alt="${item.name}">
+                    </div>
+                    <div class="description">${item.name}</div>
+                    <div class="price">售價: $${item.price}</div>
+                    <div class="order">
+                        數量：<input type="number" id="quantity-${item.id}" min="1" value="1"><br>
+                        <button onclick="addToCart('${item.id}', '${item.name}', '${item.price}')"><i class="fas fa-shopping-cart"></i>購物車</button>
+                    </div>
+                `;
+                itemContainer.appendChild(itemElement);
+            });
+
+            updatePagination();
+        }
+
+        function updatePagination() {
+            const paginationContainer = document.getElementById('pagination');
+            paginationContainer.innerHTML = '';
+
+            const totalPages = Math.ceil(items.length / itemsPerPage);
+            for (let i = 1; i <= totalPages; i++) {
+                const button = document.createElement('button');
+                button.textContent = i;
+                button.className = currentPage === i ? 'active' : '';
+                button.addEventListener('click', () => {
+                    currentPage = i;
+                    displayItems();
+                });
+                paginationContainer.appendChild(button);
+            }
+        }
+
+        function addItemToCart() {
+            const nameInput = document.getElementById('new-item-name');
+            const priceInput = document.getElementById('new-item-price');
+            const productName = nameInput.value;
+            const productPrice = parseFloat(priceInput.value);
+
+            if (!productName || productPrice <= 0) {
+                alert("請填寫所有必填項目，並確保價格大於0");
+                return;
+            }
+
+            const productId = 'custom_' + (new Date()).getTime();
+            const product = { id: productId, name: productName, price: productPrice, quantity: 1 };
+
+            cart.push(product);
+            nameInput.value = '';
+            priceInput.value = '';
+
+            alert('自訂商品已加入購物車');
+            closeAddItemForm();
+        }
+
+        function showAddItemForm() {
+            document.getElementById('add-item-form').style.display = 'flex';
+        }
+
+        function closeAddItemForm() {
+            document.getElementById('add-item-form').style.display = 'none';
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            displayItems();
+        });
     </script>
 </body>
 </html>
-
