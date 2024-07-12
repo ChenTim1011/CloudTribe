@@ -1,0 +1,38 @@
+[
+    {
+      "category": "水．汽水",
+      "img": "https://online.carrefour.com.tw/dw/image/v2/BFHC_PRD/on/demandware.static/-/Sites-carrefour-tw-m-inner/default/dw2d7ef5fd/images/large/1004101200101.png?sw=300&bgcolor=FFFFFF",
+      "id": "1004101200101",
+      "name": "Sugarlolo 水蜜桃風味氣泡水",
+      "price": 59.0
+    },
+    {
+      "category": "蔬果汁",
+      "img": "https://online.carrefour.com.tw/dw/image/v2/BFHC_PRD/on/demandware.static/-/Sites-carrefour-tw-m-inner/default/dw1e56517c/images/large/1001409600101.jpg?sw=300&bgcolor=FFFFFF",
+      "id": "1001409600101",
+      "name": "藍莓風味冰茶",
+      "price": 55.0
+    },
+    {
+      "category": "咖啡",
+      "img": "https://online.carrefour.com.tw/dw/image/v2/BFHC_PRD/on/demandware.static/-/Sites-carrefour-tw-m-inner/default/dwf7bfed91/images/large/1506203200101.png?sw=300&bgcolor=FFFFFF",
+      "id": "1506203200101",
+      "name": "水果醋方(蜂蜜檸檬)水果醋飲1300ml",
+      "price": 120.0
+    },
+    {
+      "category": "茗茶．咖啡",
+      "img": "https://online.carrefour.com.tw/on/demandware.static/-/Library-Sites-CarrefourTaiwanSharedLib/default/dw57f436ca/watermark/0619-dm20_moon.png",
+      "id": "1490600200101",
+      "name": "【限量】天仁嚴選靈芽高山茶集禮盒",
+      "price": 1188.0
+    },
+    {
+      "category": "堅果類",
+      "img": "https://online.carrefour.com.tw/on/demandware.static/-/Library-Sites-CarrefourTaiwanSharedLib/default/dw1309e8fa/watermark/ic4.png",
+      "id": "1424410800101",
+      "name": "果然優有機綜合堅果",
+      "price": 299.0
+    }
+  ]
+  
