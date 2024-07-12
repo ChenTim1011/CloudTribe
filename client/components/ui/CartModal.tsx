@@ -14,7 +14,8 @@ type CartModalProps = {
   removeFromCart: (id: string) => void; 
 };
 
-const CartModal: React.FC<CartModalProps> = ({ cart, onClose ,  removeFromCart }) => {
+
+const CartModal: React.FC<CartModalProps> = ({ cart, onClose, removeFromCart}) => {
   const total = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
 
