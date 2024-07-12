@@ -14,6 +14,20 @@ from handlers.seller import handle_seller
 from handlers.buyer import handle_buyer
 from handlers.driver import handle_driver
 
+# HTMLResponse
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import HTMLResponse
+from fastapi.templating import Jinja2Templates
+app = FastAPI()
+
+# 掛載靜態檔案
+app.mount("shopping/static", StaticFiles(directory="static"), name="static")
+
+# 設定模板路徑
+templates = Jinja2Templates(directory="templates")
+
+
+
 # import handlers
 load_dotenv()
 
@@ -27,9 +41,9 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
-@app.get("/")
-async def read_root():
-    return {"message": "Service is up and running"}
+@app.get("/", response_class=HTMLResponse)
+async def read_root(request: Request):
+    return templates.TemplateResponse("shopping\shoppingsheet.html", {"request": request})
 
 @app.post("/callback")
 async def callback(request: Request):
