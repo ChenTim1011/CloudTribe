@@ -137,9 +137,9 @@ export default function Page() {
                   </DrawerDescription>
                 </DrawerHeader>
                 <DrawerFooter>
-                  <Button className="text-xl">Submit</Button>
+                  <Button className="text-xl">提交</Button>
                   <DrawerClose asChild>
-                    <Button variant="outline" className="text-xl">Cancel</Button>
+                    <Button variant="outline" className="text-xl">取消</Button>
                   </DrawerClose>
                 </DrawerFooter>
               </div>
