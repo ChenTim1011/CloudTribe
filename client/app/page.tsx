@@ -34,7 +34,7 @@ export default function Page() {
         <div className="lg:p-8 flex flex-row gap-2 items-center justify-center">
           <Button 
             className="lg:h-16 h-12 lg:text-2xl text-md rounded-2xl bg-gray-500 shadow-2xl text-white font-mono hover:bg-slate-400">
-            <Link href="/buy_agri_produce">
+            <Link href="/tribe_resident/necessities">
               部落居民專區
             </Link>
           </Button>

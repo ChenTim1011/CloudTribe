@@ -62,7 +62,6 @@ const allItems =[
     url: "fruit1.jpg"
   },
   
-
 ]
 const categories =[
   {
@@ -106,7 +105,7 @@ const categories =[
 export default function Page() {
   return (
     <div className="h-full w-full bg-gray-200">
-      <div className="flex flex-col w-full bg-lime-800 lg:h-[300px] h-[150px] text-center items-center shadow-2xl">
+      <header className="flex flex-col w-full bg-lime-800 lg:h-[300px] h-[150px] text-center items-center shadow-2xl sticky top-0 z-50">
         <p className="lg:text-5xl text-3xl font-bold tracking-wides lg:py-[50px] py-[20px] text-neutral-50">農產品列表</p>
         <div className="flex lg:w-1/2 w-3/4 items-center space-x-2 ">
           <Input type="email" placeholder="請輸入農產品名稱" className="lg:text-2xl text-md bg-white lg:h-[60px] h-[30px] border-white border-4 rounded" />
@@ -146,7 +145,7 @@ export default function Page() {
             </DrawerContent>
           </Drawer>
         </div>
-      </div>
+      </header>
       <div className="grid lg:grid-cols-3 grid-cols-2 items-center lg:p-28 px-2 py-5">
         {allItems.map((item) => (  
           <div className="w-full lg:h-[420px] h-40 bg-white border-gray-200 border-4 text-center lg:p-5 p-1">
