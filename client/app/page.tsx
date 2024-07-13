@@ -5,13 +5,7 @@ import { Button } from "@/components/ui/button"
 
 export default function Page() {
   const [isVisible, setIsVisible] = useState(false)
-  const handleExperienceButton = () => {
-    return(
-      <div>
-        <Button>賣家</Button>
-      </div>
-    )
-  }
+  
   return (
     <main className="flex min-h-screen flex-col items-center justify-between bg-slate-100">
       <div className="w-full h-full lg:p-8 p-2">
@@ -40,18 +34,18 @@ export default function Page() {
         <div className="lg:p-8 flex flex-row gap-2 items-center justify-center">
           <Button 
             className="lg:h-16 h-12 lg:text-2xl text-md rounded-2xl bg-gray-500 shadow-2xl text-white font-mono hover:bg-slate-400">
-            <Link href="/seller">
-              我是買家
+            <Link href="/buy_agri_produce">
+              部落居民專區
             </Link>
           </Button>
           <Button className="lg:h-16 h-12 lg:text-2xl text-md rounded-2xl bg-gray-500 shadow-2xl font-mono hover:bg-slate-400">
-            <Link href="/seller">
-              我是買家
+            <Link href="/buy_agri_produce">
+              購買農產品專區
             </Link>
           </Button>
           <Button className="lg:h-16 h-12 lg:text-2xl text-md rounded-2xl bg-gray-500 shadow-2xl font-mono hover:bg-slate-400">
-            <Link href="/seller">
-              我是司機
+            <Link href="/buy_agri_produce">
+              司機專區
             </Link>
           </Button>
         </div>}

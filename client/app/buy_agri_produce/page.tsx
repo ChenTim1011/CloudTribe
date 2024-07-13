@@ -66,40 +66,40 @@ const allItems =[
 ]
 const categories =[
   {
-    id: "checkBox1",
-    content: "生活用品"
+    id: "c1",
+    content: "蔬菜"
   },
   {
-    id: "checkBox2",
-    content: "食品飲品"
+    id: "c2",
+    content: "水果"
   },
   {
-    id: "checkBox3",
-    content: "保暖衣物"
+    id: "c3",
+    content: "雞蛋"
   },
   {
-    id: "checkBox4",
-    content: "生活用品"
+    id: "c4",
+    content: "豆類"
   },
   {
-    id: "checkBox5",
-    content: "食品飲品"
+    id: "c5",
+    content: "稻米"
   },
   {
-    id: "checkBox6",
-    content: "保暖衣物"
+    id: "c6",
+    content: "醃漬食品"
   },
   {
-    id: "checkBox7",
-    content: "生活用品"
+    id: "c7",
+    content: "罐頭食品"
   },
   {
-    id: "checkBox8",
-    content: "食品飲品"
+    id: "c8",
+    content: "乳製品"
   },
   {
-    id: "checkBox9",
-    content: "保暖衣物"
+    id: "c9",
+    content: "調味料"
   },
 ]
 
@@ -123,7 +123,7 @@ export default function Page() {
                     
                     <div className="flex w-full mt-4">
                       <div className="lg:w-1/6 w-1/12"></div>
-                      <div className="lg:w-2/3 w-10/12 justify-center grid grid-cols-3 justify-items-center">
+                      <div className="lg:w-2/3 w-10/12 justify-center grid grid-cols-3">
                         {categories.map((category) => (  
                           <div className="flex items-center lg:space-x-2 space-x-[1px] lg:text-2xl text-xl">
                             <Checkbox id="term1"></Checkbox>
@@ -137,9 +137,9 @@ export default function Page() {
                   </DrawerDescription>
                 </DrawerHeader>
                 <DrawerFooter>
-                  <Button className="text-xl">Submit</Button>
+                  <Button className="text-xl">提交</Button>
                   <DrawerClose asChild>
-                    <Button variant="outline" className="text-xl">Cancel</Button>
+                    <Button variant="outline" className="text-xl">取消</Button>
                   </DrawerClose>
                 </DrawerFooter>
               </div>
