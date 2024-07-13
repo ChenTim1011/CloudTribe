@@ -7,4 +7,3 @@ sqlalchemy
 beautifulsoup4
 jinja2
 selenium
-csv

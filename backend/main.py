@@ -29,10 +29,7 @@ from linebot.v3.webhooks import (
 )
 
 # Import database and models => relative path method
-from backend import crud
-from backend import models
-from backend import schemas
-from backend import database
+from backend.database import crud, models, schemas, database
 
 # Import handlers
 from backend.handlers.order_query import handle_order_query

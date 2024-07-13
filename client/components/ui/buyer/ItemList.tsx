@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import data from '../../../database/data.json';
+import data from '../../../../database/data.json';
 import CartModal from './CartModal'; 
 
   
