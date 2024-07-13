@@ -11,3 +11,13 @@ services:
         fromDatabase: true
       - key: LINE_BOT_SECRET
         fromDatabase: true
+      - key: DATABASE_URL
+        fromDatabase: true
+      - key: DB_NAME
+        fromDatabase: true
+      - key: DB_PASSWORD
+        fromDatabase: true
+      - key: DB_USER
+        fromDatabase: true
+      - key: DB_HOST
+        fromDatabase: true

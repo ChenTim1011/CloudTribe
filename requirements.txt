@@ -1,0 +1,10 @@
+fastapi
+uvicorn
+line-bot-sdk
+requests
+psycopg2-binary
+sqlalchemy 
+beautifulsoup4
+jinja2
+selenium
+csv
