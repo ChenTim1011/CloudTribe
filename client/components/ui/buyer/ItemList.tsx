@@ -7,8 +7,14 @@ interface CartItem {
     id: string;
     name: string;
     price: number;
-    quantity: number;
+    category: string;
+    img: string;
 }
+
+type ItemListProps = {
+  items: Item[];
+  addItemToCart: (id: string, name: string, price: number) => void;
+};
 
 /**
  * Renders a list of items with the ability to add items to a shopping cart.

@@ -2,11 +2,9 @@ fastapi
 uvicorn
 line-bot-sdk
 requests
-google.generativeai
 psycopg2-binary
 sqlalchemy 
 beautifulsoup4
 jinja2
 selenium
 csv
-

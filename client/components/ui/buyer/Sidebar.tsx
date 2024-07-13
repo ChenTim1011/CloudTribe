@@ -1,7 +1,6 @@
 import React from 'react';
 import { Menu, MenuButton, MenuList, MenuItem, Button } from 'shadcn/ui';
 
-
 type SidebarProps = {
   filterCategory: (category: string) => void;
 };
