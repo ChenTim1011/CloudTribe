@@ -1,24 +1,15 @@
-// client/app/App.tsx
+"use client";
+
 import React from 'react';
-import { BrowserRouter as Router, Route, RouteProps } from 'react-router-dom';
-import {Button} from '@/components/ui/button';
-function App(){
-  <Button variant="outline">Button</Button>
-  
-}
+import '@/app/styles/globals.css'; 
 
-
-
-// const App: React.FC = () => {
-//   return (
-//     <Router>
-//       <Switch>
-//         <Route path="/" exact component={Home as React.ComponentType<RouteProps>} />
-//         <Route path="/seller" component={Seller as React.ComponentType<RouteProps>} />
-//         {/* 添加更多路由 */}
-//       </Switch>
-//     </Router>
-//   );
-// };
+const App: React.FC = () => {
+  return (
+    <div>
+      <h1>Welcome to the App</h1>
+      {/* Add any other initial content or leave it empty */}
+    </div>
+  );
+};
 
 export default App;
