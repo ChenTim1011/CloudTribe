@@ -71,13 +71,15 @@ const BuyerPage: React.FC = () => {
       style={{
         backgroundImage: "url('/eat.jpg')",
         backgroundSize: 'cover',
-        backgroundPosition: 'center'
+        backgroundPosition: 'center',
+        opacity: 1, 
+        height: '400px', 
       }}
     >
       <div className="content flex-grow p-10 bg-white bg-opacity-80">
         <h1 className="mb-20 text-4xl font-bold">今天我想要來點...</h1>
         <SearchBar onSearch={handleSearch} className="mb-10" />
-        <Sidebar filterCategory={handleFilterCategory} className="mb-10" />
+        <Sidebar filterCategory={handleFilterCategory} className="mb-20" />
         {selectedCategory && (
           <div className="mt-10 text-2xl font-semibold">
             商品種類: {selectedCategory}

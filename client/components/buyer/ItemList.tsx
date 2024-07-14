@@ -33,9 +33,9 @@ const ItemList: React.FC<ItemListProps> = ({ products, itemsPerPage }) => {
         {currentData.map((product) => (
           <div key={product.id} className="card">
             <img src={product.img} alt={product.name} className="w-full h-48 object-cover"style={{ height: '250px', objectFit: 'contain' }}  />
-            <div className="p-4">
+            <div className="p-4 text-center">
               <h2 className="text-xl font-bold">{product.name}</h2>
-              <p className="text-lg text-red-500">參考價格:${product.price}</p>
+              <p className="text-2xl font-bold text-red-500">參考價格:${product.price}</p>
             </div>
           </div>
         ))}
