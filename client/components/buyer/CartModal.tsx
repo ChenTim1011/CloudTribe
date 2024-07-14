@@ -1,8 +1,8 @@
 import React from 'react';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faTrash, faPlus, faMinus } from '@fortawesome/free-solid-svg-icons';
-import { Sheet, SheetClose, SheetContent, SheetFooter, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger, SheetFooter, SheetClose } from "@/components/ui/sheet";
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faTrashAlt } from '@fortawesome/free-solid-svg-icons';
 
 type CartItem = {
   id: string;
@@ -24,50 +24,38 @@ const CartModal: React.FC<CartModalProps> = ({ cart, onClose, removeFromCart, up
 
   return (
     <Sheet open={true} onOpenChange={onClose}>
-      <SheetContent>
+      <SheetContent className="w-full max-w-xl">
         <SheetHeader>
-          <SheetTitle>購物車 ({cart.length})</SheetTitle>
-          <SheetClose />
+          <SheetTitle>購物車 ({cart.reduce((total, item) => total + item.quantity, 0)})</SheetTitle>
         </SheetHeader>
-        <div className="grid gap-4 py-4">
+        <div className="p-4">
           {cart.map((item) => (
-            <div key={item.id} className="flex items-center justify-between p-4 bg-white shadow-md rounded-lg">
-              <img src={item.img} alt={item.name} className="w-16 h-16 object-cover rounded" />
-              <div className="flex-1 ml-4">
-                <h2 className="text-lg font-bold">{item.name}</h2>
-                <p className="text-gray-600">{`$${item.price} x ${item.quantity} = $${(item.price * item.quantity).toFixed(2)}`}</p>
+            <div key={item.id} className="flex items-center mb-4 bg-white p-4 rounded shadow">
+              <img src={item.img} alt={item.name} className="w-16 h-16 object-cover mr-4" />
+              <div className="flex-grow">
+                <h2 className="text-lg font-bold truncate" style={{ maxWidth: "12rem" }}>{item.name}</h2>
+                <p>${item.price} x {item.quantity} = ${(item.price * item.quantity).toFixed(2)}</p>
+                <div className="flex items-center">
+                  <Button variant="outline" onClick={() => updateQuantity(item.id, -1)}>-</Button>
+                  <input
+                    type="number"
+                    value={item.quantity}
+                    onChange={(e) => updateQuantity(item.id, parseInt(e.target.value) - item.quantity)}
+                    className="w-12 text-center mx-2 border rounded"
+                    min={1}
+                  />
+                  <Button variant="outline" onClick={() => updateQuantity(item.id, 1)}>+</Button>
+                </div>
               </div>
-              <div className="flex items-center">
-                <Button variant="outline" className="mr-2" onClick={() => updateQuantity(item.id, -1)}>
-                  <FontAwesomeIcon icon={faMinus} />
-                </Button>
-                <input
-                  type="number"
-                  className="w-12 text-center border rounded"
-                  value={item.quantity}
-                  readOnly
-                  title={`Quantity: ${item.quantity}`}
-                />
-                <Button variant="outline" className="ml-2" onClick={() => updateQuantity(item.id, 1)}>
-                  <FontAwesomeIcon icon={faPlus} />
-                </Button>
-                <Button variant="destructive" className="ml-4" onClick={() => removeFromCart(item.id)}>
-                  <FontAwesomeIcon icon={faTrash} />
-                </Button>
-              </div>
+              <Button variant="outline" className="bg-black text-white ml-2" onClick={() => removeFromCart(item.id)}>
+                <FontAwesomeIcon icon={faTrashAlt} className="text-white" />
+              </Button>
             </div>
           ))}
-          <div className="flex justify-between p-4 bg-white shadow-md rounded-lg">
-            <h2 className="text-lg font-bold">總計:</h2>
-            <p className="text-lg font-bold text-red-500">{`$${total.toFixed(2)}`}</p>
-          </div>
+          <div className="text-right font-bold text-xl">總計: ${total.toFixed(2)}</div>
         </div>
         <SheetFooter>
-          <SheetClose asChild>
-            <Button type="button" onClick={onClose}>
-              關閉
-            </Button>
-          </SheetClose>
+          <Button onClick={onClose}>關閉</Button>
         </SheetFooter>
       </SheetContent>
     </Sheet>

@@ -129,7 +129,7 @@ const BuyerPage: React.FC = () => {
         <div className="fixed top-4 right-4">
           <Button variant="outline" onClick={() => setIsCartOpen(true)}>
             <FontAwesomeIcon icon={faShoppingCart} className="mr-2" />
-            {`購物車 (${cart.length})`}
+            {`購物車 (${cart.reduce((total, item) => total + item.quantity, 0)})`}
           </Button>
         </div>
         {isCartOpen && (
