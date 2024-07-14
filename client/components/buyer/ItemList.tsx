@@ -4,24 +4,24 @@ import React, { useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faShoppingCart } from '@fortawesome/free-solid-svg-icons';
 import PaginationDemo from "@/components/buyer/PaginationDemo";
-import { Button } from "@/components/ui/button"; 
+import { Button } from "@/components/ui/button";
 
 type Product = {
   category: string;
   img: string;
   id: string;
   name: string;
-  price: string;
+  price: number;
 };
 
 type ItemListProps = {
   products: Product[];
   itemsPerPage: number;
+  addToCart: (product: Product, quantity: number) => void;
 };
 
-const ItemList: React.FC<ItemListProps> = ({ products, itemsPerPage }) => {
+const ItemList: React.FC<ItemListProps> = ({ products, itemsPerPage, addToCart }) => {
   const [currentPage, setCurrentPage] = useState(1);
-  const [cart, setCart] = useState<{ id: string; quantity: number }[]>([]);
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
@@ -30,19 +30,6 @@ const ItemList: React.FC<ItemListProps> = ({ products, itemsPerPage }) => {
   const startIdx = (currentPage - 1) * itemsPerPage;
   const endIdx = startIdx + itemsPerPage;
   const currentData = products.slice(startIdx, endIdx);
-
-  const handleAddToCart = (id: string, quantity: number) => {
-    setCart((prevCart) => {
-      const existingItem = prevCart.find((item) => item.id === id);
-      if (existingItem) {
-        return prevCart.map((item) =>
-          item.id === id ? { ...item, quantity: item.quantity + quantity } : item
-        );
-      } else {
-        return [...prevCart, { id, quantity }];
-      }
-    });
-  };
 
   return (
     <div>
@@ -63,18 +50,18 @@ const ItemList: React.FC<ItemListProps> = ({ products, itemsPerPage }) => {
                   min={1}
                 />
               </div>
-                <div className="flex justify-center">
-                  <Button
-                    className="flex items-center justify-center"
-                    onClick={() => {
-                      const quantity = parseInt((document.getElementById(`quantity-${product.id}`) as HTMLInputElement)?.value || '1', 10);
-                      handleAddToCart(product.id, quantity);
-                    }}
-                  >
-                    <FontAwesomeIcon icon={faShoppingCart} className="mr-2" />
-                    加入購物車
-                  </Button>
-                </div>
+              <div className="flex justify-center">
+                <Button
+                  className="flex items-center justify-center"
+                  onClick={() => {
+                    const quantity = parseInt((document.getElementById(`quantity-${product.id}`) as HTMLInputElement)?.value || '1', 10);
+                    addToCart(product, quantity);
+                  }}
+                >
+                  <FontAwesomeIcon icon={faShoppingCart} className="mr-2" />
+                  加入購物車
+                </Button>
+              </div>
             </div>
           </div>
         ))}
