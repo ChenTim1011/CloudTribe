@@ -99,6 +99,10 @@ const BuyerPage: React.FC = () => {
     );
   };
 
+  const clearCart = () => {
+    setCart([]);
+  };
+
   return (
     <div
       className="flex h-screen"
@@ -138,6 +142,7 @@ const BuyerPage: React.FC = () => {
             onClose={() => setIsCartOpen(false)}
             removeFromCart={handleRemoveFromCart}
             updateQuantity={handleUpdateQuantity}
+            clearCart={clearCart}
           />
         )}
       </div>

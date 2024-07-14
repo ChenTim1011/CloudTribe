@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger, SheetFooter, SheetClose } from "@/components/ui/sheet";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger, SheetFooter } from "@/components/ui/sheet";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTrashAlt } from '@fortawesome/free-solid-svg-icons';
 import CheckoutForm from "@/components/buyer/CheckoutForm"; 
@@ -18,15 +18,16 @@ type CartModalProps = {
   onClose: () => void;
   removeFromCart: (id: string) => void;
   updateQuantity: (id: string, quantity: number) => void;
+  clearCart: () => void; // Add this prop to clear the cart
 };
 
-const CartModal: React.FC<CartModalProps> = ({ cart, onClose, removeFromCart, updateQuantity }) => {
+const CartModal: React.FC<CartModalProps> = ({ cart, onClose, removeFromCart, updateQuantity, clearCart }) => {
   const [isCheckout, setIsCheckout] = useState(false);
   const total = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
   return (
     <Sheet open={true} onOpenChange={onClose}>
-      <SheetContent className="w-full max-w-2xl">
+      <SheetContent className="w-full max-w-3xl">
         <SheetHeader>
           <SheetTitle>購物車 ({cart.reduce((total, item) => total + item.quantity, 0)})</SheetTitle>
         </SheetHeader>
@@ -60,7 +61,7 @@ const CartModal: React.FC<CartModalProps> = ({ cart, onClose, removeFromCart, up
           <Button className="bg-black text-white" onClick={() => setIsCheckout(true)}>結帳</Button>
         </SheetFooter>
       </SheetContent>
-      {isCheckout && <CheckoutForm onClose={() => setIsCheckout(false)} />}
+      {isCheckout && <CheckoutForm onClose={() => { setIsCheckout(false); onClose(); }} clearCart={clearCart} />}
     </Sheet>
   );
 };
