@@ -9,6 +9,8 @@ import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from "@/components/ui/select";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetFooter, SheetClose } from "@/components/ui/sheet";
+import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
 
 type CheckoutFormProps = {
   onClose: () => void;
@@ -21,6 +23,7 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onClose, clearCart }) => {
   const [date, setDate] = useState<Date>();
   const [time, setTime] = useState<string | undefined>(undefined);
   const [location, setLocation] = useState<string | undefined>(undefined);
+  const [isUrgent, setIsUrgent] = useState(false);
   const [showAlert, setShowAlert] = useState(false);
   const [error, setError] = useState("");
 
@@ -42,7 +45,7 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onClose, clearCart }) => {
 
     // Validate the date
     if (!date || date < new Date()) {
-      setError("未選擇日期或 不能選比現在的時間更早");
+      setError("未選擇日期或不能選比現在的時間更早");
       return;
     }
 
@@ -65,6 +68,7 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onClose, clearCart }) => {
       date,
       time,
       location,
+      isUrgent,
     });
 
     setShowAlert(true);
@@ -72,7 +76,7 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onClose, clearCart }) => {
     setTimeout(() => {
       setShowAlert(false);
       onClose();
-    }, 3000); 
+    }, 3000);
   };
 
   return (
@@ -95,15 +99,15 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onClose, clearCart }) => {
               </div>
             )}
             <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700">姓名</label>
-              <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="輸入您的姓名" />
+              <Label htmlFor="name" className="block text-sm font-medium text-gray-700">姓名</Label>
+              <Input id="name" value={name} onChange={(e) => setName(e.target.value)} placeholder="輸入您的姓名" />
             </div>
             <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700">電話</label>
-              <Input value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="輸入您的電話" />
+              <Label htmlFor="phone" className="block text-sm font-medium text-gray-700">電話</Label>
+              <Input id="phone" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="輸入您的電話" />
             </div>
             <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700">可以接受司機接單的最後日期(超過時間沒有司機接單就放棄)</label>
+              <Label htmlFor="date" className="block text-sm font-medium text-gray-700">可以接受司機接單的最後日期(超過時間沒有司機接單就放棄)</Label>
               <Popover>
                 <PopoverTrigger asChild>
                   <Button
@@ -125,7 +129,7 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onClose, clearCart }) => {
               </Popover>
             </div>
             <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700">可以接受司機接單的最後時間(超過時間沒有司機接單就放棄)</label>
+              <Label htmlFor="time" className="block text-sm font-medium text-gray-700">可以接受司機接單的最後時間(超過時間沒有司機接單就放棄)</Label>
               <Select onValueChange={setTime}>
                 <SelectTrigger className="w-full">
                   <SelectValue placeholder="選擇時間" />
@@ -138,7 +142,7 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onClose, clearCart }) => {
               </Select>
             </div>
             <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700">領貨的地點</label>
+              <Label htmlFor="location" className="block text-sm font-medium text-gray-700">領貨的地點</Label>
               <Select onValueChange={setLocation}>
                 <SelectTrigger className="w-full">
                   <SelectValue placeholder="選擇地點" />
@@ -149,6 +153,10 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onClose, clearCart }) => {
                   ))}
                 </SelectContent>
               </Select>
+            </div>
+            <div className="mb-4">
+              <Label htmlFor="urgent" className="block text-sm font-medium text-gray-700">是否緊急</Label>
+              <Checkbox id="urgent" checked={isUrgent} onCheckedChange={(checked) => setIsUrgent(checked)} />
             </div>
           </div>
           <SheetFooter>
