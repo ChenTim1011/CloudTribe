@@ -12,7 +12,7 @@ export default function Page() {
         <div className="lg:h-96 h-52 relative w-full overflow-hidden bg-green-600 flex flex-col items-center justify-center rounded-xl shadow-2xl transition hover:bg-green-400">
           <div className="absolute inset-0 w-full h-full bg-slate-600 z-20 [mask-image:radial-gradient(transparent,white)] pointer-events-none" />
           <div className="lg:text-4xl text-3xl flex flex-col items-center justify-center text-white font-mono lg:text-5xl font-extrabold">
-            部 落 團 購 平 台
+            順 路 經 濟 平 台
           </div>
           <p className="lg:text-lg text-sm text-center lg:mt-2 text-neutral-300 relative z-20 font-mono">
             給 您 最 簡 單 的 購 物 體 驗
