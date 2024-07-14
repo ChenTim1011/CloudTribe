@@ -109,67 +109,67 @@ const BuyerPage: React.FC = () => {
   return (
     <div>
       <NavigationBar /> 
-    <div
-      className="flex h-screen"
-      style={{
-        backgroundImage: "url('/eat.jpg')",
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-        opacity: 1, 
-        height: '400px', 
-      }}
-    >
-      <div className="content flex-grow p-10 bg-white bg-opacity-50 flex flex-col items-center">
-      <div className="fixed w-full flex justify-start space-x-2 ml-2">
-        <Button 
-          variant="outline" 
-          onClick={() => setIsCartOpen(true)} 
-          className="px-4 py-2 text-lg font-bold border-2 border-black-500 text-black-500 hover:bg-blue-500 hover:text-white"
-        >
-        <FontAwesomeIcon icon={faShoppingCart} className="mr-5" />
-        {`購物車 (${cart.reduce((total, item) => total + item.quantity, 0)})`}
-        </Button>
-      </div>
-      <div className="w-full flex justify-end space-x-2">
-          <Button variant="outline" onClick={() => window.history.back()}>
-            <FontAwesomeIcon icon={faArrowLeft} className="mr-2" />
-            返回主頁
-          </Button>
-          <Button variant="outline" onClick={() => setIsAddItemFormOpen(true)}>許願清單</Button>
-      </div>
-      <h1 className="mb-20 text-4xl font-bold text-center" style={{ marginTop: '40px' }}>今天我想要來點...</h1>
-        <div className="flex justify-center w-full mb-10">
-          <SearchBar onSearch={handleSearch} className="w-1/2" />
-        </div>
-        <div className="flex justify-center w-full mb-10">
-          <Sidebar filterCategory={handleFilterCategory} className="w-1/2" />
-        </div>
-        {selectedCategory && (
-          <div className="mt-10 text-2xl font-semibold text-center">
-            商品種類: {selectedCategory}
+      <div
+        className="flex h-screen"
+        style={{
+          backgroundImage: "url('/eat.jpg')",
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          opacity: 1, 
+          height: '400px', 
+        }}
+      >
+        <div className="content flex-grow p-10 bg-white bg-opacity-50 flex flex-col items-center">
+          <div className="fixed top-20 left-4 z-50">
+            <Button 
+              variant="outline" 
+              onClick={() => setIsCartOpen(true)} 
+              className="px-4 py-2 text-lg font-bold border-2 border-black-500 text-black-500 hover:bg-blue-500 hover:text-white"
+            >
+              <FontAwesomeIcon icon={faShoppingCart} className="mr-2" />
+              {`購物車 (${cart.reduce((total, item) => total + item.quantity, 0)})`}
+            </Button>
           </div>
-        )}
-        {!initialLoad && filteredProducts.length > 0 && (
-          <ItemList products={filteredProducts} itemsPerPage={ITEMS_PER_PAGE} addToCart={handleAddToCart} />
-        )}
-        {isAddItemFormOpen && (
-          <AddItemForm
-            onClose={() => setIsAddItemFormOpen(false)}
-            addToCart={(item) => handleAddToCart({ ...item, category: "", id: "" }, item.quantity)}
-          />
-        )}
-        {isCartOpen && (
-          <CartModal
-            cart={cart}
-            onClose={() => setIsCartOpen(false)}
-            removeFromCart={handleRemoveFromCart}
-            updateQuantity={handleUpdateQuantity}
-            clearCart={() => setCart([])} 
-          />
-        )}
+          <div className="w-full flex justify-end space-x-2 mt-4">
+            <Button variant="outline" onClick={() => window.history.back()}>
+              <FontAwesomeIcon icon={faArrowLeft} className="mr-2" />
+              返回主頁
+            </Button>
+            <Button variant="outline" onClick={() => setIsAddItemFormOpen(true)}>許願清單</Button>
+          </div>
+          <h1 className="mb-20 text-4xl font-bold text-center" style={{ marginTop: '40px' }}>今天我想要來點...</h1>
+          <div className="flex justify-center w-full mb-10">
+            <SearchBar onSearch={handleSearch} className="w-1/2" />
+          </div>
+          <div className="flex justify-center w-full mb-10">
+            <Sidebar filterCategory={handleFilterCategory} className="w-1/2" />
+          </div>
+          {selectedCategory && (
+            <div className="mt-10 text-2xl font-semibold text-center">
+              商品種類: {selectedCategory}
+            </div>
+          )}
+          {!initialLoad && filteredProducts.length > 0 && (
+            <ItemList products={filteredProducts} itemsPerPage={ITEMS_PER_PAGE} addToCart={handleAddToCart} />
+          )}
+          {isAddItemFormOpen && (
+            <AddItemForm
+              onClose={() => setIsAddItemFormOpen(false)}
+              addToCart={(item) => handleAddToCart({ ...item, category: "", id: "" }, item.quantity)}
+            />
+          )}
+          {isCartOpen && (
+            <CartModal
+              cart={cart}
+              onClose={() => setIsCartOpen(false)}
+              removeFromCart={handleRemoveFromCart}
+              updateQuantity={handleUpdateQuantity}
+              clearCart={() => setCart([])}  
+            />
+          )}
+        </div>
       </div>
     </div>
-  </div>
   );
 };
 
