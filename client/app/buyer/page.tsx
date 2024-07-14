@@ -9,7 +9,7 @@ import AddItemForm from "@/components/buyer/AddItemForm";
 import "@/app/styles/globals.css";
 import { Button } from "@/components/ui/button";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faShoppingCart } from '@fortawesome/free-solid-svg-icons';
+import { faShoppingCart, faArrowLeft } from '@fortawesome/free-solid-svg-icons';
 
 type Product = {
   category: string;
@@ -133,6 +133,10 @@ const BuyerPage: React.FC = () => {
           <ItemList products={filteredProducts} itemsPerPage={ITEMS_PER_PAGE} addToCart={handleAddToCart} />
         )}
         <div className="fixed top-4 right-4 flex space-x-2">
+          <Button variant="outline" onClick={() => window.history.back()}>
+            <FontAwesomeIcon icon={faArrowLeft} className="mr-2" />
+            返回上一頁
+          </Button>
           <Button variant="outline" onClick={() => setIsAddItemFormOpen(true)}>許願清單</Button>
           <Button variant="outline" onClick={() => setIsCartOpen(true)}>
             <FontAwesomeIcon icon={faShoppingCart} className="mr-2" />
@@ -146,7 +150,7 @@ const BuyerPage: React.FC = () => {
           />
         )}
         {isCartOpen && (
-            <CartModal
+          <CartModal
             cart={cart}
             onClose={() => setIsCartOpen(false)}
             removeFromCart={handleRemoveFromCart}
