@@ -22,8 +22,43 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onClose, clearCart }) => {
   const [time, setTime] = useState<string | undefined>(undefined);
   const [location, setLocation] = useState<string | undefined>(undefined);
   const [showAlert, setShowAlert] = useState(false);
+  const [error, setError] = useState("");
 
   const handleSubmit = () => {
+    // Clear previous errors
+    setError("");
+
+    // Validate the name
+    if (!name) {
+      setError("姓名必填");
+      return;
+    }
+
+    // Validate the phone
+    if (!/^\d{7,10}$/.test(phone)) {
+      setError("電話號碼長度錯誤");
+      return;
+    }
+
+    // Validate the date
+    if (!date || date < new Date()) {
+      setError("未選擇日期或 不能選比現在的時間更早");
+      return;
+    }
+
+    // Validate the time
+    if (!time) {
+      setError("未選擇時間");
+      return;
+    }
+
+    // Validate the location
+    if (!location) {
+      setError("未選擇地點");
+      return;
+    }
+
+    // All validations passed
     console.log({
       name,
       phone,
@@ -31,12 +66,13 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onClose, clearCart }) => {
       time,
       location,
     });
+
     setShowAlert(true);
     clearCart();
     setTimeout(() => {
       setShowAlert(false);
       onClose();
-    }, 3000); // 提示消息显示 3 秒钟后关闭
+    }, 3000); 
   };
 
   return (
@@ -51,6 +87,11 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onClose, clearCart }) => {
               <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative" role="alert">
                 <strong className="font-bold">提交成功!</strong>
                 <span className="block sm:inline">您的訂單提交成功，請等候司機接單。</span>
+              </div>
+            )}
+            {error && (
+              <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
+                <span className="block sm:inline">{error}</span>
               </div>
             )}
             <div className="mb-4">
