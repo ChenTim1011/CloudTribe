@@ -7,6 +7,7 @@ import ItemList from "@/components/buyer/ItemList";
 import CartModal from "@/components/buyer/CartModal";
 import AddItemForm from "@/components/buyer/AddItemForm"; 
 import "@/app/styles/globals.css";
+import NavigationBar from "@/components/NavigationBar"; 
 import { Button } from "@/components/ui/button";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faShoppingCart, faArrowLeft } from '@fortawesome/free-solid-svg-icons';
@@ -106,6 +107,8 @@ const BuyerPage: React.FC = () => {
   };
 
   return (
+    <div>
+      <NavigationBar /> 
     <div
       className="flex h-screen"
       style={{
@@ -146,7 +149,7 @@ const BuyerPage: React.FC = () => {
         {isAddItemFormOpen && (
           <AddItemForm
             onClose={() => setIsAddItemFormOpen(false)}
-            addToCart={(item) => handleAddToCart(item, item.quantity)}
+            addToCart={(item) => handleAddToCart({ ...item, category: "", id: "" }, item.quantity)}
           />
         )}
         {isCartOpen && (
@@ -160,6 +163,7 @@ const BuyerPage: React.FC = () => {
         )}
       </div>
     </div>
+  </div>
   );
 };
 
