@@ -5,6 +5,7 @@ import Sidebar from "@/components/buyer/Sidebar";
 import SearchBar from "@/components/buyer/SearchBar";
 import ItemList from "@/components/buyer/ItemList";
 import CartModal from "@/components/buyer/CartModal";
+import AddItemForm from "@/components/buyer/AddItemForm"; 
 import "@/app/styles/globals.css";
 import { Button } from "@/components/ui/button";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -31,6 +32,7 @@ const BuyerPage: React.FC = () => {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [initialLoad, setInitialLoad] = useState<boolean>(true);
   const [isCartOpen, setIsCartOpen] = useState(false);
+  const [isAddItemFormOpen, setIsAddItemFormOpen] = useState(false); 
 
   useEffect(() => {
     const fetchData = async () => {
@@ -130,19 +132,26 @@ const BuyerPage: React.FC = () => {
         {!initialLoad && filteredProducts.length > 0 && (
           <ItemList products={filteredProducts} itemsPerPage={ITEMS_PER_PAGE} addToCart={handleAddToCart} />
         )}
-        <div className="fixed top-4 right-4">
+        <div className="fixed top-4 right-4 flex space-x-2">
+          <Button variant="outline" onClick={() => setIsAddItemFormOpen(true)}>許願清單</Button>
           <Button variant="outline" onClick={() => setIsCartOpen(true)}>
             <FontAwesomeIcon icon={faShoppingCart} className="mr-2" />
             {`購物車 (${cart.reduce((total, item) => total + item.quantity, 0)})`}
           </Button>
         </div>
+        {isAddItemFormOpen && (
+          <AddItemForm
+            onClose={() => setIsAddItemFormOpen(false)}
+            addToCart={(item) => handleAddToCart(item, item.quantity)}
+          />
+        )}
         {isCartOpen && (
-          <CartModal
+            <CartModal
             cart={cart}
             onClose={() => setIsCartOpen(false)}
             removeFromCart={handleRemoveFromCart}
             updateQuantity={handleUpdateQuantity}
-            clearCart={clearCart}
+            clearCart={() => setCart([])} 
           />
         )}
       </div>

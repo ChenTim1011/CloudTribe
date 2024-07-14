@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState } from 'react'; // 添加 useState
 import { Button } from "@/components/ui/button";
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger, SheetFooter } from "@/components/ui/sheet";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetFooter, SheetClose } from "@/components/ui/sheet";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTrashAlt } from '@fortawesome/free-solid-svg-icons';
-import CheckoutForm from "@/components/buyer/CheckoutForm"; 
+import CheckoutForm from "@/components/buyer/CheckoutForm";
 
 type CartItem = {
   id: string;
@@ -18,7 +18,7 @@ type CartModalProps = {
   onClose: () => void;
   removeFromCart: (id: string) => void;
   updateQuantity: (id: string, quantity: number) => void;
-  clearCart: () => void; // Add this prop to clear the cart
+  clearCart: () => void;
 };
 
 const CartModal: React.FC<CartModalProps> = ({ cart, onClose, removeFromCart, updateQuantity, clearCart }) => {
@@ -27,7 +27,7 @@ const CartModal: React.FC<CartModalProps> = ({ cart, onClose, removeFromCart, up
 
   return (
     <Sheet open={true} onOpenChange={onClose}>
-      <SheetContent className="w-full max-w-3xl">
+      <SheetContent className="w-full max-w-xl">
         <SheetHeader>
           <SheetTitle>購物車 ({cart.reduce((total, item) => total + item.quantity, 0)})</SheetTitle>
         </SheetHeader>
