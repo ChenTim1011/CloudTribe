@@ -49,7 +49,7 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onClose }) => {
             <Input value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="輸入您的電話" />
           </div>
           <div className="mb-4">
-            <label className="block text-sm font-medium text-gray-700">最晚可以接受司機接單的日期</label>
+            <label className="block text-sm font-medium text-gray-700">可以接受司機接單的最後日期(超過時間沒有司機接單就放棄)</label>
             <Popover>
               <PopoverTrigger asChild>
                 <Button
@@ -71,7 +71,7 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onClose }) => {
             </Popover>
           </div>
           <div className="mb-4">
-            <label className="block text-sm font-medium text-gray-700">最晚可以接受司機接單的時間</label>
+            <label className="block text-sm font-medium text-gray-700">可以接受司機接單的最後時間(超過時間沒有司機接單就放棄)</label>
             <Select onValueChange={setTime}>
               <SelectTrigger className="w-full">
                 <SelectValue placeholder="選擇時間" />

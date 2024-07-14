@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger, SheetFooter, SheetClose } from "@/components/ui/sheet";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTrashAlt } from '@fortawesome/free-solid-svg-icons';
+import CheckoutForm from "@/components/buyer/CheckoutForm"; 
 
 type CartItem = {
   id: string;
@@ -20,11 +21,12 @@ type CartModalProps = {
 };
 
 const CartModal: React.FC<CartModalProps> = ({ cart, onClose, removeFromCart, updateQuantity }) => {
+  const [isCheckout, setIsCheckout] = useState(false);
   const total = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
   return (
     <Sheet open={true} onOpenChange={onClose}>
-      <SheetContent className="w-full max-w-xl">
+      <SheetContent className="w-full max-w-2xl">
         <SheetHeader>
           <SheetTitle>購物車 ({cart.reduce((total, item) => total + item.quantity, 0)})</SheetTitle>
         </SheetHeader>
@@ -55,9 +57,10 @@ const CartModal: React.FC<CartModalProps> = ({ cart, onClose, removeFromCart, up
           <div className="text-right font-bold text-xl">總計: ${total.toFixed(2)}</div>
         </div>
         <SheetFooter>
-          <Button onClick={onClose}>關閉</Button>
+          <Button className="bg-black text-white" onClick={() => setIsCheckout(true)}>結帳</Button>
         </SheetFooter>
       </SheetContent>
+      {isCheckout && <CheckoutForm onClose={() => setIsCheckout(false)} />}
     </Sheet>
   );
 };
