@@ -31,9 +31,9 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onClose, clearCart }) => {
     // Clear previous errors
     setError("");
 
-    // Validate the name
-    if (!name) {
-      setError("姓名必填");
+    // Validate the name (only Chinese or English characters)
+    if (!/^[\u4e00-\u9fa5a-zA-Z]+$/.test(name)) {
+      setError("姓名必須填寫而且只能包含中文或英文");
       return;
     }
 
