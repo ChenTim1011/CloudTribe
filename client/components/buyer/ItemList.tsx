@@ -1,83 +1,54 @@
-import React, { useEffect, useState } from 'react';
-import data from '../../../../database/data.json';
-import CartModal from './CartModal'; 
+"use client";
 
-  
-interface CartItem {
-    id: string;
-    name: string;
-    price: number;
-    category: string;
-    img: string;
-}
+import React, { useState } from 'react';
+import PaginationDemo from "@/components/buyer/PaginationDemo";
+
+type Product = {
+  category: string;
+  img: string;
+  id: string;
+  name: string;
+  price: string;
+};
 
 type ItemListProps = {
-  items: Item[];
-  addItemToCart: (id: string, name: string, price: number) => void;
+  products: Product[];
+  itemsPerPage: number;
 };
 
-/**
- * Renders a list of items with the ability to add items to a shopping cart.
- */
-const ItemList: React.FC = () => {
-    const [cart, setCart] = useState<CartItem[]>([]);
-    const [isCartOpen, setIsCartOpen] = useState(false);
+const ItemList: React.FC<ItemListProps> = ({ products, itemsPerPage }) => {
+  const [currentPage, setCurrentPage] = useState(1);
 
-    /**
-     * Adds an item to the shopping cart.
-     * @param productId - The ID of the product.
-     * @param productName - The name of the product.
-     * @param productPrice - The price of the product.
-     */
-    const addToCart = (productId: string, productName: string, productPrice: number) => {
-        const quantity = parseInt((document.getElementById(`quantity-${productId}`) as HTMLInputElement)?.value || '1', 10);
-        const product: CartItem = { id: productId, name: productName, price: productPrice, quantity };
-        const existingProductIndex = cart.findIndex(item => item.id === product.id);
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+  };
 
+  const startIdx = (currentPage - 1) * itemsPerPage;
+  const endIdx = startIdx + itemsPerPage;
+  const currentData = products.slice(startIdx, endIdx);
 
-        if (existingProductIndex !== -1) {
-            const updatedCart = [...cart];
-            updatedCart[existingProductIndex].price += product.price * quantity;
-            setCart(updatedCart);
-        } else {
-            setCart([...cart, product]);
-        }
-
-        alert('商品已加入購物車');
-    };
-
-    const removeFromCart = (productId: string) => {
-        setCart(cart.filter(item => item.id !== productId));
-    };
-
-    return (
-        <div>
-          <h1>商品展示</h1>
-          <div className="groupItems">
-            {data.map(item => (
-              <div key={item.id} className="item">
-                <div className="box-img">
-                  <img src={item.img} alt={item.name} />
-                </div>
-                <div className="description">{item.name}</div>
-                <div className="price">售價: ${item.price}</div>
-                <div className="order">
-                  數量：
-                  <input type="number" id={`quantity-${item.id}`} min="1" defaultValue="1" /><br />
-                  <button onClick={() => addToCart(item.id, item.name, item.price)}>
-                    <i className="fas fa-shopping-cart"></i>購物車
-                  </button>
-                </div>
-              </div>
-            ))}
+  return (
+    <div>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        {currentData.map((product) => (
+          <div key={product.id} className="card">
+            <img src={product.img} alt={product.name} className="w-full h-48 object-cover" />
+            <div className="p-4">
+              <h2 className="text-lg font-bold">{product.name}</h2>
+              <p className="text-gray-600">{product.category}</p>
+              <p className="text-red-500">${product.price}</p>
+            </div>
           </div>
-          <button onClick={() => setIsCartOpen(true)}>查看購物車</button>
-          {isCartOpen && (
-            <CartModal cart={cart} onClose={() => setIsCartOpen(false)} removeFromCart={removeFromCart} />
-          )}
-        </div>
-      );
-    };
+        ))}
+      </div>
+      <PaginationDemo
+        totalItems={products.length}
+        itemsPerPage={itemsPerPage}
+        currentPage={currentPage}
+        onPageChange={handlePageChange}
+      />
+    </div>
+  );
 };
-  
-  export default ItemList;
+
+export default ItemList;

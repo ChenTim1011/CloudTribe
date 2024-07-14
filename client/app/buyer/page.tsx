@@ -1,8 +1,9 @@
 "use client";
 
-import React, { useState, useCallback } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import Sidebar from "@/components/buyer/Sidebar";
 import SearchBar from "@/components/buyer/SearchBar";
+import ItemList from "@/components/buyer/ItemList";
 import "@/app/styles/globals.css";
 
 type Product = {
@@ -13,26 +14,41 @@ type Product = {
   price: string;
 };
 
-const initialProducts: Product[] = [
-  {
-    category: "食用油",
-    img: "https://online.carrefour.com.tw/dw/image/v2/BFHC_PRD/on/demandware.static/-/Sites-carrefour-tw-m-inner/default/dwd825486d/images/large/1461100100101_NR_00.png?sw=300&bgcolor=FFFFFF",
-    id: "1461100100101",
-    name: "泰山活力元素葵花油1.5L",
-    price: "249.0",
-  },
-  // add other products here
-];
+const ITEMS_PER_PAGE = 16; // 每页显示的商品数量
 
 const BuyerPage: React.FC = () => {
-  const [products, setProducts] = useState<Product[]>(initialProducts);
-  const [filteredProducts, setFilteredProducts] = useState<Product[]>(initialProducts);
+  const [products, setProducts] = useState<Product[]>([]);
+  const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [initialLoad, setInitialLoad] = useState<boolean>(true);
+
+  // 加载数据
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await fetch('/data.json');
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        const data: Product[] = await response.json();
+        console.log('Loaded products:', data); // 调试日志
+        setProducts(data);
+        setInitialLoad(false);
+      } catch (error) {
+        console.error('Error fetching product data:', error);
+      }
+    };
+
+    fetchData();
+  }, []);
 
   const handleFilterCategory = useCallback(
     (category: string) => {
       console.log("Selected Category:", category);
       const filtered = products.filter((product) => product.category === category);
+      console.log("Filtered products:", filtered); // 调试日志
       setFilteredProducts(filtered);
+      setSelectedCategory(category);
     },
     [products]
   );
@@ -44,12 +60,13 @@ const BuyerPage: React.FC = () => {
         product.name.toLowerCase().includes(query.toLowerCase())
       );
       setFilteredProducts(filtered);
+      setSelectedCategory(null);
     },
     [products]
   );
 
   return (
-    <div 
+    <div
       className="flex h-screen"
       style={{
         backgroundImage: "url('/eat.jpg')",
@@ -61,29 +78,15 @@ const BuyerPage: React.FC = () => {
         <h1 className="mb-4 text-4xl font-bold">今天我想要來點...</h1>
         <SearchBar onSearch={handleSearch} className="mb-4" />
         <Sidebar filterCategory={handleFilterCategory} className="mb-4" />
-        <ProductList products={filteredProducts} />
-      </div>
-    </div>
-  );
-};
-
-type ProductListProps = {
-  products: Product[];
-};
-
-const ProductList: React.FC<ProductListProps> = ({ products }) => {
-  return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-      {products.map((product) => (
-        <div key={product.id} className="card">
-          <img src={product.img} alt={product.name} className="w-full h-48 object-cover" />
-          <div className="p-4">
-            <h2 className="text-lg font-bold">{product.name}</h2>
-            <p className="text-gray-600">{product.category}</p>
-            <p className="text-red-500">${product.price}</p>
+        {selectedCategory && (
+          <div className="mt-4 text-2xl font-semibold">
+            商品種類: {selectedCategory}
           </div>
-        </div>
-      ))}
+        )}
+        {!initialLoad && filteredProducts.length > 0 && (
+          <ItemList products={filteredProducts} itemsPerPage={ITEMS_PER_PAGE} />
+        )}
+      </div>
     </div>
   );
 };
