@@ -12,16 +12,16 @@ type AddItemFormProps = {
 
 const AddItemForm: React.FC<AddItemFormProps> = ({ onClose, addToCart }) => {
   const [name, setName] = useState("");
-  const [quantity, setQuantity] = useState(1);
-  const [price, setPrice] = useState(0);
+  const [quantity, setQuantity] = useState<string | number>("");
+  const [price, setPrice] = useState<string | number>("");
   const [error, setError] = useState("");
 
   const handleSubmit = () => {
-    if (!name || quantity <= 0 || price <= 0) {
+    if (!name || Number(quantity) <= 0 || Number(price) <= 0) {
       setError("請填寫所有欄位且確保數量和價格大於零。");
       return;
     }
-    addToCart({ name, quantity, price, img: "/will.jpg" }); 
+    addToCart({ name, quantity: Number(quantity), price: Number(price), img: "/will.jpg" });
     onClose();
   };
 
@@ -39,11 +39,23 @@ const AddItemForm: React.FC<AddItemFormProps> = ({ onClose, addToCart }) => {
           </div>
           <div className="mb-10">
             <label className="block text-sm font-medium text-gray-700">購買數量</label>
-            <Input type="number" value={quantity} onChange={(e) => setQuantity(Number(e.target.value))} min={1} />
+            <Input
+              type="number"
+              value={quantity}
+              onChange={(e) => setQuantity(e.target.value)}
+              min={1}
+              placeholder="輸入購買數量"
+            />
           </div>
           <div className="mb-10">
             <label className="block text-sm font-medium text-gray-700">購買價格</label>
-            <Input type="number" value={price} onChange={(e) => setPrice(Number(e.target.value))} min={1} />
+            <Input
+              type="number"
+              value={price}
+              onChange={(e) => setPrice(e.target.value)}
+              min={1}
+              placeholder="輸入購買價格"
+            />
           </div>
         </div>
         <SheetFooter>
