@@ -52,11 +52,11 @@ const AddItemForm: React.FC<AddItemFormProps> = ({ onClose, addToCart }) => {
         <div className="p-4">
           {error && <div className="text-red-500 mb-10">{error}</div>}
           <div className="mb-10">
-            <label className="block text-sm font-medium text-gray-700">商品名稱(品牌/名稱/大小)</label>
+            <label className="mb-5 block text-sm font-medium text-gray-700">商品名稱(品牌/名稱/大小)</label>
             <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="輸入商品名稱" />
           </div>
           <div className="mb-10">
-            <label className="block text-sm font-medium text-gray-700">購買數量</label>
+            <label className="mb-5 block text-sm font-medium text-gray-700">購買數量</label>
             <Input
               type="number"
               value={quantity}
@@ -66,7 +66,7 @@ const AddItemForm: React.FC<AddItemFormProps> = ({ onClose, addToCart }) => {
             />
           </div>
           <div className="mb-10">
-            <label className="block text-sm font-medium text-gray-700">購買價格</label>
+            <label className="mb-5 block text-sm font-medium text-gray-700">購買價格</label>
             <Input
               type="number"
               value={price}

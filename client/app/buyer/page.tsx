@@ -116,8 +116,8 @@ const BuyerPage: React.FC = () => {
         height: '400px', 
       }}
     >
-      <div className="content flex-grow p-10 bg-white bg-opacity-80 flex flex-col items-center">
-        <h1 className="mb-20 text-4xl font-bold text-center">今天我想要來點...</h1>
+      <div className="content flex-grow p-10 bg-white bg-opacity-50 flex flex-col items-center">
+      <h1 className="mb-20 text-4xl font-bold text-center" style={{ marginTop: '40px' }}>今天我想要來點...</h1>
         <div className="flex justify-center w-full mb-10">
           <SearchBar onSearch={handleSearch} className="w-1/2" />
         </div>
@@ -135,7 +135,7 @@ const BuyerPage: React.FC = () => {
         <div className="fixed top-4 right-4 flex space-x-2">
           <Button variant="outline" onClick={() => window.history.back()}>
             <FontAwesomeIcon icon={faArrowLeft} className="mr-2" />
-            返回上一頁
+            返回主頁
           </Button>
           <Button variant="outline" onClick={() => setIsAddItemFormOpen(true)}>許願清單</Button>
           <Button variant="outline" onClick={() => setIsCartOpen(true)}>
