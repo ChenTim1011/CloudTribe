@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
-import { Input } from "@/components/ui/input"
+import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSearch } from '@fortawesome/free-solid-svg-icons';
 
 type SearchBarProps = {
   onSearch: (query: string) => void;
+  className?: string; // add className prop
 };
 
 /**
@@ -16,7 +17,7 @@ type SearchBarProps = {
  * @param {Function} props.onSearch - The callback function to be called when the search value changes.
  * @returns {JSX.Element} The rendered search bar component.
  */
-const SearchBar: React.FC<SearchBarProps> = ({ onSearch }) => {
+const SearchBar: React.FC<SearchBarProps> = ({ onSearch, className }) => {
   const [query, setQuery] = useState('');
 
   const handleSearch = (e: React.FormEvent) => {
@@ -25,7 +26,7 @@ const SearchBar: React.FC<SearchBarProps> = ({ onSearch }) => {
   };
 
   return (
-    <form className="search-bar flex items-center" onSubmit={handleSearch}>
+    <form className={`search-bar flex items-center ${className}`} onSubmit={handleSearch}>
       <Input
         type="text"
         name="search"

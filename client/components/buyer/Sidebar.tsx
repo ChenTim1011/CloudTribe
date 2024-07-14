@@ -1,15 +1,36 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
+import { Check, ChevronsUpDown } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
 import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion";
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import {
+  Sheet,
+  SheetClose,
+  SheetContent,
+  SheetDescription,
+  SheetFooter,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
 
 type SidebarProps = {
   filterCategory: (category: string) => void;
+  className?: string; // className prop is optional 
 };
 
 const categories = [
@@ -105,33 +126,101 @@ const categories = [
   },
 ];
 
-const Sidebar: React.FC<SidebarProps> = ({ filterCategory }) => {
+const Sidebar: React.FC<SidebarProps> = ({ filterCategory, className }) => {
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [open, setOpen] = useState(false);
+  const [sheetOpen, setSheetOpen] = useState(false);
+
+  const handleCategorySelect = (categoryName: string) => {
+    const category = categories.find((cat) => cat.name === categoryName);
+    setSelectedCategory(category ? category.name : null);
+    setOpen(false);
+    setSheetOpen(true);
+  };
+
+  const handleSubcategorySelect = (subcategory: string) => {
+    filterCategory(subcategory);
+    setSheetOpen(false);
+  };
+
+  const selectedCategoryObject = categories.find(
+    (category) => category.name === selectedCategory
+  );
+
   return (
-    <Accordion type="single" collapsible className="w-64">
-      {categories.map((category, idx) => (
-        <AccordionItem key={idx} value={`item-${idx}`}>
-          <AccordionTrigger>{category.name}</AccordionTrigger>
-          <AccordionContent>
-            <ul className="flex flex-col p-2 space-y-1">
-              {category.subcategories.map((subcategory, subIdx) => (
-                <li key={subIdx}>
-                  <a
-                    href="#"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      filterCategory(subcategory);
-                    }}
-                    className="block px-4 py-2 text-sm rounded-md hover:bg-accent hover:text-accent-foreground"
+    <div className={className}>
+      <Popover open={open} onOpenChange={setOpen}>
+        <PopoverTrigger asChild>
+          <Button
+            variant="outline"
+            role="combobox"
+            aria-expanded={open}
+            className="w-full justify-between"
+          >
+            {selectedCategory || "Select Category..."}
+            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent className="w-full p-0">
+          <Command>
+            <CommandInput placeholder="Search category..." />
+            <CommandList>
+              <CommandEmpty>No category found.</CommandEmpty>
+              <CommandGroup>
+                {categories.map((category) => (
+                  <CommandItem
+                    key={category.name}
+                    value={category.name}
+                    onSelect={() => handleCategorySelect(category.name)}
+                  >
+                    <Check
+                      className={cn(
+                        "mr-2 h-4 w-4",
+                        selectedCategory === category.name ? "opacity-100" : "opacity-0"
+                      )}
+                    />
+                    {category.name}
+                  </CommandItem>
+                ))}
+              </CommandGroup>
+            </CommandList>
+          </Command>
+        </PopoverContent>
+      </Popover>
+      {selectedCategory && selectedCategoryObject && (
+        <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
+          <SheetTrigger asChild>
+            <Button variant="outline" className="mt-4 w-full">
+              {selectedCategory}
+            </Button>
+          </SheetTrigger>
+          <SheetContent>
+            <SheetHeader>
+              <SheetTitle>{selectedCategory}</SheetTitle>
+              <SheetDescription>選擇子類別進行篩選</SheetDescription>
+            </SheetHeader>
+            <div className="grid gap-4 py-4">
+              {selectedCategoryObject.subcategories.map((subcategory) => (
+                <div key={subcategory}>
+                  <Button
+                    variant="ghost"
+                    className="w-full text-left"
+                    onClick={() => handleSubcategorySelect(subcategory)}
                   >
                     {subcategory}
-                  </a>
-                </li>
+                  </Button>
+                </div>
               ))}
-            </ul>
-          </AccordionContent>
-        </AccordionItem>
-      ))}
-    </Accordion>
+            </div>
+            <SheetFooter>
+              <SheetClose asChild>
+                <Button type="button">Close</Button>
+              </SheetClose>
+            </SheetFooter>
+          </SheetContent>
+        </Sheet>
+      )}
+    </div>
   );
 };
 
