@@ -14,7 +14,7 @@ type Product = {
   price: string;
 };
 
-const ITEMS_PER_PAGE = 16; // 每页显示的商品数量
+const ITEMS_PER_PAGE = 16; 
 
 const BuyerPage: React.FC = () => {
   const [products, setProducts] = useState<Product[]>([]);
@@ -22,7 +22,7 @@ const BuyerPage: React.FC = () => {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [initialLoad, setInitialLoad] = useState<boolean>(true);
 
-  // 加载数据
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -31,7 +31,7 @@ const BuyerPage: React.FC = () => {
           throw new Error('Network response was not ok');
         }
         const data: Product[] = await response.json();
-        console.log('Loaded products:', data); // 调试日志
+        console.log('Loaded products:', data); 
         setProducts(data);
         setInitialLoad(false);
       } catch (error) {
@@ -46,7 +46,7 @@ const BuyerPage: React.FC = () => {
     (category: string) => {
       console.log("Selected Category:", category);
       const filtered = products.filter((product) => product.category === category);
-      console.log("Filtered products:", filtered); // 调试日志
+      console.log("Filtered products:", filtered); 
       setFilteredProducts(filtered);
       setSelectedCategory(category);
     },
@@ -75,11 +75,11 @@ const BuyerPage: React.FC = () => {
       }}
     >
       <div className="content flex-grow p-10 bg-white bg-opacity-80">
-        <h1 className="mb-4 text-4xl font-bold">今天我想要來點...</h1>
-        <SearchBar onSearch={handleSearch} className="mb-4" />
-        <Sidebar filterCategory={handleFilterCategory} className="mb-4" />
+        <h1 className="mb-20 text-4xl font-bold">今天我想要來點...</h1>
+        <SearchBar onSearch={handleSearch} className="mb-10" />
+        <Sidebar filterCategory={handleFilterCategory} className="mb-10" />
         {selectedCategory && (
-          <div className="mt-4 text-2xl font-semibold">
+          <div className="mt-10 text-2xl font-semibold">
             商品種類: {selectedCategory}
           </div>
         )}
