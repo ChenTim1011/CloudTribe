@@ -21,7 +21,7 @@ const initialProducts: Product[] = [
     name: "泰山活力元素葵花油1.5L",
     price: "249.0",
   },
-  // 添加其他商品数据...
+  // add other products here
 ];
 
 const BuyerPage: React.FC = () => {
@@ -49,9 +49,16 @@ const BuyerPage: React.FC = () => {
   );
 
   return (
-    <div className="flex">
-      <div className="content flex-grow p-10">
-        <h1 className="mb-4">今天我想要來點...</h1>
+    <div 
+      className="flex h-screen"
+      style={{
+        backgroundImage: "url('/eat.jpg')",
+        backgroundSize: 'cover',
+        backgroundPosition: 'center'
+      }}
+    >
+      <div className="content flex-grow p-10 bg-white bg-opacity-80">
+        <h1 className="mb-4 text-4xl font-bold">今天我想要來點...</h1>
         <SearchBar onSearch={handleSearch} className="mb-4" />
         <Sidebar filterCategory={handleFilterCategory} className="mb-4" />
         <ProductList products={filteredProducts} />

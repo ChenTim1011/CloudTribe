@@ -197,7 +197,7 @@ const Sidebar: React.FC<SidebarProps> = ({ filterCategory, className }) => {
           <SheetContent>
             <SheetHeader>
               <SheetTitle>{selectedCategory}</SheetTitle>
-              <SheetDescription>選擇子類別進行篩選</SheetDescription>
+              <SheetDescription>選擇想要的種類</SheetDescription>
             </SheetHeader>
             <div className="grid gap-4 py-4">
               {selectedCategoryObject.subcategories.map((subcategory) => (
