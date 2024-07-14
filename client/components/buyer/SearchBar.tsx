@@ -1,5 +1,8 @@
-import React from 'react';
-import { Input } from 'shadcn-ui';
+import React, { useState } from 'react';
+import { Input } from "@/components/ui/input"
+import { Button } from "@/components/ui/button";
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faSearch } from '@fortawesome/free-solid-svg-icons';
 
 type SearchBarProps = {
   onSearch: (query: string) => void;
@@ -14,21 +17,28 @@ type SearchBarProps = {
  * @returns {JSX.Element} The rendered search bar component.
  */
 const SearchBar: React.FC<SearchBarProps> = ({ onSearch }) => {
-    const handleSearch = (e: React.FormEvent) => {
-        e.preventDefault();
-        const query = (e.target as any).elements.search.value;
-        onSearch(query);
-      };
-    
-    
-    return (
-        <form className="search-bar">
-            <input
-                type="text" name="search" 
-                placeholder="搜尋您要的商品"/>
-                <button type="submit">搜尋</button>
-        </form>
-    );
+  const [query, setQuery] = useState('');
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    onSearch(query);
+  };
+
+  return (
+    <form className="search-bar flex items-center" onSubmit={handleSearch}>
+      <Input
+        type="text"
+        name="search"
+        value={query}
+        onChange={(e) => setQuery(e.target.value)}
+        placeholder="搜尋您要的商品"
+        className="flex-grow"
+      />
+      <Button type="submit" variant="outline" className="ml-2">
+        <FontAwesomeIcon icon={faSearch} />
+      </Button>
+    </form>
+  );
 };
 
 export default SearchBar;
