@@ -76,10 +76,10 @@ const BuyerPage: React.FC = () => {
         height: '400px', 
       }}
     >
-      <div className="content flex-grow p-10 bg-white bg-opacity-80">
-        <h1 className="mb-20 text-4xl font-bold">今天我想要來點...</h1>
-        <SearchBar onSearch={handleSearch} className="mb-10" />
-        <Sidebar filterCategory={handleFilterCategory} className="mb-20" />
+        <div className="content flex-grow p-10 bg-white bg-opacity-80 flex flex-col items-center">
+          <h1 className="mb-20 text-4xl font-bold text-center">今天我想要來點...</h1>
+          <SearchBar onSearch={handleSearch} className="mb-10 w-1/2" />
+          <Sidebar filterCategory={handleFilterCategory} className="mb-10 w-1/2" />
         {selectedCategory && (
           <div className="mt-10 text-2xl font-semibold">
             商品種類: {selectedCategory}

@@ -34,6 +34,7 @@ const SearchBar: React.FC<SearchBarProps> = ({ onSearch, className }) => {
         onChange={(e) => setQuery(e.target.value)}
         placeholder="搜尋您要的商品"
         className="flex-grow"
+        
       />
       <Button type="submit" variant="outline" className="ml-2">
         <FontAwesomeIcon icon={faSearch} />
