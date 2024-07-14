@@ -17,10 +17,28 @@ const AddItemForm: React.FC<AddItemFormProps> = ({ onClose, addToCart }) => {
   const [error, setError] = useState("");
 
   const handleSubmit = () => {
-    if (!name || Number(quantity) <= 0 || Number(price) <= 0) {
-      setError("請填寫所有欄位且確保數量和價格大於零。");
+    // Reset the error message
+    setError("");
+
+    // Validate the name
+    if (!name) {
+      setError("商品名稱不能是空的");
       return;
     }
+
+    // Validate the quantity
+    if (Number(quantity) <= 0 || !quantity) {
+      setError("數量必須大於零");
+      return;
+    }
+
+    // Validate the price
+    if (Number(price) <= 0 || !price) {
+      setError("價格必須大於零");
+      return;
+    }
+
+    // All validations passed
     addToCart({ name, quantity: Number(quantity), price: Number(price), img: "/will.jpg" });
     onClose();
   };
