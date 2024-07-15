@@ -33,7 +33,7 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onClose, clearCart, cartIte
   const [date, setDate] = useState<Date>();
   const [time, setTime] = useState<string | undefined>(undefined);
   const [location, setLocation] = useState<string | undefined>(undefined);
-  const [isUrgent, setIsUrgent] = useState(false);
+  const [is_urgent, setIsUrgent] = useState(false);
   const [note, setNote] = useState<string>("");  // Note field
   const [showAlert, setShowAlert] = useState(false);
   const [error, setError] = useState("");
@@ -79,12 +79,18 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onClose, clearCart, cartIte
       date: date.toISOString(), // Ensure date is in ISO format
       time,
       location,
-      isUrgent,
-      note,  // Include note in order data
-      items: cartItems,
+      is_urgent,    
+      items: cartItems.map(item => ({
+        item_id: item.id,
+        item_name: item.name,
+        price: item.price,
+        quantity: item.quantity,
+        img: item.img
+      })),
       totalPrice,
       order_type: "購買類",
       order_status: "未接單",
+      note,  // Include note in order data
     };
 
     try {
@@ -192,7 +198,7 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onClose, clearCart, cartIte
             </div>
             <div className="mb-4">
               <Label htmlFor="urgent" className="block text-sm font-medium text-gray-700">是否緊急</Label>
-              <Checkbox id="urgent" checked={isUrgent} onCheckedChange={(checked) => setIsUrgent(checked)} />
+              <Checkbox id="urgent" checked={is_urgent} onCheckedChange={(checked) => setIsUrgent(checked)} />
             </div>
             <div className="mb-4">
               <Label htmlFor="note" className="block text-sm font-medium text-gray-700">備註</Label>
