@@ -130,22 +130,24 @@ const BuyerPage: React.FC = () => {
               {`購物車 (${cart.reduce((total, item) => total + item.quantity, 0)})`}
             </Button>
           </div>
-          <div className="w-full flex justify-end space-x-2 mt-4">
+          <div className="w-full flex justify-end space-x-2 mt-4 ">
+            <Button variant="outline" onClick={() => setIsAddItemFormOpen(true)}>手動填寫商品</Button>
+          </div>
+          <div className="w-full flex justify-start space-x-2 mt-4">
             <Button variant="outline" onClick={() => window.history.back()}>
               <FontAwesomeIcon icon={faArrowLeft} className="mr-2" />
               返回主頁
             </Button>
-            <Button variant="outline" onClick={() => setIsAddItemFormOpen(true)}>許願清單</Button>
           </div>
-          <h1 className="mb-20 text-4xl font-bold text-center" style={{ marginTop: '40px' }}>今天我想要來點...</h1>
-          <div className="flex justify-center w-full mb-10">
+          <h1 className="mb-10 text-4xl font-bold text-center" style={{ marginTop: '30px' }}>今天我想要來點...</h1>
+          <div className="flex justify-center w-full mb-5">
             <SearchBar onSearch={handleSearch} className="w-1/2" />
           </div>
-          <div className="flex justify-center w-full mb-10">
+          <div className="flex justify-center w-full mb-5">
             <Sidebar filterCategory={handleFilterCategory} className="w-1/2" />
           </div>
           {selectedCategory && (
-            <div className="mt-10 text-2xl font-semibold text-center">
+            <div className="mt-5 text-2xl font-semibold text-center">
               商品種類: {selectedCategory}
             </div>
           )}

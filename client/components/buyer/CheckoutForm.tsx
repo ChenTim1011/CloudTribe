@@ -81,6 +81,8 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onClose, clearCart, cartIte
       isUrgent,
       items: cartItems,
       totalPrice,
+      order_type: "購買類",
+      order_status: "未接單",
     };
 
     try {

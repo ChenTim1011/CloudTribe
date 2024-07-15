@@ -61,6 +61,10 @@ class Order(BaseModel):
     isUrgent: bool
     items: List[OrderItem]
     totalPrice: float
+    order_type: str = '購買類'
+    order_status: str = '未接單'
+
+
 
 def get_db_connection():
     conn = psycopg2.connect(host="localhost", database="shopping", user="postgres", password="password")
@@ -74,8 +78,8 @@ async def create_order(order: Order):
     try:
         # Insert order data into orders table
         cur.execute(
-            "INSERT INTO orders (name, phone, date, time, location, is_urgent, total_price) VALUES (%s, %s, %s, %s, %s, %s, %s) RETURNING id",
-            (order.name, order.phone, order.date, order.time, order.location, order.isUrgent, order.totalPrice)
+            "INSERT INTO orders (name, phone, date, time, location, is_urgent, total_price, order_type, order_status) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s) RETURNING id",
+            (order.name, order.phone, order.date, order.time, order.location, order.isUrgent, order.totalPrice, order.order_type, order.order_status)
         )
         order_id = cur.fetchone()[0]
         
