@@ -110,19 +110,49 @@ async def create_order(order: Order):
 async def create_driver(driver: Driver):
     conn = get_db_connection()
     cur = conn.cursor()
-
+    
     try:
+        # Check if the phone number already exists
+        cur.execute("SELECT phone FROM drivers WHERE phone = %s", (driver.phone,))
+        existing_driver = cur.fetchone()
+        if existing_driver:
+            raise HTTPException(status_code=409, detail="電話號碼已存在")
+
+        # Insert driver data into drivers table
         cur.execute(
-            """
-            INSERT INTO drivers (name, phone, direction, available_date, start_time, end_time) 
-            VALUES (%s, %s, %s, %s, %s, %s)
-            """,
+            "INSERT INTO drivers (name, phone, direction, available_date, start_time, end_time) VALUES (%s, %s, %s, %s, %s, %s)",
             (driver.name, driver.phone, driver.direction, driver.available_date, driver.start_time, driver.end_time)
         )
+        
         conn.commit()
         return {"status": "success"}
     except Exception as e:
         conn.rollback()
+        raise HTTPException(status_code=500, detail=str(e))
+    finally:
+        cur.close()
+        conn.close()
+
+@app.get("/api/drivers/{phone}")
+async def get_driver(phone: str):
+    conn = get_db_connection()
+    cur = conn.cursor()
+    
+    try:
+        cur.execute("SELECT * FROM drivers WHERE phone = %s", (phone,))
+        driver = cur.fetchone()
+        if not driver:
+            raise HTTPException(status_code=404, detail="電話號碼未註冊")
+        
+        return {
+            "name": driver[1],
+            "phone": driver[2],
+            "direction": driver[3],
+            "available_date": driver[4],
+            "start_time": driver[5],
+            "end_time": driver[6],
+        }
+    except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
     finally:
         cur.close()
