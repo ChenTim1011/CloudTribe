@@ -27,7 +27,7 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onClose, clearCart }) => {
   const [showAlert, setShowAlert] = useState(false);
   const [error, setError] = useState("");
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     // Clear previous errors
     setError("");
 
@@ -62,21 +62,40 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onClose, clearCart }) => {
     }
 
     // All validations passed
-    console.log({
+    const orderData = {
       name,
       phone,
       date,
       time,
       location,
       isUrgent,
-    });
+    };
 
-    setShowAlert(true);
-    clearCart();
-    setTimeout(() => {
-      setShowAlert(false);
-      onClose();
-    }, 3000);
+    try {
+      const response = await fetch('/api/orders', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(orderData),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to submit order');
+      }
+
+      console.log('Order submitted:', await response.json());
+
+      setShowAlert(true);
+      clearCart();
+      setTimeout(() => {
+        setShowAlert(false);
+        onClose();
+      }, 3000);
+    } catch (error) {
+      console.error('Error submitting order:', error);
+      setError('提交訂單時出錯');
+    }
   };
 
   return (
