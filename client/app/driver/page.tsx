@@ -3,15 +3,31 @@
 import React, { useState } from 'react';
 import DriverForm from "@/components/driver/DriverForm";
 import LoginForm from "@/components/driver/LoginForm";
+import OrderCard from "@/components/driver/OrderCard";
 import NavigationBar from "@/components/NavigationBar";
 import { Button } from "@/components/ui/button";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowLeft } from '@fortawesome/free-solid-svg-icons';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetClose } from "@/components/ui/sheet";
 
+
 const DriverPage: React.FC = () => {
     const [showRegisterForm, setShowRegisterForm] = useState(false);
     const [showLoginForm, setShowLoginForm] = useState(false);
+    const [orders, setOrders] = useState([]);
+
+    const handleFetchOrders = async (phone: string) => {
+        try {
+            const response = await fetch(`/api/orders`);
+            if (!response.ok) {
+                throw new Error('Failed to fetch orders');
+            }
+            const data = await response.json();
+            setOrders(data);
+        } catch (error) {
+            console.error('Error fetching orders:', error);
+        }
+    };
 
     return (
         <div>
@@ -66,9 +82,15 @@ const DriverPage: React.FC = () => {
                                 <SheetTitle>登入</SheetTitle>
                                 <SheetClose />
                             </SheetHeader>
-                            <LoginForm onClose={() => setShowLoginForm(false)} />
+                            <LoginForm onClose={() => setShowLoginForm(false)} onFetchOrders={handleFetchOrders} />
                         </SheetContent>
                     </Sheet>
+
+                    <div className="w-full mt-10">
+                        {orders.map(order => (
+                            <OrderCard key={order.id} order={order} />
+                        ))}
+                    </div>
                 </div>
             </div>
         </div>
