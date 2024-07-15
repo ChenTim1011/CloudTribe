@@ -69,7 +69,8 @@ class Driver(BaseModel):
     phone: str 
     direction: str
     available_date: str
-    available_time: str
+    start_time: str
+    end_time: str
 
 def get_db_connection():
     conn = psycopg2.connect(host="localhost", database="shopping", user="postgres", password="password")
@@ -111,8 +112,33 @@ async def create_driver(driver: Driver):
 
     try:
         cur.execute(
-            "INSERT INTO drivers (name, phone, direction, available_date, available_time) VALUES (%s, %s, %s, %s, %s)",
-            (driver.name, driver.phone, driver.direction, driver.available_date, driver.available_time)
+            """
+            INSERT INTO drivers (name, phone, direction, available_date, start_time, end_time) 
+            VALUES (%s, %s, %s, %s, %s, %s)
+            """,
+            (driver.name, driver.phone, driver.direction, driver.available_date, driver.start_time, driver.end_time)
+        )
+        conn.commit()
+        return {"status": "success"}
+    except Exception as e:
+        conn.rollback()
+        raise HTTPException(status_code=500, detail=str(e))
+    finally:
+        cur.close()
+        conn.close()
+
+@app.put("/api/drivers/{driver_id}")
+async def update_driver(driver_id: int, driver: Driver):
+    conn = get_db_connection()
+    cur = conn.cursor()
+
+    try:
+        cur.execute(
+            """
+            UPDATE drivers SET name = %s, phone = %s, direction = %s, available_date = %s, start_time = %s, end_time = %s
+            WHERE id = %s
+            """,
+            (driver.name, driver.phone, driver.direction, driver.available_date, driver.start_time, driver.end_time, driver_id)
         )
         conn.commit()
         return {"status": "success"}

@@ -27,5 +27,7 @@ CREATE TABLE drivers (
     phone VARCHAR(10) NOT NULL,
     direction VARCHAR(255) NOT NULL,
     available_date DATE NOT NULL,
-    available_time VARCHAR(255) NOT NULL
+    start_time VARCHAR(10) NOT NULL,
+    end_time VARCHAR(10) NOT NULL
 );
+
