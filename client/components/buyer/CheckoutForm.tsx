@@ -15,9 +15,10 @@ import { Checkbox } from "@/components/ui/checkbox";
 type CheckoutFormProps = {
   onClose: () => void;
   clearCart: () => void;
+  cartItems: Array<{ id: string; name: string; price: number; quantity: number; img: string }>;
 };
 
-const CheckoutForm: React.FC<CheckoutFormProps> = ({ onClose, clearCart }) => {
+const CheckoutForm: React.FC<CheckoutFormProps> = ({ onClose, clearCart, cartItems }) => {
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [date, setDate] = useState<Date>();
@@ -61,6 +62,9 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onClose, clearCart }) => {
       return;
     }
 
+    // Calculate total price
+    const totalPrice = cartItems.reduce((total, item) => total + item.price * item.quantity, 0);
+
     // All validations passed
     const orderData = {
       name,
@@ -69,6 +73,8 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onClose, clearCart }) => {
       time,
       location,
       isUrgent,
+      items: cartItems,
+      totalPrice,
     };
 
     try {
