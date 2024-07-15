@@ -1,42 +1,34 @@
-"""
-This module contains the schemas for the database.
-"""
-
 from pydantic import BaseModel
+from datetime import date
 
 class ItemBase(BaseModel):
-    """
-    Base class for an item.
-    """
     name: str
     price: float
     category: str
     image: str
 
 class ItemCreate(ItemBase):
-    """
-    Class for creating an item.
-    """
+    pass
 
 class Item(ItemBase):
-    """
-    Class representing an item.
-    """
     id: int
 
     class Config:
-        """
-        Configuration class for Item.
-        """
-        from_attributes=True
-        def method1(self):
-            """
-            Method 1 description.
-            """
+        orm_mode = True
 
+class OrderBase(BaseModel):
+    name: str
+    phone: str
+    date: date
+    time: str
+    location: str
+    is_urgent: bool = False
 
-        def method2(self):
-            """
-            Method 2 description.
-            """
-       
+class OrderCreate(OrderBase):
+    pass
+
+class Order(OrderBase):
+    id: int
+
+    class Config:
+        orm_mode = True

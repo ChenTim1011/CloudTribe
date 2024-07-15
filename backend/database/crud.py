@@ -49,3 +49,10 @@ def create_item(db: Session, item: schemas.ItemCreate):
     db.commit()
     db.refresh(db_item)
     return db_item
+
+def create_order(db: Session, order: schemas.OrderCreate):
+    db_order = models.Order(**order.dict())
+    db.add(db_order)
+    db.commit()
+    db.refresh(db_order)
+    return db_order
