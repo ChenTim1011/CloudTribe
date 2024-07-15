@@ -5,8 +5,11 @@ This module is responsible for importing FastAPI and its dependencies.
 import logging
 from fastapi import Depends, FastAPI, Request, HTTPException
 from dotenv import load_dotenv
-from sqlalchemy.orm import Session
-
+import psycopg2
+from psycopg2.extras import RealDictCursor
+from typing import List
+from pydantic import BaseModel
+from datetime import date
 
 
 # Import Line Bot API
@@ -28,9 +31,6 @@ from linebot.v3.webhooks import (
     TextMessageContent,
 )
 
-# Import database and models => relative path method
-from backend.database import crud, models, schemas, database
-
 # Import handlers
 from backend.handlers.order_query import handle_order_query
 from backend.handlers.platform_info import handle_platform_info
@@ -42,76 +42,68 @@ from backend.handlers.driver import handle_driver
 # environment variables
 load_dotenv()
 
-# databasse
-models.Base.metadata.create_all(bind=database.engine)
 # FastAPI app
 app = FastAPI()
 
 
+# Database connection dependency
 def get_db():
-    """
-    Returns a database session.
-
-    Returns:
-        database session: The database session object.
-    """
-    db = database.SessionLocal()
+    conn = psycopg2.connect("postgresql://postgres:password@localhost:5432/shopping")
     try:
-        yield db
+        yield conn
     finally:
-        db.close()
+        conn.close()
 
-@app.post("/items/", response_model=schemas.Item)
-def create_item(item: schemas.ItemCreate, db: Session = Depends(get_db)):
-    """
-    Create a new item.
+# Pydantic models for validation
+class OrderItem(BaseModel):
+    id: str
+    name: str
+    price: float
+    quantity: int
+    img: str
 
-    Parameters:
-    - item: The item data to be created.
-    - db: The database session.
+class OrderBase(BaseModel):
+    name: str
+    phone: str
+    date: date
+    time: str
+    location: str
+    is_urgent: bool
+    items: List[OrderItem]
+    total_price: float
 
-    Returns:
-    - The created item.
+class OrderCreate(OrderBase):
+    pass
 
-    """
-    return crud.create_item(db=db, item=item)
+class Order(OrderBase):
+    id: int
 
-@app.get("/items/", response_model=list[schemas.Item])
-def read_items(skip: int = 0, limit: int = 10, db: Session = Depends(get_db)):
-    """
-    Retrieve a list of items from the database.
+@app.post("/api/orders", response_model=Order)
+def create_order(order: OrderCreate, db: psycopg2.extensions.connection = Depends(get_db)):
+    with db.cursor(cursor_factory=RealDictCursor) as cursor:
+        cursor.execute("""
+            INSERT INTO orders (name, phone, date, time, location, is_urgent, total_price)
+            VALUES (%s, %s, %s, %s, %s, %s, %s)
+            RETURNING id
+        """, (order.name, order.phone, order.date, order.time, order.location, order.is_urgent, order.total_price))
+        order_id = cursor.fetchone()['id']
 
-    Parameters:
-    - skip (int): Number of items to skip (default: 0)
-    - limit (int): Maximum number of items to retrieve (default: 10)
-    - db (Session): Database session dependency
+        for item in order.items:
+            cursor.execute("""
+                INSERT INTO order_items (order_id, item_id, item_name, price, quantity, img)
+                VALUES (%s, %s, %s, %s, %s, %s)
+            """, (order_id, item.id, item.name, item.price, item.quantity, item.img))
 
-    Returns:
-    - List[schemas.Item]: List of items retrieved from the database
-    """
-    items = crud.get_items(db, skip=skip, limit=limit)
-    return items
+        db.commit()
 
-@app.get("/items/{item_id}", response_model=schemas.Item)
-def read_item(item_id: int, db: Session = Depends(get_db)):
-    """
-    Retrieve an item by its ID.
+        cursor.execute("SELECT * FROM orders WHERE id = %s", (order_id,))
+        new_order = cursor.fetchone()
+        
+        cursor.execute("SELECT * FROM order_items WHERE order_id = %s", (order_id,))
+        order_items = cursor.fetchall()
+        new_order['items'] = order_items
 
-    Parameters:
-    - item_id (int): The ID of the item to retrieve.
-    - db (Session): The database session.
-
-    Returns:
-    - schemas.Item: The retrieved item.
-
-    Raises:
-    - HTTPException: If the item is not found.
-    """
-    db_item = crud.get_item(db, item_id=item_id)
-    if db_item is None:
-        raise HTTPException(status_code=404, detail="Item not found")
-    return db_item
-
+    return new_order
 
 # setup Line Bot API
 configuration = Configuration(
