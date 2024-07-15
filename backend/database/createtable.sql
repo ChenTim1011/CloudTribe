@@ -9,6 +9,7 @@ CREATE TABLE IF NOT EXISTS orders (
     total_price FLOAT NOT NULL,
     order_type VARCHAR(50) NOT NULL,
     order_status VARCHAR(50) NOT NULL,
+    note TEXT
 );
 
 CREATE TABLE IF NOT EXISTS order_items (
@@ -30,4 +31,3 @@ CREATE TABLE drivers (
     start_time VARCHAR(10) NOT NULL,
     end_time VARCHAR(10) NOT NULL
 );
-

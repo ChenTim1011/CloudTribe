@@ -63,6 +63,7 @@ class Order(BaseModel):
     totalPrice: float
     order_type: str = '購買類'
     order_status: str = '未接單'
+    note: str = None  # Allow note to be optional
 
 class Driver(BaseModel):
     name: str 
@@ -84,8 +85,8 @@ async def create_order(order: Order):
     try:
         # Insert order data into orders table
         cur.execute(
-            "INSERT INTO orders (name, phone, date, time, location, is_urgent, total_price, order_type, order_status) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s) RETURNING id",
-            (order.name, order.phone, order.date, order.time, order.location, order.isUrgent, order.totalPrice, order.order_type, order.order_status)
+            "INSERT INTO orders (name, phone, date, time, location, is_urgent, total_price, order_type, order_status, note) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s) RETURNING id",
+            (order.name, order.phone, order.date, order.time, order.location, order.isUrgent, order.totalPrice, order.order_type, order.order_status, order.note)
         )
         order_id = cur.fetchone()[0]
         

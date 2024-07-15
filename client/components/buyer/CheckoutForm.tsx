@@ -34,6 +34,7 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onClose, clearCart, cartIte
   const [time, setTime] = useState<string | undefined>(undefined);
   const [location, setLocation] = useState<string | undefined>(undefined);
   const [isUrgent, setIsUrgent] = useState(false);
+  const [note, setNote] = useState<string>("");  // Note field
   const [showAlert, setShowAlert] = useState(false);
   const [error, setError] = useState("");
 
@@ -79,6 +80,7 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onClose, clearCart, cartIte
       time,
       location,
       isUrgent,
+      note,  // Include note in order data
       items: cartItems,
       totalPrice,
       order_type: "購買類",
@@ -118,6 +120,7 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onClose, clearCart, cartIte
         <SheetContent className="w-full max-w-2xl" aria-describedby="checkout-form-description">
           <SheetHeader>
             <SheetTitle>結帳資訊</SheetTitle>
+            <SheetClose />
           </SheetHeader>
           <div id="checkout-form-description" className="p-4">
             {showAlert && (
@@ -190,6 +193,10 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onClose, clearCart, cartIte
             <div className="mb-4">
               <Label htmlFor="urgent" className="block text-sm font-medium text-gray-700">是否緊急</Label>
               <Checkbox id="urgent" checked={isUrgent} onCheckedChange={(checked) => setIsUrgent(checked)} />
+            </div>
+            <div className="mb-4">
+              <Label htmlFor="note" className="block text-sm font-medium text-gray-700">備註</Label>
+              <Input id="note" value={note} onChange={(e) => setNote(e.target.value)} placeholder="輸入備註 (選填)" />
             </div>
           </div>
           <SheetFooter>
