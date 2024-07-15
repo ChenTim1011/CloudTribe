@@ -139,7 +139,7 @@ const BuyerPage: React.FC = () => {
               返回主頁
             </Button>
           </div>
-          <h1 className="mb-5 text-4xl font-bold text-center" style={{ marginTop: '15px' }}>今天我想要來點...</h1>
+          <h1 className="mb-10 text-4xl font-bold text-center" >今天我想要來點...</h1>
           <div className="flex justify-center w-full mb-3">
             <SearchBar onSearch={handleSearch} className="w-1/2" />
           </div>
