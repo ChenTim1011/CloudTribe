@@ -40,7 +40,7 @@ const CartModal: React.FC<CartModalProps> = ({ cart, onClose, removeFromCart, up
     <Sheet open={true} onOpenChange={onClose}>
       <SheetContent className="w-full max-w-xl">
         <SheetHeader>
-          <SheetTitle>購物車 ({cart.reduce((total, item) => total + item.quantity, 0)})</SheetTitle>
+          <SheetTitle>購物車結帳 ({cart.reduce((total, item) => total + item.quantity, 0)})</SheetTitle>
         </SheetHeader>
         <div className="p-4">
         {error && (

@@ -1,8 +1,8 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faShoppingCart } from '@fortawesome/free-solid-svg-icons';
+import { faShoppingCart, faSortAmountDown } from '@fortawesome/free-solid-svg-icons';
 import PaginationDemo from "@/components/buyer/PaginationDemo";
 import { Button } from "@/components/ui/button";
 
@@ -22,17 +22,34 @@ type ItemListProps = {
 
 const ItemList: React.FC<ItemListProps> = ({ products, itemsPerPage, addToCart }) => {
   const [currentPage, setCurrentPage] = useState(1);
+  const [sortedProducts, setSortedProducts] = useState<Product[]>(products);
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
+
+  useEffect(() => {
+    const sorted = [...products].sort((a, b) => sortOrder === 'asc' ? a.price - b.price : b.price - a.price);
+    setSortedProducts(sorted);
+  }, [products, sortOrder]);
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
   };
 
+  const toggleSortOrder = () => {
+    setSortOrder(prevOrder => prevOrder === 'asc' ? 'desc' : 'asc');
+  };
+
   const startIdx = (currentPage - 1) * itemsPerPage;
   const endIdx = startIdx + itemsPerPage;
-  const currentData = products.slice(startIdx, endIdx);
+  const currentData = sortedProducts.slice(startIdx, endIdx);
 
   return (
     <div>
+      <div className="flex justify-end mb-4">
+        <Button onClick={toggleSortOrder}>
+          <FontAwesomeIcon icon={faSortAmountDown} className="mr-2" />
+          {sortOrder === 'asc' ? '價格由小到大' : '價格由大到小'}
+        </Button>
+      </div>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         {currentData.map((product) => (
           <div key={product.id} className="card p-4 bg-white shadow-md rounded-lg">
