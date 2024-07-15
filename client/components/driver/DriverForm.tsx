@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Calendar as CalendarIcon } from "lucide-react";
@@ -9,13 +9,13 @@ import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from "@
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 import { Label } from "@/components/ui/label";
 
-const DriverForm: React.FC<{ onClose: () => void }> = ({ onClose }) => {
-    const [name, setName] = useState("");
-    const [phone, setPhone] = useState("");
-    const [direction, setDirection] = useState<string | undefined>(undefined);
-    const [date, setDate] = useState<string>("");
-    const [startTime, setStartTime] = useState<string | undefined>(undefined);
-    const [endTime, setEndTime] = useState<string | undefined>(undefined);
+const DriverForm: React.FC<{ onClose: () => void, initialData?: any }> = ({ onClose, initialData }) => {
+    const [name, setName] = useState(initialData?.name || "");
+    const [phone, setPhone] = useState(initialData?.phone || "");
+    const [direction, setDirection] = useState<string | undefined>(initialData?.direction);
+    const [date, setDate] = useState<string>(initialData?.available_date || "");
+    const [startTime, setStartTime] = useState<string | undefined>(initialData?.start_time);
+    const [endTime, setEndTime] = useState<string | undefined>(initialData?.end_time);
     const [showAlert, setShowAlert] = useState(false);
     const [error, setError] = useState("");
 
@@ -52,11 +52,6 @@ const DriverForm: React.FC<{ onClose: () => void }> = ({ onClose }) => {
             return;
         }
 
-        if (startTime >= endTime) {
-            setError("結束時間必須晚於起始時間");
-            return;
-        }
-
         const driverData = {
             name,
             phone,
@@ -67,8 +62,8 @@ const DriverForm: React.FC<{ onClose: () => void }> = ({ onClose }) => {
         };
 
         try {
-            const response = await fetch('/api/drivers', {
-                method: 'POST',
+            const response = await fetch(initialData ? `/api/drivers/${phone}` : '/api/drivers', {
+                method: initialData ? 'PUT' : 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
@@ -76,9 +71,6 @@ const DriverForm: React.FC<{ onClose: () => void }> = ({ onClose }) => {
             });
 
             if (!response.ok) {
-                if (response.status === 409) {
-                    throw new Error('電話號碼已存在');
-                }
                 throw new Error('Failed to submit driver data');
             }
 
@@ -91,9 +83,20 @@ const DriverForm: React.FC<{ onClose: () => void }> = ({ onClose }) => {
             }, 3000);
         } catch (error) {
             console.error('Error submitting driver data:', error);
-            setError(error.message || '提交司機資料時出錯');
+            setError('提交司機資料時出錯');
         }
     };
+
+    useEffect(() => {
+        if (initialData) {
+            setName(initialData.name);
+            setPhone(initialData.phone);
+            setDirection(initialData.direction);
+            setDate(initialData.available_date);
+            setStartTime(initialData.start_time);
+            setEndTime(initialData.end_time);
+        }
+    }, [initialData]);
 
     return (
         <>
@@ -114,11 +117,11 @@ const DriverForm: React.FC<{ onClose: () => void }> = ({ onClose }) => {
             </div>
             <div className="mb-4">
                 <Label htmlFor="phone" className="block text-sm font-medium text-gray-700">電話</Label>
-                <Input id="phone" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="輸入您的電話" />
+                <Input id="phone" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="輸入您的電話" disabled={!!initialData} />
             </div>
             <div className="mb-4">
                 <Label htmlFor="direction" className="block text-sm font-medium text-gray-700">方向</Label>
-                <Select onValueChange={setDirection}>
+                <Select onValueChange={setDirection} value={direction}>
                     <SelectTrigger className="w-full">
                         <SelectValue placeholder="選擇方向" />
                     </SelectTrigger>
@@ -129,7 +132,7 @@ const DriverForm: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                 </Select>
             </div>
             <div className="mb-4">
-                <Label htmlFor="available_date" className="block text-sm font-medium text-gray-700">方便運算的日期</Label>
+                <Label htmlFor="available_date" className="block text-sm font-medium text-gray-700">方便運送的日期</Label>
                 <Input
                     type="date"
                     id="available_date"
@@ -140,7 +143,7 @@ const DriverForm: React.FC<{ onClose: () => void }> = ({ onClose }) => {
             </div>
             <div className="mb-4">
                 <Label htmlFor="start_time" className="block text-sm font-medium text-gray-700">方便運送的起始時間</Label>
-                <Select onValueChange={setStartTime}>
+                <Select onValueChange={setStartTime} value={startTime}>
                     <SelectTrigger className="w-full">
                         <SelectValue placeholder="選擇起始時間" />
                     </SelectTrigger>
@@ -153,7 +156,7 @@ const DriverForm: React.FC<{ onClose: () => void }> = ({ onClose }) => {
             </div>
             <div className="mb-4">
                 <Label htmlFor="end_time" className="block text-sm font-medium text-gray-700">方便運送的結束時間</Label>
-                <Select onValueChange={setEndTime}>
+                <Select onValueChange={setEndTime} value={endTime}>
                     <SelectTrigger className="w-full">
                         <SelectValue placeholder="選擇結束時間" />
                     </SelectTrigger>
@@ -164,7 +167,7 @@ const DriverForm: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                     </SelectContent>
                 </Select>
             </div>
-            <Button className="bg-black text-white w-full" onClick={handleSubmit}>提交</Button>
+            <Button className="bg-black text-white w-full" onClick={handleSubmit}>{initialData ? "更新" : "提交"}</Button>
         </>
     );
 };
