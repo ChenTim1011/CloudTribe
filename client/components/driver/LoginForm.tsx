@@ -1,13 +1,16 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
+import DriverForm from "./DriverForm";
 
-const LoginForm: React.FC<{ onClose: () => void }> = ({ onClose }) => {
+const LoginForm: React.FC<{ onClose: () => void, onFetchOrders: (phone: string) => void }> = ({ onClose, onFetchOrders }) => {
     const [phone, setPhone] = useState("");
     const [showOptions, setShowOptions] = useState(false);
+    const [showUpdateForm, setShowUpdateForm] = useState(false);
+    const [driverData, setDriverData] = useState(null);
     const [error, setError] = useState("");
 
     const handleLogin = async () => {
@@ -33,7 +36,8 @@ const LoginForm: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                 throw new Error('Failed to fetch driver data');
             }
 
-            console.log('Driver data fetched:', await response.json());
+            const data = await response.json();
+            setDriverData(data);
             setShowOptions(true);
         } catch (error) {
             console.error('Error fetching driver data:', error);
@@ -42,12 +46,19 @@ const LoginForm: React.FC<{ onClose: () => void }> = ({ onClose }) => {
     };
 
     const handleUpdateInfo = () => {
-        // Handle update info logic here
+        setShowUpdateForm(true);
     };
 
     const handleUseLastCondition = () => {
-        // Handle use last condition logic here
+        onFetchOrders(phone);
+        onClose();
     };
+
+    useEffect(() => {
+        if (!showUpdateForm) {
+            setShowOptions(false);
+        }
+    }, [showUpdateForm]);
 
     return (
         <>
@@ -64,7 +75,7 @@ const LoginForm: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                     </div>
                     <Button className="bg-black text-white w-full" onClick={handleLogin}>登入</Button>
                 </>
-            ) : (
+            ) : !showUpdateForm ? (
                 <>
                     <div className="mb-4">
                         <p className="text-sm font-medium text-gray-700">您要更新資訊嗎?</p>
@@ -74,6 +85,14 @@ const LoginForm: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                         <Button className="bg-black text-white w-full" onClick={handleUseLastCondition}>否</Button>
                     </div>
                 </>
+            ) : (
+                <DriverForm
+                    onClose={() => {
+                        setShowUpdateForm(false);
+                        onClose();
+                    }}
+                    initialData={driverData}
+                />
             )}
         </>
     );
