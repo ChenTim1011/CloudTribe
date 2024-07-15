@@ -33,7 +33,7 @@ const LoginForm: React.FC<{ onClose: () => void, onFetchOrders: (phone: string) 
                 if (response.status === 404) {
                     throw new Error('電話號碼未註冊');
                 }
-                throw new Error('Failed to fetch driver data');
+                throw new Error('電話號碼未註冊');
             }
 
             const data = await response.json();

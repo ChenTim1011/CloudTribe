@@ -42,6 +42,17 @@ const DriverForm: React.FC<{ onClose: () => void, initialData?: any }> = ({ onCl
             return;
         }
 
+        const selectedDate = new Date(date);
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        if (selectedDate < today) {
+            setError("選擇的日期不能比今天早");
+            return;
+        }
+
+
+
         if (!startTime) {
             setError("未選擇起始時間");
             return;
@@ -49,6 +60,11 @@ const DriverForm: React.FC<{ onClose: () => void, initialData?: any }> = ({ onCl
 
         if (!endTime) {
             setError("未選擇結束時間");
+            return;
+        }
+
+        if (startTime>=endTime) {
+            setError("起始時間不能比結束時間晚");
             return;
         }
 
