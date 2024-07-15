@@ -7,7 +7,7 @@ from fastapi import Depends, FastAPI, Request, HTTPException
 from dotenv import load_dotenv
 import psycopg2
 from psycopg2.extras import RealDictCursor
-from typing import List
+from typing import List, Optional
 from pydantic import BaseModel
 from datetime import date
 
@@ -42,12 +42,11 @@ from backend.handlers.driver import handle_driver
 # environment variables
 load_dotenv()
 
-# FastAPI app
 app = FastAPI()
 
 class OrderItem(BaseModel):
-    id: str
-    name: str
+    item_id: str
+    item_name: str
     price: float
     quantity: int
     img: str
@@ -58,12 +57,12 @@ class Order(BaseModel):
     date: str
     time: str
     location: str
-    isUrgent: bool
+    is_urgent: bool
     items: List[OrderItem]
     totalPrice: float
     order_type: str = '購買類'
     order_status: str = '未接單'
-    note: str = None  # Allow note to be optional
+    note: Optional[str] = None
 
 class Driver(BaseModel):
     name: str 
@@ -83,18 +82,16 @@ async def create_order(order: Order):
     cur = conn.cursor()
     
     try:
-        # Insert order data into orders table
         cur.execute(
             "INSERT INTO orders (name, phone, date, time, location, is_urgent, total_price, order_type, order_status, note) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s) RETURNING id",
-            (order.name, order.phone, order.date, order.time, order.location, order.isUrgent, order.totalPrice, order.order_type, order.order_status, order.note)
+            (order.name, order.phone, order.date, order.time, order.location, order.is_urgent, order.totalPrice, order.order_type, order.order_status, order.note)
         )
         order_id = cur.fetchone()[0]
         
-        # Insert order items into order_items table
         for item in order.items:
             cur.execute(
                 "INSERT INTO order_items (order_id, item_id, item_name, price, quantity, img) VALUES (%s, %s, %s, %s, %s, %s)",
-                (order_id, item.id, item.name, item.price, item.quantity, item.img)
+                (order_id, item.item_id, item.item_name, item.price, item.quantity, item.img)
             )
         
         conn.commit()
@@ -106,19 +103,18 @@ async def create_order(order: Order):
         cur.close()
         conn.close()
 
+
 @app.post("/api/drivers")
 async def create_driver(driver: Driver):
     conn = get_db_connection()
     cur = conn.cursor()
     
     try:
-        # Check if the phone number already exists
         cur.execute("SELECT phone FROM drivers WHERE phone = %s", (driver.phone,))
         existing_driver = cur.fetchone()
         if existing_driver:
             raise HTTPException(status_code=409, detail="電話號碼已存在")
 
-        # Insert driver data into drivers table
         cur.execute(
             "INSERT INTO drivers (name, phone, direction, available_date, start_time, end_time) VALUES (%s, %s, %s, %s, %s, %s)",
             (driver.name, driver.phone, driver.direction, driver.available_date, driver.start_time, driver.end_time)
@@ -158,19 +154,20 @@ async def get_driver(phone: str):
         cur.close()
         conn.close()
 
-@app.put("/api/drivers/{driver_id}")
-async def update_driver(driver_id: int, driver: Driver):
+@app.put("/api/drivers/{phone}")
+async def update_driver(phone: str, driver: Driver):
     conn = get_db_connection()
     cur = conn.cursor()
 
     try:
         cur.execute(
-            """
-            UPDATE drivers SET name = %s, phone = %s, direction = %s, available_date = %s, start_time = %s, end_time = %s
-            WHERE id = %s
-            """,
-            (driver.name, driver.phone, driver.direction, driver.available_date, driver.start_time, driver.end_time, driver_id)
+            "UPDATE drivers SET name = %s, direction = %s, available_date = %s, start_time = %s, end_time = %s WHERE phone = %s",
+            (driver.name, driver.direction, driver.available_date, driver.start_time, driver.end_time, phone)
         )
+
+        if cur.rowcount == 0:
+            raise HTTPException(status_code=404, detail="Driver not found")
+        
         conn.commit()
         return {"status": "success"}
     except Exception as e:
@@ -180,6 +177,39 @@ async def update_driver(driver_id: int, driver: Driver):
         cur.close()
         conn.close()
 
+@app.get("/api/orders")
+async def get_orders():
+    conn = get_db_connection()
+    cur = conn.cursor()
+    
+    try:
+        cur.execute("SELECT * FROM orders WHERE order_status = '未接單'")
+        orders = cur.fetchall()
+        order_list = []
+        for order in orders:
+            cur.execute("SELECT * FROM order_items WHERE order_id = %s", (order[0],))
+            items = cur.fetchall()
+            order_list.append({
+                "id": order[0],
+                "name": order[1],
+                "phone": order[2],
+                "date": order[3],
+                "time": order[4],
+                "location": order[5],
+                "is_urgent": order[6],
+                "total_price": order[7],
+                "order_type": order[8],
+                "order_status": order[9],
+                "items": [{"id": item[2], "name": item[3], "price": item[4], "quantity": item[5], "img": item[6]} for item in items],
+                "note": order[10]
+            })
+        
+        return order_list
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+    finally:
+        cur.close()
+        conn.close()
 # setup Line Bot API
 configuration = Configuration(
     access_token='LINE_BOT_TOKEN'
