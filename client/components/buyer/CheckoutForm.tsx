@@ -12,13 +12,22 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetFooter, SheetClose }
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 
+type CartItem = {
+  id: string;
+  name: string;
+  price: number;
+  quantity: number;
+  img: string;
+};
+
 type CheckoutFormProps = {
   onClose: () => void;
   clearCart: () => void;
-  cartItems: Array<{ id: string; name: string; price: number; quantity: number; img: string }>;
+  cartItems: CartItem[];
+  totalPrice: number;
 };
 
-const CheckoutForm: React.FC<CheckoutFormProps> = ({ onClose, clearCart, cartItems }) => {
+const CheckoutForm: React.FC<CheckoutFormProps> = ({ onClose, clearCart, cartItems, totalPrice }) => {
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [date, setDate] = useState<Date>();
@@ -62,14 +71,11 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onClose, clearCart, cartIte
       return;
     }
 
-    // Calculate total price
-    const totalPrice = cartItems.reduce((total, item) => total + item.price * item.quantity, 0);
-
     // All validations passed
     const orderData = {
       name,
       phone,
-      date,
+      date: date.toISOString(), // Ensure date is in ISO format
       time,
       location,
       isUrgent,

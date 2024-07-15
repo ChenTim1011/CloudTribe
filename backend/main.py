@@ -45,16 +45,6 @@ load_dotenv()
 # FastAPI app
 app = FastAPI()
 
-
-# Database connection dependency
-def get_db():
-    conn = psycopg2.connect("postgresql://postgres:password@localhost:5432/shopping")
-    try:
-        yield conn
-    finally:
-        conn.close()
-
-# Pydantic models for validation
 class OrderItem(BaseModel):
     id: str
     name: str
@@ -62,48 +52,48 @@ class OrderItem(BaseModel):
     quantity: int
     img: str
 
-class OrderBase(BaseModel):
+class Order(BaseModel):
     name: str
     phone: str
-    date: date
+    date: str
     time: str
     location: str
-    is_urgent: bool
+    isUrgent: bool
     items: List[OrderItem]
-    total_price: float
+    totalPrice: float
 
-class OrderCreate(OrderBase):
-    pass
+def get_db_connection():
+    conn = psycopg2.connect(host="localhost", database="shopping", user="postgres", password="password")
+    return conn
 
-class Order(OrderBase):
-    id: int
-
-@app.post("/api/orders", response_model=Order)
-def create_order(order: OrderCreate, db: psycopg2.extensions.connection = Depends(get_db)):
-    with db.cursor(cursor_factory=RealDictCursor) as cursor:
-        cursor.execute("""
-            INSERT INTO orders (name, phone, date, time, location, is_urgent, total_price)
-            VALUES (%s, %s, %s, %s, %s, %s, %s)
-            RETURNING id
-        """, (order.name, order.phone, order.date, order.time, order.location, order.is_urgent, order.total_price))
-        order_id = cursor.fetchone()['id']
-
-        for item in order.items:
-            cursor.execute("""
-                INSERT INTO order_items (order_id, item_id, item_name, price, quantity, img)
-                VALUES (%s, %s, %s, %s, %s, %s)
-            """, (order_id, item.id, item.name, item.price, item.quantity, item.img))
-
-        db.commit()
-
-        cursor.execute("SELECT * FROM orders WHERE id = %s", (order_id,))
-        new_order = cursor.fetchone()
+@app.post("/api/orders")
+async def create_order(order: Order):
+    conn = get_db_connection()
+    cur = conn.cursor()
+    
+    try:
+        # Insert order data into orders table
+        cur.execute(
+            "INSERT INTO orders (name, phone, date, time, location, is_urgent, total_price) VALUES (%s, %s, %s, %s, %s, %s, %s) RETURNING id",
+            (order.name, order.phone, order.date, order.time, order.location, order.isUrgent, order.totalPrice)
+        )
+        order_id = cur.fetchone()[0]
         
-        cursor.execute("SELECT * FROM order_items WHERE order_id = %s", (order_id,))
-        order_items = cursor.fetchall()
-        new_order['items'] = order_items
-
-    return new_order
+        # Insert order items into order_items table
+        for item in order.items:
+            cur.execute(
+                "INSERT INTO order_items (order_id, item_id, item_name, price, quantity, img) VALUES (%s, %s, %s, %s, %s, %s)",
+                (order_id, item.id, item.name, item.price, item.quantity, item.img)
+            )
+        
+        conn.commit()
+        return {"status": "success", "order_id": order_id}
+    except Exception as e:
+        conn.rollback()
+        raise HTTPException(status_code=500, detail=str(e))
+    finally:
+        cur.close()
+        conn.close()
 
 # setup Line Bot API
 configuration = Configuration(

@@ -19,9 +19,11 @@ type CartModalProps = {
   removeFromCart: (id: string) => void;
   updateQuantity: (id: string, quantity: number) => void;
   clearCart: () => void;
+  cartItems: CartItem[];
+  totalPrice: number;
 };
 
-const CartModal: React.FC<CartModalProps> = ({ cart, onClose, removeFromCart, updateQuantity, clearCart }) => {
+const CartModal: React.FC<CartModalProps> = ({ cart, onClose, removeFromCart, updateQuantity, clearCart, cartItems, totalPrice }) => {
   const [isCheckout, setIsCheckout] = useState(false);
   const [error, setError] = useState("");
   const total = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
@@ -41,7 +43,7 @@ const CartModal: React.FC<CartModalProps> = ({ cart, onClose, removeFromCart, up
           <SheetTitle>購物車 ({cart.reduce((total, item) => total + item.quantity, 0)})</SheetTitle>
         </SheetHeader>
         <div className="p-4">
-          {error && (
+        {error && (
             <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
               <span className="block sm:inline">{error}</span>
             </div>
@@ -69,13 +71,24 @@ const CartModal: React.FC<CartModalProps> = ({ cart, onClose, removeFromCart, up
               </Button>
             </div>
           ))}
-          <div className="text-right font-bold text-xl">總計: ${total.toFixed(2)}</div>
+          <div className="text-right font-bold text-xl">總計: ${totalPrice.toFixed(2)}</div>
         </div>
         <SheetFooter>
-          <Button className="bg-black text-white" onClick={handleCheckout}>結帳</Button>
+          <Button 
+            className="bg-black text-white" 
+            onClick={() => {
+              if (totalPrice > 0) {
+                setIsCheckout(true);
+              } else {
+                alert('購物車中沒有商品或總價為0');
+              }
+            }}
+          >
+            結帳
+          </Button>
         </SheetFooter>
       </SheetContent>
-      {isCheckout && <CheckoutForm onClose={() => { setIsCheckout(false); onClose(); }} clearCart={clearCart} />}
+      {isCheckout && <CheckoutForm onClose={() => { setIsCheckout(false); onClose(); }} clearCart={clearCart} cartItems={cartItems} totalPrice={totalPrice} />}
     </Sheet>
   );
 };
