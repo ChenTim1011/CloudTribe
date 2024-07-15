@@ -64,7 +64,12 @@ class Order(BaseModel):
     order_type: str = '購買類'
     order_status: str = '未接單'
 
-
+class Driver(BaseModel):
+    name: str 
+    phone: str 
+    direction: str
+    available_date: str
+    available_time: str
 
 def get_db_connection():
     conn = psycopg2.connect(host="localhost", database="shopping", user="postgres", password="password")
@@ -92,6 +97,25 @@ async def create_order(order: Order):
         
         conn.commit()
         return {"status": "success", "order_id": order_id}
+    except Exception as e:
+        conn.rollback()
+        raise HTTPException(status_code=500, detail=str(e))
+    finally:
+        cur.close()
+        conn.close()
+
+@app.post("/api/drivers")
+async def create_driver(driver: Driver):
+    conn = get_db_connection()
+    cur = conn.cursor()
+
+    try:
+        cur.execute(
+            "INSERT INTO drivers (name, phone, direction, available_date, available_time) VALUES (%s, %s, %s, %s, %s)",
+            (driver.name, driver.phone, driver.direction, driver.available_date, driver.available_time)
+        )
+        conn.commit()
+        return {"status": "success"}
     except Exception as e:
         conn.rollback()
         raise HTTPException(status_code=500, detail=str(e))

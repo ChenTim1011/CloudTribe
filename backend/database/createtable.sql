@@ -20,3 +20,12 @@ CREATE TABLE IF NOT EXISTS order_items (
     quantity INTEGER NOT NULL,
     img VARCHAR(255) NOT NULL
 );
+
+CREATE TABLE drivers (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    phone VARCHAR(10) NOT NULL,
+    direction VARCHAR(255) NOT NULL,
+    available_date DATE NOT NULL,
+    available_time VARCHAR(255) NOT NULL
+);

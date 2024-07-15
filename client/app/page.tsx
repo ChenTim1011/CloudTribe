@@ -44,7 +44,7 @@ export default function Page() {
             </Link>
           </Button>
           <Button className="lg:h-16 h-12 lg:text-2xl text-md rounded-2xl bg-gray-500 shadow-2xl font-mono hover:bg-slate-400">
-            <Link href="/buy_agri_produce">
+            <Link href="/driver">
               司機專區
             </Link>
           </Button>
