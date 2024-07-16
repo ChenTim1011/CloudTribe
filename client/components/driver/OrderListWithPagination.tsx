@@ -8,7 +8,8 @@ const OrderListWithPagination: React.FC<{ orders: any[], onAccept: (orderId: str
   const itemsPerPage = 5;
 
   useEffect(() => {
-    setFilteredOrders(orders);
+    const unacceptedOrders = orders.filter(order => order.order_status === '未接單');
+    setFilteredOrders(unacceptedOrders);
   }, [orders]);
 
   const handlePageChange = (page: number) => {
@@ -25,7 +26,7 @@ const OrderListWithPagination: React.FC<{ orders: any[], onAccept: (orderId: str
           <OrderCard key={order.id} order={order} onAccept={onAccept} />
         ))
       ) : (
-        <p className="text-center mt-8">沒有符合的訂單。</p> 
+        <p className="text-center mt-8">沒有符合的訂單。</p>
       )}
       <PaginationDemo
         totalItems={filteredOrders.length}
