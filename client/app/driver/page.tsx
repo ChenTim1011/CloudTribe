@@ -38,7 +38,8 @@ const DriverPage: React.FC = () => {
         setFilteredOrders(filtered);
     };
 
-    const handleUpdateSuccess = () => {
+    const handleUpdateSuccess = (data: any) => {
+        setDriverData(data);
         setShowRegisterForm(false);
         setShowLoginForm(true);  // Open login form
     };
@@ -99,7 +100,7 @@ const DriverPage: React.FC = () => {
                             <LoginForm
                                 onClose={() => setShowLoginForm(false)}
                                 onFetchOrders={handleFetchOrders}
-                                onFetchDriverData={(data) => setDriverData(data)} // Add this prop to fetch and set driver data
+                                onFetchDriverData={(data) => setDriverData(data)}
                                 onFilteredOrders={handleFilteredOrders}
                             />
                         </SheetContent>

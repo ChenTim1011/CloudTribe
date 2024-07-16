@@ -74,7 +74,7 @@ const LoginForm: React.FC<{ onClose: () => void, onFetchOrders: (phone: string) 
             const driverEndDateTime = new Date(`${available_date}T${end_time}:00`);
             const filtered = orders.filter((order: any) => {
                 const orderDateTime = new Date(`${order.date}T${order.time}:00`);
-                return orderDateTime > driverEndDateTime;
+                return orderDateTime > driverEndDateTime && order.order_status === '未接單';
             }).sort((a: any, b: any) => {
                 const aDateTime = new Date(`${a.date}T${a.time}:00`).getTime();
                 const bDateTime = new Date(`${b.date}T${b.time}:00`).getTime();
