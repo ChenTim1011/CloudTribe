@@ -38,35 +38,13 @@ const LoginForm: React.FC<{ onClose: () => void, onFetchOrders: (phone: string) 
 
             const data = await response.json();
             setDriverData(data);
-            onFetchDriverData(data);
-
-            const ordersResponse = await fetch(`/api/orders`);
-            if (!ordersResponse.ok) {
-                throw new Error('Failed to fetch orders');
-            }
-            const orders = await ordersResponse.json();
-
-            const filteredOrders = filterOrders(orders, data);
-            onFilteredOrders(filteredOrders);
             setShowOptions(true);
+            onFetchDriverData(data);
+            await filterOrders(data); // Filter orders with the latest driver data
         } catch (error) {
             console.error('Error fetching driver data:', error);
             setError((error as Error).message || '獲取司機資料時出錯');
         }
-    };
-
-    const filterOrders = (orders: any[], driverData: any) => {
-        const { available_date, start_time, end_time } = driverData;
-        const driverStartDateTime = new Date(`${available_date}T${start_time}:00`);
-        const driverEndDateTime = new Date(`${available_date}T${end_time}:00`);
-        return orders.filter(order => {
-            const orderDateTime = new Date(`${order.date}T${order.time}:00`);
-            return orderDateTime > driverEndDateTime;
-        }).sort((a, b) => {
-            const aDateTime = new Date(`${a.date}T${a.time}:00`).getTime();
-            const bDateTime = new Date(`${b.date}T${b.time}:00}`).getTime();
-            return aDateTime - bDateTime;
-        });
     };
 
     const handleUpdateInfo = () => {
@@ -78,11 +56,36 @@ const LoginForm: React.FC<{ onClose: () => void, onFetchOrders: (phone: string) 
         onClose();
     };
 
-    const handleUpdateSuccess = (data: any) => {
+    const handleUpdateSuccess = async (data: any) => {
         setShowUpdateForm(false);
         setShowOptions(true);
         setDriverData(data);
-        onFetchDriverData(data); 
+        onFetchDriverData(data);
+        await filterOrders(data); // Filter orders with the updated driver data
+    };
+
+    const filterOrders = async (driverData: any) => {
+        try {
+            const response = await fetch('/api/orders');
+            if (!response.ok) {
+                throw new Error('Failed to fetch orders');
+            }
+            const orders = await response.json();
+            const { available_date, start_time, end_time } = driverData;
+            const driverStartDateTime = new Date(`${available_date}T${start_time}:00`);
+            const driverEndDateTime = new Date(`${available_date}T${end_time}:00`);
+            const filtered = orders.filter((order: any) => {
+                const orderDateTime = new Date(`${order.date}T${order.time}:00`);
+                return orderDateTime > driverEndDateTime;
+            }).sort((a, b) => {
+                const aDateTime = new Date(`${a.date}T${a.time}:00`).getTime();
+                const bDateTime = new Date(`${b.date}T${b.time}:00`).getTime();
+                return aDateTime - bDateTime;
+            });
+            onFilteredOrders(filtered);
+        } catch (error) {
+            console.error('Error filtering orders:', error);
+        }
     };
 
     return (

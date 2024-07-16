@@ -34,12 +34,8 @@ const DriverPage: React.FC = () => {
         // Handle order acceptance logic
     };
 
-    const handleFetchDriverData = (data: any) => {
-        setDriverData(data);
-    };
-
-    const handleFilteredOrders = (orders: any[]) => {
-        setFilteredOrders(orders);
+    const handleFilteredOrders = (filtered: any[]) => {
+        setFilteredOrders(filtered);
     };
 
     return (
@@ -85,7 +81,9 @@ const DriverPage: React.FC = () => {
                                 <SheetTitle>註冊</SheetTitle>
                                 <SheetClose />
                             </SheetHeader>
-                            <DriverForm onClose={() => setShowRegisterForm(false)} onUpdateSuccess={(data) => console.log(data)} />
+                            <DriverForm onClose={() => setShowRegisterForm(false)} onUpdateSuccess={function (data: any): void {
+                                throw new Error('Function not implemented.');
+                            } } />
                         </SheetContent>
                     </Sheet>
 

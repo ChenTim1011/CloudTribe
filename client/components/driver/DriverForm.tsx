@@ -90,9 +90,7 @@ const DriverForm: React.FC<{ onClose: () => void, onUpdateSuccess: (data: any) =
             setShowAlert(true);
             setTimeout(() => {
                 setShowAlert(false);
-                if (initialData) {
-                    onUpdateSuccess(updatedData); // Notify parent component that update is successful only if PATCH method is used
-                }
+                onUpdateSuccess(updatedData); // Notify parent component that update is successful and pass updated data
             }, 1000);
         } catch (error) {
             console.error('Error submitting driver data:', error);
