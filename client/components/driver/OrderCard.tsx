@@ -22,9 +22,11 @@ const OrderCard: React.FC<{ order: any; onAccept: (orderId: string) => void }> =
                         {order.items.map((item: any) => (
                             <li key={item.item_id} className="text-sm text-gray-700 mb-2">
                                 <div className="flex items-center space-x-2">
-                                    <img src={item.img} alt={item.item_name} className="w-10 h-10 object-cover rounded" />
+                                    <img src={item.img} alt={item.name} className="w-10 h-10 object-cover rounded" />
                                     <div>
-                                        <span className="block font-semibold text-black truncate" style={{ maxWidth: '8rem' }}>{item.item_name}</span>
+                                        <span className="block font-semibold text-black truncate" style={{ maxWidth: '20rem' }}>
+                                            {item.name || '未命名'}
+                                        </span>
                                         <span className="block">- {item.quantity} x ${item.price.toFixed(2)}</span>
                                     </div>
                                 </div>

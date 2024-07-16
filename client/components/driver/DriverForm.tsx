@@ -119,8 +119,8 @@ const DriverForm: React.FC<{ onClose: () => void, initialData?: any }> = ({ onCl
         <>
             {showAlert && (
                 <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative" role="alert">
-                    <strong className="font-bold">提交成功!</strong>
-                    <span className="block sm:inline">您的司機資料提交成功。</span>
+                    <strong className="font-bold">上傳成功!</strong>
+                    <span className="block sm:inline">您的司機資料上傳成功。</span>
                 </div>
             )}
             {error && (

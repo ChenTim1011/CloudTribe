@@ -73,16 +73,16 @@ const LoginForm: React.FC<{ onClose: () => void, onFetchOrders: (phone: string) 
                         <Label htmlFor="phone" className="block text-sm font-medium text-gray-700">電話</Label>
                         <Input id="phone" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="輸入您的電話" />
                     </div>
-                    <Button className="bg-black text-white w-full" onClick={handleLogin}>登入</Button>
+                    <Button className="bg-black text-white w-full" onClick={handleLogin}>司機選單</Button>
                 </>
             ) : !showUpdateForm ? (
                 <>
                     <div className="mb-4">
-                        <p className="text-sm font-medium text-gray-700">您要更新資訊嗎?</p>
+                        <p className="text-sm font-medium text-gray-700">司機選單</p>
                     </div>
                     <div className="flex space-x-4">
-                        <Button className="bg-black text-white w-full" onClick={handleUpdateInfo}>是</Button>
-                        <Button className="bg-black text-white w-full" onClick={handleUseLastCondition}>否</Button>
+                        <Button className="bg-black text-white w-full" onClick={handleUpdateInfo}>更新資訊</Button>
+                        <Button className="bg-black text-white w-full" onClick={handleUseLastCondition}>查看可以接的表單</Button>
                     </div>
                 </>
             ) : (
