@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import DriverForm from "@/components/driver/DriverForm";
 import LoginForm from "@/components/driver/LoginForm";
-import OrderCard from "@/components/driver/OrderCard";
+import OrderListWithPagination from "@/components/driver/OrderListWithPagination";
 import NavigationBar from "@/components/NavigationBar";
 import { Button } from "@/components/ui/button";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -27,6 +27,10 @@ const DriverPage: React.FC = () => {
         } catch (error) {
             console.error('Error fetching orders:', error);
         }
+    };
+
+    const handleAccept = (orderId: string) => {
+        // Handle order acceptance logic
     };
 
     return (
@@ -87,9 +91,7 @@ const DriverPage: React.FC = () => {
                     </Sheet>
 
                     <div className="w-full mt-10">
-                        {orders.map(order => (
-                            <OrderCard key={order.id} order={order} />
-                        ))}
+                        <OrderListWithPagination orders={orders} onAccept={handleAccept} />
                     </div>
                 </div>
             </div>
