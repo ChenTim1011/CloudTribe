@@ -266,36 +266,27 @@ async def get_driver_orders(driver_id: int):
             WHERE driver_orders.driver_id = %s AND driver_orders.action = '接單'
         """, (driver_id,))
         orders = cur.fetchall()
-        return orders
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
-    finally:
-        cur.close()
-        conn.close()
-
-@app.post("/api/orders/{order_id}/transfer")
-async def transfer_order(order_id: int, current_driver_id: int, new_driver_id: int):
-    conn = get_db_connection()
-    cur = conn.cursor()
-
-    try:
-        cur.execute("SELECT driver_id FROM driver_orders WHERE order_id = %s AND action = '接單' FOR UPDATE", (order_id,))
-        order = cur.fetchone()
-
-        if order[0] != current_driver_id:
-            raise HTTPException(status_code=400, detail="當前司機無法轉交此訂單")
-
-        cur.execute("UPDATE driver_orders SET action = '轉單' WHERE order_id = %s AND driver_id = %s AND action = '接單'", (order_id, current_driver_id))
+        order_list = []
+        for order in orders:
+            cur.execute("SELECT * FROM order_items WHERE order_id = %s", (order[0],))
+            items = cur.fetchall()
+            order_list.append({
+                "id": order[0],
+                "name": order[1],
+                "phone": order[2],
+                "date": order[3],
+                "time": order[4],
+                "location": order[5],
+                "is_urgent": order[6],
+                "total_price": order[7],
+                "order_type": order[8],
+                "order_status": order[9],
+                "items": [{"id": item[2], "name": item[3], "price": item[4], "quantity": item[5], "img": item[6]} for item in items],
+                "note": order[10]
+            })
         
-        cur.execute(
-            "INSERT INTO driver_orders (driver_id, order_id, action) VALUES (%s, %s, %s)",
-            (new_driver_id, order_id, '接單')
-        )
-
-        conn.commit()
-        return {"status": "success"}
+        return order_list
     except Exception as e:
-        conn.rollback()
         raise HTTPException(status_code=500, detail=str(e))
     finally:
         cur.close()
