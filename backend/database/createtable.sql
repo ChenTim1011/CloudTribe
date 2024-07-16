@@ -31,3 +31,11 @@ CREATE TABLE drivers (
     start_time VARCHAR(10) NOT NULL,
     end_time VARCHAR(10) NOT NULL
 );
+
+CREATE TABLE IF NOT EXISTS driver_orders (
+    id SERIAL PRIMARY KEY,
+    driver_id INTEGER NOT NULL REFERENCES drivers(id),
+    order_id INTEGER NOT NULL REFERENCES orders(id),
+    action VARCHAR(50) NOT NULL, 
+    timestamp TIMESTAMP NOT NULL DEFAULT NOW()
+);
