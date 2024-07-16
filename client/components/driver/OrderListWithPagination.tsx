@@ -25,7 +25,7 @@ const OrderListWithPagination: React.FC<{ orders: any[], onAccept: (orderId: str
           <OrderCard key={order.id} order={order} onAccept={onAccept} />
         ))
       ) : (
-        <p className="text-center">沒有符合的訂單。</p>
+        <p className="text-center mt-8">沒有符合的訂單。</p> 
       )}
       <PaginationDemo
         totalItems={filteredOrders.length}

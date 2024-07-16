@@ -70,20 +70,20 @@ const DriverPage: React.FC = () => {
                             className="mb-10 px-6 py-3 text-lg font-bold border-2 border-black text-black bg-white hover:bg-blue-500 hover:text-white"
                             onClick={() => setShowRegisterForm(true)}
                         >
-                            註冊
+                            首次使用
                         </Button>
                         <Button 
                             className="mb-10 px-6 py-3 text-lg font-bold border-2 border-black text-black bg-white hover:bg-blue-500 hover:text-white"
                             onClick={() => setShowLoginForm(true)}
                         >
-                            登入
+                            查看表單
                         </Button>
                     </div>
 
                     <Sheet open={showRegisterForm} onOpenChange={setShowRegisterForm}>
                         <SheetContent className="w-full max-w-2xl" aria-describedby="register-form-description">
                             <SheetHeader>
-                                <SheetTitle>註冊</SheetTitle>
+                                <SheetTitle>首次使用</SheetTitle>
                                 <SheetClose />
                             </SheetHeader>
                             <DriverForm onClose={() => setShowRegisterForm(false)} onUpdateSuccess={handleUpdateSuccess} />
@@ -93,7 +93,7 @@ const DriverPage: React.FC = () => {
                     <Sheet open={showLoginForm} onOpenChange={setShowLoginForm}>
                         <SheetContent className="w-full max-w-2xl" aria-describedby="login-form-description">
                             <SheetHeader>
-                                <SheetTitle>登入</SheetTitle>
+                                <SheetTitle>查看表單</SheetTitle>
                                 <SheetClose />
                             </SheetHeader>
                             <LoginForm

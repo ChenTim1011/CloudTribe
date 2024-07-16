@@ -104,7 +104,7 @@ const LoginForm: React.FC<{ onClose: () => void, onFetchOrders: (phone: string) 
             ) : !showUpdateForm ? (
                 <>
                     <div className="mb-4">
-                        <p className="text-sm font-medium text-gray-700">司機選單</p>
+                        <p className="text-sm font-medium text-gray-700">會根據填寫的時間篩選表單</p>
                     </div>
                     <div className="flex space-x-4">
                         <Button className="bg-black text-white w-full" onClick={handleUpdateInfo}>更新資訊</Button>
