@@ -39,3 +39,4 @@ CREATE TABLE IF NOT EXISTS driver_orders (
     action VARCHAR(50) NOT NULL, 
     timestamp TIMESTAMP NOT NULL DEFAULT NOW()
 );
+

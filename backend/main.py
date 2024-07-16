@@ -8,6 +8,7 @@ from dotenv import load_dotenv
 import psycopg2
 from psycopg2.extras import RealDictCursor
 from typing import List, Optional
+from datetime import datetime
 from pydantic import BaseModel
 from datetime import date
 
@@ -65,12 +66,19 @@ class Order(BaseModel):
     note: Optional[str] = None
 
 class Driver(BaseModel):
+    id: Optional[int]
     name: str 
     phone: str 
     direction: str
     available_date: str
     start_time: str
     end_time: str
+
+class DriverOrder(BaseModel):
+    driver_id: int
+    order_id: int
+    action: str
+    timestamp: Optional[datetime] = None
 
 def get_db_connection():
     conn = psycopg2.connect(host="localhost", database="shopping", user="postgres", password="password")
@@ -102,7 +110,6 @@ async def create_order(order: Order):
     finally:
         cur.close()
         conn.close()
-
 
 @app.post("/api/drivers")
 async def create_driver(driver: Driver):
@@ -142,6 +149,7 @@ async def get_driver(phone: str):
             raise HTTPException(status_code=404, detail="電話號碼未註冊")
         
         return {
+            "id": driver[0],
             "name": driver[1],
             "phone": driver[2],
             "direction": driver[3],
@@ -207,6 +215,87 @@ async def get_orders():
         
         return order_list
     except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+    finally:
+        cur.close()
+        conn.close()
+
+@app.post("/api/orders/{order_id}/accept")
+async def accept_order(order_id: int, driver_order: DriverOrder):
+    conn = get_db_connection()
+    cur = conn.cursor()
+
+    try:
+        logging.info("Driver %s attempting to accept order %s", driver_order.driver_id, order_id)
+        cur.execute("SELECT order_status FROM orders WHERE id = %s FOR UPDATE", (order_id,))
+        order = cur.fetchone()
+
+        if order[0] != '未接單':
+            raise HTTPException(status_code=400, detail="訂單已被接")
+
+        cur.execute(
+            "UPDATE orders SET order_status = %s WHERE id = %s", ('接單', order_id)
+        )
+        cur.execute(
+            "INSERT INTO driver_orders (driver_id, order_id, action) VALUES (%s, %s, %s)",
+            (driver_order.driver_id, order_id, '接單')
+        )
+
+        conn.commit()
+        logging.info(f"Order {order_id} successfully accepted by driver {driver_order.driver_id}")
+        return {"status": "success"}
+    except Exception as e:
+        conn.rollback()
+        logging.error(f"Error accepting order {order_id} by driver {driver_order.driver_id}: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+    finally:
+        cur.close()
+        conn.close()
+
+
+@app.get("/api/drivers/{driver_id}/orders")
+async def get_driver_orders(driver_id: int):
+    conn = get_db_connection()
+    cur = conn.cursor()
+
+    try:
+        cur.execute("""
+            SELECT orders.* 
+            FROM orders 
+            JOIN driver_orders ON orders.id = driver_orders.order_id 
+            WHERE driver_orders.driver_id = %s AND driver_orders.action = '接單'
+        """, (driver_id,))
+        orders = cur.fetchall()
+        return orders
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+    finally:
+        cur.close()
+        conn.close()
+
+@app.post("/api/orders/{order_id}/transfer")
+async def transfer_order(order_id: int, current_driver_id: int, new_driver_id: int):
+    conn = get_db_connection()
+    cur = conn.cursor()
+
+    try:
+        cur.execute("SELECT driver_id FROM driver_orders WHERE order_id = %s AND action = '接單' FOR UPDATE", (order_id,))
+        order = cur.fetchone()
+
+        if order[0] != current_driver_id:
+            raise HTTPException(status_code=400, detail="當前司機無法轉交此訂單")
+
+        cur.execute("UPDATE driver_orders SET action = '轉單' WHERE order_id = %s AND driver_id = %s AND action = '接單'", (order_id, current_driver_id))
+        
+        cur.execute(
+            "INSERT INTO driver_orders (driver_id, order_id, action) VALUES (%s, %s, %s)",
+            (new_driver_id, order_id, '接單')
+        )
+
+        conn.commit()
+        return {"status": "success"}
+    except Exception as e:
+        conn.rollback()
         raise HTTPException(status_code=500, detail=str(e))
     finally:
         cur.close()
