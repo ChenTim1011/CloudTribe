@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 
 const OrderListWithPagination: React.FC<{ orders: any[], onAccept: (orderId: string) => void, driverData: any }> = ({ orders, onAccept, driverData }) => {
   const [currentPage, setCurrentPage] = useState(1);
-  const [filteredOrders, setFilteredOrders] = useState([]);
+  const [filteredOrders, setFilteredOrders] = useState<any[]>([]);
   const itemsPerPage = 5;
 
   useEffect(() => {
@@ -21,11 +21,15 @@ const OrderListWithPagination: React.FC<{ orders: any[], onAccept: (orderId: str
 
   const filterOrders = () => {
     const { available_date, start_time, end_time } = driverData;
+    const driverStartDateTime = new Date(`${available_date}T${start_time}:00`);
+    const driverEndDateTime = new Date(`${available_date}T${end_time}:00`);
     const filtered = orders.filter(order => {
       const orderDateTime = new Date(`${order.date}T${order.time}:00`);
-      const driverStartDateTime = new Date(`${available_date}T${start_time}:00`);
-      const driverEndDateTime = new Date(`${available_date}T${end_time}:00`);
-      return orderDateTime > driverStartDateTime 
+      return orderDateTime > driverEndDateTime;
+    }).sort((a, b) => {
+      const aDateTime = new Date(`${a.date}T${a.time}:00`).getTime();
+      const bDateTime = new Date(`${b.date}T${b.time}:00`).getTime();
+      return aDateTime - bDateTime;
     });
     setFilteredOrders(filtered);
     setCurrentPage(1); // Reset to first page after filtering
