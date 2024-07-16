@@ -5,6 +5,7 @@ import DriverForm from "@/components/driver/DriverForm";
 import LoginForm from "@/components/driver/LoginForm";
 import OrderListWithPagination from "@/components/driver/OrderListWithPagination";
 import NavigationBar from "@/components/NavigationBar";
+import DriverOrdersPage from "@/components/driver/DriverOrdersPage"; // Import the new component
 import { Button } from "@/components/ui/button";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowLeft } from '@fortawesome/free-solid-svg-icons';
@@ -13,6 +14,7 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetClose } from "@/comp
 const DriverPage: React.FC = () => {
     const [showRegisterForm, setShowRegisterForm] = useState(false);
     const [showLoginForm, setShowLoginForm] = useState(false);
+    const [showDriverOrders, setShowDriverOrders] = useState(false); // State to show driver orders
     const [orders, setOrders] = useState([]);
     const [filteredOrders, setFilteredOrders] = useState<any[]>([]);
     const [driverData, setDriverData] = useState(null);
@@ -79,6 +81,12 @@ const DriverPage: React.FC = () => {
                         >
                             查看表單
                         </Button>
+                        <Button 
+                            className="mb-10 px-6 py-3 text-lg font-bold border-2 border-black text-black bg-white hover:bg-blue-500 hover:text-white"
+                            onClick={() => setShowDriverOrders(true)} // Button to show driver orders
+                        >
+                            管理訂單
+                        </Button>
                     </div>
 
                     <Sheet open={showRegisterForm} onOpenChange={setShowRegisterForm}>
@@ -103,6 +111,16 @@ const DriverPage: React.FC = () => {
                                 onFetchDriverData={(data) => setDriverData(data)}
                                 onFilteredOrders={handleFilteredOrders}
                             />
+                        </SheetContent>
+                    </Sheet>
+
+                    <Sheet open={showDriverOrders} onOpenChange={setShowDriverOrders}> 
+                        <SheetContent className="w-full max-w-2xl" aria-describedby="driver-orders-description">
+                            <SheetHeader>
+                                <SheetTitle>我的訂單</SheetTitle>
+                                <SheetClose />
+                            </SheetHeader>
+                            <DriverOrdersPage driverData={driverData} />
                         </SheetContent>
                     </Sheet>
 
