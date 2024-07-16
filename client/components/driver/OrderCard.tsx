@@ -17,7 +17,7 @@ const OrderCard: React.FC<{ order: any; onAccept: (orderId: string) => void }> =
                     <p className="text-sm text-gray-700 font-bold">地點: {order.location}</p>
                 </div>
                 <div className="mb-2">
-                    <p className="text-sm text-gray-700 font-bold">商品:</p>
+                    <p className="text-sm text-gray-700 font-bold">商品:  </p>
                     <ul className="list-disc list-inside ml-4">
                         {order.items.map((item: any) => (
                             <li key={item.item_id} className="text-sm text-gray-700 mb-2">

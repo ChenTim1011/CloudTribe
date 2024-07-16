@@ -124,6 +124,7 @@ async def create_driver(driver: Driver):
         return {"status": "success"}
     except Exception as e:
         conn.rollback()
+        print(f"Error: {str(e)}") 
         raise HTTPException(status_code=500, detail=str(e))
     finally:
         cur.close()
@@ -154,7 +155,7 @@ async def get_driver(phone: str):
         cur.close()
         conn.close()
 
-@app.put("/api/drivers/{phone}")
+@app.patch("/api/drivers/{phone}")
 async def update_driver(phone: str, driver: Driver):
     conn = get_db_connection()
     cur = conn.cursor()

@@ -79,7 +79,7 @@ const DriverForm: React.FC<{ onClose: () => void, initialData?: any }> = ({ onCl
 
         try {
             const response = await fetch(initialData ? `/api/drivers/${phone}` : '/api/drivers', {
-                method: initialData ? 'PUT' : 'POST',
+                method: initialData ? 'PATCH' : 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
@@ -87,7 +87,8 @@ const DriverForm: React.FC<{ onClose: () => void, initialData?: any }> = ({ onCl
             });
 
             if (!response.ok) {
-                throw new Error('Failed to submit driver data');
+                const errorText = await response.text();
+                throw new Error(`Failed to submit driver data: ${errorText}`);
             }
 
             console.log('Driver data submitted:', await response.json());
@@ -99,7 +100,7 @@ const DriverForm: React.FC<{ onClose: () => void, initialData?: any }> = ({ onCl
             }, 3000);
         } catch (error) {
             console.error('Error submitting driver data:', error);
-            setError('提交司機資料時出錯');
+            setError('提交司機資料時出錯，不可以註冊重複的電話號碼');
         }
     };
 
