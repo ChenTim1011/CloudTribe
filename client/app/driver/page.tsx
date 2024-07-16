@@ -39,7 +39,8 @@ const DriverPage: React.FC = () => {
     };
 
     const handleUpdateSuccess = () => {
-        setShowLoginForm(false); // Ensure the form and the login view are closed
+        setShowRegisterForm(false);
+        setShowLoginForm(true);  // Open login form
     };
 
     return (
@@ -85,9 +86,7 @@ const DriverPage: React.FC = () => {
                                 <SheetTitle>註冊</SheetTitle>
                                 <SheetClose />
                             </SheetHeader>
-                            <DriverForm onClose={() => setShowRegisterForm(false)} onUpdateSuccess={function (data: any): void {
-                                throw new Error('Function not implemented.');
-                            } } />
+                            <DriverForm onClose={() => setShowRegisterForm(false)} onUpdateSuccess={handleUpdateSuccess} />
                         </SheetContent>
                     </Sheet>
 

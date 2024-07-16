@@ -56,12 +56,10 @@ const LoginForm: React.FC<{ onClose: () => void, onFetchOrders: (phone: string) 
         onClose();
     };
 
-    const handleUpdateSuccess = (data: any) => {
+    const handleUpdateSuccess = async (data: any) => {
         setShowUpdateForm(false);
-        setShowOptions(false); // Close both the update form and the options view
-        setDriverData(data);
+        setShowOptions(false);
         onFetchDriverData(data);
-        // Do not filter orders automatically after update success
     };
 
     const filterOrders = async (driverData: any) => {
@@ -117,7 +115,7 @@ const LoginForm: React.FC<{ onClose: () => void, onFetchOrders: (phone: string) 
                 <DriverForm
                     onClose={() => {
                         setShowUpdateForm(false);
-                        setShowOptions(false); // Close both the update form and the options view
+                        setShowOptions(true);
                     }}
                     onUpdateSuccess={handleUpdateSuccess}
                     initialData={driverData}
