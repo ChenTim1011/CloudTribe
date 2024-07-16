@@ -59,12 +59,6 @@ const LoginForm: React.FC<{ onClose: () => void, onFetchOrders: (phone: string) 
         setShowOptions(true);
     };
 
-    useEffect(() => {
-        if (!showUpdateForm) {
-            setShowOptions(false);
-        }
-    }, [showUpdateForm]);
-
     return (
         <>
             {error && (
