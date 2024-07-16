@@ -54,6 +54,11 @@ const LoginForm: React.FC<{ onClose: () => void, onFetchOrders: (phone: string) 
         onClose();
     };
 
+    const handleUpdateSuccess = () => {
+        setShowUpdateForm(false);
+        setShowOptions(true);
+    };
+
     useEffect(() => {
         if (!showUpdateForm) {
             setShowOptions(false);
@@ -89,8 +94,9 @@ const LoginForm: React.FC<{ onClose: () => void, onFetchOrders: (phone: string) 
                 <DriverForm
                     onClose={() => {
                         setShowUpdateForm(false);
-                        onClose();
+                        setShowOptions(true);
                     }}
+                    onUpdateSuccess={handleUpdateSuccess}
                     initialData={driverData}
                 />
             )}

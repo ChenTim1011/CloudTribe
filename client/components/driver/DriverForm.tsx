@@ -3,13 +3,10 @@
 import React, { useState, useEffect } from 'react';
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Calendar as CalendarIcon } from "lucide-react";
-import { format } from "date-fns";
 import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from "@/components/ui/select";
-import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 import { Label } from "@/components/ui/label";
 
-const DriverForm: React.FC<{ onClose: () => void, initialData?: any }> = ({ onClose, initialData }) => {
+const DriverForm: React.FC<{ onClose: () => void, onUpdateSuccess: () => void, initialData?: any }> = ({ onClose, onUpdateSuccess, initialData }) => {
     const [name, setName] = useState(initialData?.name || "");
     const [phone, setPhone] = useState(initialData?.phone || "");
     const [direction, setDirection] = useState<string | undefined>(initialData?.direction);
@@ -51,8 +48,6 @@ const DriverForm: React.FC<{ onClose: () => void, initialData?: any }> = ({ onCl
             return;
         }
 
-
-
         if (!startTime) {
             setError("未選擇起始時間");
             return;
@@ -63,7 +58,7 @@ const DriverForm: React.FC<{ onClose: () => void, initialData?: any }> = ({ onCl
             return;
         }
 
-        if (startTime>=endTime) {
+        if (startTime >= endTime) {
             setError("起始時間不能比結束時間晚");
             return;
         }
@@ -96,7 +91,7 @@ const DriverForm: React.FC<{ onClose: () => void, initialData?: any }> = ({ onCl
             setShowAlert(true);
             setTimeout(() => {
                 setShowAlert(false);
-                onClose();
+                onUpdateSuccess(); // Notify parent component that update is successful
             }, 3000);
         } catch (error) {
             console.error('Error submitting driver data:', error);
