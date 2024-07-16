@@ -28,7 +28,11 @@ const OrderListWithPagination: React.FC<{ orders: any[], onAccept: (orderId: str
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ driver_id: driverData.id }),
+        body: JSON.stringify({ 
+          driver_id: driverData.id,
+          order_id: orderId,  
+          action: "accept"
+        }),
       });
 
       if (!response.ok) {
