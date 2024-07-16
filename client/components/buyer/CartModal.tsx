@@ -59,6 +59,7 @@ const CartModal: React.FC<CartModalProps> = ({ cart, onClose, removeFromCart, up
                 <div className="flex items-center">
                   <Button variant="outline" onClick={() => updateQuantity(item.id, -1)}>-</Button>
                   <input
+                    title="Quantity"
                     type="number"
                     value={item.quantity}
                     onChange={(e) => updateQuantity(item.id, parseInt(e.target.value) - item.quantity)}
