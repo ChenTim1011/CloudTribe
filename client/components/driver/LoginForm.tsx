@@ -1,12 +1,13 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+
+import React, { useState } from 'react';
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import DriverForm from "./DriverForm";
 
-const LoginForm: React.FC<{ onClose: () => void, onFetchOrders: (phone: string) => void }> = ({ onClose, onFetchOrders }) => {
+const LoginForm: React.FC<{ onClose: () => void, onFetchOrders: (phone: string) => void, onFetchDriverData: (data: any) => void }> = ({ onClose, onFetchOrders, onFetchDriverData }) => {
     const [phone, setPhone] = useState("");
     const [showOptions, setShowOptions] = useState(false);
     const [showUpdateForm, setShowUpdateForm] = useState(false);
@@ -38,6 +39,7 @@ const LoginForm: React.FC<{ onClose: () => void, onFetchOrders: (phone: string) 
 
             const data = await response.json();
             setDriverData(data);
+            onFetchDriverData(data); // Pass driver data to parent component
             setShowOptions(true);
         } catch (error) {
             console.error('Error fetching driver data:', error);

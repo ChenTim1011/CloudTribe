@@ -10,11 +10,11 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowLeft } from '@fortawesome/free-solid-svg-icons';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetClose } from "@/components/ui/sheet";
 
-
 const DriverPage: React.FC = () => {
     const [showRegisterForm, setShowRegisterForm] = useState(false);
     const [showLoginForm, setShowLoginForm] = useState(false);
     const [orders, setOrders] = useState([]);
+    const [driverData, setDriverData] = useState(null);
 
     const handleFetchOrders = async (phone: string) => {
         try {
@@ -86,12 +86,16 @@ const DriverPage: React.FC = () => {
                                 <SheetTitle>登入</SheetTitle>
                                 <SheetClose />
                             </SheetHeader>
-                            <LoginForm onClose={() => setShowLoginForm(false)} onFetchOrders={handleFetchOrders} />
+                            <LoginForm
+                                onClose={() => setShowLoginForm(false)}
+                                onFetchOrders={handleFetchOrders}
+                                onFetchDriverData={setDriverData} // Add this prop to fetch and set driver data
+                            />
                         </SheetContent>
                     </Sheet>
 
                     <div className="w-full mt-10">
-                        <OrderListWithPagination orders={orders} onAccept={handleAccept} />
+                        <OrderListWithPagination orders={orders} onAccept={handleAccept} driverData={driverData} />
                     </div>
                 </div>
             </div>
