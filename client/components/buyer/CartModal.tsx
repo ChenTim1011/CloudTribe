@@ -1,8 +1,10 @@
 import React, { useState } from 'react'; 
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetFooter, SheetClose } from "@/components/ui/sheet";
+import { Input } from "@/components/ui/input";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTrashAlt } from '@fortawesome/free-solid-svg-icons';
+
 import CheckoutForm from "@/components/buyer/CheckoutForm";
 
 type CartItem = {

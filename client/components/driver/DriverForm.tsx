@@ -90,6 +90,7 @@ const DriverForm: React.FC<{ onClose: () => void, onUpdateSuccess: (data: any) =
             setShowAlert(true);
             setTimeout(() => {
                 setShowAlert(false);
+                onClose(); // Close the form
                 onUpdateSuccess(updatedData); // Notify parent component that update is successful and pass updated data
             }, 1000);
         } catch (error) {

@@ -56,12 +56,12 @@ const LoginForm: React.FC<{ onClose: () => void, onFetchOrders: (phone: string) 
         onClose();
     };
 
-    const handleUpdateSuccess = async (data: any) => {
+    const handleUpdateSuccess = (data: any) => {
         setShowUpdateForm(false);
-        setShowOptions(true);
+        setShowOptions(false); // Close both the update form and the options view
         setDriverData(data);
         onFetchDriverData(data);
-        await filterOrders(data); // Filter orders with the updated driver data
+        // Do not filter orders automatically after update success
     };
 
     const filterOrders = async (driverData: any) => {
@@ -77,7 +77,7 @@ const LoginForm: React.FC<{ onClose: () => void, onFetchOrders: (phone: string) 
             const filtered = orders.filter((order: any) => {
                 const orderDateTime = new Date(`${order.date}T${order.time}:00`);
                 return orderDateTime > driverEndDateTime;
-            }).sort((a, b) => {
+            }).sort((a: any, b: any) => {
                 const aDateTime = new Date(`${a.date}T${a.time}:00`).getTime();
                 const bDateTime = new Date(`${b.date}T${b.time}:00`).getTime();
                 return aDateTime - bDateTime;
@@ -117,7 +117,7 @@ const LoginForm: React.FC<{ onClose: () => void, onFetchOrders: (phone: string) 
                 <DriverForm
                     onClose={() => {
                         setShowUpdateForm(false);
-                        setShowOptions(true);
+                        setShowOptions(false); // Close both the update form and the options view
                     }}
                     onUpdateSuccess={handleUpdateSuccess}
                     initialData={driverData}

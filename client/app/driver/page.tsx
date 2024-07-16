@@ -38,6 +38,10 @@ const DriverPage: React.FC = () => {
         setFilteredOrders(filtered);
     };
 
+    const handleUpdateSuccess = () => {
+        setShowLoginForm(false); // Ensure the form and the login view are closed
+    };
+
     return (
         <div>
             <NavigationBar />
