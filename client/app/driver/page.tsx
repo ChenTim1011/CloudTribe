@@ -14,6 +14,7 @@ const DriverPage: React.FC = () => {
     const [showRegisterForm, setShowRegisterForm] = useState(false);
     const [showLoginForm, setShowLoginForm] = useState(false);
     const [orders, setOrders] = useState([]);
+    const [filteredOrders, setFilteredOrders] = useState<any[]>([]);
     const [driverData, setDriverData] = useState(null);
 
     const handleFetchOrders = async (phone: string) => {
@@ -31,6 +32,14 @@ const DriverPage: React.FC = () => {
 
     const handleAccept = (orderId: string) => {
         // Handle order acceptance logic
+    };
+
+    const handleFetchDriverData = (data: any) => {
+        setDriverData(data);
+    };
+
+    const handleFilteredOrders = (orders: any[]) => {
+        setFilteredOrders(orders);
     };
 
     return (
@@ -76,7 +85,7 @@ const DriverPage: React.FC = () => {
                                 <SheetTitle>註冊</SheetTitle>
                                 <SheetClose />
                             </SheetHeader>
-                            <DriverForm onClose={() => setShowRegisterForm(false)} />
+                            <DriverForm onClose={() => setShowRegisterForm(false)} onUpdateSuccess={(data) => console.log(data)} />
                         </SheetContent>
                     </Sheet>
 
@@ -89,13 +98,18 @@ const DriverPage: React.FC = () => {
                             <LoginForm
                                 onClose={() => setShowLoginForm(false)}
                                 onFetchOrders={handleFetchOrders}
-                                onFetchDriverData={setDriverData} // Add this prop to fetch and set driver data
+                                onFetchDriverData={(data) => setDriverData(data)} // Add this prop to fetch and set driver data
+                                onFilteredOrders={handleFilteredOrders}
                             />
                         </SheetContent>
                     </Sheet>
 
                     <div className="w-full mt-10">
-                        <OrderListWithPagination orders={orders} onAccept={handleAccept} driverData={driverData} />
+                        <OrderListWithPagination
+                            orders={filteredOrders}
+                            onAccept={handleAccept}
+                            driverData={driverData}
+                        />
                     </div>
                 </div>
             </div>

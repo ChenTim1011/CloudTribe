@@ -1,13 +1,12 @@
 "use client";
 
-
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import DriverForm from "./DriverForm";
 
-const LoginForm: React.FC<{ onClose: () => void, onFetchOrders: (phone: string) => void, onFetchDriverData: (data: any) => void }> = ({ onClose, onFetchOrders, onFetchDriverData }) => {
+const LoginForm: React.FC<{ onClose: () => void, onFetchOrders: (phone: string) => void, onFetchDriverData: (data: any) => void, onFilteredOrders: (orders: any[]) => void }> = ({ onClose, onFetchOrders, onFetchDriverData, onFilteredOrders }) => {
     const [phone, setPhone] = useState("");
     const [showOptions, setShowOptions] = useState(false);
     const [showUpdateForm, setShowUpdateForm] = useState(false);
@@ -39,12 +38,35 @@ const LoginForm: React.FC<{ onClose: () => void, onFetchOrders: (phone: string) 
 
             const data = await response.json();
             setDriverData(data);
-            onFetchDriverData(data); // Pass driver data to parent component
+            onFetchDriverData(data);
+
+            const ordersResponse = await fetch(`/api/orders`);
+            if (!ordersResponse.ok) {
+                throw new Error('Failed to fetch orders');
+            }
+            const orders = await ordersResponse.json();
+
+            const filteredOrders = filterOrders(orders, data);
+            onFilteredOrders(filteredOrders);
             setShowOptions(true);
         } catch (error) {
             console.error('Error fetching driver data:', error);
-            setError(error.message || '獲取司機資料時出錯');
+            setError((error as Error).message || '獲取司機資料時出錯');
         }
+    };
+
+    const filterOrders = (orders: any[], driverData: any) => {
+        const { available_date, start_time, end_time } = driverData;
+        const driverStartDateTime = new Date(`${available_date}T${start_time}:00`);
+        const driverEndDateTime = new Date(`${available_date}T${end_time}:00`);
+        return orders.filter(order => {
+            const orderDateTime = new Date(`${order.date}T${order.time}:00`);
+            return orderDateTime > driverEndDateTime;
+        }).sort((a, b) => {
+            const aDateTime = new Date(`${a.date}T${a.time}:00`).getTime();
+            const bDateTime = new Date(`${b.date}T${b.time}:00}`).getTime();
+            return aDateTime - bDateTime;
+        });
     };
 
     const handleUpdateInfo = () => {
@@ -56,9 +78,11 @@ const LoginForm: React.FC<{ onClose: () => void, onFetchOrders: (phone: string) 
         onClose();
     };
 
-    const handleUpdateSuccess = () => {
+    const handleUpdateSuccess = (data: any) => {
         setShowUpdateForm(false);
         setShowOptions(true);
+        setDriverData(data);
+        onFetchDriverData(data); 
     };
 
     return (
@@ -83,7 +107,7 @@ const LoginForm: React.FC<{ onClose: () => void, onFetchOrders: (phone: string) 
                     </div>
                     <div className="flex space-x-4">
                         <Button className="bg-black text-white w-full" onClick={handleUpdateInfo}>更新資訊</Button>
-                        <Button className="bg-black text-white w-full" onClick={handleUseLastCondition}>查看可以接的表單</Button>
+                        <Button className="bg-black text-white w-full" onClick={handleUseLastCondition}>查看表單</Button>
                     </div>
                 </>
             ) : (

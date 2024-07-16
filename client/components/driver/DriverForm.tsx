@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 
-const DriverForm: React.FC<{ onClose: () => void, initialData?: any, onUpdateSuccess?: (data: any) => void }> = ({ onClose, initialData, onUpdateSuccess }) => {
+const DriverForm: React.FC<{ onClose: () => void, onUpdateSuccess: (data: any) => void, initialData?: any }> = ({ onClose, onUpdateSuccess, initialData }) => {
     const [name, setName] = useState(initialData?.name || "");
     const [phone, setPhone] = useState(initialData?.phone || "");
     const [direction, setDirection] = useState<string | undefined>(initialData?.direction);
@@ -86,16 +86,14 @@ const DriverForm: React.FC<{ onClose: () => void, initialData?: any, onUpdateSuc
                 throw new Error(`Failed to submit driver data: ${errorText}`);
             }
 
-            const data = await response.json();
-
+            const updatedData = await response.json();
             setShowAlert(true);
             setTimeout(() => {
                 setShowAlert(false);
-                if (onUpdateSuccess) {
-                    onUpdateSuccess(data); // Notify parent component that update is successful
+                if (initialData) {
+                    onUpdateSuccess(updatedData); // Notify parent component that update is successful only if PATCH method is used
                 }
-                onClose();
-            }, 2000);
+            }, 1000);
         } catch (error) {
             console.error('Error submitting driver data:', error);
             setError('提交司機資料時出錯，不可以註冊重複的電話號碼');
