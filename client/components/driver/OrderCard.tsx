@@ -1,8 +1,20 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 
-const OrderCard: React.FC<{ order: any; onAccept: (orderId: string) => void; onTransfer: (orderId: string) => void; onNavigate: (orderId: string) => void }> = ({ order, onAccept, onTransfer, onNavigate }) => {
+const OrderCard: React.FC<{ order: any; onAccept: (orderId: string) => void; onTransfer: (orderId: string, newDriverPhone: string) => void; onNavigate: (orderId: string) => void }> = ({ order, onAccept, onTransfer, onNavigate }) => {
+    const [showTransferForm, setShowTransferForm] = useState(false);
+    const [newDriverPhone, setNewDriverPhone] = useState("");
+
+    const handleTransfer = () => {
+        if (/^\d{7,10}$/.test(newDriverPhone)) {
+            onTransfer(order.id, newDriverPhone);
+        } else {
+            alert("電話號碼必須是7到10位的數字");
+        }
+    };
+
     return (
         <Card className="max-w-md mx-auto my-6 shadow-lg">
             <CardHeader className="bg-black text-white p-4 rounded-t-md">
@@ -37,6 +49,18 @@ const OrderCard: React.FC<{ order: any; onAccept: (orderId: string) => void; onT
                 {order.note && (
                     <p className="text-sm text-gray-700 font-bold">備註: {order.note}</p>
                 )}
+                {showTransferForm && (
+                    <div className="mt-4">
+                        <p className="text-sm text-gray-700 font-bold">請輸入新司機的電話號碼:</p>
+                        <Input
+                            type="text"
+                            value={newDriverPhone}
+                            onChange={(e) => setNewDriverPhone(e.target.value)}
+                            placeholder="7到10位數字"
+                        />
+                        <Button className="mt-2 bg-red-500 text-white" onClick={handleTransfer}>確認轉單</Button>
+                    </div>
+                )}
             </CardContent>
             <CardFooter className="bg-gray-100 p-4 rounded-b-md flex justify-between items-center">
                 <div className="flex flex-col items-start">
@@ -47,7 +71,7 @@ const OrderCard: React.FC<{ order: any; onAccept: (orderId: string) => void; onT
                     <Button className="bg-black text-white" onClick={() => onAccept(order.id)}>接單</Button>
                 ) : (
                     <div className="flex space-x-2">
-                        <Button className="bg-red-500 text-white" onClick={() => onTransfer(order.id)}>轉單</Button>
+                        <Button className="bg-red-500 text-white" onClick={() => setShowTransferForm(!showTransferForm)}>轉單</Button>
                         <Button className="bg-black text-white" onClick={() => onNavigate(order.id)}>導航</Button>
                     </div>
                 )}
