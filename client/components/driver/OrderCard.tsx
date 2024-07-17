@@ -1,12 +1,14 @@
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button} from "@/components/ui/button";
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { useRouter } from 'next/navigation';
 
 const OrderCard: React.FC<{ order: any; onAccept: (orderId: string) => void; onTransfer: (orderId: string, newDriverPhone: string) => void; onNavigate: (orderId: string) => void }> = ({ order, onAccept, onTransfer, onNavigate }) => {
     const [showTransferForm, setShowTransferForm] = useState(false);
     const [newDriverPhone, setNewDriverPhone] = useState("");
     const [transferError, setTransferError] = useState("");
+    const router = useRouter();
 
     const handleTransfer = () => {
         if (/^\d{7,10}$/.test(newDriverPhone)) {
@@ -16,6 +18,10 @@ const OrderCard: React.FC<{ order: any; onAccept: (orderId: string) => void; onT
         } else {
             setTransferError("電話號碼必須是7到10位的數字");
         }
+    };
+
+    const handleNavigate = () => {
+        router.push(`/navigation?orderId=${order.id}`);
     };
 
     return (
@@ -83,7 +89,7 @@ const OrderCard: React.FC<{ order: any; onAccept: (orderId: string) => void; onT
                 ) : (
                     <div className="flex space-x-2">
                         <Button className="bg-red-500 text-white" onClick={() => setShowTransferForm(true)}>轉單</Button>
-                        <Button className="bg-black text-white" onClick={() => onNavigate(order.id)}>導航</Button>
+                        <Button className="bg-black text-white" onClick={handleNavigate}>導航</Button>
                     </div>
                 )}
             </CardFooter>
