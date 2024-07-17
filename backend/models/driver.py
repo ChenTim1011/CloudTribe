@@ -3,7 +3,7 @@ from typing import Optional
 from datetime import datetime
 
 class Driver(BaseModel):
-    id: Optional[int]
+    id: Optional[int] = None
     name: str 
     phone: str 
     direction: str
