@@ -4,8 +4,8 @@ import React, { useState } from 'react';
 import DriverForm from "@/components/driver/DriverForm";
 import LoginForm from "@/components/driver/LoginForm";
 import OrderListWithPagination from "@/components/driver/OrderListWithPagination";
+import DriverOrdersPage from "@/components/driver/DriverOrdersPage";
 import NavigationBar from "@/components/NavigationBar";
-import DriverOrdersPage from "@/components/driver/DriverOrdersPage"; // Import the new component
 import { Button } from "@/components/ui/button";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowLeft } from '@fortawesome/free-solid-svg-icons';
@@ -14,10 +14,11 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetClose } from "@/comp
 const DriverPage: React.FC = () => {
     const [showRegisterForm, setShowRegisterForm] = useState(false);
     const [showLoginForm, setShowLoginForm] = useState(false);
-    const [showDriverOrders, setShowDriverOrders] = useState(false); // State to show driver orders
+    const [showDriverOrders, setShowDriverOrders] = useState(false);
     const [orders, setOrders] = useState([]);
     const [filteredOrders, setFilteredOrders] = useState<any[]>([]);
-    const [driverData, setDriverData] = useState(null);
+    const [driverData, setDriverData] = useState<{ id: string } | null>(null);
+    const [driverOrders, setDriverOrders] = useState([]); // State to store driver's orders
 
     const handleFetchOrders = async (phone: string) => {
         try {
@@ -29,6 +30,23 @@ const DriverPage: React.FC = () => {
             setOrders(data);
         } catch (error) {
             console.error('Error fetching orders:', error);
+        }
+    };
+
+    const handleFetchDriverOrders = async () => {
+        if (!driverData || !driverData.id) {
+            console.error("Driver data is missing or incomplete");
+            return;
+        }
+        try {
+            const response = await fetch(`/api/drivers/${driverData.id}/orders`);
+            if (!response.ok) {
+                throw new Error('Failed to fetch driver orders');
+            }
+            const data = await response.json();
+            setDriverOrders(data);
+        } catch (error) {
+            console.error('Error fetching driver orders:', error);
         }
     };
 
@@ -83,7 +101,10 @@ const DriverPage: React.FC = () => {
                         </Button>
                         <Button 
                             className="mb-10 px-6 py-3 text-lg font-bold border-2 border-black text-black bg-white hover:bg-blue-500 hover:text-white"
-                            onClick={() => setShowDriverOrders(true)} // Button to show driver orders
+                            onClick={() => {
+                                setShowDriverOrders(true);
+                                handleFetchDriverOrders(); // Fetch driver orders when opening the sheet
+                            }}
                         >
                             管理訂單
                         </Button>
@@ -115,7 +136,7 @@ const DriverPage: React.FC = () => {
                     </Sheet>
 
                     <Sheet open={showDriverOrders} onOpenChange={setShowDriverOrders}> 
-                        <SheetContent className="w-full max-w-2xl" aria-describedby="driver-orders-description">
+                        <SheetContent className="w-full max-w-2xl max-h-[calc(100vh-200px)] overflow-y-auto" aria-describedby="driver-orders-description">
                             <SheetHeader>
                                 <SheetTitle>我的訂單</SheetTitle>
                                 <SheetClose />
@@ -129,6 +150,7 @@ const DriverPage: React.FC = () => {
                             orders={filteredOrders}
                             onAccept={handleAccept}
                             driverData={driverData}
+                            onOrderAccepted={handleFetchDriverOrders} // Pass the fetch driver orders function
                         />
                     </div>
                 </div>

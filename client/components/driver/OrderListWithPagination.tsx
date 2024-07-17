@@ -3,7 +3,7 @@ import OrderCard from './OrderCard';
 import PaginationDemo from './PaginationDemo';
 import { Button } from '@/components/ui/button';
 
-const OrderListWithPagination: React.FC<{ orders: any[], onAccept: (orderId: string) => void, driverData: any }> = ({ orders, onAccept, driverData }) => {
+const OrderListWithPagination: React.FC<{ orders: any[], onAccept: (orderId: string) => void, driverData: any, onOrderAccepted: () => void }> = ({ orders, onAccept, driverData, onOrderAccepted }) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [filteredOrders, setFilteredOrders] = useState<any[]>([]);
   const itemsPerPage = 5;
@@ -42,6 +42,7 @@ const OrderListWithPagination: React.FC<{ orders: any[], onAccept: (orderId: str
 
       setFilteredOrders(filteredOrders.filter(order => order.id !== orderId));
       alert('接單成功');
+      onOrderAccepted(); // Notify parent component that an order has been accepted
     } catch (error) {
       console.error('Error accepting order:', error);
       alert('接單失敗');
