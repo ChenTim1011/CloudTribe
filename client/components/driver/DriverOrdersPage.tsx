@@ -28,10 +28,16 @@ const DriverOrdersPage: React.FC<{ driverData: any }> = ({ driverData }) => {
 
     return (
         <div className="overflow-y-auto max-h-[calc(100vh-200px)]">
-            <h1 className="text-2xl font-bold mb-4">我的訂單</h1>
+            <h1 className="text-lg font-bold mb-4">只有找到下一位司機才可以轉單</h1>
             {orders.length > 0 ? (
                 orders.map(order => (
-                    <OrderCard key={order.id} order={order} onAccept={() => {}} />
+                    <OrderCard
+                        key={order.id}
+                        order={order}
+                        onAccept={() => {}}
+                        onTransfer={() => {}}
+                        onNavigate={() => {}}
+                    />
                 ))
             ) : (
                 <p className="text-center mt-8">目前沒有接到的訂單。</p>

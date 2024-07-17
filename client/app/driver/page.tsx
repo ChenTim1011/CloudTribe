@@ -54,6 +54,14 @@ const DriverPage: React.FC = () => {
         // Handle order acceptance logic
     };
 
+    const handleTransfer = (orderId: string) => {
+        // Handle order transfer logic
+    };
+
+    const handleNavigate = (orderId: string) => {
+        // Handle order navigation logic
+    };
+
     const handleFilteredOrders = (filtered: any[]) => {
         setFilteredOrders(filtered);
     };
@@ -149,6 +157,8 @@ const DriverPage: React.FC = () => {
                         <OrderListWithPagination
                             orders={filteredOrders}
                             onAccept={handleAccept}
+                            onTransfer={handleTransfer}
+                            onNavigate={handleNavigate}
                             driverData={driverData}
                             onOrderAccepted={handleFetchDriverOrders} // Pass the fetch driver orders function
                         />

@@ -3,7 +3,7 @@ import OrderCard from './OrderCard';
 import PaginationDemo from './PaginationDemo';
 import { Button } from '@/components/ui/button';
 
-const OrderListWithPagination: React.FC<{ orders: any[], onAccept: (orderId: string) => void, driverData: any, onOrderAccepted: () => void }> = ({ orders, onAccept, driverData, onOrderAccepted }) => {
+const OrderListWithPagination: React.FC<{ orders: any[], onAccept: (orderId: string) => void, onTransfer: (orderId: string) => void, onNavigate: (orderId: string) => void, onOrderAccepted: () => void, driverData: any }> = ({ orders, onAccept, onTransfer, onNavigate, onOrderAccepted, driverData }) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [filteredOrders, setFilteredOrders] = useState<any[]>([]);
   const itemsPerPage = 5;
@@ -49,6 +49,14 @@ const OrderListWithPagination: React.FC<{ orders: any[], onAccept: (orderId: str
     }
   };
 
+  const handleTransferOrder = async (orderId: string) => {
+    // Implement the logic to transfer the order
+  };
+
+  const handleNavigate = async (orderId: string) => {
+    // Implement the logic to navigate to the order location
+  };
+
   const startIndex = (currentPage - 1) * itemsPerPage;
   const currentOrders = filteredOrders.slice(startIndex, startIndex + itemsPerPage);
 
@@ -56,7 +64,7 @@ const OrderListWithPagination: React.FC<{ orders: any[], onAccept: (orderId: str
     <div>
       {currentOrders.length > 0 ? (
         currentOrders.map(order => (
-          <OrderCard key={order.id} order={order} onAccept={handleAcceptOrder} />
+          <OrderCard key={order.id} order={order} onAccept={handleAcceptOrder} onTransfer={handleTransferOrder} onNavigate={handleNavigate} />
         ))
       ) : (
         <p className="text-center mt-8">沒有符合的訂單。</p>

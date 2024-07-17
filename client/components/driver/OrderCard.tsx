@@ -2,7 +2,7 @@ import React from 'react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 
-const OrderCard: React.FC<{ order: any; onAccept: (orderId: string) => void }> = ({ order, onAccept }) => {
+const OrderCard: React.FC<{ order: any; onAccept: (orderId: string) => void; onTransfer: (orderId: string) => void; onNavigate: (orderId: string) => void }> = ({ order, onAccept, onTransfer, onNavigate }) => {
     return (
         <Card className="max-w-md mx-auto my-6 shadow-lg">
             <CardHeader className="bg-black text-white p-4 rounded-t-md">
@@ -43,7 +43,14 @@ const OrderCard: React.FC<{ order: any; onAccept: (orderId: string) => void }> =
                     <p className="text-sm text-gray-700 font-bold">訂單狀態: {order.order_status}</p>
                     <p className="text-sm text-gray-700 font-bold">總價格: ${order.total_price.toFixed(2)}</p>
                 </div>
-                <Button className="bg-black text-white" onClick={() => onAccept(order.id)}>接單</Button>
+                {order.order_status === '未接單' ? (
+                    <Button className="bg-black text-white" onClick={() => onAccept(order.id)}>接單</Button>
+                ) : (
+                    <div className="flex space-x-2">
+                        <Button className="bg-red-500 text-white" onClick={() => onTransfer(order.id)}>轉單</Button>
+                        <Button className="bg-black text-white" onClick={() => onNavigate(order.id)}>導航</Button>
+                    </div>
+                )}
             </CardFooter>
         </Card>
     );
