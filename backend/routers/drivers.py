@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException
 import psycopg2
-from ..models.driver import Driver
-from ..database import get_db_connection
+from backend.models.driver import Driver
+from backend.database import get_db_connection
 
 router = APIRouter()
 

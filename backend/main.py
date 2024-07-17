@@ -30,8 +30,10 @@ from backend.handlers.driver import handle_driver
 
 import logging
 from fastapi import FastAPI, Request, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
-from routers import orders, drivers
+from backend.routers import orders, drivers
+
 
 # environment variables
 load_dotenv()
@@ -42,13 +44,14 @@ app = FastAPI()
 app.include_router(orders.router, prefix="/api/orders", tags=["orders"])
 app.include_router(drivers.router, prefix="/api/drivers", tags=["drivers"])
 
-
-
-
-# environment variables
-load_dotenv()
-
-app = FastAPI()
+# Setup CORS
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # you can change this to specific origin
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 
 # setup Line Bot API
