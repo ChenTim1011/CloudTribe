@@ -16,3 +16,6 @@ class DriverOrder(BaseModel):
     order_id: int
     action: str
     timestamp: Optional[datetime] = None
+    previous_driver_id: Optional[int] = None
+    previous_driver_name: Optional[str] = None
+    previous_driver_phone: Optional[str] = None

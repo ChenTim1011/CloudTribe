@@ -112,21 +112,30 @@ async def transfer_order(order_id: int, transfer_request: TransferOrderRequest):
     cur = conn.cursor()
 
     try:
-        cur.execute("SELECT id FROM drivers WHERE phone = %s", (transfer_request.new_driver_phone,))
+        cur.execute("SELECT id, name, phone FROM drivers WHERE phone = %s", (transfer_request.new_driver_phone,))
         new_driver = cur.fetchone()
-
         if not new_driver:
             raise HTTPException(status_code=404, detail="新司機未註冊")
 
         new_driver_id = new_driver[0]
+        new_driver_name = new_driver[1]
+        new_driver_phone = new_driver[2]
+
+        if new_driver_id == transfer_request.current_driver_id:
+            raise HTTPException(status_code=400, detail="不能將訂單轉給自己")
 
         cur.execute("SELECT driver_id FROM driver_orders WHERE order_id = %s AND action = '接單' FOR UPDATE", (order_id,))
         order = cur.fetchone()
-
         if order[0] != transfer_request.current_driver_id:
             raise HTTPException(status_code=400, detail="當前司機無法轉交此訂單")
 
-        cur.execute("UPDATE driver_orders SET driver_id = %s WHERE order_id = %s AND driver_id = %s AND action = '接單'", (new_driver_id, order_id, transfer_request.current_driver_id))
+        cur.execute("SELECT name, phone FROM drivers WHERE id = %s", (transfer_request.current_driver_id,))
+        current_driver = cur.fetchone()
+        current_driver_name = current_driver[0]
+        current_driver_phone = current_driver[1]
+
+        cur.execute("UPDATE driver_orders SET driver_id = %s, previous_driver_id = %s, previous_driver_name = %s, previous_driver_phone = %s WHERE order_id = %s AND driver_id = %s AND action = '接單'", 
+                    (new_driver_id, transfer_request.current_driver_id, current_driver_name, current_driver_phone, order_id, transfer_request.current_driver_id))
 
         conn.commit()
         return {"status": "success"}

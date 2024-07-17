@@ -87,7 +87,7 @@ async def get_driver_orders(driver_id: int):
 
     try:
         cur.execute("""
-            SELECT orders.* 
+            SELECT orders.*, driver_orders.previous_driver_name, driver_orders.previous_driver_phone
             FROM orders 
             JOIN driver_orders ON orders.id = driver_orders.order_id 
             WHERE driver_orders.driver_id = %s AND driver_orders.action = '接單'
@@ -95,9 +95,7 @@ async def get_driver_orders(driver_id: int):
         orders = cur.fetchall()
         order_list = []
         for order in orders:
-            cur.execute("SELECT * FROM order_items WHERE order_id = %s", (order[0],))
-            items = cur.fetchall()
-            order_list.append({
+            order_dict = {
                 "id": order[0],
                 "name": order[1],
                 "phone": order[2],
@@ -108,9 +106,15 @@ async def get_driver_orders(driver_id: int):
                 "total_price": order[7],
                 "order_type": order[8],
                 "order_status": order[9],
-                "items": [{"id": item[2], "name": item[3], "price": item[4], "quantity": item[5], "img": item[6]} for item in items],
-                "note": order[10]
-            })
+                "items": [],
+                "note": order[10],
+                "previous_driver_name": order[11],
+                "previous_driver_phone": order[12]
+            }
+            cur.execute("SELECT * FROM order_items WHERE order_id = %s", (order[0],))
+            items = cur.fetchall()
+            order_dict["items"] = [{"id": item[2], "name": item[3], "price": item[4], "quantity": item[5], "img": item[6]} for item in items]
+            order_list.append(order_dict)
         
         return order_list
     except Exception as e:

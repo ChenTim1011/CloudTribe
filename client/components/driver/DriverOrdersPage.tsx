@@ -38,14 +38,14 @@ const DriverOrdersPage: React.FC<{ driverData: any }> = ({ driverData }) => {
 
             if (!response.ok) {
                 const errorText = await response.text();
-                throw new Error(`Failed to transfer order: ${errorText}`);
+                throw new Error(`轉單失敗: ${errorText}`);
             }
 
             setOrders(orders.filter(order => order.id !== orderId));
             alert('轉單成功');
         } catch (error) {
-            console.error('Error transferring order:', error);
-            alert('轉單失敗');
+            console.error('轉單失敗:', error);
+            alert(`${(error as Error).message}`);
         }
     };
 

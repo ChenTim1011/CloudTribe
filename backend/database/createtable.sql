@@ -37,6 +37,10 @@ CREATE TABLE IF NOT EXISTS driver_orders (
     driver_id INTEGER NOT NULL REFERENCES drivers(id),
     order_id INTEGER NOT NULL REFERENCES orders(id),
     action VARCHAR(50) NOT NULL, 
-    timestamp TIMESTAMP NOT NULL DEFAULT NOW()
+    timestamp TIMESTAMP NOT NULL DEFAULT NOW(),
+    previous_driver_id INTEGER,
+    previous_driver_name VARCHAR(255),
+    previous_driver_phone VARCHAR(15)
 );
+
 
