@@ -32,7 +32,7 @@ import logging
 from fastapi import FastAPI, Request, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
-from backend.routers import orders, drivers
+from backend.routers import orders, drivers, forms
 
 
 # environment variables
@@ -43,6 +43,7 @@ app = FastAPI()
 # Register routers
 app.include_router(orders.router, prefix="/api/orders", tags=["orders"])
 app.include_router(drivers.router, prefix="/api/drivers", tags=["drivers"])
+app.include_router(forms.router, prefix="/api/forms", tags=["forms"])
 
 # Setup CORS
 app.add_middleware(

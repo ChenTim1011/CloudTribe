@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException,Query
 from backend.models.order import Order
 from backend.models.driver import DriverOrder
 from backend.database import get_db_connection
@@ -146,4 +146,39 @@ async def transfer_order(order_id: int, transfer_request: TransferOrderRequest):
         cur.close()
         conn.close()
 
+
+@router.get("/{order_id}")
+async def get_order(order_id: int):
+    conn = get_db_connection()
+    cur = conn.cursor()
+
+    try:
+        cur.execute("SELECT * FROM orders WHERE id = %s", (order_id,))
+        order = cur.fetchone()
+        if not order:
+            raise HTTPException(status_code=404, detail="訂單不存在")
+
+        cur.execute("SELECT * FROM order_items WHERE order_id = %s", (order_id,))
+        items = cur.fetchall()
+        order_data = {
+            "id": order[0],
+            "name": order[1],
+            "phone": order[2],
+            "date": order[3],
+            "time": order[4],
+            "location": order[5],
+            "is_urgent": order[6],
+            "total_price": order[7],
+            "order_type": order[8],
+            "order_status": order[9],
+            "items": [{"id": item[2], "name": item[3], "price": item[4], "quantity": item[5], "img": item[6]} for item in items],
+            "note": order[10]
+        }
+
+        return order_data
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+    finally:
+        cur.close()
+        conn.close()
 
