@@ -3,6 +3,13 @@ from backend.models.order import Order
 from backend.models.driver import DriverOrder
 from backend.database import get_db_connection
 import logging
+from pydantic import BaseModel
+
+class TransferOrderRequest(BaseModel):
+    current_driver_id: int
+    new_driver_phone: str
+
+
 
 router = APIRouter()
 
@@ -98,3 +105,36 @@ async def accept_order(order_id: int, driver_order: DriverOrder):
     finally:
         cur.close()
         conn.close()
+
+@router.post("/{order_id}/transfer")
+async def transfer_order(order_id: int, transfer_request: TransferOrderRequest):
+    conn = get_db_connection()
+    cur = conn.cursor()
+
+    try:
+        cur.execute("SELECT id FROM drivers WHERE phone = %s", (transfer_request.new_driver_phone,))
+        new_driver = cur.fetchone()
+
+        if not new_driver:
+            raise HTTPException(status_code=404, detail="新司機未註冊")
+
+        new_driver_id = new_driver[0]
+
+        cur.execute("SELECT driver_id FROM driver_orders WHERE order_id = %s AND action = '接單' FOR UPDATE", (order_id,))
+        order = cur.fetchone()
+
+        if order[0] != transfer_request.current_driver_id:
+            raise HTTPException(status_code=400, detail="當前司機無法轉交此訂單")
+
+        cur.execute("UPDATE driver_orders SET driver_id = %s WHERE order_id = %s AND driver_id = %s AND action = '接單'", (new_driver_id, order_id, transfer_request.current_driver_id))
+
+        conn.commit()
+        return {"status": "success"}
+    except Exception as e:
+        conn.rollback()
+        raise HTTPException(status_code=500, detail=str(e))
+    finally:
+        cur.close()
+        conn.close()
+
+
