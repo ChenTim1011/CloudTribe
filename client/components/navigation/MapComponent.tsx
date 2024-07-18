@@ -30,6 +30,7 @@ const MapComponent: React.FC = () => {
   const [currentLocation, setCurrentLocation] = useState<{ lat: number, lng: number } | null>(null);
   const [center, setCenter] = useState<{ lat: number, lng: number }>({ lat: 24.987772543745507, lng: 121.57809269945467 });
   const [error, setError] = useState<string | null>(null);
+  const [navigationUrl, setNavigationUrl] = useState<string | null>(null);
 
   const autocompleteOriginRef = useRef<google.maps.places.Autocomplete | null>(null);
   const autocompleteDestinationRef = useRef<google.maps.places.Autocomplete | null>(null);
@@ -95,6 +96,17 @@ const MapComponent: React.FC = () => {
     }
   }, []);
 
+  const handleGenerateNavigationLink = useCallback(() => {
+    if (!origin || !destination) {
+      setError("請輸入有效的起點和終點");
+      return;
+    }
+
+    const baseURL = 'https://www.google.com/maps/dir/';
+    const url = `${baseURL}${encodeURIComponent(origin)}/${encodeURIComponent(destination)}`;
+    setNavigationUrl(url);
+  }, [origin, destination]);
+
   return (
     <LoadScript googleMapsApiKey={process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY as string} libraries={libraries}>
       <div className="max-w-full mx-auto my-6 space-y-4">
@@ -151,6 +163,12 @@ const MapComponent: React.FC = () => {
                   <AlertTitle>錯誤</AlertTitle>
                   <AlertDescription>{error}</AlertDescription>
                 </Alert>
+              )}
+              <Button onClick={handleGenerateNavigationLink} className="mt-2">生成導航連結</Button>
+              {navigationUrl && (
+                <p className="text-center mt-2">
+                  <a href={navigationUrl} target="_blank" rel="noopener noreferrer">點此查看導航路徑</a>
+                </p>
               )}
             </div>
           </CardContent>
