@@ -1,17 +1,13 @@
 // components/navigation/Directions.tsx
 "use client";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useEffect, useState } from "react";
-import { useMapsLibrary, useMap } from "@vis.gl/react-google-maps";
+import { DirectionsRenderer, DirectionsService } from "@react-google-maps/api";
 
 interface DirectionsProps {
-  onDriverLocationChange?: (location: { lat: number, lng: number }) => void;
-  routes: Route[];
-  setRoutes: React.Dispatch<React.SetStateAction<Route[]>>;
-  routeIndex: number;
-  setRouteIndex: React.Dispatch<React.SetStateAction<number>>;
   origin: string;
   destination: string;
+  routes: Route[];
+  setRoutes: React.Dispatch<React.SetStateAction<Route[]>>;
   setTotalDistance: React.Dispatch<React.SetStateAction<string | null>>;
   setTotalTime: React.Dispatch<React.SetStateAction<string | null>>;
 }
@@ -27,27 +23,22 @@ interface Route {
 }
 
 const Directions: React.FC<DirectionsProps> = ({
-  routes,
-  setRoutes,
-  routeIndex,
-  setRouteIndex,
   origin,
   destination,
+  routes,
+  setRoutes,
   setTotalDistance,
   setTotalTime,
 }) => {
-  const map = useMap();
-  const routesLibrary = useMapsLibrary("routes");
-  const [directionsService, setDirectionsService] = useState<google.maps.DirectionsService>();
-  const [directionsRenderer, setDirectionsRenderer] = useState<google.maps.DirectionsRenderer>();
-  const selected = routes[routeIndex];
-  const leg = selected?.legs[0];
+  const [directionsService, setDirectionsService] = useState<google.maps.DirectionsService | null>(null);
+  const [directionsRenderer, setDirectionsRenderer] = useState<google.maps.DirectionsRenderer | null>(null);
 
   useEffect(() => {
-    if (!routesLibrary || !map) return;
-    setDirectionsService(new routesLibrary.DirectionsService());
-    setDirectionsRenderer(new routesLibrary.DirectionsRenderer({ map }));
-  }, [routesLibrary, map]);
+    if (!window.google) return;
+
+    setDirectionsService(new window.google.maps.DirectionsService());
+    setDirectionsRenderer(new window.google.maps.DirectionsRenderer());
+  }, []);
 
   useEffect(() => {
     if (!directionsService || !directionsRenderer) return;
@@ -70,18 +61,7 @@ const Directions: React.FC<DirectionsProps> = ({
     return () => directionsRenderer.setMap(null);
   }, [directionsService, directionsRenderer, origin, destination, setRoutes, setTotalDistance, setTotalTime]);
 
-  useEffect(() => {
-    if (!directionsRenderer) return;
-    directionsRenderer.setRouteIndex(routeIndex);
-  }, [routeIndex, directionsRenderer]);
-
-  if (!leg) return null;
-
-  return (
-    <Card className="max-w-full mx-auto my-6 shadow-lg space-y-4">
-
-    </Card>
-  );
+  return null;
 };
 
 export default Directions;
