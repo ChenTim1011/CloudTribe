@@ -182,3 +182,31 @@ async def get_order(order_id: int):
         cur.close()
         conn.close()
 
+from fastapi import APIRouter, HTTPException
+
+router = APIRouter()
+
+@router.post("/{order_id}/complete")
+async def complete_order(order_id: int):
+    conn = get_db_connection()
+    cur = conn.cursor()
+
+    try:
+        cur.execute("SELECT * FROM orders WHERE id = %s", (order_id,))
+        order = cur.fetchone()
+        if not order:
+            raise HTTPException(status_code=404, detail="訂單不存在")
+
+        if order[9] != '接單':  
+            raise HTTPException(status_code=400, detail="訂單狀態不是接單，無法完成訂單")
+
+        cur.execute("UPDATE orders SET order_status = '已完成訂單' WHERE id = %s", (order_id,))
+        conn.commit()
+
+        return {"status": "success", "message": "訂單已完成"}
+    except Exception as e:
+        conn.rollback()
+        raise HTTPException(status_code=500, detail=str(e))
+    finally:
+        cur.close()
+        conn.close()
