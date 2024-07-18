@@ -1,5 +1,6 @@
 "use client";
 
+
 import NavigationPage from "@/components/navagation/NavigationPage";
 
 const Navigation = () => {
