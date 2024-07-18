@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import DriverForm from "@/components/driver/DriverForm";
 import LoginForm from "@/components/driver/LoginForm";
 import OrderListWithPagination from "@/components/driver/OrderListWithPagination";
@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowLeft } from '@fortawesome/free-solid-svg-icons';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetClose } from "@/components/ui/sheet";
+import { useRouter } from 'next/navigation';
 
 const DriverPage: React.FC = () => {
     const [showRegisterForm, setShowRegisterForm] = useState(false);
@@ -19,6 +20,7 @@ const DriverPage: React.FC = () => {
     const [filteredOrders, setFilteredOrders] = useState<any[]>([]);
     const [driverData, setDriverData] = useState<{ id: string } | null>(null);
     const [driverOrders, setDriverOrders] = useState([]); // State to store driver's orders
+    const router = useRouter();
 
     const handleFetchOrders = async (phone: string) => {
         try {
@@ -60,6 +62,7 @@ const DriverPage: React.FC = () => {
 
     const handleNavigate = (orderId: string) => {
         // Handle order navigation logic
+        router.push(`/navigation?orderId=${orderId}`);
     };
 
     const handleFilteredOrders = (filtered: any[]) => {

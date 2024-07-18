@@ -53,6 +53,11 @@ export default function Page() {
               測試部落居民專區-購買服務
             </Link>
           </Button>
+          <Button className="lg:h-16 h-12 lg:text-2xl text-md rounded-2xl bg-gray-500 shadow-2xl font-mono hover:bg-slate-400">
+            <Link href="/viewform">
+              測試查看表單
+            </Link>
+          </Button>
         </div>}
       </div>
     </main>

@@ -29,6 +29,11 @@ const NavigationBar = () => {
             <Link href="/driver">司機專區</Link>
           </MenubarTrigger>
         </MenubarMenu>
+        <MenubarMenu>
+          <MenubarTrigger>
+            <Link href="/forms">查看表單</Link>
+          </MenubarTrigger>
+        </MenubarMenu>
       </div>
     </Menubar>
   );

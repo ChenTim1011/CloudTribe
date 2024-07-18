@@ -50,7 +50,8 @@ const DriverOrdersPage: React.FC<{ driverData: any }> = ({ driverData }) => {
     };
 
     const handleNavigateOrder = async (orderId: string) => {
-        
+        // Navigate to the NavigationPage with the orderId
+        window.location.href = `/navigation?orderId=${orderId}`;
     };
 
     return (
