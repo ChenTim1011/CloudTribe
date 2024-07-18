@@ -3,6 +3,7 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import { useState, useRef, useCallback } from "react";
 import { LoadScript, GoogleMap, Autocomplete, Marker } from "@react-google-maps/api";
 import Directions from "./Directions";
@@ -28,17 +29,48 @@ const MapComponent: React.FC = () => {
   const [routeIndex, setRouteIndex] = useState(0);
   const [currentLocation, setCurrentLocation] = useState<{ lat: number, lng: number } | null>(null);
   const [center, setCenter] = useState<{ lat: number, lng: number }>({ lat: 24.987772543745507, lng: 121.57809269945467 });
+  const [error, setError] = useState<string | null>(null);
 
   const autocompleteOriginRef = useRef<google.maps.places.Autocomplete | null>(null);
   const autocompleteDestinationRef = useRef<google.maps.places.Autocomplete | null>(null);
 
-  const handlePlaceChanged = useCallback((autocompleteRef: React.MutableRefObject<google.maps.places.Autocomplete | null>, setFn: React.Dispatch<React.SetStateAction<string>>, setCenterFn: React.Dispatch<React.SetStateAction<{ lat: number, lng: number }>>) => {
+  const handlePlaceChanged = useCallback((autocompleteRef: React.MutableRefObject<google.maps.places.Autocomplete | null>, setFn: React.Dispatch<React.SetStateAction<string>>) => {
     if (autocompleteRef.current) {
       const place = autocompleteRef.current.getPlace();
       if (place.geometry && place.geometry.location) {
         const location = place.geometry.location;
         setFn(`${location.lat()},${location.lng()}`);
-        setCenterFn({ lat: location.lat(), lng: location.lng() });
+        setError(null);
+      } else {
+        setError("請用選取的方式找到目標位置，或是輸入有效的地址或地標名稱");
+      }
+    }
+  }, []);
+
+  const handleMoveMapToOrigin = useCallback(() => {
+    if (autocompleteOriginRef.current) {
+      const place = autocompleteOriginRef.current.getPlace();
+      if (place.geometry && place.geometry.location) {
+        const location = place.geometry.location;
+        setCenter({ lat: location.lat(), lng: location.lng() });
+        setError(null);
+      } else {
+        setError("起點無效，請重新輸入");
+        console.error("無效的名稱，請重新輸入", place);
+      }
+    }
+  }, []);
+
+  const handleMoveMapToDestination = useCallback(() => {
+    if (autocompleteDestinationRef.current) {
+      const place = autocompleteDestinationRef.current.getPlace();
+      if (place.geometry && place.geometry.location) {
+        const location = place.geometry.location;
+        setCenter({ lat: location.lat(), lng: location.lng() });
+        setError(null);
+      } else {
+        setError("終點無效，請重新輸入");
+        console.error("無效的名稱，請重新輸入", place);
       }
     }
   }, []);
@@ -48,15 +80,18 @@ const MapComponent: React.FC = () => {
       navigator.geolocation.getCurrentPosition(
         (position) => {
           const { latitude, longitude } = position.coords;
-          setCurrentLocation({ lat: latitude, lng: longitude });
+          setOrigin(`${latitude},${longitude}`);
           setCenter({ lat: latitude, lng: longitude });
+          setError(null);
         },
         (error) => {
           console.error("Error getting location: ", error);
+          setError("無法獲取當前位置，請確保瀏覽器允許位置存取");
         }
       );
     } else {
       console.error("Geolocation is not supported by this browser.");
+      setError("瀏覽器不支援地理位置功能");
     }
   }, []);
 
@@ -93,25 +128,30 @@ const MapComponent: React.FC = () => {
                   onLoad={(autocomplete) => {
                     autocompleteOriginRef.current = autocomplete;
                   }}
-                  onPlaceChanged={() => handlePlaceChanged(autocompleteOriginRef, setOrigin, setCenter)}
+                  onPlaceChanged={() => handlePlaceChanged(autocompleteOriginRef, setOrigin)}
                 >
                   <Input type="text" placeholder="搜尋起點" />
                 </Autocomplete>
-                <Button onClick={() => handlePlaceChanged(autocompleteOriginRef, setOrigin, setCenter)}>移動地圖到起點</Button>
+                <Button onClick={handleMoveMapToOrigin}>移動地圖到起點</Button>
+                <Button onClick={handleGetCurrentLocation}>以目前位置為起點</Button>
               </div>
               <div className="flex items-center space-x-2">
                 <Autocomplete
                   onLoad={(autocomplete) => {
                     autocompleteDestinationRef.current = autocomplete;
                   }}
-                  onPlaceChanged={() => handlePlaceChanged(autocompleteDestinationRef, setDestination, setCenter)}
+                  onPlaceChanged={() => handlePlaceChanged(autocompleteDestinationRef, setDestination)}
                 >
                   <Input type="text" placeholder="搜尋終點" />
                 </Autocomplete>
-                <Button onClick={() => handlePlaceChanged(autocompleteDestinationRef, setDestination, setCenter)}>移動地圖到終點</Button>
+                <Button onClick={handleMoveMapToDestination}>移動地圖到終點</Button>
               </div>
-              <Button onClick={() => {}} className="mt-2">導航</Button>
-              <Button onClick={handleGetCurrentLocation} className="mt-2">取得目前位置</Button>
+              {error && (
+                <Alert variant="destructive">
+                  <AlertTitle>錯誤</AlertTitle>
+                  <AlertDescription>{error}</AlertDescription>
+                </Alert>
+              )}
             </div>
           </CardContent>
         </Card>
