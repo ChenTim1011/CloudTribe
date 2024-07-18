@@ -130,6 +130,10 @@ const MapComponent: React.FC = () => {
         throw new Error('Failed to fetch order');
       }
       const data = await response.json();
+      if (data.order_status !== '接單') {
+        setError("只顯示狀態為接單的訂單");
+        return;
+      }
       setOrderData(data);
       setError(null);
       setIsSheetOpen(true);
@@ -163,6 +167,13 @@ const MapComponent: React.FC = () => {
     }
   };
 
+  const handleNavigateToLocation = () => {
+    if (orderData && orderData.location) {
+      const locationUrl = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(orderData.location)}`;
+      window.open(locationUrl, '_blank');
+    }
+  };
+
   return (
     <LoadScript googleMapsApiKey={process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY as string} libraries={libraries}>
       <div className="max-w-full mx-auto my-6 space-y-4">
@@ -188,6 +199,8 @@ const MapComponent: React.FC = () => {
         </div>
         <Card className="shadow-lg">
           <CardHeader className="bg-black text-white p-4 rounded-t-md">
+         
+          <Button onClick={handleNavigateToLocation}>目前位置到送貨地點的導覽連結</Button>
             <CardTitle className="text-lg font-bold">導航地圖</CardTitle>
             <CardDescription className="text-sm">顯示路線與地圖</CardDescription>
           </CardHeader>
@@ -215,7 +228,7 @@ const MapComponent: React.FC = () => {
                 >
                   <Input type="text" placeholder="搜尋終點" />
                 </Autocomplete>
-                <Button onClick={handleMoveMapToDestination}>移動地圖到終點</Button>
+                <Button onClick={handleMoveMapToDestination}>移動地圖到終點</Button>   
               </div>
               {error && (
                 <Alert variant="destructive">
