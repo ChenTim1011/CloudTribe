@@ -1,7 +1,7 @@
 "use client";
 
 
-import NavigationPage from "@/components/navagation/NavigationPage";
+import NavigationPage from "@/components/navigation/MapComponent";
 
 const Navigation = () => {
     return <NavigationPage />;
