@@ -23,6 +23,8 @@ const libraries = ["places", "directions"];
 const MapComponent: React.FC = () => {
   const [origin, setOrigin] = useState<string>("");
   const [destination, setDestination] = useState<string>("");
+  const [originName, setOriginName] = useState<string>("");
+  const [destinationName, setDestinationName] = useState<string>("");
   const [totalDistance, setTotalDistance] = useState<string | null>(null);
   const [totalTime, setTotalTime] = useState<string | null>(null);
   const [routes, setRoutes] = useState<Route[]>([]);
@@ -35,12 +37,14 @@ const MapComponent: React.FC = () => {
   const autocompleteOriginRef = useRef<google.maps.places.Autocomplete | null>(null);
   const autocompleteDestinationRef = useRef<google.maps.places.Autocomplete | null>(null);
 
-  const handlePlaceChanged = useCallback((autocompleteRef: React.MutableRefObject<google.maps.places.Autocomplete | null>, setFn: React.Dispatch<React.SetStateAction<string>>) => {
+  const handlePlaceChanged = useCallback((autocompleteRef: React.MutableRefObject<google.maps.places.Autocomplete | null>, setFn: React.Dispatch<React.SetStateAction<string>>, setNameFn: React.Dispatch<React.SetStateAction<string>>) => {
     if (autocompleteRef.current) {
       const place = autocompleteRef.current.getPlace();
       if (place.geometry && place.geometry.location) {
         const location = place.geometry.location;
         setFn(`${location.lat()},${location.lng()}`);
+        const name = place.formatted_address?.replace(", Taiwan", "")?.replace(", 台灣", "") ?? "";
+        setNameFn(name);
         setError(null);
       } else {
         setError("請用選取的方式找到目標位置，或是輸入有效的地址或地標名稱");
@@ -83,6 +87,7 @@ const MapComponent: React.FC = () => {
           const { latitude, longitude } = position.coords;
           setOrigin(`${latitude},${longitude}`);
           setCenter({ lat: latitude, lng: longitude });
+          setOriginName("目前位置");
           setError(null);
         },
         (error) => {
@@ -140,7 +145,7 @@ const MapComponent: React.FC = () => {
                   onLoad={(autocomplete) => {
                     autocompleteOriginRef.current = autocomplete;
                   }}
-                  onPlaceChanged={() => handlePlaceChanged(autocompleteOriginRef, setOrigin)}
+                  onPlaceChanged={() => handlePlaceChanged(autocompleteOriginRef, setOrigin, setOriginName)}
                 >
                   <Input type="text" placeholder="搜尋起點" />
                 </Autocomplete>
@@ -152,7 +157,7 @@ const MapComponent: React.FC = () => {
                   onLoad={(autocomplete) => {
                     autocompleteDestinationRef.current = autocomplete;
                   }}
-                  onPlaceChanged={() => handlePlaceChanged(autocompleteDestinationRef, setDestination)}
+                  onPlaceChanged={() => handlePlaceChanged(autocompleteDestinationRef, setDestination, setDestinationName)}
                 >
                   <Input type="text" placeholder="搜尋終點" />
                 </Autocomplete>
@@ -167,7 +172,7 @@ const MapComponent: React.FC = () => {
               <Button onClick={handleGenerateNavigationLink} className="mt-2">生成導航連結</Button>
               {navigationUrl && (
                 <p className="text-center mt-2">
-                  <a href={navigationUrl} target="_blank" rel="noopener noreferrer">點此查看導航路徑</a>
+                  <a href={navigationUrl} target="_blank" rel="noopener noreferrer">點此查看從 {originName} 到 {destinationName} 的導航路徑</a>
                 </p>
               )}
             </div>
@@ -183,22 +188,7 @@ const MapComponent: React.FC = () => {
             </CardFooter>
           </Card>
         )}
-        <Card className="shadow-lg">
-          <CardFooter className="p-4 flex flex-col space-y-4">
-            <div className="space-y-2">
-              <h2 className="text-lg font-bold">其他路線</h2>
-              <ul>
-                {routes.map((route, index) => (
-                  <li key={route.summary} className="my-2">
-                    <Button onClick={() => setRouteIndex(index)}>
-                      {route.summary}
-                    </Button>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </CardFooter>
-        </Card>
+
       </div>
     </LoadScript>
   );
