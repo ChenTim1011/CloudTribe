@@ -3,6 +3,13 @@ This module provides API endpoints for managing drivers and their orders.
 
 It includes endpoints for creating, updating, and fetching driver information,
 as well as fetching orders assigned to a driver.
+
+Endpoints:
+- POST /: Create a new driver.
+- GET /{phone}: Get driver information by phone number.
+- PATCH /{phone}: Update driver information by phone number.
+- GET /{driver_id}/orders: Get orders assigned to a driver.
+
 """
 
 import logging

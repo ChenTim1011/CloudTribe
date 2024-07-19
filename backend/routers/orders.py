@@ -3,6 +3,15 @@ This module contains the router for handling orders.
 
 It includes endpoints for creating orders, fetching orders, accepting orders,
 transferring orders, retrieving specific orders, and completing orders.
+
+Endpoints:
+- POST /: Create a new order.
+- GET /: Get all unaccepted orders.
+- POST /{order_id}/accept: Accept an order.
+- POST /{order_id}/transfer: Transfer an order to a new driver.
+- GET /{order_id}: Retrieve a specific order by ID.
+- POST /{order_id}/complete: Complete an order.
+
 """
 
 from typing import List

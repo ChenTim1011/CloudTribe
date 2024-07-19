@@ -2,6 +2,10 @@
 This module contains the router for handling order views based on user roles.
 
 It includes an endpoint for fetching orders for buyers, drivers, and sellers.
+
+Endpoints:
+- GET /: Fetch orders based on user role and phone number.
+
 """
 
 import logging
