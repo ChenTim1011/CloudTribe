@@ -8,7 +8,7 @@ as well as fetching orders assigned to a driver.
 import logging
 from fastapi import APIRouter, HTTPException, Depends
 from psycopg2.extensions import connection as Connection
-from backend.models.driver import Driver
+from backend.models.models import Driver
 from backend.database import get_db_connection
 
 router = APIRouter()

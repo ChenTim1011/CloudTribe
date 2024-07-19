@@ -10,8 +10,7 @@ import logging
 
 from psycopg2.extensions import connection as Connection
 from fastapi import APIRouter, HTTPException, Depends
-from backend.models.order import Order
-from backend.models.driver import DriverOrder, TransferOrderRequest
+from backend.models.models import Order,DriverOrder
 from backend.database import get_db_connection
 
 router = APIRouter()
