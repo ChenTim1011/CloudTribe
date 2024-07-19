@@ -31,8 +31,8 @@ class Order(BaseModel):
     order_type: str = '購買類'
     order_status: str = '未接單'
     note: Optional[str] = None
-    shipment_count: Optional[int] = None
-    required_orders_count: Optional[int] = None
+    shipment_count: Optional[int] = 1
+    required_orders_count: Optional[int] = 1
     previous_driver_id: Optional[int] = None
     previous_driver_name: Optional[str] = None
     previous_driver_phone: Optional[str] = None

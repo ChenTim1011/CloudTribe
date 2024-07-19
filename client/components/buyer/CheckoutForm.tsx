@@ -74,25 +74,33 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onClose, clearCart, cartIte
 
     // All validations passed
     const orderData = {
-      name,
-      phone,
-      date: date.toISOString(), // Ensure date is in ISO format
-      time,
-      location,
-      is_urgent,    
+      buyer_id: 1,  // TODO: Replace with the actual buyer ID
+      buyer_name: name,
+      buyer_phone: phone,
+      seller_id: 2,  // TODO: Replace with the actual buyer ID
+      seller_name: '賣家名稱',
+      seller_phone: '賣家電話',
+      date: date.toISOString().split('T')[0], 
+      time: time, 
+      location: location,
+      is_urgent: is_urgent,
+      total_price: totalPrice,
+      order_type: "購買類",
+      order_status: "未接單",
+      note: note,
+      shipment_count: 1,
+      required_orders_count: 1,
+      previous_driver_id: null,
+      previous_driver_name: null,
+      previous_driver_phone: null,
       items: cartItems.map(item => ({
         item_id: item.id,
         item_name: item.name,
         price: item.price,
         quantity: item.quantity,
         img: item.img
-      })),
-      totalPrice,
-      order_type: "購買類",
-      order_status: "未接單",
-      note,  // Include note in order data
+      }))
     };
-
     try {
       const response = await fetch('/api/orders', {
         method: 'POST',
