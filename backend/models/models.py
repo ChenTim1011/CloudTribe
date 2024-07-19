@@ -10,9 +10,6 @@ from datetime import datetime
 from pydantic import BaseModel
 
 class OrderItem(BaseModel):
-    """
-    Model representing an item in an order.
-    """
     item_id: str
     item_name: str
     price: float
@@ -20,25 +17,26 @@ class OrderItem(BaseModel):
     img: str
 
 class Order(BaseModel):
-    """
-    Model representing an order.
-    """
-    buyer_id: Optional[int] = None
-    seller_id: Optional[int] = None
+    buyer_id: int
+    buyer_name: str
+    buyer_phone: str
+    seller_id: int
+    seller_name: str
+    seller_phone: str
     date: str
     time: str
     location: str
     is_urgent: bool
-    items: List[OrderItem]
     total_price: float
     order_type: str = '購買類'
     order_status: str = '未接單'
     note: Optional[str] = None
-    shipment_count: Optional[int] = None  # Number of drivers needed for shipment
-    required_orders_count: Optional[int] = None  # Number of orders required for shipment
+    shipment_count: Optional[int] = None
+    required_orders_count: Optional[int] = None
     previous_driver_id: Optional[int] = None
     previous_driver_name: Optional[str] = None
     previous_driver_phone: Optional[str] = None
+    items: List[OrderItem]
 
 class User(BaseModel):
     """
@@ -53,6 +51,8 @@ class Driver(BaseModel):
     Model representing a driver.
     """
     user_id: int
+    driver_name: str
+    driver_phone: str
     direction: Optional[str] = None
     available_date: Optional[str] = None
     start_time: Optional[str] = None

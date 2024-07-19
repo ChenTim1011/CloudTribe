@@ -8,6 +8,8 @@ CREATE TABLE users (
 -- drivers table
 CREATE TABLE drivers (
     user_id INT PRIMARY KEY REFERENCES users(id),
+    driver_name VARCHAR(255) NOT NULL,
+    driver_phone VARCHAR(20) UNIQUE NOT NULL,
     direction VARCHAR(255),
     available_date DATE,
     start_time TIME,
@@ -18,7 +20,11 @@ CREATE TABLE drivers (
 CREATE TABLE orders (
     id SERIAL PRIMARY KEY,
     buyer_id INT REFERENCES users(id),
+    buyer_name VARCHAR(255) NOT NULL,
+    buyer_phone VARCHAR(20) NOT NULL,
     seller_id INT REFERENCES users(id),
+    seller_name VARCHAR(255) NOT NULL,
+    seller_phone VARCHAR(20) NOT NULL,
     date DATE NOT NULL,
     time TIME NOT NULL,
     location VARCHAR(255) NOT NULL,
