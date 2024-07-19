@@ -7,8 +7,8 @@ import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from "@
 import { Label } from "@/components/ui/label";
 
 const DriverForm: React.FC<{ onClose: () => void, onUpdateSuccess: (data: any) => void, initialData?: any }> = ({ onClose, onUpdateSuccess, initialData }) => {
-    const [name, setName] = useState(initialData?.name || "");
-    const [phone, setPhone] = useState(initialData?.phone || "");
+    const [name, setName] = useState(initialData?.driver_name || "");
+    const [phone, setPhone] = useState(initialData?.driver_phone || "");
     const [direction, setDirection] = useState<string | undefined>(initialData?.direction);
     const [date, setDate] = useState<string>(initialData?.available_date || "");
     const [startTime, setStartTime] = useState<string | undefined>(initialData?.start_time);
@@ -64,8 +64,9 @@ const DriverForm: React.FC<{ onClose: () => void, onUpdateSuccess: (data: any) =
         }
 
         const driverData = {
-            name,
-            phone,
+            user_id: 1, //TODO: Replace with actual user ID
+            driver_name: name,
+            driver_phone: phone,
             direction,
             available_date: date,
             start_time: startTime,
@@ -91,6 +92,7 @@ const DriverForm: React.FC<{ onClose: () => void, onUpdateSuccess: (data: any) =
             setTimeout(() => {
                 setShowAlert(false);
                 onUpdateSuccess(updatedData); // Notify parent component that update is successful and pass updated data
+                onClose(); // Close the form after successful submission
             }, 1000);
         } catch (error) {
             console.error('Error submitting driver data:', error);
@@ -100,8 +102,8 @@ const DriverForm: React.FC<{ onClose: () => void, onUpdateSuccess: (data: any) =
 
     useEffect(() => {
         if (initialData) {
-            setName(initialData.name);
-            setPhone(initialData.phone);
+            setName(initialData.driver_name);
+            setPhone(initialData.driver_phone);
             setDirection(initialData.direction);
             setDate(initialData.available_date);
             setStartTime(initialData.start_time);
