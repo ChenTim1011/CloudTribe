@@ -9,8 +9,8 @@ from typing import List
 import logging
 
 from psycopg2.extensions import connection as Connection
-from fastapi import APIRouter, HTTPException, Depends
-from backend.models.models import Order,DriverOrder
+from fastapi import APIRouter, HTTPException, Depends, Query
+from backend.models.models import Order, DriverOrder
 from backend.database import get_db_connection
 
 router = APIRouter()
@@ -43,13 +43,18 @@ async def create_order(order: Order, conn: Connection = Depends(get_db)):
     cur = conn.cursor()
     try:
         cur.execute(
-            "INSERT INTO orders (name, phone, date, time, location, is_urgent, total_price, order_type, order_status, note) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s) RETURNING id",
-            (order.name, order.phone, order.date, order.time, order.location, order.is_urgent, order.total_price, order.order_type, order.order_status, order.note)
+            "INSERT INTO orders (buyer_id, seller_id, date, time, location, is_urgent, total_price, "
+            "order_type, order_status, note, shipment_count, required_orders_count) "
+            "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s) RETURNING id",
+            (order.buyer_id, order.seller_id, order.date, order.time, order.location, order.is_urgent, 
+             order.total_price, order.order_type, order.order_status, order.note, order.shipment_count, 
+             order.required_orders_count)
         )
         order_id = cur.fetchone()[0]
         for item in order.items:
             cur.execute(
-                "INSERT INTO order_items (order_id, item_id, item_name, price, quantity, img) VALUES (%s, %s, %s, %s, %s, %s)",
+                "INSERT INTO order_items (order_id, item_id, item_name, price, quantity, img) "
+                "VALUES (%s, %s, %s, %s, %s, %s)",
                 (order_id, item.item_id, item.item_name, item.price, item.quantity, item.img)
             )
         conn.commit()
@@ -81,8 +86,8 @@ async def get_orders(conn: Connection = Depends(get_db)):
             items = cur.fetchall()
             order_list.append({
                 "id": order[0],
-                "name": order[1],
-                "phone": order[2],
+                "buyer_id": order[1],
+                "seller_id": order[2],
                 "date": order[3],
                 "time": order[4],
                 "location": order[5],
@@ -90,8 +95,14 @@ async def get_orders(conn: Connection = Depends(get_db)):
                 "total_price": order[7],
                 "order_type": order[8],
                 "order_status": order[9],
-                "items": [{"id": item[2], "name": item[3], "price": item[4], "quantity": item[5], "img": item[6]} for item in items],
-                "note": order[10]
+                "note": order[10],
+                "shipment_count": order[11],
+                "required_orders_count": order[12],
+                "previous_driver_id": order[13],
+                "previous_driver_name": order[14],
+                "previous_driver_phone": order[15],
+                "items": [{"id": item[2], "name": item[3], "price": item[4], "quantity": item[5], 
+                           "img": item[6]} for item in items]
             })
         return order_list
     except Exception as e:
@@ -119,9 +130,7 @@ async def accept_order(order_id: int, driver_order: DriverOrder, conn: Connectio
         order = cur.fetchone()
         if order[0] != '未接單':
             raise HTTPException(status_code=400, detail="訂單已被接")
-        cur.execute(
-            "UPDATE orders SET order_status = %s WHERE id = %s", ('接單', order_id)
-        )
+        cur.execute("UPDATE orders SET order_status = %s WHERE id = %s", ('接單', order_id))
         cur.execute(
             "INSERT INTO driver_orders (driver_id, order_id, action) VALUES (%s, %s, %s)",
             (driver_order.driver_id, order_id, '接單')
@@ -137,13 +146,15 @@ async def accept_order(order_id: int, driver_order: DriverOrder, conn: Connectio
         cur.close()
 
 @router.post("/{order_id}/transfer")
-async def transfer_order(order_id: int, transfer_request: TransferOrderRequest, conn: Connection = Depends(get_db)):
+async def transfer_order(order_id: int, current_driver_id: int = Query(...), new_driver_phone: str = Query(...), 
+                         conn: Connection = Depends(get_db)):
     """
     Transfer an order to a new driver.
 
     Args:
         order_id (int): The ID of the order to be transferred.
-        transfer_request (TransferOrderRequest): The transfer request data.
+        current_driver_id (int): The ID of the current driver.
+        new_driver_phone (str): The phone number of the new driver.
         conn (Connection): The database connection.
 
     Returns:
@@ -151,21 +162,39 @@ async def transfer_order(order_id: int, transfer_request: TransferOrderRequest, 
     """
     cur = conn.cursor()
     try:
-        cur.execute("SELECT id, name, phone FROM drivers WHERE phone = %s", (transfer_request.new_driver_phone,))
+        # Find new driver by phone
+        cur.execute("SELECT id, name, phone FROM drivers WHERE phone = %s", (new_driver_phone,))
         new_driver = cur.fetchone()
         if not new_driver:
             raise HTTPException(status_code=404, detail="新司機未註冊")
         new_driver_id = new_driver[0]
-        if new_driver_id == transfer_request.current_driver_id:
+        
+        if new_driver_id == current_driver_id:
             raise HTTPException(status_code=400, detail="不能將訂單轉給自己")
+
+        # Ensure current driver is assigned to the order
         cur.execute("SELECT driver_id FROM driver_orders WHERE order_id = %s AND action = '接單' FOR UPDATE", (order_id,))
         order = cur.fetchone()
-        if order[0] != transfer_request.current_driver_id:
+        if order[0] != current_driver_id:
             raise HTTPException(status_code=400, detail="當前司機無法轉交此訂單")
-        cur.execute("SELECT name, phone FROM drivers WHERE id = %s", (transfer_request.current_driver_id,))
+
+        # Get current driver details
+        cur.execute("SELECT name, phone FROM drivers WHERE id = %s", (current_driver_id,))
         current_driver = cur.fetchone()
-        cur.execute("UPDATE driver_orders SET driver_id = %s, previous_driver_id = %s, previous_driver_name = %s, previous_driver_phone = %s WHERE order_id = %s AND driver_id = %s AND action = '接單'", 
-                    (new_driver_id, transfer_request.current_driver_id, current_driver[0], current_driver[1], order_id, transfer_request.current_driver_id))
+
+        # Update driver_orders with new driver details
+        cur.execute(
+            "UPDATE driver_orders SET driver_id = %s, previous_driver_id = %s, previous_driver_name = %s, "
+            "previous_driver_phone = %s WHERE order_id = %s AND driver_id = %s AND action = '接單'", 
+            (new_driver_id, current_driver_id, current_driver[0], current_driver[1], order_id, current_driver_id)
+        )
+
+        # Update orders with previous driver details
+        cur.execute(
+            "UPDATE orders SET previous_driver_id = %s, previous_driver_name = %s, previous_driver_phone = %s WHERE id = %s",
+            (current_driver_id, current_driver[0], current_driver[1], order_id)
+        )
+
         conn.commit()
         return {"status": "success"}
     except Exception as e:
@@ -196,8 +225,8 @@ async def get_order(order_id: int, conn: Connection = Depends(get_db)):
         items = cur.fetchall()
         order_data = {
             "id": order[0],
-            "name": order[1],
-            "phone": order[2],
+            "buyer_id": order[1],
+            "seller_id": order[2],
             "date": order[3],
             "time": order[4],
             "location": order[5],
@@ -205,8 +234,14 @@ async def get_order(order_id: int, conn: Connection = Depends(get_db)):
             "total_price": order[7],
             "order_type": order[8],
             "order_status": order[9],
-            "items": [{"id": item[2], "name": item[3], "price": item[4], "quantity": item[5], "img": item[6]} for item in items],
-            "note": order[10]
+            "note": order[10],
+            "shipment_count": order[11],
+            "required_orders_count": order[12],
+            "previous_driver_id": order[13],
+            "previous_driver_name": order[14],
+            "previous_driver_phone": order[15],
+            "items": [{"id": item[2], "name": item[3], "price": item[4], "quantity": item[5], 
+                       "img": item[6]} for item in items]
         }
         return order_data
     except Exception as e:

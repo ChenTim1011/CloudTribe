@@ -47,18 +47,28 @@ async def get_orders_view_form(role: str = Query(...), phone: str = Query(...), 
         logging.info("Fetching orders for role: %s, phone: %s", role, phone)
 
         if role == 'buyer':
-            cur.execute("SELECT * FROM orders WHERE phone = %s", (phone,))
+            cur.execute("""
+                SELECT o.*, u.name AS seller_name, u.phone AS seller_phone
+                FROM orders o
+                JOIN users u ON o.seller_id = u.id
+                WHERE o.buyer_id = (SELECT id FROM users WHERE phone = %s)
+            """, (phone,))
         elif role == 'driver':
             cur.execute("""
-                SELECT orders.*, drivers.name AS driver_name, drivers.phone AS driver_phone, previous_driver.name AS previous_driver_name, previous_driver.phone AS previous_driver_phone 
-                FROM orders 
-                JOIN driver_orders ON orders.id = driver_orders.order_id 
-                LEFT JOIN drivers ON driver_orders.driver_id = drivers.id 
-                LEFT JOIN drivers AS previous_driver ON driver_orders.previous_driver_id = previous_driver.id 
-                WHERE drivers.phone = %s
+                SELECT o.*, u.name AS buyer_name, u.phone AS buyer_phone, d.name AS previous_driver_name, d.phone AS previous_driver_phone
+                FROM orders o
+                JOIN driver_orders do ON o.id = do.order_id
+                JOIN users u ON o.buyer_id = u.id
+                LEFT JOIN drivers d ON o.previous_driver_id = d.user_id
+                WHERE do.driver_id = (SELECT user_id FROM drivers WHERE phone = %s) AND do.action = '接單'
             """, (phone,))
         elif role == 'seller':
-            cur.execute("SELECT * FROM orders")  # Modify this as per your seller logic
+            cur.execute("""
+                SELECT o.*, u.name AS buyer_name, u.phone AS buyer_phone
+                FROM orders o
+                JOIN users u ON o.buyer_id = u.id
+                WHERE o.seller_id = (SELECT id FROM users WHERE phone = %s)
+            """, (phone,))
         else:
             raise HTTPException(status_code=400, detail="無效的角色")
 
@@ -71,8 +81,8 @@ async def get_orders_view_form(role: str = Query(...), phone: str = Query(...), 
             items = cur.fetchall()
             order_list.append({
                 "id": order[0],
-                "name": order[1],
-                "phone": order[2],
+                "buyer_id": order[1],
+                "seller_id": order[2],
                 "date": order[3],
                 "time": order[4],
                 "location": order[5],
@@ -80,12 +90,13 @@ async def get_orders_view_form(role: str = Query(...), phone: str = Query(...), 
                 "total_price": order[7],
                 "order_type": order[8],
                 "order_status": order[9],
+                "shipment_count": order[10],
+                "required_orders_count": order[11],
+                "previous_driver_id": order[12],
+                "previous_driver_name": order[13],
+                "previous_driver_phone": order[14],
                 "items": [{"id": item[2], "name": item[3], "price": item[4], "quantity": item[5], "img": item[6]} for item in items],
-                "note": order[10],
-                "driver_name": order[11] if len(order) > 11 else None,
-                "driver_phone": order[12] if len(order) > 12 else None,
-                "previous_driver_name": order[13] if len(order) > 13 else None,
-                "previous_driver_phone": order[14] if len(order) > 14 else None,
+                "note": order[15]
             })
 
         return order_list

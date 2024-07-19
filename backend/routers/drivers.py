@@ -43,8 +43,8 @@ async def create_driver(driver: Driver, conn: Connection = Depends(get_db)):
             raise HTTPException(status_code=409, detail="電話號碼已存在")
         
         cur.execute(
-            "INSERT INTO drivers (name, phone, direction, available_date, start_time, end_time) VALUES (%s, %s, %s, %s, %s, %s)",
-            (driver.name, driver.phone, driver.direction, driver.available_date, driver.start_time, driver.end_time)
+            "INSERT INTO drivers (user_id, direction, available_date, start_time, end_time) VALUES (%s, %s, %s, %s, %s)",
+            (driver.user_id, driver.direction, driver.available_date, driver.start_time, driver.end_time)
         )
         conn.commit()
         return {"status": "success"}
@@ -75,13 +75,11 @@ async def get_driver(phone: str, conn: Connection = Depends(get_db)):
             raise HTTPException(status_code=404, detail="電話號碼未註冊")
         
         return {
-            "id": driver[0],
-            "name": driver[1],
-            "phone": driver[2],
-            "direction": driver[3],
-            "available_date": driver[4],
-            "start_time": driver[5],
-            "end_time": driver[6],
+            "user_id": driver[0],
+            "direction": driver[1],
+            "available_date": driver[2],
+            "start_time": driver[3],
+            "end_time": driver[4],
         }
     except Exception as e:
         logging.error("Error fetching driver: %s", str(e))
@@ -105,8 +103,8 @@ async def update_driver(phone: str, driver: Driver, conn: Connection = Depends(g
     cur = conn.cursor()
     try:
         cur.execute(
-            "UPDATE drivers SET name = %s, direction = %s, available_date = %s, start_time = %s, end_time = %s WHERE phone = %s",
-            (driver.name, driver.direction, driver.available_date, driver.start_time, driver.end_time, phone)
+            "UPDATE drivers SET direction = %s, available_date = %s, start_time = %s, end_time = %s WHERE phone = %s",
+            (driver.direction, driver.available_date, driver.start_time, driver.end_time, phone)
         )
         
         if cur.rowcount == 0:
@@ -146,8 +144,8 @@ async def get_driver_orders(driver_id: int, conn: Connection = Depends(get_db)):
         for order in orders:
             order_dict = {
                 "id": order[0],
-                "name": order[1],
-                "phone": order[2],
+                "buyer_id": order[1],
+                "seller_id": order[2],
                 "date": order[3],
                 "time": order[4],
                 "location": order[5],
@@ -155,10 +153,13 @@ async def get_driver_orders(driver_id: int, conn: Connection = Depends(get_db)):
                 "total_price": order[7],
                 "order_type": order[8],
                 "order_status": order[9],
+                "shipment_count": order[10],
+                "required_orders_count": order[11],
+                "previous_driver_id": order[12],
+                "previous_driver_name": order[13],
+                "previous_driver_phone": order[14],
                 "items": [],
-                "note": order[10],
-                "previous_driver_name": order[11],
-                "previous_driver_phone": order[12]
+                "note": order[15]
             }
             cur.execute("SELECT * FROM order_items WHERE order_id = %s", (order[0],))
             items = cur.fetchall()

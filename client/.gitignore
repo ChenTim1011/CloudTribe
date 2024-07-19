@@ -4,6 +4,9 @@
 .env
 .env.local
 
+# python
+*.pyc
+
 # dependencies
 /node_modules
 /.pnp
