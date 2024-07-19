@@ -14,16 +14,17 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useAuth } from '@/components/lib/AuthProvider'; 
 
 export function UserForm() {
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
-  const [userId, setUserId] = useState<number | null>(null);
   const [errorMessage, setErrorMessage] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
+  const { setUser } = useAuth();
 
-  const handleSave = async () => {
-    console.log("Starting handleSave");
+  const handleRegister = async () => {
+    console.log("Starting handleRegister");
 
     // clear error and success messages
     setErrorMessage('');
@@ -55,25 +56,59 @@ export function UserForm() {
 
       if (response.ok) {
         const data = await response.json();
-        setUserId(data.id);
+        setUser({ id: data.id, name: data.name, phone: data.phone });
         setSuccessMessage('註冊成功');
       } else if (response.status === 409) {
         setErrorMessage('電話號碼已經存在');
       } else {
-        throw new Error('註冊過程中出現錯誤，或是電話號碼已經有人註冊過');
+        throw new Error('註冊過程中出現錯誤');
       }
     } catch (error) {
-      console.error("Error during handleSave:", error);
-      setErrorMessage('註冊過程中出現錯誤，或是電話號碼已經有人註冊過');
+      console.error("Error during handleRegister:", error);
+      setErrorMessage('註冊過程中出現錯誤');
+    }
+  };
+
+  const handleLogin = async () => {
+    console.log("Starting handleLogin");
+
+    // clear error and success messages
+    setErrorMessage('');
+    setSuccessMessage('');
+
+    try {
+      console.log("Logging in with phone:", phone);
+      const response = await fetch('/api/users/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ phone }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setUser({ id: data.id, name: data.name, phone: data.phone });
+        setSuccessMessage('登入成功');
+      } else {
+        throw new Error('登入過程中出現錯誤');
+      }
+    } catch (error) {
+      console.error("Error during handleLogin:", error);
+      setErrorMessage('登入過程中出現錯誤');
     }
   };
 
   return (
-    <Tabs defaultValue="account" className="w-[400px]">
-      <TabsContent value="account">
+    <Tabs defaultValue="register" className="w-[400px]">
+      <TabsList className="grid w-full grid-cols-2">
+        <TabsTrigger value="register">註冊</TabsTrigger>
+        <TabsTrigger value="login">登入</TabsTrigger>
+      </TabsList>
+      <TabsContent value="register">
         <Card>
           <CardHeader>
-            <CardTitle>首次使用</CardTitle>
+            <CardTitle>註冊</CardTitle>
             <CardDescription>
               在這裡輸入姓名和電話號碼完成後點擊註冊。
             </CardDescription>
@@ -101,7 +136,38 @@ export function UserForm() {
             )}
           </CardContent>
           <CardFooter>
-            <Button onClick={handleSave}>註冊</Button>
+            <Button onClick={handleRegister}>註冊</Button>
+          </CardFooter>
+        </Card>
+      </TabsContent>
+      <TabsContent value="login">
+        <Card>
+          <CardHeader>
+            <CardTitle>登入</CardTitle>
+            <CardDescription>
+              請輸入您的電話號碼登入。
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-2">
+            <div className="space-y-1">
+              <Label htmlFor="phone">電話</Label>
+              <Input id="phone" value={phone} onChange={(e) => setPhone(e.target.value)} />
+            </div>
+            {errorMessage && (
+              <Alert className="bg-red-500 text-white">
+                <AlertTitle>錯誤</AlertTitle>
+                <AlertDescription>{errorMessage}</AlertDescription>
+              </Alert>
+            )}
+            {successMessage && (
+              <Alert className="bg-green-500 text-white">
+                <AlertTitle>成功</AlertTitle>
+                <AlertDescription>{successMessage}</AlertDescription>
+              </Alert>
+            )}
+          </CardContent>
+          <CardFooter>
+            <Button onClick={handleLogin}>登入</Button>
           </CardFooter>
         </Card>
       </TabsContent>

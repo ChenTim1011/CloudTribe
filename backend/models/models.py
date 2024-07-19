@@ -23,8 +23,8 @@ class Order(BaseModel):
     """
     Model representing an order.
     """
-    buyer_id: int
-    seller_id: int
+    buyer_id: Optional[int] = None
+    seller_id: Optional[int] = None
     date: str
     time: str
     location: str
