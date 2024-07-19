@@ -5,9 +5,9 @@ import NavigationBar from "@/components/NavigationBar";
 import { Button } from "@/components/ui/button";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowLeft } from '@fortawesome/free-solid-svg-icons';
-import { UserForm } from '@/components/register/UserForm';
+import { UserForm } from '@/components/login/UserForm';
 
-const RegisterPage: React.FC = () => {
+const LoginPage: React.FC = () => {
   return (
     <div
       className="flex flex-col h-screen items-center"
@@ -37,4 +37,4 @@ const RegisterPage: React.FC = () => {
   );
 }
 
-export default RegisterPage;
+export default LoginPage;

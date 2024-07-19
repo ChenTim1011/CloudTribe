@@ -1,4 +1,5 @@
-'use client'
+'use client';
+
 import React from 'react';
 import { Menubar, MenubarContent, MenubarItem, MenubarMenu, MenubarTrigger, MenubarSeparator } from "@/components/ui/menubar";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -9,6 +10,8 @@ import { useAuth } from '@/components/lib/AuthProvider';
 
 const NavigationBar = () => {
   const { user, logout } = useAuth();
+
+  console.log('NavigationBar user:', user); 
 
   return (
     <Menubar className="px-4 py-2 flex items-center" style={{ backgroundColor: '#E0EBAF', color: '#000000' }}>

@@ -32,6 +32,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   useEffect(() => {
     setLoading(false);
+    console.log('User state updated:', user);
     if (user) {
       localStorage.setItem('user', JSON.stringify(user));
     } else {

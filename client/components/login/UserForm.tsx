@@ -1,20 +1,11 @@
-"use client";
-
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useAuth } from '@/components/lib/AuthProvider'; 
+import { useAuth } from '@/components/lib/AuthProvider';
 
 export function UserForm() {
   const [name, setName] = useState('');
@@ -56,6 +47,7 @@ export function UserForm() {
 
       if (response.ok) {
         const data = await response.json();
+        console.log("Setting user:", data);
         setUser({ id: data.id, name: data.name, phone: data.phone });
         setSuccessMessage('註冊成功');
       } else if (response.status === 409) {
@@ -88,6 +80,7 @@ export function UserForm() {
 
       if (response.ok) {
         const data = await response.json();
+        console.log("Setting user:", data);
         setUser({ id: data.id, name: data.name, phone: data.phone });
         setSuccessMessage('登入成功');
       } else {

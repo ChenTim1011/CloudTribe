@@ -1,8 +1,26 @@
+"""
+User management API using FastAPI and PostgreSQL.
+
+This module provides endpoints to create and retrieve user information.
+It uses FastAPI for defining the API routes and psycopg2 for database interactions.
+
+Endpoints:
+- POST /users: Create a new user.
+- POST /users/login: Login user by phone number.
+- GET /users/{user_id}: Retrieve a user by ID.
+
+"""
+
+
 from fastapi import APIRouter, HTTPException, Depends
+from pydantic import BaseModel
 from psycopg2.extensions import connection as Connection
 from backend.models.models import User
 from backend.database import get_db_connection
 import logging
+
+class LoginRequest(BaseModel):
+    phone: str
 
 router = APIRouter()
 
@@ -20,12 +38,12 @@ def get_db():
         conn.close()
 
 @router.post("/login")
-async def login(phone: str, conn: Connection = Depends(get_db)):
+async def login(request: LoginRequest, conn: Connection = Depends(get_db)):
     """
     Login user by phone number.
 
     Args:
-        phone (str): The phone number to login.
+        request (LoginRequest): The phone number to login.
         conn (Connection): The database connection.
 
     Returns:
@@ -33,6 +51,7 @@ async def login(phone: str, conn: Connection = Depends(get_db)):
     """
     cur = conn.cursor()
     try:
+        phone = request.phone
         logging.info("Logging in user with phone number %s", phone)
         cur.execute("SELECT id, name, phone FROM users WHERE phone = %s", (phone,))
         user = cur.fetchone()
