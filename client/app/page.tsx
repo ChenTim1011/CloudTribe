@@ -58,6 +58,11 @@ export default function Page() {
               測試查看表單
             </Link>
           </Button>
+          <Button className="lg:h-16 h-12 lg:text-2xl text-md rounded-2xl bg-gray-500 shadow-2xl font-mono hover:bg-slate-400">
+            <Link href="/register">
+              測試註冊
+            </Link>
+          </Button>
         </div>}
       </div>
     </main>
