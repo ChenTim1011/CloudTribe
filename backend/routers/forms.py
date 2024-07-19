@@ -1,19 +1,50 @@
-from fastapi import APIRouter, HTTPException,Query
-from backend.models.order import Order
-from backend.models.driver import DriverOrder
-from backend.database import get_db_connection
+"""
+This module contains the router for handling order views based on user roles.
+
+It includes an endpoint for fetching orders for buyers, drivers, and sellers.
+"""
+
 import logging
-from pydantic import BaseModel
+from typing import List, Dict, Any
+
+from psycopg2 import Error
+from psycopg2.extensions import connection as Connection
+
+from fastapi import APIRouter, HTTPException, Query, Depends
+from backend.database import get_db_connection
+
 
 router = APIRouter()
 
-@router.get("/")
-async def get_orders_view_form(role: str = Query(...), phone: str = Query(...)):
+def get_db():
+    """
+    Get a database connection.
+    
+    Yields:
+        psycopg2.extensions.connection: A PostgreSQL database connection.
+    """
     conn = get_db_connection()
-    cur = conn.cursor()
-
     try:
-        logging.info(f"Fetching orders for role: {role}, phone: {phone}")
+        yield conn
+    finally:
+        conn.close()
+
+@router.get("/", response_model=List[Dict[str, Any]])
+async def get_orders_view_form(role: str = Query(...), phone: str = Query(...), conn: Connection = Depends(get_db)):
+    """
+    Fetch orders based on user role and phone number.
+
+    Args:
+        role (str): The role of the user (buyer, driver, seller).
+        phone (str): The phone number of the user.
+        conn (Connection): The database connection.
+
+    Returns:
+        list: A list of orders based on the user role.
+    """
+    cur = conn.cursor()
+    try:
+        logging.info("Fetching orders for role: %s, phone: %s", role, phone)
 
         if role == 'buyer':
             cur.execute("SELECT * FROM orders WHERE phone = %s", (phone,))
@@ -32,8 +63,8 @@ async def get_orders_view_form(role: str = Query(...), phone: str = Query(...)):
             raise HTTPException(status_code=400, detail="無效的角色")
 
         orders = cur.fetchall()
-        logging.info(f"Orders fetched: {orders}")
-        
+        logging.info("Orders fetched: %s", orders)
+
         order_list = []
         for order in orders:
             cur.execute("SELECT * FROM order_items WHERE order_id = %s", (order[0],))
@@ -51,19 +82,19 @@ async def get_orders_view_form(role: str = Query(...), phone: str = Query(...)):
                 "order_status": order[9],
                 "items": [{"id": item[2], "name": item[3], "price": item[4], "quantity": item[5], "img": item[6]} for item in items],
                 "note": order[10],
-                "driver_name": order[11] if 'driver_name' in order else None,
-                "driver_phone": order[12] if 'driver_phone' in order else None,
-                "previous_driver_name": order[13] if 'previous_driver_name' in order else None,
-                "previous_driver_phone": order[14] if 'previous_driver_phone' in order else None,
+                "driver_name": order[11] if len(order) > 11 else None,
+                "driver_phone": order[12] if len(order) > 12 else None,
+                "previous_driver_name": order[13] if len(order) > 13 else None,
+                "previous_driver_phone": order[14] if len(order) > 14 else None,
             })
 
         return order_list
-    except psycopg2.Error as e:
-        logging.error(f"Database error: {e}")
-        raise HTTPException(status_code=500, detail="資料庫錯誤")
+    except Error as e:
+        logging.error("Database error: %s", e)
+        raise HTTPException(status_code=500, detail="資料庫錯誤") from e
     except Exception as e:
-        logging.error(f"Error fetching orders: {e}")
-        raise HTTPException(status_code=500, detail="獲取訂單時出錯")
+        logging.error("Error fetching orders: %s", e)
+        raise HTTPException(status_code=500, detail="獲取訂單時出錯") from e
     finally:
         cur.close()
         conn.close()
