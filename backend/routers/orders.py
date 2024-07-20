@@ -100,8 +100,8 @@ async def get_orders(conn: Connection = Depends(get_db)):
                 "seller_id": int(order[4]),  # int
                 "seller_name": order[5],  # str
                 "seller_phone": order[6],  # str
-                "date": str(order[7]),  # str
-                "time": str(order[8]),  # str
+                "date": order[7].isoformat(),  # str
+                "time": order[8].isoformat(),  # str
                 "location": order[9],
                 "is_urgent": bool(order[10]),  # bool
                 "total_price": float(order[11]),  # float

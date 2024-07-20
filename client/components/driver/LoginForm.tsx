@@ -70,17 +70,36 @@ const LoginForm: React.FC<{ onClose: () => void, onFetchOrders: (phone: string) 
                 throw new Error('Failed to fetch orders');
             }
             const orders = await response.json();
+    
             const { available_date, start_time, end_time } = driverData;
-            const driverStartDateTime = new Date(`${available_date}T${start_time}:00`);
-            const driverEndDateTime = new Date(`${available_date}T${end_time}:00`);
+    
+  
+            console.log('available_date:', available_date);
+            console.log('start_time:', start_time);
+            console.log('end_time:', end_time);
+    
+            
+            const driverStartDateTime = new Date(Date.parse(`${available_date}T${start_time}`));
+            const driverEndDateTime = new Date(Date.parse(`${available_date}T${end_time}`));
+    
+   
+            console.log('Driver Start DateTime:', driverStartDateTime);
+            console.log('Driver End DateTime:', driverEndDateTime);
+    
             const filtered = orders.filter((order: any) => {
-                const orderDateTime = new Date(`${order.date}T${order.time}:00`);
+                console.log('order.date:', order.date);
+                console.log('order.time:', order.time);
+                const orderDateTime = new Date(Date.parse(`${order.date}T${order.time}`));
+                console.log('Order DateTime:', orderDateTime);
+    
                 return orderDateTime > driverEndDateTime && order.order_status === '未接單';
             }).sort((a: any, b: any) => {
-                const aDateTime = new Date(`${a.date}T${a.time}:00`).getTime();
-                const bDateTime = new Date(`${b.date}T${b.time}:00`).getTime();
+                const aDateTime = new Date(Date.parse(`${a.date}T${a.time}`)).getTime();
+                const bDateTime = new Date(Date.parse(`${b.date}T${b.time}`)).getTime();
                 return aDateTime - bDateTime;
             });
+    
+            console.log('Filtered Orders:', filtered);
             onFilteredOrders(filtered);
         } catch (error) {
             console.error('Error filtering orders:', error);
@@ -116,7 +135,7 @@ const LoginForm: React.FC<{ onClose: () => void, onFetchOrders: (phone: string) 
                 <DriverForm
                     onClose={() => {
                         setShowUpdateForm(false);
-                        setShowOptions(true);
+                        setShowOptions(false);
                     }}
                     onUpdateSuccess={handleUpdateSuccess}
                     initialData={driverData}

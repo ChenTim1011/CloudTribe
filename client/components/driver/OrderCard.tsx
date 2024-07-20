@@ -28,11 +28,11 @@ const OrderCard: React.FC<{ order: any; onAccept: (orderId: string) => void; onT
         <Card className="max-w-md mx-auto my-6 shadow-lg">
             <CardHeader className="bg-black text-white p-4 rounded-t-md">
                 <CardTitle className="text-lg font-bold">{order.order_type}</CardTitle>
-                <CardDescription className="text-lg text-white font-semibold">消費者姓名: {order.name}</CardDescription>
+                <CardDescription className="text-lg text-white font-semibold">消費者姓名: {order.buyer_name}</CardDescription> {/* 使用 buyer_name */}
             </CardHeader>
             <CardContent className="p-4">
                 <div className="mb-2">
-                    <p className="text-sm text-gray-700 font-bold">電話: {order.phone}</p>
+                    <p className="text-sm text-gray-700 font-bold">電話: {order.buyer_phone}</p> {/* use buyer_phone */}
                     <p className="text-sm text-gray-700 font-bold">最晚可接單日期: {order.date}</p>
                     <p className="text-sm text-gray-700 font-bold">最晚可接單時間: {order.time}</p>
                     <p className="text-sm text-gray-700 font-bold">地點: {order.location}</p>
@@ -43,10 +43,10 @@ const OrderCard: React.FC<{ order: any; onAccept: (orderId: string) => void; onT
                         {order.items.map((item: any) => (
                             <li key={item.item_id} className="text-sm text-gray-700 mb-2">
                                 <div className="flex items-center space-x-2">
-                                    <img src={item.img} alt={item.name} className="w-10 h-10 object-cover rounded" />
+                                    <img src={item.img} alt={item.item_name} className="w-10 h-10 object-cover rounded" /> {/* 使用 item_name */}
                                     <div>
                                         <span className="block font-semibold text-black truncate" style={{ maxWidth: '20rem' }}>
-                                            {item.name || '未命名'}
+                                            {item.item_name || '未命名'} {/* use  item_name */}
                                         </span>
                                         <span className="block">- {item.quantity} x ${item.price.toFixed(2)}</span>
                                     </div>

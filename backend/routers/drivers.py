@@ -85,9 +85,9 @@ async def get_driver(phone: str, conn: Connection = Depends(get_db)):
             "driver_name": driver[0],
             "driver_phone": driver[1],
             "direction": driver[2],
-            "available_date": driver[3],
-            "start_time": driver[4],
-            "end_time": driver[5],
+            "available_date": driver[3].isoformat(),
+            "start_time": driver[4].isoformat(),
+            "end_time": driver[5].isoformat(),
         }
     except Exception as e:
         logging.error("Error fetching driver: %s", str(e))
