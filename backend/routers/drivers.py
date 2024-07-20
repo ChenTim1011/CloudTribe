@@ -50,8 +50,8 @@ async def create_driver(driver: Driver, conn: Connection = Depends(get_db)):
             raise HTTPException(status_code=409, detail="電話號碼已存在")
         
         cur.execute(
-            "INSERT INTO drivers (user_id, driver_name, driver_phone, direction, available_date, start_time, end_time) VALUES (%s, %s, %s, %s, %s, %s, %s)",
-            (driver.user_id, driver.driver_name, driver.driver_phone, driver.direction, driver.available_date, driver.start_time, driver.end_time)
+            "INSERT INTO drivers (driver_name, driver_phone, direction, available_date, start_time, end_time) VALUES (%s, %s, %s, %s, %s, %s)",
+            (driver.driver_name, driver.driver_phone, driver.direction, driver.available_date, driver.start_time, driver.end_time)
         )
         conn.commit()
         return {"status": "success"}
@@ -76,19 +76,18 @@ async def get_driver(phone: str, conn: Connection = Depends(get_db)):
     """
     cur = conn.cursor()
     try:
-        cur.execute("SELECT user_id, driver_name, driver_phone, direction, available_date, start_time, end_time FROM drivers WHERE driver_phone = %s", (phone,))
+        cur.execute("SELECT driver_name, driver_phone, direction, available_date, start_time, end_time FROM drivers WHERE driver_phone = %s", (phone,))
         driver = cur.fetchone()
         if not driver:
             raise HTTPException(status_code=404, detail="電話號碼未註冊")
         
         return {
-            "user_id": driver[0],
-            "driver_name": driver[1],
-            "driver_phone": driver[2],
-            "direction": driver[3],
-            "available_date": driver[4],
-            "start_time": driver[5],
-            "end_time": driver[6],
+            "driver_name": driver[0],
+            "driver_phone": driver[1],
+            "direction": driver[2],
+            "available_date": driver[3],
+            "start_time": driver[4],
+            "end_time": driver[5],
         }
     except Exception as e:
         logging.error("Error fetching driver: %s", str(e))

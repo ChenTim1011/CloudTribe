@@ -7,7 +7,8 @@ CREATE TABLE users (
 
 -- drivers table
 CREATE TABLE drivers (
-    user_id INT PRIMARY KEY REFERENCES users(id),
+    -- user_id INT PRIMARY KEY REFERENCES users(id),
+    id SERIAL PRIMARY KEY,
     driver_name VARCHAR(255) NOT NULL,
     driver_phone VARCHAR(20) UNIQUE NOT NULL,
     direction VARCHAR(255),
@@ -35,7 +36,7 @@ CREATE TABLE orders (
     note TEXT,
     shipment_count INT, -- Number of drivers needed for shipment
     required_orders_count INT, -- Number of orders required for shipment
-    previous_driver_id INT REFERENCES drivers(user_id),
+    previous_driver_id INT REFERENCES drivers(id), --drivers(user_id)
     previous_driver_name VARCHAR(255),
     previous_driver_phone VARCHAR(20)
 );
@@ -54,11 +55,11 @@ CREATE TABLE order_items (
 -- driver_orders table
 CREATE TABLE driver_orders (
     id SERIAL PRIMARY KEY,
-    driver_id INT REFERENCES drivers(user_id),
+    driver_id INT REFERENCES drivers(id), --drivers(user_id)
     order_id INT REFERENCES orders(id) ON DELETE CASCADE,
     action VARCHAR(50),
     timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    previous_driver_id INT REFERENCES drivers(user_id),
+    previous_driver_id INT REFERENCES drivers(id), --drivers(user_id)
     previous_driver_name VARCHAR(255),
     previous_driver_phone VARCHAR(20)
 );

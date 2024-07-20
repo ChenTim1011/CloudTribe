@@ -37,6 +37,7 @@ const LoginForm: React.FC<{ onClose: () => void, onFetchOrders: (phone: string) 
             }
 
             const data = await response.json();
+            console.log('Driver Information:', data);
             setDriverData(data);
             setShowOptions(true);
             onFetchDriverData(data);
