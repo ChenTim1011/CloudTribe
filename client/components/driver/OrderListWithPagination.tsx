@@ -59,28 +59,31 @@ const OrderListWithPagination: React.FC<{ orders: any[], onAccept: (orderId: str
     }
 };
 
-  const handleTransferOrder = async (orderId: string, newDriverPhone: string) => {
-    try {
+const handleTransferOrder = async (orderId: string, newDriverPhone: string) => {
+  try {
       const response = await fetch(`/api/orders/${orderId}/transfer`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ current_driver_id: driverData.id, new_driver_phone: newDriverPhone }),
+          method: 'POST',
+          headers: {
+              'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+              current_driver_id: driverData.id,
+              new_driver_phone: newDriverPhone,
+          }),
       });
 
       if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(`Failed to transfer order: ${errorText}`);
+          const errorText = await response.text();
+          throw new Error(`Failed to transfer order: ${errorText}`);
       }
 
       setFilteredOrders(filteredOrders.filter(order => order.id !== orderId));
       alert('轉單成功');
-    } catch (error) {
+  } catch (error) {
       console.error('Error transferring order:', error);
       alert('轉單失敗');
-    }
-  };
+  }
+};
 
   const handleNavigate = async (orderId: string) => {
     // Implement the logic to navigate to the order location

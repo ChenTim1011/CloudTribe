@@ -19,7 +19,7 @@ import logging
 
 from psycopg2.extensions import connection as Connection
 from fastapi import APIRouter, HTTPException, Depends, Query
-from backend.models.models import Order, DriverOrder
+from backend.models.models import Order, DriverOrder, TransferOrderRequest
 from backend.database import get_db_connection
 
 logging.basicConfig(level=logging.DEBUG)
@@ -175,15 +175,13 @@ async def accept_order(order_id: int, driver_order: DriverOrder, conn: Connectio
 
 
 @router.post("/{order_id}/transfer")
-async def transfer_order(order_id: int, current_driver_id: int = Query(...), new_driver_phone: str = Query(...), 
-                         conn: Connection = Depends(get_db)):
+async def transfer_order(order_id: int, transfer_request: TransferOrderRequest, conn: Connection = Depends(get_db)):
     """
     Transfer an order to a new driver.
 
     Args:
         order_id (int): The ID of the order to be transferred.
-        current_driver_id (int): The ID of the current driver.
-        new_driver_phone (str): The phone number of the new driver.
+        transfer_request (TransferOrderRequest): The transfer request data.
         conn (Connection): The database connection.
 
     Returns:
@@ -192,36 +190,36 @@ async def transfer_order(order_id: int, current_driver_id: int = Query(...), new
     cur = conn.cursor()
     try:
         # Find new driver by phone
-        cur.execute("SELECT id, name, phone FROM drivers WHERE phone = %s", (new_driver_phone,))
+        cur.execute("SELECT id, driver_name, driver_phone FROM drivers WHERE driver_phone = %s", (transfer_request.new_driver_phone,))
         new_driver = cur.fetchone()
         if not new_driver:
             raise HTTPException(status_code=404, detail="新司機未註冊")
         new_driver_id = new_driver[0]
         
-        if new_driver_id == current_driver_id:
+        if new_driver_id == transfer_request.current_driver_id:
             raise HTTPException(status_code=400, detail="不能將訂單轉給自己")
 
         # Ensure current driver is assigned to the order
         cur.execute("SELECT driver_id FROM driver_orders WHERE order_id = %s AND action = '接單' FOR UPDATE", (order_id,))
         order = cur.fetchone()
-        if order[0] != current_driver_id:
+        if order[0] != transfer_request.current_driver_id:
             raise HTTPException(status_code=400, detail="當前司機無法轉交此訂單")
 
         # Get current driver details
-        cur.execute("SELECT name, phone FROM drivers WHERE id = %s", (current_driver_id,))
+        cur.execute("SELECT driver_name, driver_phone FROM drivers WHERE id = %s", (transfer_request.current_driver_id,))
         current_driver = cur.fetchone()
 
         # Update driver_orders with new driver details
         cur.execute(
             "UPDATE driver_orders SET driver_id = %s, previous_driver_id = %s, previous_driver_name = %s, "
             "previous_driver_phone = %s WHERE order_id = %s AND driver_id = %s AND action = '接單'", 
-            (new_driver_id, current_driver_id, current_driver[0], current_driver[1], order_id, current_driver_id)
+            (new_driver_id, transfer_request.current_driver_id, current_driver[0], current_driver[1], order_id, transfer_request.current_driver_id)
         )
 
         # Update orders with previous driver details
         cur.execute(
             "UPDATE orders SET previous_driver_id = %s, previous_driver_name = %s, previous_driver_phone = %s WHERE id = %s",
-            (current_driver_id, current_driver[0], current_driver[1], order_id)
+            (transfer_request.current_driver_id, current_driver[0], current_driver[1], order_id)
         )
 
         conn.commit()

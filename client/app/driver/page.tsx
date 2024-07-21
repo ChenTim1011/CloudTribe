@@ -101,14 +101,14 @@ const DriverPage: React.FC = () => {
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ current_driver_id: driverData.id, new_driver_phone: newDriverPhone }),
+                body: JSON.stringify({ current_driver_id: driverData?.id, new_driver_phone: newDriverPhone }),
             });
-
+    
             if (!response.ok) {
                 const errorText = await response.text();
                 throw new Error(`Failed to transfer order: ${errorText}`);
             }
-
+    
             setFilteredOrders(filteredOrders.filter(order => order.id !== orderId));
             alert('轉單成功');
         } catch (error) {
@@ -164,22 +164,22 @@ const DriverPage: React.FC = () => {
                             返回主頁
                         </Button>
                     </div>
-                    <h1 className="mb-20 text-4xl font-bold text白 text-center" style={{ marginTop: '40px' }}>感謝您的服務</h1>
+                    <h1 className="mb-20 text-4xl font-bold text-white text-center" style={{ marginTop: '40px' }}>感謝您的服務</h1>
                     <div className="flex space-x-4">
                         <Button 
-                            className="mb-10 px-6 py-3 text-lg font-bold border-2 border-black text-black bg白 hover:bg-blue-500 hover:text白"
+                            className="mb-10 px-6 py-3 text-lg font-bold border-2 border-black text-black bg-white hover:bg-blue-500 hover:text-white"
                             onClick={() => setShowRegisterForm(true)}
                         >
                             首次使用
                         </Button>
                         <Button 
-                            className="mb-10 px-6 py-3 text-lg font-bold border-2 border-black text-black bg白 hover:bg-blue-500 hover:text白"
+                            className="mb-10 px-6 py-3 text-lg font-bold border-2 border-black text-black bg-white hover:bg-blue-500 hover:text-white"
                             onClick={() => setShowLoginForm(true)}
                         >
                             查看表單
                         </Button>
                         <Button 
-                            className="mb-10 px-6 py-3 text-lg font-bold border-2 border-black text-black bg白 hover:bg-blue-500 hover:text白"
+                            className="mb-10 px-6 py-3 text-lg font-bold border-2 border-black text-black bg-white hover:bg-blue-500 hover:text-white"
                             onClick={() => {
                                 setShowDriverOrders(true);
                                 handleFetchDriverOrders(); // Fetch driver orders when opening the sheet
