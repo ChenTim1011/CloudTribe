@@ -49,8 +49,14 @@ const DriverOrdersPage: React.FC<{ driverData: any }> = ({ driverData }) => {
         }
     };
 
-    const handleNavigateOrder = async (orderId: string, driverId: number) => {
-        window.location.href = `/navigation?orderId=${orderId}&driverId=${driverId}`;
+    const handleNavigateOrder = (orderId: string) => {
+        const order = orders.find(order => order.id === orderId);
+        if (order) {
+            const locationUrl = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(order.location)}`;
+            window.open(locationUrl, '_blank');
+        } else {
+            alert('未找到訂單位置');
+        }
     };
 
     const handleCompleteOrder = async (orderId: string) => {

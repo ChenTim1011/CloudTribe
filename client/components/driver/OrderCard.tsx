@@ -3,7 +3,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
-const OrderCard: React.FC<{ order: any; driverId: number; onAccept: (orderId: string) => void; onTransfer: (orderId: string, newDriverPhone: string) => void; onNavigate: (orderId: string, driverId: number) => void; onComplete: (orderId: string) => void }> = ({ order, driverId, onAccept, onTransfer, onNavigate, onComplete }) => {
+const OrderCard: React.FC<{ order: any; driverId: number; onAccept: (orderId: string) => void; onTransfer: (orderId: string, newDriverPhone: string) => void; onNavigate: (orderId: string) => void; onComplete: (orderId: string) => void }> = ({ order, driverId, onAccept, onTransfer, onNavigate, onComplete }) => {
     const [showTransferForm, setShowTransferForm] = useState(false);
     const [newDriverPhone, setNewDriverPhone] = useState("");
     const [transferError, setTransferError] = useState("");
@@ -19,7 +19,7 @@ const OrderCard: React.FC<{ order: any; driverId: number; onAccept: (orderId: st
     };
 
     const handleNavigate = () => {
-        onNavigate(order.id, driverId);
+        onNavigate(order.id);
     };
 
     const handleComplete = () => {
