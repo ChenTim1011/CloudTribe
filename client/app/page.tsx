@@ -31,7 +31,7 @@ export default function Page() {
           </Button>
         </div>
         {isVisible &&
-        <div className="lg:p-8 flex flex-row gap-2 items-center justify-center">
+        <div className="lg:p-8 flex lg:flex-row  flex-col gap-2 items-center justify-center">
           <Button 
             className="lg:h-16 h-12 lg:text-2xl text-md rounded-2xl bg-gray-500 shadow-2xl text-white font-mono hover:bg-slate-400">
             <Link href="/tribe_resident/necessities">
