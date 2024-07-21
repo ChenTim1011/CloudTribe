@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import OrderCard from '@/components/driver/OrderCard';  
+import OrderCard from '@/components/driver/OrderCard';
 import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from "@/components/ui/select";
 import NavigationBar from "@/components/NavigationBar";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetClose } from "@/components/ui/sheet";
@@ -24,32 +24,32 @@ const ViewForms: React.FC = () => {
         }
         setError('');
         try {
-            const response = await fetch(`/api/form?role=${role}&phone=${phone}`);
+            const response = await fetch(`/api/forms?role=${role}&phone=${phone}`);
             if (!response.ok) {
                 throw new Error('獲取訂單失敗');
             }
             const data = await response.json();
             setOrders(data);
-            setShowSheet(true); // Show sheet after fetching orders
+            setShowSheet(true);
         } catch (err) {
             setError((err as Error).message);
         }
     };
 
-    const handleAcceptOrder = async (orderId: string) => {
-        // TODO: Implement the logic to accept an order
+    const handleAccept = async (orderId: string) => {
+        console.log(`Accepting order with ID: ${orderId}`);
     };
 
-    const handleTransferOrder = async (orderId: string, newDriverPhone: string) => {
-        // TODO: Implement the logic to transfer an order
+    const handleTransfer = async (orderId: string, newDriverPhone: string) => {
+        console.log(`Transferring order with ID: ${orderId} to new driver with phone: ${newDriverPhone}`);
     };
 
-    const handleNavigateOrder = (orderId: string) => {
-        // TODO: Implement the logic to navigate to an order's location
+    const handleNavigate = async (orderId: string, driverId: number) => {
+        console.log(`Navigating to order with ID: ${orderId} for driver ID: ${driverId}`);
     };
 
-    const handleCompleteOrder = async (orderId: string) => {
-        // TODO: Implement the logic to complete an order
+    const handleComplete = async (orderId: string) => {
+        console.log(`Completing order with ID: ${orderId}`);
     };
 
     return (
@@ -106,11 +106,11 @@ const ViewForms: React.FC = () => {
                                     <OrderCard
                                         key={order.id}
                                         order={order}
-                                        driverId={0} // 如果 driverId 在其他地方設置，這裡應該替換為相應的值
-                                        onAccept={handleAcceptOrder}
-                                        onTransfer={handleTransferOrder}
-                                        onNavigate={handleNavigateOrder}
-                                        onComplete={handleCompleteOrder}
+                                        driverId={0}
+                                        onAccept={handleAccept}
+                                        onTransfer={handleTransfer}
+                                        onNavigate={handleNavigate}
+                                        onComplete={handleComplete}
                                     />
                                 ))}
                             </div>

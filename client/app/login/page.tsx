@@ -21,11 +21,11 @@ const LoginPage: React.FC = () => {
         <NavigationBar />
       </div>
       
-      <div className="w-full flex justify-start p-4">
-        <Button variant="outline" onClick={() => window.history.back()}>
-          <FontAwesomeIcon icon={faArrowLeft} className="mr-2" />
-          返回主頁
-        </Button>
+      <div className="w-full flex justify-start space-x-2 mt-4">
+          <Button variant="outline" onClick={() => window.location.href = '/'}>
+              <FontAwesomeIcon icon={faArrowLeft} className="mr-2" />
+              返回主頁
+          </Button>
       </div>
 
       <div className="flex-grow flex items-center justify-center">

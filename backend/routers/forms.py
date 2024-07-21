@@ -1,32 +1,13 @@
-"""
-This module contains the router for handling order views based on user roles.
-
-It includes an endpoint for fetching orders for buyers, drivers, and sellers.
-
-Endpoints:
-- GET /: Fetch orders based on user role and phone number.
-
-"""
-
 import logging
 from typing import List, Dict, Any
-
 from psycopg2 import Error
 from psycopg2.extensions import connection as Connection
-
 from fastapi import APIRouter, HTTPException, Query, Depends
 from backend.database import get_db_connection
-
 
 router = APIRouter()
 
 def get_db():
-    """
-    Get a database connection.
-    
-    Yields:
-        psycopg2.extensions.connection: A PostgreSQL database connection.
-    """
     conn = get_db_connection()
     try:
         yield conn
@@ -35,43 +16,34 @@ def get_db():
 
 @router.get("/", response_model=List[Dict[str, Any]])
 async def get_orders_view_form(role: str = Query(...), phone: str = Query(...), conn: Connection = Depends(get_db)):
-    """
-    Fetch orders based on user role and phone number.
-
-    Args:
-        role (str): The role of the user (buyer, driver, seller).
-        phone (str): The phone number of the user.
-        conn (Connection): The database connection.
-
-    Returns:
-        list: A list of orders based on the user role.
-    """
     cur = conn.cursor()
     try:
         logging.info("Fetching orders for role: %s, phone: %s", role, phone)
 
         if role == 'buyer':
             cur.execute("""
-                SELECT o.*, u.name AS seller_name, u.phone AS seller_phone
-                FROM orders o
-                JOIN users u ON o.seller_id = u.id
-                WHERE o.buyer_id = (SELECT id FROM users WHERE phone = %s)
+                SELECT orders.id, orders.buyer_name, orders.buyer_phone, orders.seller_id, orders.seller_name, orders.seller_phone,
+                       orders.date, orders.time, orders.location, orders.is_urgent, orders.total_price, orders.order_type, orders.order_status, orders.note,
+                       orders.shipment_count, orders.required_orders_count, orders.previous_driver_id, orders.previous_driver_name, orders.previous_driver_phone
+                FROM orders
+                WHERE orders.buyer_phone = %s
             """, (phone,))
         elif role == 'driver':
             cur.execute("""
-                SELECT o.*, u.name AS buyer_name, u.phone AS buyer_phone, d.name AS previous_driver_name, d.phone AS previous_driver_phone
-                FROM orders o
-                JOIN driver_orders do ON o.id = do.order_id
-                JOIN users u ON o.buyer_id = u.id
-                LEFT JOIN drivers d ON o.previous_driver_id = d.user_id
-                WHERE do.driver_id = (SELECT user_id FROM drivers WHERE phone = %s) AND do.action = '接單'
+                SELECT orders.id, orders.buyer_name, orders.buyer_phone, orders.seller_id, orders.seller_name, orders.seller_phone,
+                       orders.date, orders.time, orders.location, orders.is_urgent, orders.total_price, orders.order_type, orders.order_status, orders.note,
+                       orders.shipment_count, orders.required_orders_count, orders.previous_driver_id, orders.previous_driver_name, orders.previous_driver_phone
+                FROM orders
+                JOIN driver_orders ON orders.id = driver_orders.order_id
+                WHERE driver_orders.driver_id = (SELECT id FROM drivers WHERE driver_phone = %s) AND driver_orders.action = '接單'
             """, (phone,))
         elif role == 'seller':
             cur.execute("""
-                SELECT o.*, u.name AS buyer_name, u.phone AS buyer_phone
-                FROM orders o
-                JOIN users u ON o.buyer_id = u.id
-                WHERE o.seller_id = (SELECT id FROM users WHERE phone = %s)
+                SELECT orders.id, orders.buyer_name, orders.buyer_phone, orders.seller_id, orders.seller_name, orders.seller_phone,
+                       orders.date, orders.time, orders.location, orders.is_urgent, orders.total_price, orders.order_type, orders.order_status, orders.note,
+                       orders.shipment_count, orders.required_orders_count, orders.previous_driver_id, orders.previous_driver_name, orders.previous_driver_phone
+                FROM orders
+                WHERE orders.seller_phone = %s
             """, (phone,))
         else:
             raise HTTPException(status_code=400, detail="無效的角色")
@@ -83,25 +55,29 @@ async def get_orders_view_form(role: str = Query(...), phone: str = Query(...), 
         for order in orders:
             cur.execute("SELECT * FROM order_items WHERE order_id = %s", (order[0],))
             items = cur.fetchall()
-            order_list.append({
+            order_data = {
                 "id": order[0],
-                "buyer_id": order[1],
-                "seller_id": order[2],
-                "date": order[3],
-                "time": order[4],
-                "location": order[5],
-                "is_urgent": order[6],
-                "total_price": order[7],
-                "order_type": order[8],
-                "order_status": order[9],
-                "shipment_count": order[10],
-                "required_orders_count": order[11],
-                "previous_driver_id": order[12],
-                "previous_driver_name": order[13],
-                "previous_driver_phone": order[14],
-                "items": [{"id": item[2], "name": item[3], "price": item[4], "quantity": item[5], "img": item[6]} for item in items],
-                "note": order[15]
-            })
+                "buyer_name": order[1],
+                "buyer_phone": order[2],
+                "seller_id": int(order[3]),
+                "seller_name": order[4],
+                "seller_phone": order[5],
+                "date": order[6].isoformat(),
+                "time": order[7].isoformat(),
+                "location": order[8],
+                "is_urgent": bool(order[9]),
+                "total_price": float(order[10]),
+                "order_type": order[11],
+                "order_status": order[12],
+                "note": order[13],
+                "shipment_count": order[14],
+                "required_orders_count": order[15],
+                "previous_driver_id": order[16],
+                "previous_driver_name": order[17],
+                "previous_driver_phone": order[18],
+                "items": [{"order_id": item[1], "item_id": item[2], "item_name": item[3], "price": float(item[4]), "quantity": int(item[5]), "img": str(item[6])} for item in items]
+            }
+            order_list.append(order_data)
 
         return order_list
     except Error as e:
