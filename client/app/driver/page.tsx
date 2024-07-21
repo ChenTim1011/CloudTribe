@@ -158,13 +158,13 @@ const DriverPage: React.FC = () => {
                 }}
             >
                 <div className="content flex-grow p-10 bg-white bg-opacity-10 flex flex-col items-center">
-                    <div className="w-full flex justify-start space-x-2 mt-4">
-                        <Button variant="outline" onClick={() => window.history.back()}>
-                            <FontAwesomeIcon icon={faArrowLeft} className="mr-2" />
-                            返回主頁
-                        </Button>
-                    </div>
-                    <h1 className="mb-20 text-4xl font-bold text-white text-center" style={{ marginTop: '40px' }}>感謝您的服務</h1>
+                <div className="w-full flex justify-start space-x-2 mt-4">
+                    <Button variant="outline" onClick={() => window.location.href = '/'}>
+                        <FontAwesomeIcon icon={faArrowLeft} className="mr-2" />
+                        返回主頁
+                    </Button>
+                </div>
+                    <h1 className="mb-20 text-4xl font-bold text-white text-center" style={{ marginTop: '40px' }}>司機專區</h1>
                     <div className="flex space-x-4">
                         <Button 
                             className="mb-10 px-6 py-3 text-lg font-bold border-2 border-black text-black bg-white hover:bg-blue-500 hover:text-white"

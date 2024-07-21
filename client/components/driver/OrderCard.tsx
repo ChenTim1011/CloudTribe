@@ -2,11 +2,13 @@ import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { useRouter } from 'next/navigation';
 
-const OrderCard: React.FC<{ order: any; driverId: number; onAccept: (orderId: string) => void; onTransfer: (orderId: string, newDriverPhone: string) => void; onNavigate: (orderId: string) => void; onComplete: (orderId: string) => void }> = ({ order, driverId, onAccept, onTransfer, onNavigate, onComplete }) => {
+const OrderCard: React.FC<{ order: any; driverId: number; onAccept: (orderId: string) => void; onTransfer: (orderId: string, newDriverPhone: string) => void; onNavigate: (orderId: string, driverId: number) => void; onComplete: (orderId: string) => void }> = ({ order, driverId, onAccept, onTransfer, onNavigate, onComplete }) => {
     const [showTransferForm, setShowTransferForm] = useState(false);
     const [newDriverPhone, setNewDriverPhone] = useState("");
     const [transferError, setTransferError] = useState("");
+    const router = useRouter();
 
     const handleTransfer = () => {
         if (/^\d{7,10}$/.test(newDriverPhone)) {
@@ -19,7 +21,7 @@ const OrderCard: React.FC<{ order: any; driverId: number; onAccept: (orderId: st
     };
 
     const handleNavigate = () => {
-        onNavigate(order.id);
+        onNavigate(order.id, driverId);
     };
 
     const handleComplete = () => {

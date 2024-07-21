@@ -5,6 +5,8 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetClose } from "@/components/ui/sheet";
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faArrowLeft } from '@fortawesome/free-solid-svg-icons';
 import { GoogleMap, Autocomplete, Marker, useJsApiLoader, LoadScriptProps } from "@react-google-maps/api";
 import { useSearchParams } from 'next/navigation';
 import Directions from "@/components/navigation/Directions";
@@ -213,7 +215,14 @@ const MapComponent: React.FC = () => {
   }
 
   return (
-    <div className="max-w-full mx-auto my-10 space-y-6">
+
+    <div className="max-w-full mx-auto  space-y-6">
+        <div className="w-full flex justify-start p-4">
+        <Button variant="outline" onClick={() => window.history.back()}>
+          <FontAwesomeIcon icon={faArrowLeft} className="mr-2" />
+          上一頁
+        </Button>
+      </div>
       <div id="map" className="mb-6" style={{ height: "60vh", width: "100%" }}>
         <GoogleMap
           center={center!}
@@ -243,14 +252,14 @@ const MapComponent: React.FC = () => {
         <Button onClick={handleViewOrder} className="bg-black text-white max-w-xs w-1/2 mx-auto block">查看表單</Button>
           <div className="flex flex-col space-y-4">
             <h2 className="text-lg font-bold">起點</h2>
-            <div className="flex items-center w-full">
+            <div className="flex mb-4 w-full">
               <Autocomplete
                 onLoad={(autocomplete) => {
                   autocompleteOriginRef.current = autocomplete;
                 }}
                 onPlaceChanged={() => handlePlaceChanged(autocompleteOriginRef, setOrigin, setOriginName)}
               >
-                <div className="flex items-center w-full">
+                <div className="flex items-center w-full"> 
                   <Input type="text" placeholder="搜尋起點" className="w-full" />
                 </div>
               </Autocomplete>
@@ -265,7 +274,7 @@ const MapComponent: React.FC = () => {
                 }}
                 onPlaceChanged={() => handlePlaceChanged(autocompleteDestinationRef, setDestination, setDestinationName)}
               >
-                <div className="flex items-center w-full">
+                <div className="flex mb-4 w-full">
                   <Input type="text" placeholder="搜尋終點" className="w-full" />
                 </div>
               </Autocomplete>

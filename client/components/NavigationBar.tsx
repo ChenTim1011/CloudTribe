@@ -37,7 +37,7 @@ const NavigationBar = () => {
         </MenubarMenu>
         <MenubarMenu>
           <MenubarTrigger>
-            <Link href="/forms">查看表單</Link>
+            <Link href="/viewform">查看表單</Link>
           </MenubarTrigger>
         </MenubarMenu>
       </div>

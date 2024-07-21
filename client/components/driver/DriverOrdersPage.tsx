@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import OrderCard from '@/components/driver/OrderCard';
+import { useRouter } from 'next/navigation';
 
 const DriverOrdersPage: React.FC<{ driverData: any }> = ({ driverData }) => {
     const [orders, setOrders] = useState<any[]>([]);
+    const router = useRouter();
 
     useEffect(() => {
         if (!driverData || !driverData.id) {
@@ -50,13 +52,7 @@ const DriverOrdersPage: React.FC<{ driverData: any }> = ({ driverData }) => {
     };
 
     const handleNavigateOrder = (orderId: string) => {
-        const order = orders.find(order => order.id === orderId);
-        if (order) {
-            const locationUrl = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(order.location)}`;
-            window.open(locationUrl, '_blank');
-        } else {
-            alert('未找到訂單位置');
-        }
+        router.push(`/navigation?orderId=${orderId}&driverId=${driverData.id}`);
     };
 
     const handleCompleteOrder = async (orderId: string) => {
