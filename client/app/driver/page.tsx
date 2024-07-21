@@ -18,7 +18,7 @@ const DriverPage: React.FC = () => {
     const [showDriverOrders, setShowDriverOrders] = useState(false);
     const [orders, setOrders] = useState([]);
     const [filteredOrders, setFilteredOrders] = useState<any[]>([]);
-    const [driverData, setDriverData] = useState<{ id: string } | null>(null);
+    const [driverData, setDriverData] = useState<{ id: number } | null>(null);
     const [driverOrders, setDriverOrders] = useState([]); // State to store driver's orders
     const router = useRouter();
 
@@ -117,19 +117,30 @@ const DriverPage: React.FC = () => {
         }
     };
 
-    const handleAccept = (orderId: string) => {
-        console.log("Accepting order with driverData:", driverData);
-        handleAcceptOrder(orderId); // Ensure this function is correctly defined and called
-    };
-
-    const handleTransfer = (orderId: string) => {
-        console.log("Transferring order with driverData:", driverData);
-        handleTransferOrder(orderId, "0900000000"); // Pass a valid new driver phone
-    };
-
-    const handleNavigate = (orderId: string) => {
+    const handleNavigate = (orderId: string, driverId: number) => {
         console.log("Navigating to order with driverData:", driverData);
-        router.push(`/navigation?orderId=${orderId}`);
+        router.push(`/navigation?orderId=${orderId}&driverId=${driverId}`);
+    };
+
+    const handleCompleteOrder = async (orderId: string) => {
+        try {
+            const response = await fetch(`/api/orders/${orderId}/complete`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to complete order');
+            }
+
+            setFilteredOrders(filteredOrders.filter(order => order.id !== orderId)); // 直接移除已完成的訂單
+            alert('訂單已完成');
+        } catch (error) {
+            console.error('Error completing order:', error);
+            alert('完成訂單失敗');
+        }
     };
 
     const handleFilteredOrders = (filtered: any[]) => {
@@ -225,14 +236,16 @@ const DriverPage: React.FC = () => {
                     </Sheet>
 
                     <div className="w-full mt-10">
-                        <OrderListWithPagination
-                            orders={filteredOrders}
-                            onAccept={handleAccept}
-                            onTransfer={handleTransfer}
-                            onNavigate={handleNavigate}
-                            driverData={driverData} 
-                            onOrderAccepted={handleFetchDriverOrders} // Pass the fetch driver orders function
-                        />
+                        {driverData?.id && (
+                            <OrderListWithPagination
+                                orders={filteredOrders}
+                                onAccept={handleAcceptOrder}
+                                onTransfer={handleTransferOrder}
+                                onNavigate={handleNavigate}
+                                onComplete={handleCompleteOrder}
+                                driverId={driverData.id}
+                            />
+                        )}
                     </div>
                 </div>
             </div>
