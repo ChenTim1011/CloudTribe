@@ -6,8 +6,9 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetClose } from "@/components/ui/sheet";
 import { GoogleMap, Autocomplete, Marker, useJsApiLoader, LoadScriptProps } from "@react-google-maps/api";
-import Directions from "./Directions";
-import { useSearchParams } from 'next/navigation';
+import { useSearchParams, useRouter } from 'next/navigation';
+import Directions from "@/components/navigation/Directions";
+import DriverOrdersPage from "@/components/driver/DriverOrdersPage";
 
 interface Route {
   summary: string;
@@ -36,8 +37,11 @@ const MapComponent: React.FC = () => {
   const [navigationUrl, setNavigationUrl] = useState<string | null>(null);
   const [orderData, setOrderData] = useState<any>(null);
   const [isSheetOpen, setIsSheetOpen] = useState(false);
+  const [showDriverOrders, setShowDriverOrders] = useState(false);
 
   const searchParams = useSearchParams();
+  const router = useRouter();
+  const driverId = searchParams.get('driverId');  // Assuming driverId is passed as a URL parameter
 
   const autocompleteOriginRef = useRef<google.maps.places.Autocomplete | null>(null);
   const autocompleteDestinationRef = useRef<google.maps.places.Autocomplete | null>(null);
@@ -143,30 +147,9 @@ const MapComponent: React.FC = () => {
     setNavigationUrl(url);
   }, [origin, destination]);
 
-  const handleViewOrder = async () => {
-    const orderId = searchParams.get('orderId');
-    if (!orderId) {
-      setError("無效的訂單ID");
-      return;
-    }
-
-    try {
-      const response = await fetch(`/api/orders/${orderId}`);
-      if (!response.ok) {
-        throw new Error('Failed to fetch order');
-      }
-      const data = await response.json();
-      if (data.order_status !== '接單') {
-        setError("只顯示狀態為接單的訂單");
-        return;
-      }
-      setOrderData(data);
-      setError(null);
-      setIsSheetOpen(true);
-    } catch (error) {
-      console.error('Error fetching order:', error);
-      setError('無法獲取訂單資料，請重試');
-    }
+  const handleViewOrder = () => {
+    setShowDriverOrders(true);
+    setIsSheetOpen(true);
   };
 
   const handleCompleteOrder = async () => {
@@ -193,9 +176,9 @@ const MapComponent: React.FC = () => {
     }
   };
 
-  const handleNavigateToLocation = () => {
+  const handleNavigateToLocation = (orderId: string, driverId: number) => {
     if (orderData && orderData.location) {
-      const locationUrl = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(orderData.location)}`;
+      const locationUrl = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(orderData.location)}&driverId=${driverId}`;
       window.open(locationUrl, '_blank');
     }
   };
@@ -211,7 +194,7 @@ const MapComponent: React.FC = () => {
   return (
     <div className="max-w-full mx-auto my-6 space-y-4">
       <div className="flex justify-center">
-        <Button onClick={handleViewOrder} className="mt-2">查看表單</Button>
+        <Button onClick={handleViewOrder} className="mt-2 w-full max-w-xs">查看表單</Button>
       </div>
       <div id="map" style={{ height: "60vh", width: "100%" }}>
         <GoogleMap
@@ -294,50 +277,8 @@ const MapComponent: React.FC = () => {
             <SheetTitle>訂單詳情</SheetTitle>
             <SheetClose />
           </SheetHeader>
-          {orderData ? (
-            <Card className="m-4 shadow-lg">
-              <CardHeader className="bg-black text-white p-4 rounded-t-md">
-                <CardTitle className="text-lg font-bold">{orderData.order_type}</CardTitle>
-              </CardHeader>
-              <CardContent className="p-4">
-                <div className="mb-2">
-                  <p className="text-sm text-gray-700 font-bold">消費者姓名: {orderData.name}</p>
-                  <p className="text-sm text-gray-700 font-bold">電話: {orderData.phone}</p>
-                  <p className="text-sm text-gray-700 font-bold">最晚可接單日期: {orderData.date}</p>
-                  <p className="text-sm text-gray-700 font-bold">最晚可接單時間: {orderData.time}</p>
-                  <p className="text-sm text-gray-700 font-bold">地點: {orderData.location}</p>
-                </div>
-                <div className="mb-2">
-                  <p className="text-sm text-gray-700 font-bold">商品: </p>
-                  <ul className="list-disc list-inside ml-4">
-                    {orderData.items.map((item: any) => (
-                      <li key={item.id} className="text-sm text-gray-700 mb-2">
-                        <div className="flex items-center space-x-2">
-                          <img src={item.img} alt={item.name} className="w-10 h-10 object-cover rounded" />
-                          <div>
-                            <span className="block font-semibold text-black truncate" style={{ maxWidth: '20rem' }}>
-                              {item.name || '未命名'}
-                            </span>
-                            <span className="block">- {item.quantity} x ${item.price.toFixed(2)}</span>
-                          </div>
-                        </div>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-                {orderData.note && (
-                  <p className="text-sm text-gray-700 font-bold">備註: {orderData.note}</p>
-                )}
-                {orderData.previous_driver_name && (
-                  <div className="mt-4">
-                    <p className="text-sm text-black-600 font-bold">🔄轉單自: {orderData.previous_driver_name} ({orderData.previous_driver_phone})</p>
-                  </div>
-                )}
-              </CardContent>
-              <CardFooter className="p-4">
-                <Button onClick={handleCompleteOrder} className="bg-black text-white">完成訂單</Button>
-              </CardFooter>
-            </Card>
+          {showDriverOrders ? (
+            <DriverOrdersPage driverData={{ id: driverId }} />
           ) : (
             <div className="p-4">
               <p>正在加載訂單資料...</p>

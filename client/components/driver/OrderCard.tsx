@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useRouter } from 'next/navigation';
 
-const OrderCard: React.FC<{ order: any; onAccept: (orderId: string) => void; onTransfer: (orderId: string, newDriverPhone: string) => void; onNavigate: (orderId: string) => void }> = ({ order, onAccept, onTransfer, onNavigate }) => {
+const OrderCard: React.FC<{ order: any; driverId: number; onAccept: (orderId: string) => void; onTransfer: (orderId: string, newDriverPhone: string) => void; onNavigate: (orderId: string, driverId: number) => void }> = ({ order, driverId, onAccept, onTransfer, onNavigate }) => {
     const [showTransferForm, setShowTransferForm] = useState(false);
     const [newDriverPhone, setNewDriverPhone] = useState("");
     const [transferError, setTransferError] = useState("");
@@ -21,7 +21,7 @@ const OrderCard: React.FC<{ order: any; onAccept: (orderId: string) => void; onT
     };
 
     const handleNavigate = () => {
-        router.push(`/navigation?orderId=${order.id}`);
+        onNavigate(order.id, driverId);
     };
 
     return (

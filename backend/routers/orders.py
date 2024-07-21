@@ -248,27 +248,33 @@ async def get_order(order_id: int, conn: Connection = Depends(get_db)):
         order = cur.fetchone()
         if not order:
             raise HTTPException(status_code=404, detail="訂單不存在")
+
         cur.execute("SELECT * FROM order_items WHERE order_id = %s", (order_id,))
         items = cur.fetchall()
+
         order_data = {
             "id": order[0],
             "buyer_id": order[1],
-            "seller_id": order[2],
-            "date": order[3],
-            "time": order[4],
-            "location": order[5],
-            "is_urgent": order[6],
-            "total_price": order[7],
-            "order_type": order[8],
-            "order_status": order[9],
-            "note": order[10],
-            "shipment_count": order[11],
-            "required_orders_count": order[12],
-            "previous_driver_id": order[13],
-            "previous_driver_name": order[14],
-            "previous_driver_phone": order[15],
-            "items": [{"id": item[2], "name": item[3], "price": item[4], "quantity": item[5], 
-                       "img": item[6]} for item in items]
+            "buyer_name": order[2],  # str
+            "buyer_phone": order[3],  # str
+            "seller_id": int(order[4]),  # int
+            "seller_name": order[5],  # str
+            "seller_phone": order[6],  # str
+            "date": order[7].isoformat(),  # str
+            "time": order[8].isoformat(),  # str
+            "location": order[9],
+            "is_urgent": bool(order[10]),  # bool
+            "total_price": float(order[11]),  # float
+            "order_type": order[12],
+            "order_status": order[13],
+            "note": order[14],
+            "shipment_count": order[15],
+            "required_orders_count": order[16],
+            "previous_driver_id": order[17],
+            "previous_driver_name": order[18],
+            "previous_driver_phone": order[19],
+            "items": [{"order_id": item[1], "item_id": item[2], "item_name": item[3], "price": float(item[4]), "quantity": int(item[5]), 
+                       "img": str(item[6])} for item in items]
         }
         return order_data
     except Exception as e:

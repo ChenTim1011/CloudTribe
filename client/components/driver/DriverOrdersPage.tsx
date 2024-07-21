@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import OrderCard from './OrderCard';
+import OrderCard from '@/components/driver/OrderCard';
 
 const DriverOrdersPage: React.FC<{ driverData: any }> = ({ driverData }) => {
     const [orders, setOrders] = useState<any[]>([]);
@@ -49,9 +49,9 @@ const DriverOrdersPage: React.FC<{ driverData: any }> = ({ driverData }) => {
         }
     };
 
-    const handleNavigateOrder = async (orderId: string) => {
-        // Navigate to the NavigationPage with the orderId
-        window.location.href = `/navigation?orderId=${orderId}`;
+    const handleNavigateOrder = async (orderId: string, driverId: number) => {
+        // Navigate to the NavigationPage with the orderId and driverId
+        window.location.href = `/navigation?orderId=${orderId}&driverId=${driverId}`;
     };
 
     return (
@@ -62,6 +62,7 @@ const DriverOrdersPage: React.FC<{ driverData: any }> = ({ driverData }) => {
                     <OrderCard
                         key={order.id}
                         order={order}
+                        driverId={driverData.id}
                         onAccept={() => {}}
                         onTransfer={handleTransferOrder}
                         onNavigate={handleNavigateOrder}
