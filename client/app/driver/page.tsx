@@ -36,6 +36,7 @@ const DriverPage: React.FC = () => {
     };
 
     const handleFetchDriverOrders = async () => {
+        console.log("Fetching driver orders with driverData:", driverData);
         if (!driverData || !driverData.id) {
             console.error("Driver data is missing or incomplete");
             return;
@@ -52,16 +53,82 @@ const DriverPage: React.FC = () => {
         }
     };
 
+    const handleAcceptOrder = async (orderId: string) => {
+        try {
+            console.log("handleAcceptOrder called with driverData:", driverData);
+            console.log("Accepting order with orderId:", orderId);
+            if (!driverData || !driverData.id) {
+                console.error("Driver data is missing or incomplete");
+                return;
+            }
+        
+            const timestamp = new Date().toISOString();
+        
+            const response = await fetch(`/api/orders/${orderId}/accept`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ 
+                    driver_id: driverData.id,
+                    order_id: orderId,  
+                    action: "接單",
+                    timestamp: timestamp,
+                    previous_driver_id: null,
+                    previous_driver_name: null,
+                    previous_driver_phone: null
+                }),
+            });
+        
+            if (!response.ok) {
+                const errorText = await response.text();
+                throw new Error(`Failed to accept order: ${errorText}`);
+            }
+        
+            setFilteredOrders(filteredOrders.filter(order => order.id !== orderId));
+            alert('接單成功');
+            handleFetchDriverOrders(); // Notify parent component that an order has been accepted
+        } catch (error) {
+            console.error('Error accepting order:', error);
+            alert('接單失敗');
+        }
+    };
+
+    const handleTransferOrder = async (orderId: string, newDriverPhone: string) => {
+        try {
+            const response = await fetch(`/api/orders/${orderId}/transfer`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ current_driver_id: driverData.id, new_driver_phone: newDriverPhone }),
+            });
+
+            if (!response.ok) {
+                const errorText = await response.text();
+                throw new Error(`Failed to transfer order: ${errorText}`);
+            }
+
+            setFilteredOrders(filteredOrders.filter(order => order.id !== orderId));
+            alert('轉單成功');
+        } catch (error) {
+            console.error('Error transferring order:', error);
+            alert('轉單失敗');
+        }
+    };
+
     const handleAccept = (orderId: string) => {
-        // Handle order acceptance logic
+        console.log("Accepting order with driverData:", driverData);
+        handleAcceptOrder(orderId); // Ensure this function is correctly defined and called
     };
 
     const handleTransfer = (orderId: string) => {
-        // Handle order transfer logic
+        console.log("Transferring order with driverData:", driverData);
+        handleTransferOrder(orderId, "0900000000"); // Pass a valid new driver phone
     };
 
     const handleNavigate = (orderId: string) => {
-        // Handle order navigation logic
+        console.log("Navigating to order with driverData:", driverData);
         router.push(`/navigation?orderId=${orderId}`);
     };
 
@@ -69,7 +136,8 @@ const DriverPage: React.FC = () => {
         setFilteredOrders(filtered);
     };
 
-    const handleUpdateSuccess = (data: any) => {
+    const handleUpdateSuccess = (data: any): void => {
+        console.log("Updating driverData with:", data);
         setDriverData(data);
         setShowRegisterForm(false);
         setShowLoginForm(true);  // Open login form
@@ -96,22 +164,22 @@ const DriverPage: React.FC = () => {
                             返回主頁
                         </Button>
                     </div>
-                    <h1 className="mb-20 text-4xl font-bold text-white text-center" style={{ marginTop: '40px' }}>感謝您的服務</h1>
+                    <h1 className="mb-20 text-4xl font-bold text白 text-center" style={{ marginTop: '40px' }}>感謝您的服務</h1>
                     <div className="flex space-x-4">
                         <Button 
-                            className="mb-10 px-6 py-3 text-lg font-bold border-2 border-black text-black bg-white hover:bg-blue-500 hover:text-white"
+                            className="mb-10 px-6 py-3 text-lg font-bold border-2 border-black text-black bg白 hover:bg-blue-500 hover:text白"
                             onClick={() => setShowRegisterForm(true)}
                         >
                             首次使用
                         </Button>
                         <Button 
-                            className="mb-10 px-6 py-3 text-lg font-bold border-2 border-black text-black bg-white hover:bg-blue-500 hover:text-white"
+                            className="mb-10 px-6 py-3 text-lg font-bold border-2 border-black text-black bg白 hover:bg-blue-500 hover:text白"
                             onClick={() => setShowLoginForm(true)}
                         >
                             查看表單
                         </Button>
                         <Button 
-                            className="mb-10 px-6 py-3 text-lg font-bold border-2 border-black text-black bg-white hover:bg-blue-500 hover:text-white"
+                            className="mb-10 px-6 py-3 text-lg font-bold border-2 border-black text-black bg白 hover:bg-blue-500 hover:text白"
                             onClick={() => {
                                 setShowDriverOrders(true);
                                 handleFetchDriverOrders(); // Fetch driver orders when opening the sheet
@@ -162,7 +230,7 @@ const DriverPage: React.FC = () => {
                             onAccept={handleAccept}
                             onTransfer={handleTransfer}
                             onNavigate={handleNavigate}
-                            driverData={driverData}
+                            driverData={driverData} 
                             onOrderAccepted={handleFetchDriverOrders} // Pass the fetch driver orders function
                         />
                     </div>

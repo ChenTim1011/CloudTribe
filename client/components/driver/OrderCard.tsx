@@ -28,11 +28,11 @@ const OrderCard: React.FC<{ order: any; onAccept: (orderId: string) => void; onT
         <Card className="max-w-md mx-auto my-6 shadow-lg">
             <CardHeader className="bg-black text-white p-4 rounded-t-md">
                 <CardTitle className="text-lg font-bold">{order.order_type}</CardTitle>
-                <CardDescription className="text-lg text-white font-semibold">消費者姓名: {order.buyer_name}</CardDescription> {/* 使用 buyer_name */}
+                <CardDescription className="text-lg text-white font-semibold">消費者姓名: {order.buyer_name}</CardDescription>
             </CardHeader>
             <CardContent className="p-4">
                 <div className="mb-2">
-                    <p className="text-sm text-gray-700 font-bold">電話: {order.buyer_phone}</p> {/* use buyer_phone */}
+                    <p className="text-sm text-gray-700 font-bold">電話: {order.buyer_phone}</p>
                     <p className="text-sm text-gray-700 font-bold">最晚可接單日期: {order.date}</p>
                     <p className="text-sm text-gray-700 font-bold">最晚可接單時間: {order.time}</p>
                     <p className="text-sm text-gray-700 font-bold">地點: {order.location}</p>
@@ -43,10 +43,10 @@ const OrderCard: React.FC<{ order: any; onAccept: (orderId: string) => void; onT
                         {order.items.map((item: any) => (
                             <li key={item.item_id} className="text-sm text-gray-700 mb-2">
                                 <div className="flex items-center space-x-2">
-                                    <img src={item.img} alt={item.item_name} className="w-10 h-10 object-cover rounded" /> {/* 使用 item_name */}
+                                    <img src={item.img} alt={item.item_name} className="w-10 h-10 object-cover rounded" />
                                     <div>
                                         <span className="block font-semibold text-black truncate" style={{ maxWidth: '20rem' }}>
-                                            {item.item_name || '未命名'} {/* use  item_name */}
+                                            {item.item_name || '未命名'}
                                         </span>
                                         <span className="block">- {item.quantity} x ${item.price.toFixed(2)}</span>
                                     </div>
@@ -85,7 +85,13 @@ const OrderCard: React.FC<{ order: any; onAccept: (orderId: string) => void; onT
                     <p className="text-sm text-gray-700 font-bold">總價格: ${order.total_price.toFixed(2)}</p>
                 </div>
                 {order.order_status === '未接單' ? (
-                    <Button className="bg-black text-white" onClick={() => onAccept(order.id)}>接單</Button>
+                    <Button className="bg-black text-white" onClick={() => {
+                        if (order.id) {
+                            onAccept(order.id);
+                        } else {
+                            console.error("Order ID is undefined");
+                        }
+                    }}>接單</Button>
                 ) : (
                     <div className="flex space-x-2">
                         <Button className="bg-red-500 text-white" onClick={() => setShowTransferForm(true)}>轉單</Button>

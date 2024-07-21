@@ -17,36 +17,47 @@ const OrderListWithPagination: React.FC<{ orders: any[], onAccept: (orderId: str
 
   const handleAcceptOrder = async (orderId: string) => {
     try {
-      if (!driverData || !driverData.id) {
-        console.error("Driver data is missing or incomplete");
-        return;
-      }
+        console.log("handleAcceptOrder called with orderId:", orderId);
+        console.log("Accepting order with driverData:", driverData);
+        if (!driverData || !driverData.id) {
+            console.error("Driver data is missing or incomplete");
+            return;
+        }
 
-      const response = await fetch(`/api/orders/${orderId}/accept`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ 
-          driver_id: driverData.id,
-          order_id: orderId,  
-          action: "accept"
-        }),
-      });
+        const timestamp = new Date().toISOString();
 
-      if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(`Failed to accept order: ${errorText}`);
-      }
+        const response = await fetch(`/api/orders/${orderId}/accept`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                driver_id: driverData.id,
+                order_id: orderId,
+                action: "接單",
+                timestamp: timestamp,
+                previous_driver_id: null,
+                previous_driver_name: null,
+                previous_driver_phone: null
+            }),
+        });
 
-      setFilteredOrders(filteredOrders.filter(order => order.id !== orderId));
-      alert('接單成功');
-      onOrderAccepted(); // Notify parent component that an order has been accepted
+        if (!response.ok) {
+            const errorText = await response.text();
+            throw new Error(`Failed to accept order: ${errorText}`);
+        }
+
+        const acceptedOrder = await response.json();
+        console.log("Accepted Order:", acceptedOrder);
+
+        setFilteredOrders(filteredOrders.filter(order => order.id !== orderId));
+        alert('接單成功');
+        onOrderAccepted(); // Notify parent component that an order has been accepted
     } catch (error) {
-      console.error('Error accepting order:', error);
-      alert('接單失敗');
+        console.error('Error accepting order:', error);
+        alert('接單失敗');
     }
-  };
+};
 
   const handleTransferOrder = async (orderId: string, newDriverPhone: string) => {
     try {

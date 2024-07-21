@@ -200,7 +200,7 @@ const MapComponent: React.FC = () => {
         <Card className="shadow-lg">
           <CardHeader className="bg-black text-white p-4 rounded-t-md">
          
-          <Button onClick={handleNavigateToLocation}>目前位置到送貨地點的導覽連結</Button>
+          <Button className="bg-white text-black" onClick={handleNavigateToLocation}>目前位置到送貨地點的導覽連結</Button>
             <CardTitle className="text-lg font-bold">導航地圖</CardTitle>
             <CardDescription className="text-sm">顯示路線與地圖</CardDescription>
           </CardHeader>

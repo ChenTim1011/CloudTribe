@@ -73,12 +73,40 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onClose, clearCart, cartIte
     }
 
     // All validations passed
-    const orderData = {
-      buyer_id: 1,  // TODO: Replace with the actual buyer ID
+    const orderData: {
+      id?: number;
+      buyer_id: number;
+      buyer_name: string;
+      buyer_phone: string;
+      seller_id: number;
+      seller_name: string;
+      seller_phone: string;
+      date: string;
+      time: string;
+      location: string;
+      is_urgent: boolean;
+      total_price: number;
+      order_type: string;
+      order_status: string;
+      note: string;
+      shipment_count: number;
+      required_orders_count: number;
+      previous_driver_id: null;
+      previous_driver_name: null;
+      previous_driver_phone: null;
+      items: {
+        item_id: string;
+        item_name: string;
+        price: number;
+        quantity: number;
+        img: string;
+      }[];
+    } = {
+      buyer_id: 1,  // TODO: Replace with the actual buyer ID  =>login function
       buyer_name: name,
       buyer_phone: phone,
-      seller_id: 2,  // TODO: Replace with the actual buyer ID
-      seller_name: '賣家名稱',
+      seller_id: 2,  // TODO: Replace with the actual buyer ID => login function
+      seller_name: '賣家名稱', 
       seller_phone: '賣家電話',
       date: date.toISOString().split('T')[0], 
       time: time, 
@@ -88,8 +116,8 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onClose, clearCart, cartIte
       order_type: "購買類",
       order_status: "未接單",
       note: note,
-      shipment_count: 1,
-      required_orders_count: 1,
+      shipment_count: 1,  //TODO: seller function
+      required_orders_count: 1,  //TODO: seller function
       previous_driver_id: null,
       previous_driver_name: null,
       previous_driver_phone: null,
@@ -101,6 +129,7 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onClose, clearCart, cartIte
         img: item.img
       }))
     };
+
     try {
       const response = await fetch('/api/orders', {
         method: 'POST',
@@ -114,7 +143,11 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onClose, clearCart, cartIte
         throw new Error('Failed to submit order');
       }
 
-      console.log('Order submitted:', await response.json());
+      const result = await response.json();
+      console.log('Order submitted:', result);
+
+      // Set the ID from the response to the orderData
+      orderData.id = result.id;
 
       setShowAlert(true);
       clearCart();

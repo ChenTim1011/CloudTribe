@@ -17,6 +17,7 @@ class OrderItem(BaseModel):
     img: str
 
 class Order(BaseModel):
+    id: Optional[int] = None 
     buyer_id: int
     buyer_name: str
     buyer_phone: str

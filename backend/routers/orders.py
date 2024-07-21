@@ -39,7 +39,7 @@ def get_db():
     finally:
         conn.close()
 
-@router.post("/")
+@router.post("/", response_model=Order)
 async def create_order(order: Order, conn: Connection = Depends(get_db)):
     """
     Create a new order.
@@ -51,6 +51,7 @@ async def create_order(order: Order, conn: Connection = Depends(get_db)):
     Returns:
         dict: A success message with the order ID.
     """
+    logging.info("Order data received: %s", order.model_dump_json())
     cur = conn.cursor()
     try:
         cur.execute(
@@ -66,7 +67,8 @@ async def create_order(order: Order, conn: Connection = Depends(get_db)):
                 (order_id, item.item_id, item.item_name, item.price, item.quantity, item.img)
             )
         conn.commit()
-        return {"status": "success", "order_id": order_id}
+        order.id = order_id
+        return order
     except Exception as e:
         conn.rollback()
         raise HTTPException(status_code=500, detail=str(e)) from e
@@ -136,27 +138,41 @@ async def accept_order(order_id: int, driver_order: DriverOrder, conn: Connectio
     Returns:
         dict: A success message.
     """
+    logging.info("Received driver_order: %s", driver_order.model_dump_json())
     cur = conn.cursor()
     try:
         logging.info("Driver %s attempting to accept order %s", driver_order.driver_id, order_id)
         cur.execute("SELECT order_status FROM orders WHERE id = %s FOR UPDATE", (order_id,))
         order = cur.fetchone()
-        if order[0] != '未接單':
+
+        logging.info("Fetched order: %s", order)
+
+        if not order:
+            raise HTTPException(status_code=404, detail="訂單未找到")
+        
+        
+        logging.info("Fetched order: %s", order)
+        
+        # Fetch order status => the result only 1. Be careful index out of range.
+        order_status = order[0]
+        if order_status != '未接單':  
             raise HTTPException(status_code=400, detail="訂單已被接")
         cur.execute("UPDATE orders SET order_status = %s WHERE id = %s", ('接單', order_id))
         cur.execute(
-            "INSERT INTO driver_orders (driver_id, order_id, action) VALUES (%s, %s, %s)",
-            (driver_order.driver_id, order_id, '接單')
+            "INSERT INTO driver_orders (driver_id, order_id, action, timestamp, previous_driver_id, previous_driver_name, previous_driver_phone) VALUES (%s, %s, %s, %s, %s, %s, %s)",
+            (driver_order.driver_id, order_id, '接單', driver_order.timestamp, driver_order.previous_driver_id, driver_order.previous_driver_name, driver_order.previous_driver_phone)
         )
         conn.commit()
         logging.info("Order %s successfully accepted by driver %s", order_id, driver_order.driver_id)
-        return {"status": "success"}
+        return {"status": "success", "order": order}
+        
     except Exception as e:
         conn.rollback()
         logging.error("Error accepting order %s by driver %s: %s", order_id, driver_order.driver_id, str(e))
         raise HTTPException(status_code=500, detail=str(e)) from e
     finally:
         cur.close()
+
 
 @router.post("/{order_id}/transfer")
 async def transfer_order(order_id: int, current_driver_id: int = Query(...), new_driver_phone: str = Query(...), 

@@ -76,18 +76,19 @@ async def get_driver(phone: str, conn: Connection = Depends(get_db)):
     """
     cur = conn.cursor()
     try:
-        cur.execute("SELECT driver_name, driver_phone, direction, available_date, start_time, end_time FROM drivers WHERE driver_phone = %s", (phone,))
+        cur.execute("SELECT id,driver_name, driver_phone, direction, available_date, start_time, end_time FROM drivers WHERE driver_phone = %s", (phone,))
         driver = cur.fetchone()
         if not driver:
             raise HTTPException(status_code=404, detail="電話號碼未註冊")
         
         return {
-            "driver_name": driver[0],
-            "driver_phone": driver[1],
-            "direction": driver[2],
-            "available_date": driver[3].isoformat(),
-            "start_time": driver[4].isoformat(),
-            "end_time": driver[5].isoformat(),
+            "id": driver[0],
+            "driver_name": driver[1],
+            "driver_phone": driver[2],
+            "direction": driver[3],
+            "available_date": driver[4].isoformat(),
+            "start_time": driver[5].isoformat(),
+            "end_time": driver[6].isoformat(),
         }
     except Exception as e:
         logging.error("Error fetching driver: %s", str(e))
@@ -175,7 +176,7 @@ async def get_driver_orders(driver_id: int, conn: Connection = Depends(get_db)):
             }
             cur.execute("SELECT * FROM order_items WHERE order_id = %s", (order[0],))
             items = cur.fetchall()
-            order_dict["items"] = [{"id": item[2], "name": item[3], "price": item[4], "quantity": item[5], "img": item[6]} for item in items]
+            order_dict["items"] = [{"item_id": item[2], "item_name": item[3], "price": item[4], "quantity": item[5], "img": item[6]} for item in items]
             order_list.append(order_dict)
         
         return order_list
