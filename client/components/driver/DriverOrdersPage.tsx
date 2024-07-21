@@ -17,7 +17,7 @@ const DriverOrdersPage: React.FC<{ driverData: any }> = ({ driverData }) => {
                     throw new Error('Failed to fetch driver orders');
                 }
                 const data = await response.json();
-                setOrders(data);
+                setOrders(data.filter((order: any) => order.order_status !== '已完成')); // 只顯示未完成的訂單
             } catch (error) {
                 console.error('Error fetching driver orders:', error);
             }
@@ -50,8 +50,28 @@ const DriverOrdersPage: React.FC<{ driverData: any }> = ({ driverData }) => {
     };
 
     const handleNavigateOrder = async (orderId: string, driverId: number) => {
-        // Navigate to the NavigationPage with the orderId and driverId
         window.location.href = `/navigation?orderId=${orderId}&driverId=${driverId}`;
+    };
+
+    const handleCompleteOrder = async (orderId: string) => {
+        try {
+            const response = await fetch(`/api/orders/${orderId}/complete`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to complete order');
+            }
+
+            setOrders(orders.filter(order => order.id !== orderId)); // 直接移除已完成的訂單
+            alert('訂單已完成');
+        } catch (error) {
+            console.error('Error completing order:', error);
+            alert('完成訂單失敗');
+        }
     };
 
     return (
@@ -66,6 +86,7 @@ const DriverOrdersPage: React.FC<{ driverData: any }> = ({ driverData }) => {
                         onAccept={() => {}}
                         onTransfer={handleTransferOrder}
                         onNavigate={handleNavigateOrder}
+                        onComplete={handleCompleteOrder}
                     />
                 ))
             ) : (

@@ -300,9 +300,9 @@ async def complete_order(order_id: int, conn: Connection = Depends(get_db)):
         order = cur.fetchone()
         if not order:
             raise HTTPException(status_code=404, detail="訂單不存在")
-        if order[9] != '接單':  
+        if order[13] != '接單':  
             raise HTTPException(status_code=400, detail="訂單狀態不是接單，無法完成訂單")
-        cur.execute("UPDATE orders SET order_status = '已完成訂單' WHERE id = %s", (order_id,))
+        cur.execute("UPDATE orders SET order_status = '已完成' WHERE id = %s", (order_id,))
         conn.commit()
         return {"status": "success", "message": "訂單已完成"}
     except Exception as e:

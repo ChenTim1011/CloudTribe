@@ -2,13 +2,11 @@ import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { useRouter } from 'next/navigation';
 
-const OrderCard: React.FC<{ order: any; driverId: number; onAccept: (orderId: string) => void; onTransfer: (orderId: string, newDriverPhone: string) => void; onNavigate: (orderId: string, driverId: number) => void }> = ({ order, driverId, onAccept, onTransfer, onNavigate }) => {
+const OrderCard: React.FC<{ order: any; driverId: number; onAccept: (orderId: string) => void; onTransfer: (orderId: string, newDriverPhone: string) => void; onNavigate: (orderId: string, driverId: number) => void; onComplete: (orderId: string) => void }> = ({ order, driverId, onAccept, onTransfer, onNavigate, onComplete }) => {
     const [showTransferForm, setShowTransferForm] = useState(false);
     const [newDriverPhone, setNewDriverPhone] = useState("");
     const [transferError, setTransferError] = useState("");
-    const router = useRouter();
 
     const handleTransfer = () => {
         if (/^\d{7,10}$/.test(newDriverPhone)) {
@@ -24,11 +22,20 @@ const OrderCard: React.FC<{ order: any; driverId: number; onAccept: (orderId: st
         onNavigate(order.id, driverId);
     };
 
+    const handleComplete = () => {
+        onComplete(order.id);
+    };
+
     return (
         <Card className="max-w-md mx-auto my-6 shadow-lg">
-            <CardHeader className="bg-black text-white p-4 rounded-t-md">
-                <CardTitle className="text-lg font-bold">{order.order_type}</CardTitle>
-                <CardDescription className="text-lg text-white font-semibold">消費者姓名: {order.buyer_name}</CardDescription>
+            <CardHeader className="bg-black text-white p-4 rounded-t-md flex justify-between">
+                <div>
+                    <CardTitle className="text-lg font-bold">{order.order_type}</CardTitle>
+                    <CardDescription className="text-lg text-white font-semibold">消費者姓名: {order.buyer_name}</CardDescription>
+                </div>
+                {order.order_status !== '已完成' && (
+                    <Button className="bg-white text-black" onClick={handleComplete}>完成接單</Button>
+                )}
             </CardHeader>
             <CardContent className="p-4">
                 <div className="mb-2">
@@ -84,18 +91,22 @@ const OrderCard: React.FC<{ order: any; driverId: number; onAccept: (orderId: st
                     <p className="text-sm text-gray-700 font-bold">訂單狀態: {order.order_status}</p>
                     <p className="text-sm text-gray-700 font-bold">總價格: ${order.total_price.toFixed(2)}</p>
                 </div>
-                {order.order_status === '未接單' ? (
-                    <Button className="bg-black text-white" onClick={() => {
-                        if (order.id) {
-                            onAccept(order.id);
-                        } else {
-                            console.error("Order ID is undefined");
-                        }
-                    }}>接單</Button>
-                ) : (
+                {order.order_status !== '已完成' && (
                     <div className="flex space-x-2">
-                        <Button className="bg-red-500 text-white" onClick={() => setShowTransferForm(true)}>轉單</Button>
-                        <Button className="bg-black text-white" onClick={handleNavigate}>導航</Button>
+                        {order.order_status === '未接單' ? (
+                            <Button className="bg-black text-white" onClick={() => {
+                                if (order.id) {
+                                    onAccept(order.id);
+                                } else {
+                                    console.error("Order ID is undefined");
+                                }
+                            }}>接單</Button>
+                        ) : (
+                            <>
+                                <Button className="bg-red-500 text-white" onClick={() => setShowTransferForm(true)}>轉單</Button>
+                                <Button className="bg-black text-white" onClick={handleNavigate}>導航</Button>
+                            </>
+                        )}
                     </div>
                 )}
             </CardFooter>
