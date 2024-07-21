@@ -1,4 +1,3 @@
-// components/navigation/Directions.tsx
 "use client";
 import { useEffect, useState } from "react";
 import { DirectionsRenderer, DirectionsService } from "@react-google-maps/api";
@@ -53,9 +52,14 @@ const Directions: React.FC<DirectionsProps> = ({
       .then((response) => {
         directionsRenderer.setDirections(response);
         setRoutes(response.routes as Route[]);
+        
         const firstLeg = response.routes[0].legs[0];
-        setTotalDistance(firstLeg.distance.text);
-        setTotalTime(firstLeg.duration.text);
+        if (firstLeg.distance) {
+          setTotalDistance(firstLeg.distance.text);
+        }
+        if (firstLeg.duration) {
+          setTotalTime(firstLeg.duration.text);
+        }
       });
 
     return () => directionsRenderer.setMap(null);
