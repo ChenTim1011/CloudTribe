@@ -49,6 +49,7 @@ const MapComponent: React.FC = () => {
   const { isLoaded, loadError } = useJsApiLoader({
     googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY as string,
     libraries,
+    language: 'zh-TW', // 指定語言參數
   });
 
   useEffect(() => {
@@ -230,7 +231,6 @@ const MapComponent: React.FC = () => {
           />
         </GoogleMap>
       </div>
-      <Button onClick={handleViewOrder} className="bg-black text-white w-full">查看表單</Button>
       <Card className="my-10 shadow-lg mb-6">   
         <CardHeader className="bg-black text-white p-4 rounded-t-md flex justify-between">
           <div>
@@ -240,38 +240,42 @@ const MapComponent: React.FC = () => {
           
         </CardHeader>
         <CardContent className="p-4">
+        <Button onClick={handleViewOrder} className="bg-black text-white max-w-xs w-1/2 mx-auto block">查看表單</Button>
           <div className="flex flex-col space-y-4">
-          <h2 className="text-lg font-bold">設置起點和終點</h2>
-          
-            
-            <div className="my-10 flex items-center space-x-2">
+            <h2 className="text-lg font-bold">起點</h2>
+            <div className="flex items-center w-full">
               <Autocomplete
                 onLoad={(autocomplete) => {
                   autocompleteOriginRef.current = autocomplete;
                 }}
                 onPlaceChanged={() => handlePlaceChanged(autocompleteOriginRef, setOrigin, setOriginName)}
               >
-                <Input type="text" placeholder="搜尋起點" />
+                <div className="flex items-center w-full">
+                  <Input type="text" placeholder="搜尋起點" className="w-full" />
+                </div>
               </Autocomplete>
-              <Button onClick={handleMoveMapToOrigin}>移動地圖到起點</Button>
-              <Button onClick={handleGetCurrentLocation}>以目前位置為起點</Button>
             </div>
-            <div className="my-10 flex items-center space-x-2">
+            <Button onClick={handleMoveMapToOrigin}>移動地圖到起點</Button>
+            <Button onClick={handleGetCurrentLocation}>以目前位置為起點</Button>
+            <h2 className="text-lg font-bold">終點</h2>
+            <div className="flex items-center w-full">
               <Autocomplete
                 onLoad={(autocomplete) => {
                   autocompleteDestinationRef.current = autocomplete;
                 }}
                 onPlaceChanged={() => handlePlaceChanged(autocompleteDestinationRef, setDestination, setDestinationName)}
               >
-                <Input type="text" placeholder="搜尋終點" />
+                <div className="flex items-center w-full">
+                  <Input type="text" placeholder="搜尋終點" className="w-full" />
+                </div>
               </Autocomplete>
-              <Button onClick={handleMoveMapToDestination}>移動地圖到終點</Button>
-              {orderData && orderData.location && (
-              <Button className="bg-black text-white" onClick={() => handleNavigateOrder(orderData.location)}>
+            </div>
+            <Button onClick={handleMoveMapToDestination}>移動地圖到終點</Button>
+            {orderData && orderData.location && (
+              <Button className="my-10 bg-black text-white" onClick={() => handleNavigateOrder(orderData.location)}>
                 目前位置到送貨地點的導覽連結
               </Button>
             )}
-            </div>
             {error && (
               <Alert variant="destructive">
                 <AlertTitle>錯誤</AlertTitle>
