@@ -6,6 +6,12 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 
+/**
+ * Represents the form for creating or updating a driver.
+ * @param onClose - Callback function to close the form.
+ * @param onUpdateSuccess - Callback function to handle successful update.
+ * @param initialData - Initial data for pre-filling the form (optional).
+ */
 const DriverForm: React.FC<{ onClose: () => void, onUpdateSuccess: (data: any) => void, initialData?: any }> = ({ onClose, onUpdateSuccess, initialData }) => {
     const [name, setName] = useState(initialData?.driver_name || "");
     const [phone, setPhone] = useState(initialData?.driver_phone || "");
@@ -16,6 +22,9 @@ const DriverForm: React.FC<{ onClose: () => void, onUpdateSuccess: (data: any) =
     const [showAlert, setShowAlert] = useState(false);
     const [error, setError] = useState("");
 
+    /**
+     * Handles form submission.
+     */
     const handleSubmit = async () => {
         setError("");
 

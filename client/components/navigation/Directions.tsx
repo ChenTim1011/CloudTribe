@@ -21,6 +21,17 @@ interface Route {
   }[];
 }
 
+/**
+ * Renders the directions component.
+ * 
+ * @param origin - The origin location.
+ * @param destination - The destination location.
+ * @param routes - The available routes.
+ * @param setRoutes - The function to set the routes.
+ * @param setTotalDistance - The function to set the total distance.
+ * @param setTotalTime - The function to set the total time.
+ * @returns null
+ */
 const Directions: React.FC<DirectionsProps> = ({
   origin,
   destination,

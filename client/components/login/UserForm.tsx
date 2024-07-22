@@ -7,6 +7,9 @@ import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAuth } from '@/components/lib/AuthProvider';
 
+/**
+ * UserForm component for registering and logging in users.
+ */
 export function UserForm() {
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
@@ -14,6 +17,9 @@ export function UserForm() {
   const [successMessage, setSuccessMessage] = useState('');
   const { setUser } = useAuth();
 
+  /**
+   * Handles the registration process when the user clicks the "註冊" button.
+   */
   const handleRegister = async () => {
     console.log("Starting handleRegister");
 
@@ -61,6 +67,9 @@ export function UserForm() {
     }
   };
 
+  /**
+   * Handles the login process when the user clicks the "登入" button.
+   */
   const handleLogin = async () => {
     console.log("Starting handleLogin");
 

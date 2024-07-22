@@ -20,20 +20,36 @@ type ItemListProps = {
   addToCart: (product: Product, quantity: number) => void;
 };
 
+/**
+ * Renders a list of items with pagination and sorting functionality.
+ *
+ * @param products - The array of products to display.
+ * @param itemsPerPage - The number of items to display per page.
+ * @param addToCart - The function to add a product to the cart.
+ */
 const ItemList: React.FC<ItemListProps> = ({ products, itemsPerPage, addToCart }) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [sortedProducts, setSortedProducts] = useState<Product[]>(products);
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
 
   useEffect(() => {
+    // Sort the products based on the current sort order.
     const sorted = [...products].sort((a, b) => sortOrder === 'asc' ? a.price - b.price : b.price - a.price);
     setSortedProducts(sorted);
   }, [products, sortOrder]);
 
+  /**
+   * Handles the page change event.
+   *
+   * @param page - The new page number.
+   */
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
   };
 
+  /**
+   * Toggles the sort order between ascending and descending.
+   */
   const toggleSortOrder = () => {
     setSortOrder(prevOrder => prevOrder === 'asc' ? 'desc' : 'asc');
   };

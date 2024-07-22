@@ -6,13 +6,28 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import DriverForm from "./DriverForm";
 
-const LoginForm: React.FC<{ onClose: () => void, onFetchOrders: (phone: string) => void, onFetchDriverData: (data: any) => void, onFilteredOrders: (orders: any[]) => void }> = ({ onClose, onFetchOrders, onFetchDriverData, onFilteredOrders }) => {
+/**
+ * LoginForm component for driver login.
+ * @param onClose - Function to close the login form.
+ * @param onFetchOrders - Function to fetch orders based on phone number.
+ * @param onFetchDriverData - Function to fetch driver data.
+ * @param onFilteredOrders - Function to filter orders based on driver data.
+ */
+const LoginForm: React.FC<{
+    onClose: () => void;
+    onFetchOrders: (phone: string) => void;
+    onFetchDriverData: (data: any) => void;
+    onFilteredOrders: (orders: any[]) => void;
+}> = ({ onClose, onFetchOrders, onFetchDriverData, onFilteredOrders }) => {
     const [phone, setPhone] = useState("");
     const [showOptions, setShowOptions] = useState(false);
     const [showUpdateForm, setShowUpdateForm] = useState(false);
     const [driverData, setDriverData] = useState(null);
     const [error, setError] = useState("");
 
+    /**
+     * Handles the login process.
+     */
     const handleLogin = async () => {
         setError("");
 
@@ -48,21 +63,35 @@ const LoginForm: React.FC<{ onClose: () => void, onFetchOrders: (phone: string) 
         }
     };
 
+    /**
+     * Handles the update info action.
+     */
     const handleUpdateInfo = () => {
         setShowUpdateForm(true);
     };
 
+    /**
+     * Handles the use last condition action.
+     */
     const handleUseLastCondition = () => {
         onFetchOrders(phone);
         onClose();
     };
 
+    /**
+     * Handles the update success event.
+     * @param data - Updated driver data.
+     */
     const handleUpdateSuccess = async (data: any) => {
         setShowUpdateForm(false);
         setShowOptions(false);
         onFetchDriverData(data);
     };
 
+    /**
+     * Filters orders based on driver data.
+     * @param driverData - Driver data used for filtering orders.
+     */
     const filterOrders = async (driverData: any) => {
         try {
             const response = await fetch('/api/orders');
@@ -70,35 +99,32 @@ const LoginForm: React.FC<{ onClose: () => void, onFetchOrders: (phone: string) 
                 throw new Error('Failed to fetch orders');
             }
             const orders = await response.json();
-    
+
             const { available_date, start_time, end_time } = driverData;
-    
-  
+
             console.log('available_date:', available_date);
             console.log('start_time:', start_time);
             console.log('end_time:', end_time);
-    
-            
+
             const driverStartDateTime = new Date(Date.parse(`${available_date}T${start_time}`));
             const driverEndDateTime = new Date(Date.parse(`${available_date}T${end_time}`));
-    
-   
+
             console.log('Driver Start DateTime:', driverStartDateTime);
             console.log('Driver End DateTime:', driverEndDateTime);
-    
+
             const filtered = orders.filter((order: any) => {
                 console.log('order.date:', order.date);
                 console.log('order.time:', order.time);
                 const orderDateTime = new Date(Date.parse(`${order.date}T${order.time}`));
                 console.log('Order DateTime:', orderDateTime);
-    
+
                 return orderDateTime > driverEndDateTime && order.order_status === '未接單';
             }).sort((a: any, b: any) => {
                 const aDateTime = new Date(Date.parse(`${a.date}T${a.time}`)).getTime();
                 const bDateTime = new Date(Date.parse(`${b.date}T${b.time}`)).getTime();
                 return aDateTime - bDateTime;
             });
-    
+
             console.log('Filtered Orders:', filtered);
             onFilteredOrders(filtered);
         } catch (error) {

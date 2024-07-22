@@ -71,5 +71,8 @@ class DriverOrder(BaseModel):
     previous_driver_phone: Optional[str] = None
 
 class TransferOrderRequest(BaseModel):
+    """
+    Model representing a transfer order request.
+    """
     current_driver_id: int
     new_driver_phone: str

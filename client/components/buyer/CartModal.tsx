@@ -25,6 +25,16 @@ type CartModalProps = {
   totalPrice: number;
 };
 
+/**
+ * Represents a modal component for the shopping cart.
+ * @param cart - The array of items in the cart.
+ * @param onClose - The function to close the modal.
+ * @param removeFromCart - The function to remove an item from the cart.
+ * @param updateQuantity - The function to update the quantity of an item in the cart.
+ * @param clearCart - The function to clear the cart.
+ * @param cartItems - The number of items in the cart.
+ * @param totalPrice - The total price of all items in the cart.
+ */
 const CartModal: React.FC<CartModalProps> = ({ cart, onClose, removeFromCart, updateQuantity, clearCart, cartItems, totalPrice }) => {
   const [isCheckout, setIsCheckout] = useState(false);
   const [error, setError] = useState("");

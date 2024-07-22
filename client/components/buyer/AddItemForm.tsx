@@ -10,12 +10,21 @@ type AddItemFormProps = {
   addToCart: (item: { name: string; quantity: number; price: number; img: string }) => void;
 };
 
+/**
+ * Represents the form for adding an item to the cart.
+ * @param onClose - Callback function to close the form.
+ * @param addToCart - Callback function to add the item to the cart.
+ */
 const AddItemForm: React.FC<AddItemFormProps> = ({ onClose, addToCart }) => {
   const [name, setName] = useState("");
   const [quantity, setQuantity] = useState<string | number>("");
   const [price, setPrice] = useState<string | number>("");
   const [error, setError] = useState("");
 
+  /**
+   * Handles the form submission.
+   * Resets the error message, validates the input fields, and adds the item to the cart.
+   */
   const handleSubmit = () => {
     // Reset the error message
     setError("");

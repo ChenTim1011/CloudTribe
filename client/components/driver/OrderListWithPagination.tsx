@@ -11,6 +11,19 @@ interface OrderListWithPaginationProps {
     driverId: number;
 }
 
+/**
+ * Renders a list of orders with pagination.
+ *
+ * @component
+ * @param {Object} props - The component props.
+ * @param {Array} props.orders - The list of orders to display.
+ * @param {Function} props.onAccept - The function to handle accepting an order.
+ * @param {Function} props.onTransfer - The function to handle transferring an order.
+ * @param {Function} props.onNavigate - The function to handle navigating to an order.
+ * @param {Function} props.onComplete - The function to handle completing an order.
+ * @param {string} props.driverId - The ID of the driver.
+ * @returns {JSX.Element} The rendered component.
+ */
 const OrderListWithPagination: React.FC<OrderListWithPaginationProps> = ({ orders, onAccept, onTransfer, onNavigate, onComplete, driverId }) => {
     const [currentPage, setCurrentPage] = useState(1);
     const [filteredOrders, setFilteredOrders] = useState<any[]>([]);
@@ -20,6 +33,11 @@ const OrderListWithPagination: React.FC<OrderListWithPaginationProps> = ({ order
         setFilteredOrders(orders);
     }, [orders]);
 
+    /**
+     * Handles the page change event.
+     *
+     * @param {number} page - The new page number.
+     */
     const handlePageChange = (page: number) => {
         setCurrentPage(page);
     };

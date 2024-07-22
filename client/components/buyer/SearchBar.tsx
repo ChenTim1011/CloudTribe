@@ -10,16 +10,21 @@ type SearchBarProps = {
 };
 
 /**
- * A search bar component.
+ * SearchBar component for searching products.
  *
- * @component
  * @param {Object} props - The component props.
- * @param {Function} props.onSearch - The callback function to be called when the search value changes.
- * @returns {JSX.Element} The rendered search bar component.
+ * @param {Function} props.onSearch - The callback function to be called when a search is performed.
+ * @param {string} props.className - The CSS class name for the component.
+ * @returns {JSX.Element} The rendered SearchBar component.
  */
 const SearchBar: React.FC<SearchBarProps> = ({ onSearch, className }) => {
   const [query, setQuery] = useState('');
 
+  /**
+   * Handles the search form submission.
+   *
+   * @param {React.FormEvent} e - The form event.
+   */
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     onSearch(query);
@@ -34,7 +39,6 @@ const SearchBar: React.FC<SearchBarProps> = ({ onSearch, className }) => {
         onChange={(e) => setQuery(e.target.value)}
         placeholder="搜尋您要的商品"
         className="flex-grow"
-        
       />
       <Button type="submit" variant="outline" className="ml-2">
         <FontAwesomeIcon icon={faSearch} />

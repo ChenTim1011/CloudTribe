@@ -10,13 +10,22 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetClose } from "@/comp
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowLeft } from '@fortawesome/free-solid-svg-icons';
 
+/**
+ * Component for viewing forms.
+ */
 const ViewForms: React.FC = () => {
+    /**
+     * State variables
+     */
     const [role, setRole] = useState<string>('');
     const [phone, setPhone] = useState<string>('');
     const [orders, setOrders] = useState<any[]>([]);
     const [error, setError] = useState<string>('');
     const [showSheet, setShowSheet] = useState(false);
 
+    /**
+     * Fetches orders based on role and phone number.
+     */
     const handleFetchOrders = async () => {
         if (!role || !phone) {
             setError('請選擇角色並輸入電話號碼');
@@ -36,18 +45,36 @@ const ViewForms: React.FC = () => {
         }
     };
 
+    /**
+     * Handles accepting an order.
+     * @param orderId - The ID of the order to accept.
+     */
     const handleAccept = async (orderId: string) => {
         console.log(`Accepting order with ID: ${orderId}`);
     };
 
+    /**
+     * Handles transferring an order to a new driver.
+     * @param orderId - The ID of the order to transfer.
+     * @param newDriverPhone - The phone number of the new driver.
+     */
     const handleTransfer = async (orderId: string, newDriverPhone: string) => {
         console.log(`Transferring order with ID: ${orderId} to new driver with phone: ${newDriverPhone}`);
     };
 
+    /**
+     * Handles navigating to an order for a driver.
+     * @param orderId - The ID of the order to navigate to.
+     * @param driverId - The ID of the driver.
+     */
     const handleNavigate = async (orderId: string, driverId: number) => {
         console.log(`Navigating to order with ID: ${orderId} for driver ID: ${driverId}`);
     };
 
+    /**
+     * Handles completing an order.
+     * @param orderId - The ID of the order to complete.
+     */
     const handleComplete = async (orderId: string) => {
         console.log(`Completing order with ID: ${orderId}`);
     };

@@ -3,6 +3,16 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
+/**
+ * Represents a form for an order card.
+ * @param order - The order object.
+ * @param role - The role of the user.
+ * @param driverId - The ID of the driver.
+ * @param onAccept - Callback function when the order is accepted.
+ * @param onTransfer - Callback function when the order is transferred to a new driver.
+ * @param onNavigate - Callback function when the order navigation is triggered.
+ * @param onComplete - Callback function when the order is completed.
+ */
 const FormOrderCard: React.FC<{
   order: any;
   role: string;
@@ -16,6 +26,9 @@ const FormOrderCard: React.FC<{
   const [newDriverPhone, setNewDriverPhone] = useState("");
   const [transferError, setTransferError] = useState("");
 
+  /**
+   * Handles the transfer of the order to a new driver.
+   */
   const handleTransfer = () => {
     if (/^\d{7,10}$/.test(newDriverPhone)) {
       Promise.resolve(onTransfer(order.id, newDriverPhone))
@@ -26,6 +39,9 @@ const FormOrderCard: React.FC<{
     }
   };
 
+  /**
+   * Handles the navigation to the order.
+   */
   const handleNavigate = () => {
     onNavigate(order.id, driverId);
   };

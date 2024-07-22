@@ -3,18 +3,24 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
+/**
+ * Represents an order card component.
+ */
 const OrderCard: React.FC<{
-  order: any;
-  driverId: number;
-  onAccept: (orderId: string) => void;
-  onTransfer: (orderId: string, newDriverPhone: string) => void;
-  onNavigate: (orderId: string, driverId: number) => void;
-  onComplete: (orderId: string) => void;
+  order: any; // The order object
+  driverId: number; // The driver ID
+  onAccept: (orderId: string) => void; // Callback function for accepting an order
+  onTransfer: (orderId: string, newDriverPhone: string) => void; // Callback function for transferring an order to a new driver
+  onNavigate: (orderId: string, driverId: number) => void; // Callback function for navigating to an order
+  onComplete: (orderId: string) => void; // Callback function for completing an order
 }> = ({ order, driverId, onAccept, onTransfer, onNavigate, onComplete }) => {
-  const [showTransferForm, setShowTransferForm] = useState(false);
-  const [newDriverPhone, setNewDriverPhone] = useState("");
-  const [transferError, setTransferError] = useState("");
+  const [showTransferForm, setShowTransferForm] = useState(false); // State for showing the transfer form
+  const [newDriverPhone, setNewDriverPhone] = useState(""); // State for the new driver's phone number
+  const [transferError, setTransferError] = useState(""); // State for transfer error message
 
+  /**
+   * Handles the transfer of an order to a new driver.
+   */
   const handleTransfer = () => {
     if (/^\d{7,10}$/.test(newDriverPhone)) {
       Promise.resolve(onTransfer(order.id, newDriverPhone))
@@ -25,6 +31,9 @@ const OrderCard: React.FC<{
     }
   };
 
+  /**
+   * Handles the navigation to an order.
+   */
   const handleNavigate = () => {
     onNavigate(order.id, driverId);
   };

@@ -1,3 +1,17 @@
+"""
+This module provides API endpoints for managing orders based on user roles (buyer, seller, driver).
+
+It includes endpoints for fetching orders based on the user's role and phone number, filtering the data accordingly,
+and returning detailed order information along with associated items.
+
+Endpoints:
+- GET /: Fetch orders for a user based on their role (buyer, seller, driver) and phone number.
+
+The main endpoint in this module:
+- GET /: Retrieves orders based on the specified role (buyer, seller, driver) and the user's phone number. 
+         It fetches detailed order information and associated order items.
+"""
+
 import logging
 from typing import List, Dict, Any
 from psycopg2 import Error
@@ -8,6 +22,10 @@ from backend.database import get_db_connection
 router = APIRouter()
 
 def get_db():
+    """
+    Dependency function to get a database connection.
+    Ensures the connection is closed after the request is processed.
+    """
     conn = get_db_connection()
     try:
         yield conn
@@ -16,6 +34,20 @@ def get_db():
 
 @router.get("/", response_model=List[Dict[str, Any]])
 async def get_orders_view_form(role: str = Query(...), phone: str = Query(...), conn: Connection = Depends(get_db)):
+    """
+    Fetch orders based on the user's role and phone number.
+
+    Args:
+    - role: str - The role of the user (buyer, seller, driver).
+    - phone: str - The phone number of the user.
+    - conn: Connection - Database connection (provided by dependency).
+
+    Returns:
+    - List[Dict[str, Any]]: List of orders with detailed information and associated items.
+
+    Raises:
+    - HTTPException: If the role is invalid or a database error occurs.
+    """
     cur = conn.cursor()
     try:
         logging.info("Fetching orders for role: %s, phone: %s", role, phone)

@@ -2,6 +2,12 @@ import React, { useEffect, useState } from 'react';
 import OrderCard from '@/components/driver/OrderCard';
 import { useRouter } from 'next/navigation';
 
+/**
+ * Represents the page component for displaying driver orders.
+ * @param {Object} props - The component props.
+ * @param {any} props.driverData - The driver data.
+ * @returns {JSX.Element} - The driver orders page component.
+ */
 const DriverOrdersPage: React.FC<{ driverData: any }> = ({ driverData }) => {
     const [orders, setOrders] = useState<any[]>([]);
     const router = useRouter();
@@ -12,6 +18,9 @@ const DriverOrdersPage: React.FC<{ driverData: any }> = ({ driverData }) => {
             return;
         }
 
+        /**
+         * Fetches the driver orders from the server.
+         */
         const fetchDriverOrders = async () => {
             try {
                 const response = await fetch(`/api/drivers/${driverData.id}/orders`);
@@ -19,7 +28,7 @@ const DriverOrdersPage: React.FC<{ driverData: any }> = ({ driverData }) => {
                     throw new Error('Failed to fetch driver orders');
                 }
                 const data = await response.json();
-                setOrders(data.filter((order: any) => order.order_status !== '已完成')); // 只顯示未完成的訂單
+                setOrders(data.filter((order: any) => order.order_status !== '已完成')); // Only display orders that are not completed
             } catch (error) {
                 console.error('Error fetching driver orders:', error);
             }
@@ -28,6 +37,11 @@ const DriverOrdersPage: React.FC<{ driverData: any }> = ({ driverData }) => {
         fetchDriverOrders();
     }, [driverData]);
 
+    /**
+     * Handles the transfer of an order to another driver.
+     * @param {string} orderId - The ID of the order to transfer.
+     * @param {string} newDriverPhone - The phone number of the new driver.
+     */
     const handleTransferOrder = async (orderId: string, newDriverPhone: string) => {
         try {
             const response = await fetch(`/api/orders/${orderId}/transfer`, {
@@ -51,10 +65,18 @@ const DriverOrdersPage: React.FC<{ driverData: any }> = ({ driverData }) => {
         }
     };
 
+    /**
+     * Handles the navigation to an order.
+     * @param {string} orderId - The ID of the order to navigate to.
+     */
     const handleNavigateOrder = (orderId: string) => {
         router.push(`/navigation?orderId=${orderId}&driverId=${driverData.id}`);
     };
 
+    /**
+     * Handles the completion of an order.
+     * @param {string} orderId - The ID of the order to complete.
+     */
     const handleCompleteOrder = async (orderId: string) => {
         try {
             const response = await fetch(`/api/orders/${orderId}/complete`, {
@@ -68,7 +90,7 @@ const DriverOrdersPage: React.FC<{ driverData: any }> = ({ driverData }) => {
                 throw new Error('Failed to complete order');
             }
 
-            setOrders(orders.filter(order => order.id !== orderId)); // 直接移除已完成的訂單
+            setOrders(orders.filter(order => order.id !== orderId)); // Remove the completed order directly
             alert('訂單已完成');
         } catch (error) {
             console.error('Error completing order:', error);

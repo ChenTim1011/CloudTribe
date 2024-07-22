@@ -27,6 +27,13 @@ type CheckoutFormProps = {
   totalPrice: number;
 };
 
+/**
+ * CheckoutForm component for submitting an order.
+ * @param onClose - Function to close the form.
+ * @param clearCart - Function to clear the cart.
+ * @param cartItems - Array of items in the cart.
+ * @param totalPrice - Total price of the items in the cart.
+ */
 const CheckoutForm: React.FC<CheckoutFormProps> = ({ onClose, clearCart, cartItems, totalPrice }) => {
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
@@ -38,6 +45,9 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onClose, clearCart, cartIte
   const [showAlert, setShowAlert] = useState(false);
   const [error, setError] = useState("");
 
+  /**
+   * Handles the form submission.
+   */
   const handleSubmit = async () => {
     // Clear previous errors
     setError("");
@@ -239,7 +249,7 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onClose, clearCart, cartIte
             </div>
             <div className="mb-4">
               <Label htmlFor="urgent" className="block text-sm font-medium text-gray-700">是否緊急</Label>
-              <Checkbox id="urgent" checked={is_urgent} onCheckedChange={(checked) => setIsUrgent(checked)} />
+              <Checkbox id="urgent" checked={is_urgent} onCheckedChange={(checked: boolean) => setIsUrgent(checked)} />
             </div>
             <div className="mb-4">
               <Label htmlFor="note" className="block text-sm font-medium text-gray-700">備註</Label>

@@ -28,11 +28,13 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 
+// Define the SidebarProps type for component props.
 type SidebarProps = {
-  filterCategory: (category: string) => void;
-  className?: string; // className prop is optional 
+  filterCategory: (category: string) => void; // A function to filter categories.
+  className?: string; // Optional className prop for additional styling.
 };
 
+// Define the categories and their subcategories.
 const categories = [
   {
     name: "蔬菜水果．農特產",
@@ -125,23 +127,40 @@ const categories = [
   },
 ];
 
+/**
+ * Sidebar component for selecting categories and subcategories.
+ * @param filterCategory - Function to filter the selected subcategory.
+ * @param className - CSS class name for the component.
+ */
 const Sidebar: React.FC<SidebarProps> = ({ filterCategory, className }) => {
+  // State to manage the selected category.
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  // State to manage the popover open state.
   const [open, setOpen] = useState(false);
+  // State to manage the sheet open state.
   const [sheetOpen, setSheetOpen] = useState(false);
 
+  /**
+   * Function to handle category selection.
+   * @param categoryName - The name of the selected category.
+   */
   const handleCategorySelect = (categoryName: string) => {
     const category = categories.find((cat) => cat.name === categoryName);
     setSelectedCategory(category ? category.name : null);
-    setOpen(false);
-    setSheetOpen(true);
+    setOpen(false); // Close the popover when a category is selected.
+    setSheetOpen(true); // Open the sheet when a category is selected.
   };
 
+  /**
+   * Function to handle subcategory selection.
+   * @param subcategory - The selected subcategory.
+   */
   const handleSubcategorySelect = (subcategory: string) => {
-    filterCategory(subcategory);
-    setSheetOpen(false);
+    filterCategory(subcategory); // Filter the selected subcategory.
+    setSheetOpen(false); // Close the sheet when a subcategory is selected.
   };
 
+  // Find the object for the selected category.
   const selectedCategoryObject = categories.find(
     (category) => category.name === selectedCategory
   );
@@ -175,7 +194,9 @@ const Sidebar: React.FC<SidebarProps> = ({ filterCategory, className }) => {
                     <Check
                       className={cn(
                         "mr-2 h-4 w-4",
-                        selectedCategory === category.name ? "opacity-100" : "opacity-0"
+                        selectedCategory === category.name
+                          ? "opacity-100"
+                          : "opacity-0"
                       )}
                     />
                     {category.name}
