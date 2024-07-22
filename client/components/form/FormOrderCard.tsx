@@ -126,11 +126,14 @@ const FormOrderCard: React.FC<{
               )}
             </>
           )}
+          {role === 'buyer' && order.order_status === '未接單' && (
+            <h2> 請等待司機接單 </h2>
+          )}
           {role === 'buyer' && order.order_status === '已完成' && (
             <Button className="bg-black text-white" onClick={() => onMarkAsPaid(order.id)}>確認已付款</Button>
           )}
           {role === 'driver' && order.order_status === '已完成' && (
-            <h2> 等待買家確認付款 </h2>
+            <h2> 請等待買家確認付款 </h2>
           )}
         </div>
       </CardFooter>

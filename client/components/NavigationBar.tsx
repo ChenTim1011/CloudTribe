@@ -14,12 +14,12 @@ const NavigationBar = () => {
   console.log('NavigationBar user:', user); 
 
   return (
-    <Menubar className="px-4 py-2 flex items-center" style={{ backgroundColor: '#E0EBAF', color: '#000000' }}>
+    <Menubar className="px-4 py-2 flex items-center justify-between" style={{ backgroundColor: '#E0EBAF', color: '#000000' }}>
       <div className="flex items-center space-x-4">
         <FontAwesomeIcon icon={faMountain} className="text-white h-6 w-6" />
-        <span className="font-bold text-lg">順路經濟平台</span>
+        <Link href="/" className="font-bold text-lg">順路經濟平台</Link>
       </div>
-      <div className="flex-grow flex space-x-4">
+      <div className="flex-grow flex space-x-6 justify-center">
         <MenubarMenu>
           <MenubarTrigger>
             <Link href="/buy_agri_produce">農產品專區</Link>
