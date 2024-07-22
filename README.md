@@ -2,7 +2,7 @@
 
 ## Project Description
 
-During the winter break of 2024, we visited the Sbunaw tribe(雪霧鬧部落**)** in Taoyuan, a small community with around 200 residents. The local economy is primarily based on agriculture, guesthouses, and camping. The area is difficult to access due to steep, winding mountain roads, making external transportation challenging. Due to these transportation issues, no logistics companies are willing to make deliveries to the mountain. This has led to the development of a "convenience economy," where residents who go down to the town for supplies also bring back goods for other residents, reducing the need for multiple trips. This system is usually based on mutual help among familiar residents.
+During the winter break of 2024, we visited the Sbunaw tribe(雪霧鬧部落) in Taoyuan, a small community with around 200 residents. The local economy is primarily based on agriculture, guesthouses, and camping. The area is difficult to access due to steep, winding mountain roads, making external transportation challenging. Due to these transportation issues, no logistics companies are willing to make deliveries to the mountain. This has led to the development of a "convenience economy," where residents who go down to the town for supplies also bring back goods for other residents, reducing the need for multiple trips. This system is usually based on mutual help among familiar residents.
 
 We aim to scale up this model, allowing residents to earn money by helping more people while improving the flow of goods in the mountainous area. The platform involves three roles: buyers, sellers, and drivers. The core functionality will enable these roles to express their needs and use a backend matching system to fulfill them. Detailed information can be found in proposal.pdf. We hope to create an information platform that supports remote communities and eventually expand its use to other indigenous tribes.
 
@@ -80,7 +80,7 @@ We aim to scale up this model, allowing residents to earn money by helping more 
 
 4. Open pgAdmin4, go to Servers, and register a new server with the general and connection information as provided.
 
-![pgAdmin Setup](https://prod-files-secure.s3.us-west-2.amazonaws.com/0a34284e-c260-45f9-8797-9b6c5be931aa/a5132289-8b2f-4595-815d-465fd5bb9f5e/Untitled.png)
+![alt text](image-1.png)
 
 ## Google Maps API Setup
 
@@ -106,24 +106,22 @@ We aim to scale up this model, allowing residents to earn money by helping more 
 
 ---
 
-## Linebot設定步驟
+## LINE Bot Setup Steps
 
-1.  git clone https://github.com/ChenTim1011/CloudTribe.git
+1. **Create a LINE Bot Account**
 
-2.  **建立 LINE Bot 帳號**
+   - Go to the [LINE Developer Console](https://developers.line.biz/console) and create a Messaging API Channel.
+   - In the **Basic Settings** tab, obtain the `Channel secret`.
+   - In the **Messaging API** tab, generate the `Channel access token`.
 
-    - 前往 [LINE Developer Console](https://developers.line.biz/console) 建立一個 Messaging API Channel
-    - 在 **Basic Settings** 標籤中取得 `Channel secret`
-    - 在 **Messaging API** 標籤中產生 `Channel access token`
+2. **Deploy to Render**
 
-3.  **部署到 Render**
+   - Go to [Render](https://render.com/) and create a new Web Service connected to your GitHub repository.
 
-    - 前往 [Render](https://render.com/)，建立新的 Web Service 並連接到你的 GitHub 儲存庫
+3. **Set the LINE Webhook URL**
+   - In the LINE Developer Console, set the Webhook URL to `https://your-render-url/callback`.
 
-4.  **設定 LINE Webhook URL**
-    - 在 LINE Developer Console 中，將 Webhook URL 設置為 `https://your-render-url/callback`
-
-### 修改後的程式碼
+### Modified Code
 
 #### `requirements.txt`
 
@@ -142,14 +140,14 @@ LINE_BOT_TOKEN=YOUR_LINE_CHANNEL_ACCESS_TOKEN
 LINE_BOT_SECRET=YOUR_LINE_CHANNEL_SECRET
 ```
 
-### 部署到 Render
+### Deploy to Render
 
-1. 將以上檔案推送到你的 GitHub 儲存庫。
-2. 前往 [Render](https://render.com/)，創建一個新的 Web Service，連接到你的 GitHub 儲存庫。Render 會自動偵測到 `.render.yaml` 檔案並根據其設定進行部署。
-3. 在 Render 的環境變數設定頁面，手動添加以下環境變數：
+1. Push the above files to your GitHub repository.
+2. Go to [Render](https://render.com/), create a new Web Service, and connect it to your GitHub repository. Render will automatically detect the `.render.yaml` file and deploy according to its settings.
+3. In Render's environment variables settings page, manually add the following environment variables:
    - `LINE_BOT_TOKEN`
    - `LINE_BOT_SECRET`
 
-### 設置 LINE Webhook URL
+### Set the LINE Webhook URL
 
-在 Render 部署完成後，你會得到一個 URL。前往你的 LINE Developer Console，將 Webhook URL 設置為 `https://your-render-url/callback`。
+After the deployment on Render is complete, you will get a URL. Go to your LINE Developer Console and set the Webhook URL to `https://your-render-url/callback`.

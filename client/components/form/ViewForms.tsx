@@ -9,6 +9,9 @@ import NavigationBar from "@/components/NavigationBar";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetClose } from "@/components/ui/sheet";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowLeft } from '@fortawesome/free-solid-svg-icons';
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
+import { format } from "date-fns";
 
 /**
  * Component for viewing forms.
@@ -22,6 +25,9 @@ const ViewForms: React.FC = () => {
     const [orders, setOrders] = useState<any[]>([]);
     const [error, setError] = useState<string>('');
     const [showSheet, setShowSheet] = useState(false);
+    const [orderStatus, setOrderStatus] = useState<string>('未接單'); // 新增訂單狀態
+    const [startDate, setStartDate] = useState<Date | null>(null); // 新增開始時間
+    const [endDate, setEndDate] = useState<Date | null>(null); // 新增結束時間
 
     /**
      * Fetches orders based on role and phone number.
@@ -44,6 +50,16 @@ const ViewForms: React.FC = () => {
             setError((err as Error).message);
         }
     };
+
+    /**
+     * Filters orders based on the selected status and time range.
+     */
+    const filteredOrders = orders.filter(order => {
+        const orderDate = new Date(order.date);
+        return order.order_status === orderStatus &&
+               (!startDate || orderDate >= startDate) &&
+               (!endDate || orderDate <= endDate);
+    });
 
     /**
      * Handles accepting an order.
@@ -94,12 +110,12 @@ const ViewForms: React.FC = () => {
                 }}
             >
                 <div className="content flex-grow p-10 bg-white bg-opacity-10 flex flex-col items-center">
-                <div className="w-full flex justify-start space-x-2 mt-4">
-                    <Button variant="outline" onClick={() => window.location.href = '/'}>
-                        <FontAwesomeIcon icon={faArrowLeft} className="mr-2" />
-                        返回主頁
-                    </Button>
-                </div>
+                    <div className="w-full flex justify-start space-x-2 mt-4">
+                        <Button variant="outline" onClick={() => window.location.href = '/'}>
+                            <FontAwesomeIcon icon={faArrowLeft} className="mr-2" />
+                            返回主頁
+                        </Button>
+                    </div>
                     <h1 className="mb-5 text-4xl font-bold text-white text-center" style={{ marginTop: '40px' }}>查看表單</h1>
                     <div className="w-full flex flex-col items-center space-y-4">
                         <div className="mb-4 w-80">
@@ -122,14 +138,50 @@ const ViewForms: React.FC = () => {
                             <div className="text-red-600 mt-2">{error}</div>
                         )}
                     </div>
+
                     <Sheet open={showSheet} onOpenChange={setShowSheet}>
                         <SheetContent className="w-full max-w-2xl max-h-[calc(100vh-200px)] overflow-y-auto">
                             <SheetHeader>
                                 <SheetTitle>訂單詳情</SheetTitle>
                                 <SheetClose />
                             </SheetHeader>
+                            {orders.length > 0 && (
+                                <>
+                                    <div className="w-full flex justify-center space-x-2 mt-4">
+                                        <Button variant={orderStatus === '未接單' ? "solid" : "outline" as any} onClick={() => setOrderStatus('未接單')}>未接單</Button>
+                                        <Button variant={orderStatus === '接單' ? "solid" : "outline" as any} onClick={() => setOrderStatus('接單')}>接單</Button>
+                                        <Button variant={orderStatus === '已完成' ? "solid" : "outline" as any} onClick={() => setOrderStatus('已完成')}>已完成</Button>
+                                    </div>
+                                    <div className="flex justify-center space-x-4 mt-4">
+                                        <div>
+                                            <Popover>
+                                                <PopoverTrigger asChild>
+                                                    <Button variant="outline" className="w-full justify-start text-left font-normal">
+                                                        {startDate ? format(startDate, "PPP") : "選擇開始日期"}
+                                                    </Button>
+                                                </PopoverTrigger>
+                                                <PopoverContent className="w-auto p-0">
+                                                    <Calendar mode="single" selected={startDate} onSelect={setStartDate} initialFocus />
+                                                </PopoverContent>
+                                            </Popover>
+                                        </div>
+                                        <div>
+                                            <Popover>
+                                                <PopoverTrigger asChild>
+                                                    <Button variant="outline" className="w-full justify-start text-left font-normal">
+                                                        {endDate ? format(endDate, "PPP") : "選擇結束日期"}
+                                                    </Button>
+                                                </PopoverTrigger>
+                                                <PopoverContent className="w-auto p-0">
+                                                    <Calendar mode="single" selected={endDate} onSelect={setEndDate} initialFocus />
+                                                </PopoverContent>
+                                            </Popover>
+                                        </div>
+                                    </div>
+                                </>
+                            )}
                             <div className="mt-4">
-                                {orders.map(order => (
+                                {filteredOrders.map(order => (
                                     <FormOrderCard
                                         key={order.id}
                                         order={order}
