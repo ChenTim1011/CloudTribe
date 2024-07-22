@@ -9,6 +9,7 @@ Endpoints:
 - POST /{order_id}/transfer: Transfer an order to a new driver.
 - GET /{order_id}: Retrieve a specific order by ID.
 - POST /{order_id}/complete: Complete an order.
+- POST /{order_id}/markAsPaid: Mark an order as paid.
 """
 
 from typing import List
@@ -308,3 +309,26 @@ async def complete_order(order_id: int, conn = Depends(get_db)):
     finally:
         cur.close()
 
+
+
+@router.post("/{order_id}/markAsPaid")
+async def mark_order_as_paid(order_id: int, conn: Connection = Depends(get_db)):
+    """
+    Mark an order as paid.
+    Args:
+        order_id (int): The ID of the order to mark as paid.
+        conn (Connection): The database connection.
+    Returns:
+        dict: A success message.
+    """
+    cur = conn.cursor()
+    try:
+        cur.execute("UPDATE orders SET order_status = '已結清' WHERE id = %s", (order_id,))
+        conn.commit()
+        return {"status": "success", "message": "訂單已結清"}
+    except Error as e:
+        logging.error("Database error: %s", e)
+        conn.rollback()
+        raise HTTPException(status_code=500, detail="資料庫錯誤") from e
+    finally:
+        cur.close()

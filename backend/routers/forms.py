@@ -6,10 +6,6 @@ and returning detailed order information along with associated items.
 
 Endpoints:
 - GET /: Fetch orders for a user based on their role (buyer, seller, driver) and phone number.
-
-The main endpoint in this module:
-- GET /: Retrieves orders based on the specified role (buyer, seller, driver) and the user's phone number. 
-         It fetches detailed order information and associated order items.
 """
 
 import logging
