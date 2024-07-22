@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import FormOrderCard from '@/components/form/FormOrderCard'; 
@@ -62,6 +62,16 @@ const ViewForms: React.FC = () => {
     });
 
     /**
+     * Calculate total price of filtered orders.
+     */
+    const totalPrice = filteredOrders.reduce((total, order) => total + order.total_price, 0);
+
+    /**
+     * Calculate total amount due of filtered orders.
+     */
+    const totalDue = filteredOrders.reduce((total, order) => total + (order.order_status !== '已結清' ? order.total_price : 0), 0);
+
+    /**
      * Handles accepting an order.
      * @param orderId - The ID of the order to accept.
      */
@@ -94,6 +104,32 @@ const ViewForms: React.FC = () => {
     const handleComplete = async (orderId: string) => {
         console.log(`Completing order with ID: ${orderId}`);
     };
+
+    /**
+     * Handles marking an order as paid.
+     * @param orderId - The ID of the order to mark as paid.
+     */
+    const handleMarkAsPaid = async (orderId: string) => {
+        console.log(`Marking order with ID: ${orderId} as paid`);
+        // Call API to mark the order as paid
+        const response = await fetch(`/api/orders/${orderId}/markAsPaid`, { method: 'POST' });
+        if (response.ok) {
+            setOrders(orders.map(order => order.id === orderId ? { ...order, order_status: '已結清' } : order));
+            // Display success message
+            alert('確認付款成功');
+        } else {
+            console.error('Failed to mark order as paid');
+            // Optionally, display error message
+            alert('付款確認失敗');
+        }
+    };
+
+    useEffect(() => {
+        // Fetch orders again when date range changes
+        if (showSheet) {
+            handleFetchOrders();
+        }
+    }, [startDate, endDate]);
 
     return (
         <div>
@@ -151,9 +187,11 @@ const ViewForms: React.FC = () => {
                                         <Button variant={orderStatus === '未接單' ? "solid" : "outline" as any} onClick={() => setOrderStatus('未接單')}>未接單</Button>
                                         <Button variant={orderStatus === '接單' ? "solid" : "outline" as any} onClick={() => setOrderStatus('接單')}>接單</Button>
                                         <Button variant={orderStatus === '已完成' ? "solid" : "outline" as any} onClick={() => setOrderStatus('已完成')}>已完成</Button>
+                                        <Button variant={orderStatus === '已結清' ? "solid" : "outline" as any} onClick={() => setOrderStatus('已結清')}>已結清</Button>
                                     </div>
                                     <div className="flex justify-center space-x-4 mt-4">
                                         <div>
+                                            <label className="block text-sm font-medium text-gray-700 mb-2">起始時間</label>
                                             <Popover>
                                                 <PopoverTrigger asChild>
                                                     <Button variant="outline" className="w-full justify-start text-left font-normal">
@@ -166,6 +204,7 @@ const ViewForms: React.FC = () => {
                                             </Popover>
                                         </div>
                                         <div>
+                                            <label className="block text-sm font-medium text-gray-700 mb-2">終止時間</label>
                                             <Popover>
                                                 <PopoverTrigger asChild>
                                                     <Button variant="outline" className="w-full justify-start text-left font-normal">
@@ -177,6 +216,12 @@ const ViewForms: React.FC = () => {
                                                 </PopoverContent>
                                             </Popover>
                                         </div>
+                                    </div>
+                                    <div className="w-full flex justify-center mt-4">
+                                        <span className="text-lg font-bold">總價格: ${totalPrice.toFixed(2)}</span>
+                                    </div>
+                                    <div className="w-full flex justify-center mt-2">
+                                        <span className="text-lg font-bold">未結清總額: ${totalDue.toFixed(2)}</span>
                                     </div>
                                 </>
                             )}
@@ -191,6 +236,7 @@ const ViewForms: React.FC = () => {
                                         onTransfer={handleTransfer}
                                         onNavigate={handleNavigate}
                                         onComplete={handleComplete}
+                                        onMarkAsPaid={handleMarkAsPaid}
                                     />
                                 ))}
                             </div>

@@ -12,6 +12,7 @@ import { Input } from "@/components/ui/input";
  * @param onTransfer - Callback function when the order is transferred to a new driver.
  * @param onNavigate - Callback function when the order navigation is triggered.
  * @param onComplete - Callback function when the order is completed.
+ * @param onMarkAsPaid - Callback function when the order is marked as paid.
  */
 const FormOrderCard: React.FC<{
   order: any;
@@ -21,7 +22,8 @@ const FormOrderCard: React.FC<{
   onTransfer: (orderId: string, newDriverPhone: string) => void;
   onNavigate: (orderId: string, driverId: number) => void;
   onComplete: (orderId: string) => void;
-}> = ({ order, role, driverId, onAccept, onTransfer, onNavigate, onComplete }) => {
+  onMarkAsPaid: (orderId: string) => void;
+}> = ({ order, role, driverId, onAccept, onTransfer, onNavigate, onComplete, onMarkAsPaid }) => {
   const [showTransferForm, setShowTransferForm] = useState(false);
   const [newDriverPhone, setNewDriverPhone] = useState("");
   const [transferError, setTransferError] = useState("");
@@ -111,18 +113,26 @@ const FormOrderCard: React.FC<{
           <p className="text-sm text-gray-700 font-bold">訂單狀態: {order.order_status}</p>
           <p className="text-sm text-gray-700 font-bold">總價格: ${order.total_price.toFixed(2)}</p>
         </div>
-        {role !== 'buyer' && order.order_status !== '已完成' && (
-          <div className="flex space-x-2">
-            {order.order_status === '未接單' ? (
-              <Button className="bg-black text-white" onClick={() => onAccept(order.id)}>接單</Button>
-            ) : (
-              <>
-                <Button className="bg-red-500 text-white" onClick={() => setShowTransferForm(true)}>轉單</Button>
-                <Button className="bg-black text-white" onClick={handleNavigate}>導航</Button>
-              </>
-            )}
-          </div>
-        )}
+        <div className="flex space-x-2">
+          {role !== 'buyer' && order.order_status !== '已完成' && (
+            <>
+              {order.order_status === '未接單' ? (
+                <Button className="bg-black text-white" onClick={() => onAccept(order.id)}>接單</Button>
+              ) : (
+                <>
+                  <Button className="bg-red-500 text-white" onClick={() => setShowTransferForm(true)}>轉單</Button>
+                  <Button className="bg-black text-white" onClick={handleNavigate}>導航</Button>
+                </>
+              )}
+            </>
+          )}
+          {role === 'buyer' && order.order_status === '已完成' && (
+            <Button className="bg-black text-white" onClick={() => onMarkAsPaid(order.id)}>確認已付款</Button>
+          )}
+          {role === 'driver' && order.order_status === '已完成' && (
+            <h2> 等待買家確認付款 </h2>
+          )}
+        </div>
       </CardFooter>
     </Card>
   );

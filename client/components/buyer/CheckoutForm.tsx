@@ -164,7 +164,7 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onClose, clearCart, cartIte
       setTimeout(() => {
         setShowAlert(false);
         onClose();
-      }, 1000);
+      }, 3000);
     } catch (error) {
       console.error('Error submitting order:', error);
       setError('提交訂單時出錯');

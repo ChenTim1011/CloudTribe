@@ -249,7 +249,12 @@ const MapComponent: React.FC = () => {
           
         </CardHeader>
         <CardContent className="p-4">
-        <Button onClick={handleViewOrder} className="bg-black text-white max-w-xs w-1/2 mx-auto block">查看表單</Button>
+        <Button onClick={handleViewOrder} className="my-5 bg-black text-white max-w-xs w-1/2 mx-auto block">查看表單</Button>
+        {orderData && orderData.location && (
+              <Button className="bg-black text-white max-w-xs w-1/2 mx-auto block" onClick={() => handleNavigateOrder(orderData.location)}>
+                目前位置到送貨地點的導覽連結
+              </Button>
+            )}
           <div className="flex flex-col space-y-4">
             <h2 className="text-lg font-bold">起點</h2>
             <div className="flex mb-4 w-full">
@@ -280,11 +285,6 @@ const MapComponent: React.FC = () => {
               </Autocomplete>
             </div>
             <Button onClick={handleMoveMapToDestination}>移動地圖到終點</Button>
-            {orderData && orderData.location && (
-              <Button className="my-10 bg-black text-white" onClick={() => handleNavigateOrder(orderData.location)}>
-                目前位置到送貨地點的導覽連結
-              </Button>
-            )}
             {error && (
               <Alert variant="destructive">
                 <AlertTitle>錯誤</AlertTitle>
