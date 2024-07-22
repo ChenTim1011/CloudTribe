@@ -23,7 +23,14 @@ logging.basicConfig(level=logging.DEBUG)
 
 router = APIRouter()
 
-	@@ -39,74 +32,80 @@ def get_db():
+
+def get_db():
+    """
+    Dependency function to get a database connection.
+    """
+    conn = get_db_connection()
+    try:
+        yield conn
     finally:
         conn.close()
 
@@ -95,7 +102,8 @@ async def get_orders(conn: Connection = Depends(get_db)):
                 "order_type": order[12],
                 "order_status": order[13],
                 "note": order[14],
-	@@ -115,198 +114,17 @@ async def get_orders(conn: Connection = Depends(get_db)):
+                "shipment_count": order[15],
+                "required_orders_count": order[16],
                 "previous_driver_id": order[17],
                 "previous_driver_name": order[18],
                 "previous_driver_phone": order[19],
@@ -261,8 +269,26 @@ async def get_order(order_id: int, conn: Connection = Depends(get_db)):
     finally:
         cur.close()
 
+from fastapi import APIRouter, Depends, HTTPException
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
+from pydantic import BaseModel
+
+DATABASE_URL = "postgresql://user:password@localhost/dbname"
+engine = create_engine(DATABASE_URL)
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
+
+router = APIRouter()
+
 @router.post("/{order_id}/complete")
-async def complete_order(order_id: int, conn: Connection = Depends(get_db)):
+async def complete_order(order_id: int, conn = Depends(get_db)):
     """
     Complete an order.
     Args:
@@ -273,13 +299,24 @@ async def complete_order(order_id: int, conn: Connection = Depends(get_db)):
     """
     cur = conn.cursor()
     try:
+        # Check if order exists
         cur.execute("SELECT * FROM orders WHERE id = %s", (order_id,))
         order = cur.fetchone()
         if not order:
             raise HTTPException(status_code=404, detail="訂單不存在")
-        if order[13] != '接單':  
+        if order[13] != '接單':
             raise HTTPException(status_code=400, detail="訂單狀態不是接單，無法完成訂單")
+        
+        # Update the order status
         cur.execute("UPDATE orders SET order_status = '已完成' WHERE id = %s", (order_id,))
+        
+        # Update the driver_orders action
+        cur.execute("""
+            UPDATE driver_orders
+            SET action = '完成'
+            WHERE order_id = %s
+        """, (order_id,))
+        
         conn.commit()
         return {"status": "success", "message": "訂單已完成"}
     except Exception as e:
@@ -287,3 +324,4 @@ async def complete_order(order_id: int, conn: Connection = Depends(get_db)):
         raise HTTPException(status_code=500, detail=str(e)) from e
     finally:
         cur.close()
+
