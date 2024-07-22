@@ -269,23 +269,6 @@ async def get_order(order_id: int, conn: Connection = Depends(get_db)):
     finally:
         cur.close()
 
-from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
-from pydantic import BaseModel
-
-DATABASE_URL = "postgresql://user:password@localhost/dbname"
-engine = create_engine(DATABASE_URL)
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
-
-router = APIRouter()
 
 @router.post("/{order_id}/complete")
 async def complete_order(order_id: int, conn = Depends(get_db)):
