@@ -1,5 +1,7 @@
+
 'use client'
-import React from "react";
+import React, { useState, useEffect } from "react";
+import { User } from '@/services/interface'
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Checkbox } from "@/components/ui/checkbox"
@@ -13,6 +15,7 @@ import {
   DrawerTitle,
   DrawerTrigger,
 } from "@/components/ui/drawer"
+
 
 
 const allItems =[
@@ -102,7 +105,25 @@ const categories =[
   },
 ]
 
+
 export default function Page() {
+  const [user, setUser] = useState<User>()
+
+  //run every render
+  useEffect(() => {
+    getUser()
+  });
+
+  const getUser = () => {
+    try {
+      var _user = localStorage.getItem('@user')
+      var checkedUser = _user ? JSON.parse(_user) : { id: null, name: '', phone: '' };
+      setUser(checkedUser)
+    } catch (e) {
+      console.log(e)
+    }  
+  }
+
   return (
     <div className="h-full w-full bg-gray-200">
       <header className="flex flex-col w-full bg-lime-800 lg:h-[300px] h-[150px] text-center items-center shadow-2xl sticky top-0 z-50">
@@ -149,13 +170,28 @@ export default function Page() {
       <div className="grid lg:grid-cols-3 grid-cols-2 items-center lg:p-28 px-2 py-5">
         {allItems.map((item) => (  
           <div className="w-full lg:h-[420px] h-40 bg-white border-gray-200 border-4 text-center lg:p-5 p-1">
-            <img id={item.id} src={item.url} className="w-full lg:h-[90%] h-[85%]"></img>
+            <img id={item.id} src={item.url} className="w-full lg:h-[80%] h-[85%]"></img>
             <div className="lg:h-1"/>
-            <text className="lg:text-2xl text-sm">{item.name}</text>
-            
+            <div className="flex flex-col">
+              <text className="lg:text-2xl text-sm">{item.name}</text>
+              <text className="lg:text-2xl text-sm text-nlack">價格:$10</text>
+              <Button className="bg-black text-white">加入購物車</Button>
+            </div>
+
           </div>
          
         ))}
+      </div>
+      <div>
+      {user ? (
+        <div>
+          <h1>User Info</h1>
+          <p>Name: {user.name}</p>
+          <p>Email: {user.phone}</p>
+        </div>
+      ) : (
+        <p>Loading user data...</p>
+      )}
       </div>
     </div>
   )
