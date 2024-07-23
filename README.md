@@ -14,7 +14,8 @@ We aim to scale up this model, allowing residents to earn money by helping more 
 3. Route Planning: Integrates Google Maps API for route display and time estimation.
 4. Order Query: Allows users to track their order history and current order status.
 
-TBD
+### TBD
+
 5. User Authentication: Implements login and registration with JWT-based authentication.
 6. Real-Time Notifications: Uses WebSocket for instant notifications and updates.
 7. Messaging: Provides a message center for real-time communication.
@@ -64,7 +65,7 @@ TBD
 
 7. go to backend\database\createtable.sql and  paste the sql query to pgAdmin4 sql query page.
 
-![alt text](setting.png)
+![alt text](img/setting.png)
 
 ## Google Maps API Setup
 
