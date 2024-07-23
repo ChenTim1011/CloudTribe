@@ -141,13 +141,10 @@ async def accept_order(order_id: int, driver_order: DriverOrder, conn: Connectio
         if not order:
             raise HTTPException(status_code=404, detail="訂單未找到")
 
-
-        logging.info("Fetched order: %s", order)
-
-        # Fetch order status => the result only 1. Be careful index out of range.
         order_status = order[0]
-        if order_status != '未接單':  
+        if order_status != '未接單':
             raise HTTPException(status_code=400, detail="訂單已被接")
+
         cur.execute("UPDATE orders SET order_status = %s WHERE id = %s", ('接單', order_id))
         cur.execute(
             "INSERT INTO driver_orders (driver_id, order_id, action, timestamp, previous_driver_id, previous_driver_name, previous_driver_phone) VALUES (%s, %s, %s, %s, %s, %s, %s)",
@@ -155,12 +152,19 @@ async def accept_order(order_id: int, driver_order: DriverOrder, conn: Connectio
         )
         conn.commit()
         logging.info("Order %s successfully accepted by driver %s", order_id, driver_order.driver_id)
-        return {"status": "success", "order": order}
+        return {"status": "success", "message": f"訂單 {order_id} 已成功被接受"}
 
+    except HTTPException as e:
+        conn.rollback()
+        if e.status_code == 400:
+            logging.error("訂單已被接")
+        elif e.status_code == 404:
+            logging.error("訂單未找到")
+        raise e
     except Exception as e:
         conn.rollback()
         logging.error("Error accepting order %s by driver %s: %s", order_id, driver_order.driver_id, str(e))
-        raise HTTPException(status_code=500, detail=str(e)) from e
+        raise HTTPException(status_code=500, detail="伺服器內部錯誤，請稍後再試") from e
     finally:
         cur.close()
 
