@@ -1,6 +1,13 @@
 """
 This module is responsible for importing FastAPI and its dependencies.
 """
+import logging
+from fastapi import FastAPI, Request, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
+from dotenv import load_dotenv
+from backend.routers import orders, drivers, forms, users
+
+
 # Import Line Bot API
 from linebot.v3 import (
     WebhookHandler
@@ -21,18 +28,14 @@ from linebot.v3.webhooks import (
 )
 
 # Import handlers
-from backend.handlers.order_query import handle_order_query
-from backend.handlers.platform_info import handle_platform_info
-from backend.handlers.customer_service import handle_customer_service
-from backend.handlers.seller import handle_seller
-from backend.handlers.buyer import handle_buyer
-from backend.handlers.driver import handle_driver
+from .handlers.order_query import handle_order_query
+from .handlers.platform_info import handle_platform_info
+from .handlers.customer_service import handle_customer_service
+from .handlers.seller import handle_seller
+from .handlers.buyer import handle_buyer
+from .handlers.driver import handle_driver
 
-import logging
-from fastapi import FastAPI, Request, HTTPException
-from fastapi.middleware.cors import CORSMiddleware
-from dotenv import load_dotenv
-from backend.routers import orders, drivers, forms, users
+
 
 
 # environment variables
