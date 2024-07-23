@@ -7,6 +7,19 @@ During the winter break of 2024, we visited the Sbunaw tribe(雪霧鬧部落) in
 We aim to scale up this model, allowing residents to earn money by helping more people while improving the flow of goods in the mountainous area. The platform involves three roles: buyers, sellers, and drivers. The core functionality will enable these roles to express their needs and use a backend matching system to fulfill them. We hope to create an information platform that supports remote communities and eventually expand its use to other indigenous tribes.
 
 
+# Core Functions:
+
+1. Role Selection and Matching: Enables users to choose roles and match orders based on their needs.
+2. Order Management: Facilitates order creation, modification, and deletion with a dynamic form interface.
+3. Route Planning: Integrates Google Maps API for route display and time estimation.
+4. Order Query: Allows users to track their order history and current order status.
+
+TBD
+5. User Authentication: Implements login and registration with JWT-based authentication.
+6. Real-Time Notifications: Uses WebSocket for instant notifications and updates.
+7. Messaging: Provides a message center for real-time communication.
+
+
 
 
 
@@ -48,6 +61,8 @@ We aim to scale up this model, allowing residents to earn money by helping more 
 5. Change the file name .env_template to .env
 
 6. Open pgAdmin4, go to Servers, and register a new server with the general and connection information as provided.
+
+7. go to backend\database\createtable.sql and  paste the sql query to pgAdmin4 sql query page.
 
 ![alt text](setting.png)
 
