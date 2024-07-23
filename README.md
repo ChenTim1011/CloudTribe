@@ -1,4 +1,4 @@
-# CloudTribe
+# CloudTribe  USR計畫之部落團購與順路經濟平台實做
 
 ## Project Description
 
@@ -21,20 +21,19 @@ We aim to scale up this model, allowing residents to earn money by helping more 
 
 
 # CloudTribe Setup Instructions
-   ```
 
-   
 ## Database Setup
 
 1. Download and install pgAdmin4 from [pgAdmin4 Download Page](https://www.pgadmin.org/download/).
 
 2. Navigate to the backend directory:
 
-   ```bash
+   
          cd backend
-   ```
+  
    
 3. Edit the `DATABASE_URL` in `backend/.env_template`:
+   For example:  If you want to run in the localhost
    ```python
    DATABASE_URL = "postgresql://postgres:password@localhost:5432/shopping"
    ```
@@ -46,9 +45,9 @@ We aim to scale up this model, allowing residents to earn money by helping more 
    - `5432`: Database port
    - `/shopping`: Database name
 
-4. Change the file name .env_template to .env
+5. Change the file name .env_template to .env
 
-5. Open pgAdmin4, go to Servers, and register a new server with the general and connection information as provided.
+6. Open pgAdmin4, go to Servers, and register a new server with the general and connection information as provided.
 
 ![alt text](setting.png)
 
@@ -93,21 +92,18 @@ We aim to scale up this model, allowing residents to earn money by helping more 
 
 ## How to start
 
-      ```bash
+     
          cd backend
          pip install -r requirements.txt
-      ```
+      
 
  
    Go to the root directory.
    If you in the backend directory.
-   ```bash
+   
          cd ..
          npm run dev
-   ```
-
-
-
+   
 
 ## If you want to deploy to Render
 
@@ -124,9 +120,11 @@ We aim to scale up this model, allowing residents to earn money by helping more 
 
 4. render postgresql setting, you can see the tutorial.
 
-   `https://docs.render.com/databases`
+         https://docs.render.com/databases
 
 
 ### Set the LINE Webhook URL
 
-After the deployment on Render is complete, you will get a URL. Go to your LINE Developer Console and set the Webhook URL to `https://your-render-url/callback`.
+After the deployment on Render is complete, you will get a URL. Go to your LINE Developer Console and set the Webhook URL to 
+
+      https://your-render-url/callback
