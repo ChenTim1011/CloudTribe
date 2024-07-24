@@ -1,8 +1,10 @@
 fastapi
+fastapi-cli
 uvicorn
 line-bot-sdk
 requests
 psycopg2-binary
-sqlalchemy 
-
+pydantic
+pydantic_core
+python-dotenv
 

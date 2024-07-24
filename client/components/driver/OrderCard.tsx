@@ -9,14 +9,31 @@ import { Input } from "@/components/ui/input";
 const OrderCard: React.FC<{
   order: any; // The order object
   driverId: number; // The driver ID
-  onAccept: (orderId: string) => void; // Callback function for accepting an order
-  onTransfer: (orderId: string, newDriverPhone: string) => void; // Callback function for transferring an order to a new driver
+  onAccept: (orderId: string) => Promise<void>; // Callback function for accepting an order
+  onTransfer: (orderId: string, newDriverPhone: string) => Promise<void>; // Callback function for transferring an order to a new driver
   onNavigate: (orderId: string, driverId: number) => void; // Callback function for navigating to an order
-  onComplete: (orderId: string) => void; // Callback function for completing an order
+  onComplete: (orderId: string) => Promise<void>; // Callback function for completing an order
 }> = ({ order, driverId, onAccept, onTransfer, onNavigate, onComplete }) => {
   const [showTransferForm, setShowTransferForm] = useState(false); // State for showing the transfer form
   const [newDriverPhone, setNewDriverPhone] = useState(""); // State for the new driver's phone number
   const [transferError, setTransferError] = useState(""); // State for transfer error message
+  const [acceptError, setAcceptError] = useState(""); // State for accept error message
+
+  /**
+   * Handles the acceptance of an order.
+   */
+  const handleAccept = async () => {
+    try {
+      await onAccept(order.id);
+      setAcceptError(""); // Clear any previous errors
+    } catch (error: any) {
+      if (error.response && error.response.data.detail) {
+        setAcceptError(error.response.data.detail);
+      } else {
+        setAcceptError("接單失敗，訂單已被接走");
+      }
+    }
+  };
 
   /**
    * Handles the transfer of an order to a new driver.
@@ -46,7 +63,7 @@ const OrderCard: React.FC<{
           <CardDescription className="text-lg text-white font-semibold">消費者姓名: {order.buyer_name}</CardDescription>
         </div>
         {order.order_status === '接單' &&  (
-          <Button className="bg-white text-black" onClick={() => onComplete(order.id)}>完成接單</Button>
+          <Button className="bg-white text-black" onClick={() => onComplete(order.id)}>貨品已到達目的地</Button>
         )}
       </CardHeader>
       <CardContent className="p-4">
@@ -97,6 +114,9 @@ const OrderCard: React.FC<{
             )}
           </div>
         )}
+        {acceptError && (
+          <p className="text-red-600 mt-2">{acceptError}</p>
+        )}
       </CardContent>
       <CardFooter className="bg-gray-100 p-4 rounded-b-md flex justify-between items-center">
         <div className="flex flex-col items-start">
@@ -106,7 +126,7 @@ const OrderCard: React.FC<{
         {order.order_status !== '已完成' && (
           <div className="flex space-x-2">
             {order.order_status === '未接單' ? (
-              <Button className="bg-black text-white" onClick={() => onAccept(order.id)}>接單</Button>
+              <Button className="bg-black text-white" onClick={handleAccept}>接單</Button>
             ) : (
               <>
                 <Button className="bg-red-500 text-white" onClick={() => setShowTransferForm(true)}>轉單</Button>

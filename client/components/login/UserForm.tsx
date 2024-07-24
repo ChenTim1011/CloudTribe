@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAuth } from '@/components/lib/AuthProvider';
+import  { User }  from '@/services/interface'
 
 /**
  * UserForm component for registering and logging in users.
@@ -91,6 +92,15 @@ export function UserForm() {
         const data = await response.json();
         console.log("Setting user:", data);
         setUser({ id: data.id, name: data.name, phone: data.phone });
+        //add
+        const userData: User = { id: data.id, name: data.name, phone: data.phone };
+        try {
+          localStorage.setItem('@user', JSON.stringify(userData));
+        } catch (e) {
+          console.log(e)
+        }
+        
+
         setSuccessMessage('登入成功');
       } else {
         throw new Error('登入過程中出現錯誤');
