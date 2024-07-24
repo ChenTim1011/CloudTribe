@@ -56,7 +56,7 @@ const FormOrderCard: React.FC<{
           <CardDescription className="text-lg text-white font-semibold">消費者姓名: {order.buyer_name}</CardDescription>
         </div>
         {role !== 'buyer' && order.order_status === '接單' && (
-          <Button className="bg-white text-black" onClick={() => onComplete(order.id)}>完成接單</Button>
+          <Button className="bg-white text-black" onClick={() => onComplete(order.id)}>貨品已到達目的地</Button>
         )}
       </CardHeader>
       <CardContent className="p-4">
