@@ -4,6 +4,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+
 # Fetch the DATABASE_URL from environment variables
 database_url = os.environ.get('DATABASE_URL')
 
