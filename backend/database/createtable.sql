@@ -63,3 +63,13 @@ CREATE TABLE driver_orders (
     previous_driver_name VARCHAR(255),
     previous_driver_phone VARCHAR(20)
 );
+
+--agricultural product
+CREATE TABLE products (
+    id CHAR(36) PRIMARY KEY,
+    name VARCHAR(30) NOT NULL,
+    price INTEGER NOT NULL,
+    category VARCHAR(8) NOT NULL,
+    imgLink VARCHAR(255) NOT NULL,
+    imgID VARCHAR(36) NOT NULL
+);

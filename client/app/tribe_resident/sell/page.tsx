@@ -1,6 +1,8 @@
-import React from "react"
+'use client'
+import React, { useState } from "react"
+import SellerDialog from "@/components/seller/SellerDialog"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Button } from "@/components/ui/button"
+
 import {
   Table,
   TableBody,
@@ -10,17 +12,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
+
 const invoices = [
   {
     invoice: "INV001",
@@ -97,46 +89,7 @@ export function SellerTable() {
   )
 }
 
-export function SellerDialog() {
-  return (
-    <Dialog >
-      <DialogTrigger asChild>
-        <Button variant="outline" className="bg-black text-white w-1/2 bottom-0 fixed left-1/4 my-4">新增商品</Button>
-      </DialogTrigger>
-      <DialogContent className="lg:max-w-[800px] max-w-[400px]">
-        <DialogHeader>
-          <DialogTitle className="lg:text-3xl text-2xl">請輸入上架商品資訊</DialogTitle>
-          <DialogDescription className="lg:text-lg text-sm">
-            請確實填寫內容
-          </DialogDescription>
-        </DialogHeader>
-        <div className="grid gap-4 py-4 ">
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="name" className="text-left lg:text-2xl text-md">
-              商品名稱
-            </Label>
-            <Input id="name" placeholder="請輸入10個字以內的商品名稱" className="col-span-3" />
-          </div>
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="amount" className="text-left lg:text-2xl text-md">
-              商品價格
-            </Label>
-            <Input id="amount"className="col-span-3" />
-          </div>
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="date"  className="text-left lg:text-2xl text-md">
-              下架日期
-            </Label>
-            <Input id="date" placeholder="2024/01/26" className="col-span-3" />
-          </div>
-        </div>
-        <DialogFooter className="items-center">
-          <Button type="submit" className="lg:text-2xl text-lg w-1/2">確認</Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
-  )
-}
+
 
 export default function Page(){
   return(

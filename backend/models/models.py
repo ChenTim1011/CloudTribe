@@ -76,3 +76,11 @@ class TransferOrderRequest(BaseModel):
     """
     current_driver_id: int
     new_driver_phone: str
+
+class Image(BaseModel):
+    """
+    Model representing an image. 
+    """
+    imgId: str
+    imgLink: str
+    

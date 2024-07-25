@@ -1,7 +1,10 @@
 
 'use client'
 import React, { useState, useEffect } from "react";
-import { User } from '@/services/interface'
+import { User, Product } from '@/services/interface'
+import CartModal from "@/components/buyer/CartModal";
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faShoppingCart } from '@fortawesome/free-solid-svg-icons';
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Checkbox } from "@/components/ui/checkbox"
@@ -108,11 +111,13 @@ const categories =[
 
 export default function Page() {
   const [user, setUser] = useState<User>()
+  const [isCartOpen, setIsCartOpen] = useState(false);
+  //const [cart, setCart] = useState<CartItem[]>([]);
 
   //run every render
   useEffect(() => {
     getUser()
-  });
+  },[]);
 
   const getUser = () => {
     try {
@@ -123,9 +128,21 @@ export default function Page() {
       console.log(e)
     }  
   }
+  /*
+  const handleRemoveFromCart = (id: string) => {
+    setCart((prevCart) => prevCart.filter((item) => item.id !== id));
+  };
+  const handleUpdateQuantity = (id: string, quantity: number) => {
+    setCart((prevCart) =>
+      prevCart.map((item) =>
+        item.id === id ? { ...item, quantity: Math.max(item.quantity + quantity, 1) } : item
+      )
+    );
+  };*/
 
   return (
     <div className="h-full w-full bg-gray-200">
+      
       <header className="flex flex-col w-full bg-lime-800 lg:h-[300px] h-[150px] text-center items-center shadow-2xl sticky top-0 z-50">
         <p className="lg:text-5xl text-3xl font-bold tracking-wides lg:py-[50px] py-[20px] text-neutral-50">農產品列表</p>
         <div className="flex lg:w-1/2 w-3/4 items-center space-x-2 ">
@@ -169,13 +186,16 @@ export default function Page() {
       </header>
       <div className="grid lg:grid-cols-3 grid-cols-2 items-center lg:p-28 px-2 py-5">
         {allItems.map((item) => (  
-          <div className="w-full lg:h-[420px] h-40 bg-white border-gray-200 border-4 text-center lg:p-5 p-1">
-            <img id={item.id} src={item.url} className="w-full lg:h-[80%] h-[85%]"></img>
+          <div className="w-full lg:h-[500px] h-[220px] bg-white border-gray-200 border-4 text-center lg:p-5 p-1">
+            <img id={item.id} src={item.url} className="w-full lg:h-[80%] h-[70%]"></img>
             <div className="lg:h-1"/>
-            <div className="flex flex-col">
+            <div className="flex flex-col items-center">
               <text className="lg:text-2xl text-sm">{item.name}</text>
               <text className="lg:text-2xl text-sm text-nlack">價格:$10</text>
-              <Button className="bg-black text-white">加入購物車</Button>
+              <Button className="bg-black text-white lg:h-10 h-6 lg:w-1/2 w-2/3">
+                <FontAwesomeIcon icon={faShoppingCart} className="lg:mr-2" />
+                加入購物車
+              </Button>
             </div>
 
           </div>
