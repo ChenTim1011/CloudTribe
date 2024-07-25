@@ -1,6 +1,9 @@
+'use client'
 import React, { useState } from "react";
+
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import  SellerService from '@/services/seller/seller'
 import { Button } from "@/components/ui/button"
 import {
@@ -12,12 +15,17 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog"
+import { DatePicker } from "./DatePicker";
+//import { Alert } from "../ui/alert";
 
-interface middleProps {
+interface sendImgProps {
   handleSendImg: (img: string) => void
 }
+interface sendDateProps {
+  handleSendDate: (date: Date) => void
+}
 
-const UploadRegion: React.FC<middleProps> = (prop) => {
+const UploadRegion: React.FC<sendImgProps> = (prop) => {
   const [img, setImg] = useState<string | null>(null)
 
   const { handleSendImg } = prop
@@ -60,14 +68,36 @@ const UploadRegion: React.FC<middleProps> = (prop) => {
 
 export default function SellerDialog() {
   const [imgBase64, setImgBase64] = useState('')
-  
+  const [date, setDate] = useState<Date>()
+  const [itemName, setItemName] = useState('')
+  const [itemPrice, setItemPrice] = useState('')
+  const [errorMessage, setErrorMessage] = useState('')
+
   const handleConfirm = async() =>{
     //get image URL
     const res = await SellerService.upload_image(imgBase64)
     console.log(res.status)
+    if(itemName == '' || itemPrice == '' || date == null)
+      setErrorMessage("上面的所有欄位都必須要填寫喔!!")
+      
     console.log(res.imgLink)
+    console.log(itemName, itemPrice, date)
   }
   
+
+  const handleNameButton: React.ChangeEventHandler<HTMLInputElement> = (event) => {
+    setItemName(event.target.value);
+    setErrorMessage('')
+  }
+  const handlePriceButton: React.ChangeEventHandler<HTMLInputElement> = (event) => {
+    setItemPrice(event.target.value);
+    setErrorMessage('')
+  }
+  const handleDateButton =(date: Date | undefined) => {
+    setDate(date)
+    setErrorMessage('')
+  }
+
   return (
     <Dialog >
       <DialogTrigger asChild>
@@ -85,22 +115,32 @@ export default function SellerDialog() {
             <Label htmlFor="name" className="text-left lg:text-2xl text-md">
               商品名稱
             </Label>
-            <Input id="name" placeholder="請輸入10個字以內的商品名稱" className="col-span-3" />
+            <Input 
+              id="name" 
+              placeholder="請輸入10個字以內的商品名稱" 
+              className="col-span-3" 
+              onChange={handleNameButton}/>
           </div>
           <div className="grid grid-cols-4 items-center gap-4">
             <Label htmlFor="amount" className="text-left lg:text-2xl text-md">
               商品價格
             </Label>
-            <Input id="amount"className="col-span-3" />
+            <Input id="amount" className="col-span-3"  onChange={handlePriceButton}/>
           </div>
           <div className="grid grid-cols-4 items-center gap-4">
             <Label htmlFor="date"  className="text-left lg:text-2xl text-md">
               下架日期
             </Label>
-            <Input id="date" placeholder="2024/01/26" className="col-span-3" />
+            <DatePicker handleSendDate={handleDateButton}/>
           </div>
           <UploadRegion handleSendImg={setImgBase64}/>
         </div>
+        {errorMessage && (
+          <Alert className="bg-red-500 text-white">
+            <AlertTitle>錯誤</AlertTitle>
+            <AlertDescription>{errorMessage}</AlertDescription>
+          </Alert>
+        )}
         <DialogFooter className="items-center">
           <Button type="submit" className="lg:text-2xl text-lg w-1/2" onClick={handleConfirm}>確認</Button>
         </DialogFooter>
