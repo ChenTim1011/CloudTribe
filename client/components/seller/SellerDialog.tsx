@@ -14,27 +14,34 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
+  DialogClose
 } from "@/components/ui/dialog"
 import { DatePicker } from "./DatePicker";
-//import { Alert } from "../ui/alert";
 
-interface sendImgProps {
+interface middleProps {
   handleSendImg: (img: string) => void
-}
-interface sendDateProps {
-  handleSendDate: (date: Date) => void
+  handleSendType: (fileType: string) => void
+  handleSendError: (error: string) => void
 }
 
-const UploadRegion: React.FC<sendImgProps> = (prop) => {
+
+const UploadRegion: React.FC<middleProps> = (prop) => {
   const [img, setImg] = useState<string | null>(null)
+  const allowedFileTypes = ["image/png", "image/jpeg", "image/jpg"]
 
-  const { handleSendImg } = prop
+  const { handleSendImg, handleSendType, handleSendError } = prop
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    handleSendError('')
+    setImg(null)
     const file = event.target.files?.[0]; //get file
-    if (file) {
+    if(file == undefined){
+      handleSendType('')
+      handleSendError('未選擇任何檔案')
+    }
+    else if(file?.type != undefined &&  allowedFileTypes.includes(file?.type)){
+      handleSendType(file?.type)
       const fileData = new FileReader();
       const base64Prefix: string = "base64,";
-      
       fileData.addEventListener("load", async() => {
         const result = fileData.result as string
         setImg(result)
@@ -45,6 +52,9 @@ const UploadRegion: React.FC<sendImgProps> = (prop) => {
       });
       fileData.readAsDataURL(file);
     }
+    else {
+      handleSendError('上傳檔案非照片格式')
+    }  
   };
 
   return (
@@ -72,19 +82,26 @@ export default function SellerDialog() {
   const [itemName, setItemName] = useState('')
   const [itemPrice, setItemPrice] = useState('')
   const [errorMessage, setErrorMessage] = useState('')
+  const [fileType, setFileType] = useState('')
+  const [close, setClose] = useState(false)
 
   const handleConfirm = async() =>{
     //get image URL
-    const res = await SellerService.upload_image(imgBase64)
-    console.log(res.status)
     if(itemName == '' || itemPrice == '' || date == null)
       setErrorMessage("上面的所有欄位都必須要填寫喔!!")
-      
-    console.log(res.imgLink)
-    console.log(itemName, itemPrice, date)
+    else if(fileType == ''){
+      setErrorMessage("未選擇任何檔案")
+    }
+    else if(errorMessage==''){
+      const res = await SellerService.upload_image(imgBase64)
+      setClose(true)
+      console.log(res.imgLink)
+      console.log(itemName, itemPrice, date)
+      console.log("success")
+    }  
+   
   }
   
-
   const handleNameButton: React.ChangeEventHandler<HTMLInputElement> = (event) => {
     setItemName(event.target.value);
     setErrorMessage('')
@@ -101,7 +118,12 @@ export default function SellerDialog() {
   return (
     <Dialog >
       <DialogTrigger asChild>
-        <Button variant="outline" className="bg-black text-white w-1/2 bottom-0 fixed left-1/4 my-4">新增商品</Button>
+        <Button 
+          variant="outline" 
+          className="bg-black text-white w-1/2 bottom-0 fixed left-1/4 my-4"
+          onClick={()=>setClose(false)}>
+            新增商品
+        </Button>
       </DialogTrigger>
       <DialogContent className="lg:max-w-[800px] max-w-[400px]">
         <DialogHeader>
@@ -117,7 +139,7 @@ export default function SellerDialog() {
             </Label>
             <Input 
               id="name" 
-              placeholder="請輸入10個字以內的商品名稱" 
+              placeholder="請輸入20個字以內的商品名稱" 
               className="col-span-3" 
               onChange={handleNameButton}/>
           </div>
@@ -133,7 +155,7 @@ export default function SellerDialog() {
             </Label>
             <DatePicker handleSendDate={handleDateButton}/>
           </div>
-          <UploadRegion handleSendImg={setImgBase64}/>
+          <UploadRegion handleSendImg={setImgBase64} handleSendType={setFileType} handleSendError={setErrorMessage}/>
         </div>
         {errorMessage && (
           <Alert className="bg-red-500 text-white">
@@ -141,9 +163,17 @@ export default function SellerDialog() {
             <AlertDescription>{errorMessage}</AlertDescription>
           </Alert>
         )}
+        
+        {close != true && 
         <DialogFooter className="items-center">
           <Button type="submit" className="lg:text-2xl text-lg w-1/2" onClick={handleConfirm}>確認</Button>
-        </DialogFooter>
+        </DialogFooter>}
+        {close &&
+        <DialogFooter className="items-center">
+          <DialogClose asChild>
+            <Button type="submit" className="lg:text-2xl text-lg w-1/2">關閉</Button>
+          </DialogClose>     
+        </DialogFooter>} 
       </DialogContent>
     </Dialog>
   )
