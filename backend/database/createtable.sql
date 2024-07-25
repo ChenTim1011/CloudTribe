@@ -67,9 +67,11 @@ CREATE TABLE driver_orders (
 --agricultural product
 CREATE TABLE products (
     id CHAR(36) PRIMARY KEY,
-    name VARCHAR(30) NOT NULL,
+    name VARCHAR(25) NOT NULL,
     price INTEGER NOT NULL,
     category VARCHAR(8) NOT NULL,
+    uploadDate DATE NOT NULL,
+    offShelfDate Date NOT NULL,
     imgLink VARCHAR(255) NOT NULL,
     imgID VARCHAR(36) NOT NULL
 );

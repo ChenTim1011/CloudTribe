@@ -17,6 +17,7 @@ import {
   DialogClose
 } from "@/components/ui/dialog"
 import { DatePicker } from "./DatePicker";
+import { CategorySelector } from "./CategorySelector";
 
 interface middleProps {
   handleSendImg: (img: string) => void
@@ -59,20 +60,20 @@ const UploadRegion: React.FC<middleProps> = (prop) => {
 
   return (
     <div className="grid grid-cols-4 gap-4">
-    <div className="col-span-1 flex items-center text-left">
-      <Label htmlFor="picture" className="text-center lg:text-2xl text-md">
-        圖片上傳
-      </Label>
-    </div>
-    <div className="col-span-3">
-      <Input id="picture" type="file" onChange={handleChange} className="w-full" />
-    </div>
-    {img && (
-      <div className="col-span-4 flex justify-center mt-4">
-        <img src={img} className="h-full" alt="uploaded" />
+      <div className="col-span-1 flex items-center text-left">
+        <Label htmlFor="picture" className="text-center lg:text-2xl text-md">
+          圖片上傳
+        </Label>
       </div>
-    )}
-  </div>  
+      <div className="col-span-3">
+        <Input id="picture" type="file" onChange={handleChange} className="w-full" />
+      </div>
+      {img && (
+        <div className="col-span-4 flex justify-center mt-4">
+          <img src={img} className="h-full" alt="uploaded" />
+        </div>
+      )}
+    </div>  
   );
 }
 
@@ -155,6 +156,7 @@ export default function SellerDialog() {
             </Label>
             <DatePicker handleSendDate={handleDateButton}/>
           </div>
+          <CategorySelector/>
           <UploadRegion handleSendImg={setImgBase64} handleSendType={setFileType} handleSendError={setErrorMessage}/>
         </div>
         {errorMessage && (
