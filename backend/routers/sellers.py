@@ -57,22 +57,22 @@ async def upload_image(request: UploadImageRequset):
 
 @router.post('/')
 async def upload_items(req: UploadItemsRequest, conn: Connection = Depends(get_db)):
+    print('enter')
     cur = conn.cursor()
     try:
         # generate random id(UUID)
         while(True):
-            itemId = uuid.uuid4()
+            itemId = str(uuid.uuid4())
             logging.info("Checking if item id %s already exists", itemId)
-            cur.execute("SELECT id FROM products WHERE id = %s", (itemId))
+            cur.execute("SELECT id FROM products WHERE id = %s", (itemId,))
             existing_id= cur.fetchone()
-            if not existing_id:
+            if existing_id is None:
                 break
-        
         logging.info("Inserting new item")
         cur.execute(
             """INSERT INTO products (id, name, price, category, uploadDate, offShelfDate, imgLink, imgId, ownerPhone) 
-            VALUES (%s, %s, %d, %s, %s, %s, %s, %s, %s)""",
-            (itemId, req.name, req.price, req.category, datetime.date.today(), req.offShelfDate, req.imgLink, req.imgId, req.ownerPhone )
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)""",
+            (itemId, req.name, req.price, req.category, str(datetime.date.today()), req.offShelfDate, req.imgLink, req.imgId, req.ownerPhone )
         )
         conn.commit()
         logging.info("ItemId is %s", itemId)

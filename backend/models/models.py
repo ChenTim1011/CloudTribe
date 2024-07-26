@@ -99,9 +99,9 @@ class UploadItems(BaseModel):
 
 class UploadItemsRequest(BaseModel):
     name: str
-    price: int
+    price: str
     category: str
-    offShelfDate: datetime
+    offShelfDate: str
     imgLink: str
     imgId: str
     ownerPhone: str

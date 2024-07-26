@@ -71,7 +71,7 @@ export const CategorySelector:React.FC<selectProps> = (prop) => {
       <SelectContent>
         <SelectGroup>
           {categories.map((category) => 
-          <SelectItem value={category.value}>
+          <SelectItem key={category.value} value={category.value}>
             {category.name}
           </SelectItem>)}
         </SelectGroup>

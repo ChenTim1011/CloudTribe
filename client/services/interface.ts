@@ -1,7 +1,7 @@
 export interface User {
-  id: string;
-  name: string;
-  phone: string; 
+  id: string
+  name: string
+  phone: string 
 };
 /*
 export interface CartItem {
@@ -13,9 +13,20 @@ export interface CartItem {
 };*/
 
 export interface Product {
-  category: string;
-  img: string;
-  id: string;
-  name: string;
-  price: number; 
+  category: string
+  img: string
+  id: string
+  name: string
+  price: number 
 };
+export interface UploadItem{
+  name: string
+  price: string
+  category: string
+  offShelfDate: string
+  imgLink: string
+  imgId: string
+  ownerPhone: string | null
+
+}
+    
