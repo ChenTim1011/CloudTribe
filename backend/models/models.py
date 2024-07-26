@@ -76,3 +76,35 @@ class TransferOrderRequest(BaseModel):
     """
     current_driver_id: int
     new_driver_phone: str
+
+class Image(BaseModel):
+    """
+    Model representing an image. 
+    """
+    imgId: str
+    imgLink: str
+
+class UploadImageRequset(BaseModel):
+    img: str
+
+class UploadItems(BaseModel):
+    id: str
+    name: str
+    price: int
+    category: str
+    uploadDate: datetime
+    offShelfDate: datetime
+    imgLink: str
+    imgID: str
+
+class UploadItemsRequest(BaseModel):
+    name: str
+    price: str
+    category: str
+    offShelfDate: str
+    imgLink: str
+    imgId: str
+    ownerPhone: str
+
+
+    
