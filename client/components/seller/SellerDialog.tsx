@@ -31,6 +31,7 @@ export default function SellerDialog() {
   const [isSelectorOpen, setIsSelectorOpen] = useState(false)
   const [selectedCategory, setSelectedCategory] = useState('')
   const [user, setUser] = useState<User>()
+  const [isUploading, setIsUploading] = useState(false)
 
   useEffect(() => {getUser()}, [])
 
@@ -59,6 +60,7 @@ export default function SellerDialog() {
     else if(fileType == 'notImage')
       setErrorMessage("上傳的檔案非圖片")
     else{
+      setIsUploading(true)
       const res_img = await SellerService.upload_image(imgBase64)
       const item: UploadItem = {
         name: itemName,
@@ -72,8 +74,11 @@ export default function SellerDialog() {
       const res_item = await SellerService.upload_item(item)
       if(res_item != "upload items error")
         setCloseDialog(true)
-      else
+      else{
         setErrorMessage('上傳發生錯誤，請再試一次') 
+        setIsUploading(false)
+      }
+        
     }   
   }
   const handleNameButton: React.ChangeEventHandler<HTMLInputElement> = (event) => {
@@ -142,16 +147,23 @@ export default function SellerDialog() {
             <AlertDescription>{errorMessage}</AlertDescription>
           </Alert>
         )}
-        
+        {isUploading && closeDialog != true && (
+        <Alert className="text-center bg-yellow-100">
+            <AlertDescription className=" text-black text-2xl">
+              商品正在上傳中，請稍後...
+            </AlertDescription>
+          </Alert>
+        )}
         {closeDialog != true && 
         <DialogFooter className="items-center">
           <Button type="submit" className="lg:text-2xl text-lg w-1/2" onClick={handleConfirm} disabled={isSelectorOpen}>確認</Button>
         </DialogFooter>}
         {closeDialog &&
-        <Alert className="bg-red-500 text-white">
+        <Alert className="bg-green-500 text-white">
           <AlertTitle>成功!!</AlertTitle>
           <AlertDescription>商品上傳成功，請關閉表單</AlertDescription>
-        </Alert>&&
+        </Alert>}
+        {closeDialog &&
         <DialogFooter className="items-center">
           <DialogClose asChild>
             <Button type="submit" className="lg:text-2xl text-lg w-1/2">關閉</Button>
