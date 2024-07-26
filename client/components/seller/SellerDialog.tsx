@@ -18,64 +18,7 @@ import {
 } from "@/components/ui/dialog"
 import { DatePicker } from "./DatePicker";
 import { CategorySelector } from "./CategorySelector";
-
-interface middleProps {
-  handleSendImg: (img: string) => void
-  handleSendType: (fileType: string) => void
-  handleSendError: (error: string) => void
-}
-
-
-const UploadRegion: React.FC<middleProps> = (prop) => {
-  const [img, setImg] = useState<string | null>(null)
-  const allowedFileTypes = ["image/png", "image/jpeg", "image/jpg"]
-
-  const { handleSendImg, handleSendType, handleSendError } = prop
-  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    handleSendError('')
-    setImg(null)
-    const file = event.target.files?.[0]; //get file
-    if(file == undefined){
-      handleSendType('')
-      handleSendError('未選擇任何檔案')
-    }
-    else if(file?.type != undefined &&  allowedFileTypes.includes(file?.type)){
-      handleSendType(file?.type)
-      const fileData = new FileReader();
-      const base64Prefix: string = "base64,";
-      fileData.addEventListener("load", async() => {
-        const result = fileData.result as string
-        setImg(result)
-        //Take the base64 part of image
-        const base64Data: string = result.split(base64Prefix)[1]
-        handleSendImg(base64Data)
-        console.log(base64Data)  
-      });
-      fileData.readAsDataURL(file);
-    }
-    else {
-      handleSendError('上傳檔案非照片格式')
-    }  
-  };
-
-  return (
-    <div className="grid grid-cols-4 gap-4">
-      <div className="col-span-1 flex items-center text-left">
-        <Label htmlFor="picture" className="text-center lg:text-2xl text-md">
-          圖片上傳
-        </Label>
-      </div>
-      <div className="col-span-3">
-        <Input id="picture" type="file" onChange={handleChange} className="w-full" />
-      </div>
-      {img && (
-        <div className="col-span-4 flex justify-center mt-4">
-          <img src={img} className="h-full" alt="uploaded" />
-        </div>
-      )}
-    </div>  
-  );
-}
+import { UploadRegion } from "./UploadRegion"
 
 export default function SellerDialog() {
   const [imgBase64, setImgBase64] = useState('')
@@ -84,7 +27,9 @@ export default function SellerDialog() {
   const [itemPrice, setItemPrice] = useState('')
   const [errorMessage, setErrorMessage] = useState('')
   const [fileType, setFileType] = useState('')
-  const [close, setClose] = useState(false)
+  const [closeDialog, setCloseDialog] = useState(false)
+  const [isSelectorOpen, setIsSelectorOpen] = useState(false)
+
 
   const handleConfirm = async() =>{
     //get image URL
@@ -95,14 +40,13 @@ export default function SellerDialog() {
     }
     else if(errorMessage==''){
       const res = await SellerService.upload_image(imgBase64)
-      setClose(true)
+      setCloseDialog(true)
       console.log(res.imgLink)
       console.log(itemName, itemPrice, date)
       console.log("success")
     }  
    
   }
-  
   const handleNameButton: React.ChangeEventHandler<HTMLInputElement> = (event) => {
     setItemName(event.target.value);
     setErrorMessage('')
@@ -117,12 +61,12 @@ export default function SellerDialog() {
   }
 
   return (
-    <Dialog >
+    <Dialog>
       <DialogTrigger asChild>
         <Button 
           variant="outline" 
           className="bg-black text-white w-1/2 bottom-0 fixed left-1/4 my-4"
-          onClick={()=>setClose(false)}>
+          onClick={()=>setCloseDialog(false)}>
             新增商品
         </Button>
       </DialogTrigger>
@@ -156,8 +100,8 @@ export default function SellerDialog() {
             </Label>
             <DatePicker handleSendDate={handleDateButton}/>
           </div>
-          <CategorySelector/>
-          <UploadRegion handleSendImg={setImgBase64} handleSendType={setFileType} handleSendError={setErrorMessage}/>
+          <CategorySelector handleIsOpen={setIsSelectorOpen}/>
+          <UploadRegion handleSendImg={setImgBase64} handleSendType={setFileType} handleSendError={setErrorMessage} selectorStatus={isSelectorOpen}/>
         </div>
         {errorMessage && (
           <Alert className="bg-red-500 text-white">
@@ -166,11 +110,11 @@ export default function SellerDialog() {
           </Alert>
         )}
         
-        {close != true && 
+        {closeDialog != true && 
         <DialogFooter className="items-center">
-          <Button type="submit" className="lg:text-2xl text-lg w-1/2" onClick={handleConfirm}>確認</Button>
+          <Button type="submit" className="lg:text-2xl text-lg w-1/2" onClick={handleConfirm} disabled={isSelectorOpen}>確認</Button>
         </DialogFooter>}
-        {close &&
+        {closeDialog &&
         <DialogFooter className="items-center">
           <DialogClose asChild>
             <Button type="submit" className="lg:text-2xl text-lg w-1/2">關閉</Button>
