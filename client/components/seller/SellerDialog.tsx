@@ -30,7 +30,7 @@ export default function SellerDialog() {
   const [closeDialog, setCloseDialog] = useState(false)
   const [isSelectorOpen, setIsSelectorOpen] = useState(false)
   const [selectedValue, setSelectedValue] = useState('')
-  const [text, setText] = useState()
+
 
 
   const handleConfirm = async() =>{
@@ -85,10 +85,10 @@ export default function SellerDialog() {
         </Button>
       </DialogTrigger>
       <DialogContent className="lg:max-w-[800px] max-w-[400px] justify-center">
+        {date && <text>{date.toLocaleDateString()}</text>}
         <DialogHeader>
           <DialogTitle className="lg:text-3xl text-2xl">請輸入上架商品資訊</DialogTitle>
           <DialogDescription className="lg:text-lg text-sm">
-          {text}
             請確實填寫內容
           </DialogDescription>
         </DialogHeader>

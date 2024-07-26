@@ -83,4 +83,28 @@ class Image(BaseModel):
     """
     imgId: str
     imgLink: str
+
+class UploadImageRequset(BaseModel):
+    img: str
+
+class UploadItems(BaseModel):
+    id: str
+    name: str
+    price: int
+    category: str
+    uploadDate: datetime
+    offShelfDate: datetime
+    imgLink: str
+    imgID: str
+
+class UploadItemsRequest(BaseModel):
+    name: str
+    price: int
+    category: str
+    offShelfDate: datetime
+    imgLink: str
+    imgId: str
+    ownerPhone: str
+
+
     

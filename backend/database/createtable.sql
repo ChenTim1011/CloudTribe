@@ -73,5 +73,6 @@ CREATE TABLE products (
     uploadDate DATE NOT NULL,
     offShelfDate Date NOT NULL,
     imgLink VARCHAR(255) NOT NULL,
-    imgID VARCHAR(36) NOT NULL
+    imgId VARCHAR(36) NOT NULL,
+    ownerPhone VARCHAR(20) NOT NULL
 );

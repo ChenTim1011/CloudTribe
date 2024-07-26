@@ -1,15 +1,14 @@
 from fastapi import APIRouter, HTTPException, Depends
 from psycopg2.extensions import connection as Connection
 from pydantic import BaseModel
-from backend.models.models import Image
+from backend.models.models import Image, UploadImageRequset, UploadItems, UploadItemsRequest
 from backend.database import get_db_connection
 from dotenv import load_dotenv
 import os
 import requests
 import logging
-
-class UploadPhotoRequset(BaseModel):
-    img: str
+import uuid
+import datetime
 
 router = APIRouter()
 load_dotenv()
@@ -28,7 +27,7 @@ def get_db():
         conn.close()
 
 @router.post("/upload_image", response_model = Image)
-async def upload_image(request: UploadPhotoRequset, conn: Connection = Depends(get_db)):
+async def upload_image(request: UploadImageRequset):
     """
     Upload photo which is base 64 data
 
@@ -52,7 +51,36 @@ async def upload_image(request: UploadPhotoRequset, conn: Connection = Depends(g
         print('response:', response)
         response_data = response.json()
         if response_data["success"] is True:
-            return{"imgId": response_data["data"]["id"] , "imgLink": response_data["data"]["link"]}
+            return {"imgId": response_data["data"]["id"] , "imgLink": response_data["data"]["link"]}
     except Exception as e:
         logging.error("Error occurred during upload photo: %s", str(e))
+
+@router.post('/')
+async def upload_items(req: UploadItemsRequest, conn: Connection = Depends(get_db)):
+    cur = conn.cursor()
+    try:
+        # generate random id(UUID)
+        while(True):
+            itemId = uuid.uuid4()
+            logging.info("Checking if item id %s already exists", itemId)
+            cur.execute("SELECT id FROM products WHERE id = %s", (itemId))
+            existing_id= cur.fetchone()
+            if not existing_id:
+                break
+        
+        logging.info("Inserting new item")
+        cur.execute(
+            """INSERT INTO products (id, name, price, category, uploadDate, offShelfDate, imgLink, imgId, ownerPhone) 
+            VALUES (%s, %s, %d, %s, %s, %s, %s, %s, %s)""",
+            (itemId, req.name, req.price, req.category, datetime.date.today(), req.offShelfDate, req.imgLink, req.imgId, req.ownerPhone )
+        )
+        conn.commit()
+        logging.info("ItemId is %s", itemId)
+        return "item create successfully"
+    except Exception as e:
+        conn.rollback()
+        logging.error("Error occurred: %s", str(e))
+        raise HTTPException(status_code=500, detail=str(e)) from e
+    finally:
+        cur.close()
 
