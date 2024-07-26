@@ -35,9 +35,12 @@ export default function SellerDialog() {
     //get image URL
     if(itemName == '' || itemPrice == '' || date == null)
       setErrorMessage("上面的所有欄位都必須要填寫喔!!")
+    else if(isNaN(parseInt(itemPrice)) || (parseInt(itemPrice)) <= 0)
+      setErrorMessage("金額欄位輸入錯誤")
     else if(fileType == ''){
       setErrorMessage("未選擇任何檔案")
     }
+    
     else if(errorMessage==''){
       const res = await SellerService.upload_image(imgBase64)
       setCloseDialog(true)
@@ -70,14 +73,14 @@ export default function SellerDialog() {
             新增商品
         </Button>
       </DialogTrigger>
-      <DialogContent className="lg:max-w-[800px] max-w-[400px]">
+      <DialogContent className="lg:max-w-[800px] max-w-[400px] justify-center">
         <DialogHeader>
           <DialogTitle className="lg:text-3xl text-2xl">請輸入上架商品資訊</DialogTitle>
           <DialogDescription className="lg:text-lg text-sm">
             請確實填寫內容
           </DialogDescription>
         </DialogHeader>
-        <div className="grid gap-4 py-4 ">
+        <div className="grid gap-4">
           <div className="grid grid-cols-4 items-center gap-4">
             <Label htmlFor="name" className="text-left lg:text-2xl text-md">
               商品名稱
