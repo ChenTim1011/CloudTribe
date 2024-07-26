@@ -29,19 +29,25 @@ export default function SellerDialog() {
   const [fileType, setFileType] = useState('')
   const [closeDialog, setCloseDialog] = useState(false)
   const [isSelectorOpen, setIsSelectorOpen] = useState(false)
+  const [selectedValue, setSelectedValue] = useState('')
+  const [text, setText] = useState()
 
 
   const handleConfirm = async() =>{
     //get image URL
-    if(itemName == '' || itemPrice == '' || date == null)
+    if(itemName == '' || itemPrice == '' || date == null || selectedValue == null)
       setErrorMessage("上面的所有欄位都必須要填寫喔!!")
+    else if(itemName.length > 20)
+      setErrorMessage("商品名稱大於20字")
     else if(isNaN(parseInt(itemPrice)) || (parseInt(itemPrice)) <= 0)
       setErrorMessage("金額欄位輸入錯誤")
-    else if(fileType == ''){
+    else if(new Date(date) < new Date())
+      setErrorMessage("時間選擇有誤")
+    else if(fileType == '')
       setErrorMessage("未選擇任何檔案")
-    }
-    
-    else if(errorMessage==''){
+    else if(fileType == 'notImage')
+      setErrorMessage("上傳的檔案非圖片")
+    else{
       const res = await SellerService.upload_image(imgBase64)
       setCloseDialog(true)
       console.log(res.imgLink)
@@ -62,9 +68,14 @@ export default function SellerDialog() {
     setDate(date)
     setErrorMessage('')
   }
+  const handleSelector = (isOpen: boolean, value: string) => {
+    setIsSelectorOpen(isOpen)
+    setSelectedValue(value)
+  }
 
   return (
     <Dialog>
+      
       <DialogTrigger asChild>
         <Button 
           variant="outline" 
@@ -77,6 +88,7 @@ export default function SellerDialog() {
         <DialogHeader>
           <DialogTitle className="lg:text-3xl text-2xl">請輸入上架商品資訊</DialogTitle>
           <DialogDescription className="lg:text-lg text-sm">
+          {text}
             請確實填寫內容
           </DialogDescription>
         </DialogHeader>
@@ -98,12 +110,12 @@ export default function SellerDialog() {
             <Input id="amount" className="col-span-3"  onChange={handlePriceButton}/>
           </div>
           <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="date"  className="text-left lg:text-2xl text-md">
+            <Label htmlFor="date" className="text-left lg:text-2xl text-md">
               下架日期
             </Label>
             <DatePicker handleSendDate={handleDateButton}/>
           </div>
-          <CategorySelector handleIsOpen={setIsSelectorOpen}/>
+          <CategorySelector handleIsOpen={handleSelector}/>
           <UploadRegion handleSendImg={setImgBase64} handleSendType={setFileType} handleSendError={setErrorMessage} selectorStatus={isSelectorOpen}/>
         </div>
         {errorMessage && (

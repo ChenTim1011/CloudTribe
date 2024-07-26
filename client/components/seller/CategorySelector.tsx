@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/select"
 import { Label } from "@/components/ui/label"
 interface selectProps {
-  handleIsOpen:(open: boolean) => void
+  handleIsOpen:(open: boolean, value: string) => void
 }
 
 export const CategorySelector:React.FC<selectProps> = (prop) => {
@@ -49,12 +49,12 @@ export const CategorySelector:React.FC<selectProps> = (prop) => {
     },
   ]
   const [isOpen, setIsOpen] = useState(false);
+  const [selectedValue, setSelectedValue] = useState('')
   const { handleIsOpen } = prop
-  useEffect(() =>{setTimeout(() => {handleIsOpen(isOpen)}, 10)},[isOpen])
+  useEffect(() =>{setTimeout(() => {handleIsOpen(isOpen, selectedValue)}, 10)},[isOpen])
   
   return (
-    <div>
-    <Select onOpenChange={(open) =>open?setIsOpen(true):setIsOpen(false)}>
+    <Select onValueChange={setSelectedValue} onOpenChange={(open) =>open?setIsOpen(true):setIsOpen(false)}>
       <div className="grid grid-cols-4 gap-4">
         <div className="col-span-1 flex items-center text-left">
           <Label htmlFor="picture" className="text-center lg:text-2xl text-md">
@@ -69,7 +69,7 @@ export const CategorySelector:React.FC<selectProps> = (prop) => {
       </div>
       
       <SelectContent>
-        <SelectGroup >
+        <SelectGroup>
           {categories.map((category) => 
           <SelectItem value={category.value}>
             {category.name}
@@ -77,6 +77,5 @@ export const CategorySelector:React.FC<selectProps> = (prop) => {
         </SelectGroup>
       </SelectContent>
     </Select>
-    </div>
   )
 }

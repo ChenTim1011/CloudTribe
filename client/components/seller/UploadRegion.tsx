@@ -11,7 +11,7 @@ export const UploadRegion: React.FC<middleProps> = (prop) => {
   const [img, setImg] = useState<string | null>(null)
   const allowedFileTypes = ["image/png", "image/jpeg", "image/jpg"]
   
-  const { handleSendImg, handleSendType, handleSendError, selectorStatus} = prop
+  const { handleSendImg, handleSendType, handleSendError} = prop
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     handleSendError('')
     setImg(null)
@@ -35,7 +35,7 @@ export const UploadRegion: React.FC<middleProps> = (prop) => {
       fileData.readAsDataURL(file);
     }
     else {
-      handleSendError('上傳檔案非照片格式')
+        handleSendType('notImage')
     }  
   };
 
