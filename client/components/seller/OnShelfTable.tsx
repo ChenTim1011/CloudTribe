@@ -1,7 +1,4 @@
-'use client'
 import React, { useState } from "react"
-import SellerDialog from "@/components/seller/SellerDialog"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
 import {
   Table,
@@ -58,14 +55,15 @@ const invoices = [
   },
 ]
 
-export function SellerTable() {
+export default function OnShelfTable() {
   return (
     <Table>
       <TableHeader>
         <TableRow>
           <TableHead className="text-center">上架日期</TableHead>
-          <TableHead className="text-center">名稱</TableHead>
-          <TableHead className="text-center">價格</TableHead>
+          <TableHead className="text-center">商品名稱</TableHead>
+          <TableHead className="text-center">商品價格</TableHead>
+          <TableHead className="text-center">剩餘數量</TableHead>
           <TableHead className="text-center">下架日期</TableHead>
         </TableRow>
       </TableHeader>
@@ -86,37 +84,5 @@ export function SellerTable() {
         </TableRow>
       </TableFooter>
     </Table>
-  )
-}
-
-
-
-export default function Page(){
-  return(
-    <div>
-      <header className="w-full bg-emerald-200 lg:h-[80px] h-[50px] text-center content-center lg:text-2xl text-md shadow-2xl sticky top-0 z-50">
-        <text>我的商品</text>
-      </header>
-      <Tabs defaultValue="on shelf">
-        <TabsList className="w-full">
-          <TabsTrigger value="on shelf" className="w-1/3">架上商品</TabsTrigger>
-          <TabsTrigger value="off shelf" className="w-1/3">已下架商品</TabsTrigger>
-          <TabsTrigger value="sold out" className="w-1/3">已售完商品</TabsTrigger>
-        </TabsList>
-        <TabsContent value="on shelf" className="justify-items-center text-center">
-          <SellerTable/>
-          <SellerDialog/>
-
-        </TabsContent>
-        <TabsContent value="off shelf" className="text-center">
-          <SellerTable/>
-        </TabsContent>
-        <TabsContent value="sold out" className="text-center">
-          <SellerTable/>
-        </TabsContent>    
-      </Tabs>
-     
-      
-    </div>
   )
 }

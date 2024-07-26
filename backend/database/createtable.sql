@@ -69,10 +69,11 @@ CREATE TABLE products (
     id CHAR(36) PRIMARY KEY,
     name VARCHAR(25) NOT NULL,
     price INTEGER NOT NULL,
+    total_quantity INTEGER NOT NULL,
     category VARCHAR(8) NOT NULL,
-    uploadDate DATE NOT NULL,
-    offShelfDate Date NOT NULL,
-    imgLink VARCHAR(255) NOT NULL,
-    imgId VARCHAR(36) NOT NULL,
-    ownerPhone VARCHAR(20) NOT NULL
+    upload_date DATE NOT NULL,
+    off_shelf_date Date NOT NULL,
+    img_link VARCHAR(255) NOT NULL,
+    img_id VARCHAR(36) NOT NULL,
+    owner_phone VARCHAR(20) NOT NULL
 );

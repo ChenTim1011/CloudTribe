@@ -22,12 +22,17 @@ const NavigationBar = () => {
       <div className="flex-grow flex space-x-6 justify-center">
         <MenubarMenu>
           <MenubarTrigger>
-            <Link href="/buy_agri_produce">農產品專區</Link>
+            <Link href="/buy_agri_produce">購買農產品</Link>
           </MenubarTrigger>
         </MenubarMenu>
         <MenubarMenu>
           <MenubarTrigger>
-            <Link href="/buyer">部落居民專區</Link>
+            <Link href="/seller">上架農產品</Link>
+          </MenubarTrigger>
+        </MenubarMenu>
+        <MenubarMenu>
+          <MenubarTrigger>
+            <Link href="/buyer">購買生活用品</Link>
           </MenubarTrigger>
         </MenubarMenu>
         <MenubarMenu>
@@ -40,7 +45,10 @@ const NavigationBar = () => {
             <Link href="/viewform">查看表單</Link>
           </MenubarTrigger>
         </MenubarMenu>
+        
       </div>
+
+    
       <div className="flex items-center space-x-4">
         {user ? (
           <>

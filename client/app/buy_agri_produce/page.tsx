@@ -18,6 +18,7 @@ import {
   DrawerTitle,
   DrawerTrigger,
 } from "@/components/ui/drawer"
+import NavigationBar from "@/components/NavigationBar";
 
 
 
@@ -142,7 +143,7 @@ export default function Page() {
 
   return (
     <div className="h-full w-full bg-gray-200">
-      
+      <NavigationBar /> 
       <header className="flex flex-col w-full bg-lime-800 lg:h-[300px] h-[150px] text-center items-center shadow-2xl sticky top-0 z-50">
         <p className="lg:text-5xl text-3xl font-bold tracking-wides lg:py-[50px] py-[20px] text-neutral-50">農產品列表</p>
         <div className="flex lg:w-1/2 w-3/4 items-center space-x-2 ">

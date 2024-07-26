@@ -1,7 +1,6 @@
 from fastapi import APIRouter, HTTPException, Depends
 from psycopg2.extensions import connection as Connection
-from pydantic import BaseModel
-from backend.models.models import Image, UploadImageRequset, UploadItems, UploadItemsRequest
+from backend.models.models import Image, UploadImageRequset, UploadItemsRequest
 from backend.database import get_db_connection
 from dotenv import load_dotenv
 import os
@@ -70,9 +69,9 @@ async def upload_items(req: UploadItemsRequest, conn: Connection = Depends(get_d
                 break
         logging.info("Inserting new item")
         cur.execute(
-            """INSERT INTO products (id, name, price, category, uploadDate, offShelfDate, imgLink, imgId, ownerPhone) 
-            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)""",
-            (itemId, req.name, req.price, req.category, str(datetime.date.today()), req.offShelfDate, req.imgLink, req.imgId, req.ownerPhone )
+            """INSERT INTO products (id, name, price, total_quantity, category, upload_date, off_shelf_date, img_link, img_id, owner_phone) 
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)""",
+            (itemId, req.name, req.price, req.totalQuantity, req.category, str(datetime.date.today()), req.offShelfDate, req.imgLink, req.imgId, req.ownerPhone)
         )
         conn.commit()
         logging.info("ItemId is %s", itemId)

@@ -25,6 +25,7 @@ export default function SellerDialog() {
   const [date, setDate] = useState<Date>()
   const [itemName, setItemName] = useState('')
   const [itemPrice, setItemPrice] = useState('')
+  const [itemQuantity, setItemQuantity] = useState('')
   const [errorMessage, setErrorMessage] = useState('')
   const [fileType, setFileType] = useState('')
   const [closeDialog, setCloseDialog] = useState(false)
@@ -47,12 +48,14 @@ export default function SellerDialog() {
 
   const handleConfirm = async() =>{
     //get image URL
-    if(itemName == '' || itemPrice == '' || date == null || selectedCategory == null)
+    if(itemName == '' || itemPrice == '' || date == null || selectedCategory == null || itemQuantity == null)
       setErrorMessage("上面的所有欄位都必須要填寫喔!!")
     else if(itemName.length > 20)
       setErrorMessage("商品名稱大於20字")
     else if(isNaN(parseInt(itemPrice)) || (parseInt(itemPrice)) <= 0)
       setErrorMessage("金額欄位輸入錯誤")
+    else if(isNaN(parseInt(itemQuantity)) || (parseInt(itemQuantity)) <= 0)
+      setErrorMessage("數量欄位輸入錯誤")
     else if(new Date(date) < new Date())
       setErrorMessage("時間選擇有誤")
     else if(fileType == '')
@@ -66,6 +69,7 @@ export default function SellerDialog() {
         name: itemName,
         price: itemPrice,
         category: selectedCategory,
+        totalQuantity: itemQuantity,
         offShelfDate: date.toLocaleDateString().replaceAll("/", "-"),
         imgLink: res_img.imgLink,
         imgId: res_img.imgId,
@@ -89,6 +93,10 @@ export default function SellerDialog() {
     setItemPrice(event.target.value);
     setErrorMessage('')
   }
+  const handleQuantityButton: React.ChangeEventHandler<HTMLInputElement> = (event) => {
+    setItemQuantity(event.target.value);
+    setErrorMessage('')
+  }
   const handleDateButton =(date: Date | undefined) => {
     setDate(date)
     setErrorMessage('')
@@ -97,6 +105,10 @@ export default function SellerDialog() {
     setIsSelectorOpen(isOpen)
     setSelectedCategory(value)
   }
+  const handleAddItem = () => {
+    setCloseDialog(false)
+    setIsUploading(false)
+  }
 
   return (
     <Dialog>
@@ -104,11 +116,11 @@ export default function SellerDialog() {
         <Button 
           variant="outline" 
           className="bg-black text-white w-1/2 bottom-0 fixed left-1/4 my-4"
-          onClick={()=>setCloseDialog(false)}>
+          onClick={handleAddItem}>
             新增商品
         </Button>
       </DialogTrigger>
-      <DialogContent className="lg:max-w-[800px] max-w-[400px] justify-center">
+      <DialogContent className="lg:max-w-[800px] max-w-[400px] justify-center max-h-[1000px]">
         <DialogHeader>
           <DialogTitle className="lg:text-3xl text-2xl">請輸入上架商品資訊</DialogTitle>
           <DialogDescription className="lg:text-lg text-sm">
@@ -133,6 +145,12 @@ export default function SellerDialog() {
             <Input id="amount" className="col-span-3"  onChange={handlePriceButton}/>
           </div>
           <div className="grid grid-cols-4 items-center gap-4">
+            <Label htmlFor="quantity" className="text-left lg:text-2xl text-md">
+              商品總數
+            </Label>
+            <Input id="quantity" className="col-span-3" onChange={handleQuantityButton}/>
+          </div>
+          <div className="grid grid-cols-4 items-center gap-4">
             <Label htmlFor="date" className="text-left lg:text-2xl text-md">
               下架日期
             </Label>
@@ -154,7 +172,7 @@ export default function SellerDialog() {
             </AlertDescription>
           </Alert>
         )}
-        {closeDialog != true && 
+        {closeDialog != true && isUploading != true &&
         <DialogFooter className="items-center">
           <Button type="submit" className="lg:text-2xl text-lg w-1/2" onClick={handleConfirm} disabled={isSelectorOpen}>確認</Button>
         </DialogFooter>}
