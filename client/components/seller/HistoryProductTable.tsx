@@ -59,9 +59,7 @@ import {
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead className="text-center">上架日期</TableHead>
             <TableHead className="text-center">商品名稱</TableHead>
-            <TableHead className="text-center">商品價格</TableHead>
             <TableHead className="text-center">售出數量</TableHead>
             <TableHead className="text-center">售出金額</TableHead>
           </TableRow>
@@ -71,7 +69,6 @@ import {
             <TableRow key={invoice.invoice}>
               <TableCell>{invoice.invoice}</TableCell>
               <TableCell>{invoice.paymentStatus}</TableCell>
-              <TableCell>{invoice.paymentMethod}</TableCell>
               <TableCell className="text-right">{invoice.totalAmount}</TableCell>
             </TableRow>
           ))}

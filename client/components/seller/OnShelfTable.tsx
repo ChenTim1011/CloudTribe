@@ -59,30 +59,22 @@ export default function OnShelfTable() {
   return (
     <Table>
       <TableHeader>
-        <TableRow>
-          <TableHead className="text-center">上架日期</TableHead>
-          <TableHead className="text-center">商品名稱</TableHead>
-          <TableHead className="text-center">商品價格</TableHead>
-          <TableHead className="text-center">剩餘數量</TableHead>
-          <TableHead className="text-center">下架日期</TableHead>
+        <TableRow className="flex flex-row w-screen">
+          <TableHead className="text-center text-lg w-1/3">商品名稱</TableHead>
+          <TableHead className="text-center text-lg w-1/3">剩餘數量</TableHead>
+          <TableHead className="text-center text-lg w-1/3">下架日期</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
         {invoices.map((invoice) => (
-          <TableRow key={invoice.invoice}>
-            <TableCell>{invoice.invoice}</TableCell>
-            <TableCell>{invoice.paymentStatus}</TableCell>
-            <TableCell>{invoice.paymentMethod}</TableCell>
-            <TableCell className="text-right">{invoice.totalAmount}</TableCell>
+          <TableRow key={invoice.invoice} className="flex flex-row">
+            <TableCell className="text-center text-lg text-balance w-1/3">{invoice.invoice}</TableCell>
+            <TableCell className="text-center text-lg text-balance w-1/3">{invoice.paymentStatus}</TableCell>
+            <TableCell className="text-center text-lg text-balance w-1/3">{invoice.paymentMethod}</TableCell>
           </TableRow>
         ))}
       </TableBody>
-      <TableFooter>
-        <TableRow>
-          <TableCell colSpan={3}>上架商品總數</TableCell>
-          <TableCell className="text-center">{invoices.length}</TableCell>
-        </TableRow>
-      </TableFooter>
+      
     </Table>
   )
 }
