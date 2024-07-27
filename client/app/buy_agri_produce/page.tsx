@@ -123,7 +123,7 @@ export default function Page() {
   const getUser = () => {
     try {
       var _user = localStorage.getItem('@user')
-      var checkedUser = _user ? JSON.parse(_user) : { id: null, name: '', phone: '' };
+      var checkedUser = _user ? JSON.parse(_user) : { id: '', name: '', phone: '' };
       setUser(checkedUser)
     } catch (e) {
       console.log(e)

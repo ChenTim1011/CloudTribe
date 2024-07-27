@@ -1,13 +1,28 @@
 'use client'
-import React, { useState } from "react"
+import React, { useState, useEffect } from "react"
 import SellerDialog from "@/components/seller/SellerDialog"
 import OnShelfTable from "@/components/seller/OnShelfTable"
 import HistoryProductTable from "@/components/seller/HistoryProductTable"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import NavigationBar from "@/components/NavigationBar"
+import UseService from "@/services/user/user"
+import { User } from '@/services/interface'
+import { useRouter } from 'next/navigation'
 
 
 export default function Page(){
+  const [user, setUser] = useState<User>()
+  const router = useRouter()
+  
+  useEffect(() => {
+    const _user = UseService.getLocalStorageUser()
+    setUser(_user)
+    console.log('seller_user', _user)
+    if(_user == null){
+      router.replace('/login')
+    }   
+  }, [])
+  
   return(
     <div>
       <NavigationBar /> 

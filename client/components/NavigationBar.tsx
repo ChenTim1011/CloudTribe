@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import  UserService from '@/services/user/user'
 import { Menubar, MenubarContent, MenubarItem, MenubarMenu, MenubarTrigger, MenubarSeparator } from "@/components/ui/menubar";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faMountain } from '@fortawesome/free-solid-svg-icons';
@@ -24,15 +25,17 @@ const NavigationBar = () => {
     {title:"購買農產品", href:"/buy_agri_produce"},
     {title:"上架農產品", href:"/seller"},
     {title:"購買生活用品", href:"/buyer"},
-    {title:"司機專區", href:"/diver"},
-    {title:"查看表單", href:"/viewform"},
-    
+    {title:"司機專區", href:"/driver"},
+    {title:"查看表單", href:"/viewform"},  
   ]
 
+  const handleLogout = ()=>{
+    UserService.emptyLocalStorageUser()
+  }
   
   const { user, logout } = useAuth();
-
   console.log('NavigationBar user:', user); 
+
   const useRWD=()=>{
     const [device,setDevice]=useState("mobile");
   
@@ -47,7 +50,7 @@ const NavigationBar = () => {
   
     useEffect(()=>{ 
         window.addEventListener('resize',handleRWD);
-        handleRWD(); //加入此行
+        handleRWD();
         return(()=>{
             window.removeEventListener('resize',handleRWD);
         })
@@ -57,7 +60,6 @@ const NavigationBar = () => {
   }
   const device = useRWD();
   if(device == "PC" || device == "tablet"){
-
     return (
       <Menubar className="px-4 py-2 justify-between bg-[#E0EBAF] text-black">
         <div className="flex items-center space-x-4">
@@ -65,31 +67,13 @@ const NavigationBar = () => {
           <Link href="/" className="font-bold text-lg">順路經濟平台</Link>
         </div>
         <div className="flex flex-row space-x-12">
-          <MenubarMenu>
+          {components.map((component) => (
+            <MenubarMenu>
             <MenubarTrigger>
-              <Link href="/buy_agri_produce">購買農產品</Link>
+              <Link href={component.href}>{component.title}</Link>
             </MenubarTrigger>
           </MenubarMenu>
-          <MenubarMenu>
-            <MenubarTrigger>
-              <Link href="/seller">上架農產品</Link>
-            </MenubarTrigger>
-          </MenubarMenu>
-          <MenubarMenu>
-            <MenubarTrigger>
-              <Link href="/buyer">購買生活用品</Link>
-            </MenubarTrigger>
-          </MenubarMenu>
-          <MenubarMenu>
-            <MenubarTrigger>
-              <Link href="/driver">司機專區</Link>
-            </MenubarTrigger>
-          </MenubarMenu>
-          <MenubarMenu>
-            <MenubarTrigger>
-              <Link href="/viewform">查看表單</Link>
-            </MenubarTrigger>
-          </MenubarMenu>
+          ))}
           
         </div>
         <div className='flex flex-row'>
@@ -100,7 +84,7 @@ const NavigationBar = () => {
           </MenubarMenu>
           <MenubarMenu>
             <MenubarTrigger>
-              <Link href="/login">登出</Link>
+              <Link href="/login" onClick={handleLogout}>登出</Link>
             </MenubarTrigger>
           </MenubarMenu>
           
