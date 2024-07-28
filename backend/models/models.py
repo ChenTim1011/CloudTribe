@@ -77,15 +77,17 @@ class TransferOrderRequest(BaseModel):
     current_driver_id: int
     new_driver_phone: str
 
-class Image(BaseModel):
+class UploadImageRequset(BaseModel):
+    img: str
+    
+class UploadImageResponse(BaseModel):
     """
     Model representing an image. 
     """
     imgId: str
     imgLink: str
 
-class UploadImageRequset(BaseModel):
-    img: str
+
 
 class UploadItemRequest(BaseModel):
     """
@@ -100,14 +102,21 @@ class UploadItemRequest(BaseModel):
     imgId: str
     ownerPhone: str
 
-class GetSellerProductRequest(BaseModel):
-    phone: str
 
 class ProductBasicInfo(BaseModel):
     id: str
     name: str
     uploadDate: str
     offShelfDate: str
+
+class ProductInfo(UploadItemRequest):
+    """
+    the class extends UploadItemRequest:
+    Model representing presented agricultural.
+    """
+    id: str
+    uploadDate: str
+
 
 
 

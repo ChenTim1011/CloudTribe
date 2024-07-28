@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException, Depends
 from psycopg2.extensions import connection as Connection
-from backend.models.models import Image, UploadImageRequset, UploadItemRequest, ProductBasicInfo
+from backend.models.models import UploadImageResponse, UploadImageRequset, UploadItemRequest, ProductBasicInfo, ProductInfo
 from backend.database import get_db_connection
 from dotenv import load_dotenv
 import os
@@ -26,7 +26,7 @@ def get_db():
     finally:
         conn.close()
 
-@router.post("/upload_image", response_model = Image)
+@router.post("/upload_image", response_model = UploadImageResponse)
 async def upload_image(request: UploadImageRequset):
     """
     Upload photo which is base 64 data
@@ -99,7 +99,7 @@ async def get_seller_item(phone: str, conn: Connection=Depends(get_db)):
     Get Seller Product
 
     Args:
-        Request(GetSellerProductRequest):The Seller phone
+        phone(str):The Seller phone
         conn(Connection): The database connection.
 
     Returns:
@@ -119,6 +119,47 @@ async def get_seller_item(phone: str, conn: Connection=Depends(get_db)):
                 "name":product[1],
                 "uploadDate":str(product[2]),
                 "offShelfDate":str(product[3]),
+            })
+        return product_list
+    except Exception as e:
+        conn.rollback()
+        logging.error("Error occurred: %s", str(e))
+        raise HTTPException(status_code=500, detail=str(e)) from e
+    finally:
+        cur.close()
+
+@router.get('/{today_date}', response_model=List[ProductInfo])
+async def get_seller_item(today_date: str, conn: Connection=Depends(get_db)):
+    """
+    Get agricultural product which off_shelf_date is larger than today_date
+
+    Args:
+        today_date(str):today date
+        conn(Connection): The database connection.
+
+    Returns:
+        List[ProductInfo]: A list of agricultural product information.
+    """
+    cur = conn.cursor()
+    try:
+        logging.info("Get agricultural product.(today_date: %s)", today_date)
+        cur.execute("SELECT * FROM products WHERE off_shelf_date <= %s", (today_date,))
+
+        products = cur.fetchall()
+        logging.info('start create product list')
+        product_list:List[ProductInfo] = []
+        for product in products:
+            product_list.append({
+                "id":product[0],
+                "name":product[1],
+                "price": product[2],
+                "totalQuantity": product[3],
+                "category": product[4],
+                "uploadDate":str(product[5]),
+                "offShelfDate":str(product[6]),
+                "imgLink": product[7],
+                "imgId": product[8],
+                "ownerPhone": product[9],    
             })
         return product_list
     except Exception as e:

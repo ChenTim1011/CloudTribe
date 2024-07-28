@@ -49,6 +49,21 @@ class SellerService {
       const data = await res.json()
       return data
   }
+  async get_on_shelf_product(today_date: string){
+    const res = await fetch(`/api/sellers/${today_date}`,{
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    })
+      if(res.status!=200){
+          console.log("get on shelf items error, status: ", res.status)
+          console.log(res.json())
+          return "get on shelf items error"
+      }
+      const data = await res.json()
+      return data
+  }
   
 }
 export default new SellerService()

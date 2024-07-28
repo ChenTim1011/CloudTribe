@@ -29,8 +29,7 @@ const OnShelfTable:React.FC<sellerProp> = (prop) => {
           <TableHead className="text-center text-lg w-1/3">詳細資訊</TableHead>
         </TableRow>
       </TableHeader>
-      <TableBody>
-        
+      <TableBody> 
         {prop.products.map((product) => (
           <TableRow key={product.id} className="flex flex-row items-center">
             <TableCell className="text-center lg:text-lg text-balance w-1/3">{product.uploadDate}</TableCell>
