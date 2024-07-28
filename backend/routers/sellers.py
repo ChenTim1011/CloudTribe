@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException, Depends
 from psycopg2.extensions import connection as Connection
-from backend.models.models import UploadImageResponse, UploadImageRequset, UploadItemRequest, ProductBasicInfo, ProductInfo
+from backend.models.seller import UploadImageResponse, UploadImageRequset, UploadItemRequest, ProductBasicInfo, ProductInfo
 from backend.database import get_db_connection
 from dotenv import load_dotenv
 import os
