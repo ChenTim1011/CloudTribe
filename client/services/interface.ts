@@ -3,30 +3,20 @@ export interface User {
   name: string
   phone: string 
 };
-/*
-export interface CartItem {
-  id: string;
-  name: string;
-  price: number;
-  quantity: number;
-  img: string;
-};*/
-
-export interface Product {
-  category: string
-  img: string
-  id: string
-  name: string
-  price: number 
-};
 export interface UploadItem{
   name: string
   price: string
   category: string
+  totalQuantity: string
   offShelfDate: string
   imgLink: string
   imgId: string
   ownerPhone: string | null
-
+}
+export interface BasicProductInfo{
+  id: string
+  name: string
+  onShelfDate: string
+  offShelfDate: string
 }
     

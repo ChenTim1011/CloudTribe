@@ -1,4 +1,4 @@
-import { UploadItems } from '@/services/interface'
+import { UploadItem } from '@/services/interface'
 
 class SellerService {
   async upload_image(img: string){
@@ -17,7 +17,7 @@ class SellerService {
     const data = await res.json()
     return data
  }
-  async upload_item(req: UploadItems){
+  async upload_item(req: UploadItem){
     const res = await fetch('/api/sellers/',{
     method: 'Post',
     headers: {
@@ -33,5 +33,22 @@ class SellerService {
     const data = await res.json()
     return data
   }
+
+  async get_upload_product(phone: string){
+    const res = await fetch(`/api/sellers/${phone}`,{
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    })
+      if(res.status!=200){
+          console.log("get upload items error, status: ", res.status)
+          console.log(res.json())
+          return "get upload items error"
+      }
+      const data = await res.json()
+      return data
+  }
+  
 }
 export default new SellerService()

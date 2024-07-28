@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException, Depends
 from psycopg2.extensions import connection as Connection
-from backend.models.models import Image, UploadImageRequset, UploadItemsRequest
+from backend.models.models import Image, UploadImageRequset, UploadItemRequest, ProductBasicInfo
 from backend.database import get_db_connection
 from dotenv import load_dotenv
 import os
@@ -8,6 +8,7 @@ import requests
 import logging
 import uuid
 import datetime
+from typing import List
 
 router = APIRouter()
 load_dotenv()
@@ -55,8 +56,17 @@ async def upload_image(request: UploadImageRequset):
         logging.error("Error occurred during upload photo: %s", str(e))
 
 @router.post('/')
-async def upload_items(req: UploadItemsRequest, conn: Connection = Depends(get_db)):
-    print('enter')
+async def upload_item(req: UploadItemRequest, conn: Connection = Depends(get_db)):
+    """
+    Upload item
+
+    Args:
+        Request(UploadItemRequest):The upload item information
+        conn(Connection): The database connection.
+
+    Returns:
+        A success message.
+    """
     cur = conn.cursor()
     try:
         # generate random id(UUID)
@@ -82,4 +92,41 @@ async def upload_items(req: UploadItemsRequest, conn: Connection = Depends(get_d
         raise HTTPException(status_code=500, detail=str(e)) from e
     finally:
         cur.close()
+
+@router.get('/{phone}', response_model=List[ProductBasicInfo])
+async def get_seller_item(phone: str, conn: Connection=Depends(get_db)):
+    """
+    Get Seller Product
+
+    Args:
+        Request(GetSellerProductRequest):The Seller phone
+        conn(Connection): The database connection.
+
+    Returns:
+        List[ProductBasicInfo]: A list of product basic information.
+    """
+    cur = conn.cursor()
+    try:
+        logging.info("Get user  whose phone is %s uploaded product information.", phone)
+        cur.execute("SELECT id, name, upload_date, off_shelf_date FROM products WHERE owner_phone = %s", (phone,))
+
+        products = cur.fetchall()
+        logging.info('start create product list')
+        product_list:List[ProductBasicInfo] = []
+        for product in products:
+            product_list.append({
+                "id":product[0],
+                "name":product[1],
+                "uploadDate":str(product[2]),
+                "offShelfDate":str(product[3]),
+            })
+        return product_list
+    except Exception as e:
+        conn.rollback()
+        logging.error("Error occurred: %s", str(e))
+        raise HTTPException(status_code=500, detail=str(e)) from e
+    finally:
+        cur.close()
+
+
 

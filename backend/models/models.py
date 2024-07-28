@@ -87,7 +87,10 @@ class Image(BaseModel):
 class UploadImageRequset(BaseModel):
     img: str
 
-class UploadItemsRequest(BaseModel):
+class UploadItemRequest(BaseModel):
+    """
+    Model representing upload agricultural product request.
+    """
     name: str
     price: str
     category: str
@@ -96,6 +99,17 @@ class UploadItemsRequest(BaseModel):
     imgLink: str
     imgId: str
     ownerPhone: str
+
+class GetSellerProductRequest(BaseModel):
+    phone: str
+
+class ProductBasicInfo(BaseModel):
+    id: str
+    name: str
+    uploadDate: str
+    offShelfDate: str
+
+
 
 
     
