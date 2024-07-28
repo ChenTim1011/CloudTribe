@@ -4,7 +4,6 @@ import React, { useState, useEffect } from "react";
 import { User, ProductInfo } from '@/services/interface'
 import UserService from '@/services/user/user'
 import SellerService from '@/services/seller/seller'
-import CartModal from "@/components/buyer/CartModal";
 import { CATEGORIES } from "@/constants/constants";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faShoppingCart } from '@fortawesome/free-solid-svg-icons';
@@ -26,7 +25,6 @@ export default function Page() {
   const [onShelfProducts, setOnShelfProducts] = useState<ProductInfo[]>()
   const [mapItems, setMapItems] = useState<ProductInfo[]>()
   const [searchContent, setSearchContent] = useState('')
-  //const [cart, setCart] = useState<CartItem[]>([]);
 
   useEffect(() => {
     const _user = UserService.getLocalStorageUser()
@@ -57,21 +55,8 @@ export default function Page() {
     }
   }
 
- 
-  /*
-  const handleRemoveFromCart = (id: string) => {
-    setCart((prevCart) => prevCart.filter((item) => item.id !== id));
-  };
-  const handleUpdateQuantity = (id: string, quantity: number) => {
-    setCart((prevCart) =>
-      prevCart.map((item) =>
-        item.id === id ? { ...item, quantity: Math.max(item.quantity + quantity, 1) } : item
-      )
-    );
-  };*/
-
   return (
-    <div className="w-full bg-gray-200">
+    <div className="w-full  bg-gray-200">
       <NavigationBar /> 
       <header className="flex flex-col w-full bg-lime-800 lg:h-[300px] h-[150px] text-center items-center shadow-2xl sticky top-0 z-20">
         <p className="lg:text-5xl text-2xl font-bold tracking-wides lg:py-[50px] py-[10px] text-neutral-50">農產品列表</p>
@@ -106,6 +91,7 @@ export default function Page() {
             </Select>
         </div>
       </header>
+      {mapItems?.length == 0 && <text className="lg:text-2xl text-md">查無此類商品</text>}
       <div className="grid lg:grid-cols-4 grid-cols-2 items-center lg:p-28 px-2 py-5">
         {mapItems!= undefined && mapItems.map((product) => (  
           <div className="w-full lg:h-[540px] h-[220px] bg-white border-gray-200 border-4 text-center lg:p-5 p-1">
@@ -121,10 +107,9 @@ export default function Page() {
             </div>
           </div>
         ))}
-        {mapItems?.length == 0 && <text className="">查無此類商品</text>}
-        
         
       </div>
+      
     </div>
   )
 }
