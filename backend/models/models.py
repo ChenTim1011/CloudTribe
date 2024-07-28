@@ -77,34 +77,48 @@ class TransferOrderRequest(BaseModel):
     current_driver_id: int
     new_driver_phone: str
 
-class Image(BaseModel):
+class UploadImageRequset(BaseModel):
+    img: str
+    
+class UploadImageResponse(BaseModel):
     """
     Model representing an image. 
     """
     imgId: str
     imgLink: str
 
-class UploadImageRequset(BaseModel):
-    img: str
 
-class UploadItems(BaseModel):
-    id: str
-    name: str
-    price: int
-    category: str
-    uploadDate: datetime
-    offShelfDate: datetime
-    imgLink: str
-    imgID: str
 
-class UploadItemsRequest(BaseModel):
+class UploadItemRequest(BaseModel):
+    """
+    Model representing upload agricultural product request.
+    """
     name: str
     price: str
     category: str
+    totalQuantity: str
     offShelfDate: str
     imgLink: str
     imgId: str
     ownerPhone: str
+
+
+class ProductBasicInfo(BaseModel):
+    id: str
+    name: str
+    uploadDate: str
+    offShelfDate: str
+
+class ProductInfo(UploadItemRequest):
+    """
+    the class extends UploadItemRequest:
+    Model representing presented agricultural.
+    """
+    id: str
+    uploadDate: str
+
+
+
 
 
     

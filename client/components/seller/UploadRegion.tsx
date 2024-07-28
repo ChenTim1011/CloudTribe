@@ -50,9 +50,9 @@ export const UploadRegion: React.FC<middleProps> = (prop) => {
         <Input id="picture" type="file" onChange={handleChange} disabled={prop.selectorStatus} className="w-full" />
       </div>
       {img && (
-        <div className="col-span-4 flex justify-center mt-4">
-          <img src={img} className="h-5/6" alt="uploaded" />
-        </div>
+        <div className="col-span-4 flex justify-center">
+          <img src={img} className="max-h-[350px]" alt="uploaded" />
+        </div>  
       )}
     </div>  
   );

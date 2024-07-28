@@ -1,7 +1,9 @@
 
 'use client'
 import React, { useState, useEffect } from "react";
-import { User, Product } from '@/services/interface'
+import { User, ProductInfo } from '@/services/interface'
+import UserService from '@/services/user/user'
+import SellerService from '@/services/seller/seller'
 import CartModal from "@/components/buyer/CartModal";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faShoppingCart } from '@fortawesome/free-solid-svg-icons';
@@ -18,6 +20,7 @@ import {
   DrawerTitle,
   DrawerTrigger,
 } from "@/components/ui/drawer"
+import NavigationBar from "@/components/NavigationBar";
 
 
 
@@ -111,22 +114,22 @@ const categories =[
 
 export default function Page() {
   const [user, setUser] = useState<User>()
+  const [onShelfProducts, setOnShelfProducts] = useState<ProductInfo[]>()
   const [isCartOpen, setIsCartOpen] = useState(false);
   //const [cart, setCart] = useState<CartItem[]>([]);
 
   //run every render
   useEffect(() => {
-    getUser()
+    const _user = UserService.getLocalStorageUser()
+    setUser(_user)
+    get_on_shelf_product()
   },[]);
 
-  const getUser = () => {
-    try {
-      var _user = localStorage.getItem('@user')
-      var checkedUser = _user ? JSON.parse(_user) : { id: null, name: '', phone: '' };
-      setUser(checkedUser)
-    } catch (e) {
-      console.log(e)
-    }  
+  const get_on_shelf_product = async() => {
+    const today = new Date()
+    console.log(today)
+    const products = await SellerService.get_on_shelf_product(today.toLocaleDateString().replaceAll("/", "-"))
+    setOnShelfProducts(products)
   }
   /*
   const handleRemoveFromCart = (id: string) => {
@@ -142,8 +145,8 @@ export default function Page() {
 
   return (
     <div className="h-full w-full bg-gray-200">
-      
-      <header className="flex flex-col w-full bg-lime-800 lg:h-[300px] h-[150px] text-center items-center shadow-2xl sticky top-0 z-50">
+      <NavigationBar /> 
+      <header className="flex flex-col w-full bg-lime-800 lg:h-[300px] h-[150px] text-center items-center shadow-2xl sticky top-0 z-20">
         <p className="lg:text-5xl text-3xl font-bold tracking-wides lg:py-[50px] py-[20px] text-neutral-50">農產品列表</p>
         <div className="flex lg:w-1/2 w-3/4 items-center space-x-2 ">
           <Input type="email" placeholder="請輸入農產品名稱" className="lg:text-2xl text-md bg-white lg:h-[60px] h-[30px] border-white border-4 rounded" />
@@ -185,13 +188,13 @@ export default function Page() {
         </div>
       </header>
       <div className="grid lg:grid-cols-3 grid-cols-2 items-center lg:p-28 px-2 py-5">
-        {allItems.map((item) => (  
+        { onShelfProducts!= undefined && onShelfProducts.map((product) => (  
           <div className="w-full lg:h-[500px] h-[220px] bg-white border-gray-200 border-4 text-center lg:p-5 p-1">
-            <img id={item.id} src={item.url} className="w-full lg:h-[80%] h-[70%]"></img>
+            <img id={product.id} src={product.imgLink} className="w-full lg:h-[80%] h-[70%]"></img>
             <div className="lg:h-1"/>
             <div className="flex flex-col items-center">
-              <text className="lg:text-2xl text-sm">{item.name}</text>
-              <text className="lg:text-2xl text-sm text-nlack">價格:$10</text>
+              <text className="lg:text-2xl text-sm">{product.name}</text>
+              <text className="lg:text-2xl text-sm text-nlack">{product.price}</text>
               <Button className="bg-black text-white lg:h-10 h-6 lg:w-1/2 w-2/3">
                 <FontAwesomeIcon icon={faShoppingCart} className="lg:mr-2" />
                 加入購物車
