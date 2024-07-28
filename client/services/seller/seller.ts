@@ -50,7 +50,7 @@ class SellerService {
       return data
   }
   async get_on_shelf_product(today_date: string){
-    const res = await fetch(`/api/sellers/${today_date}`,{
+    const res = await fetch(`/api/sellers/shelf/${today_date}`,{
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',

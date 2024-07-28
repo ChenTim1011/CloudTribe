@@ -128,8 +128,8 @@ async def get_seller_item(phone: str, conn: Connection=Depends(get_db)):
     finally:
         cur.close()
 
-@router.get('/{today_date}', response_model=List[ProductInfo])
-async def get_seller_item(today_date: str, conn: Connection=Depends(get_db)):
+@router.get('/shelf/{today_date}', response_model=List[ProductInfo])
+async def get_on_shelf_item(today_date: str, conn: Connection=Depends(get_db)):
     """
     Get agricultural product which off_shelf_date is larger than today_date
 
@@ -143,7 +143,7 @@ async def get_seller_item(today_date: str, conn: Connection=Depends(get_db)):
     cur = conn.cursor()
     try:
         logging.info("Get agricultural product.(today_date: %s)", today_date)
-        cur.execute("SELECT * FROM products WHERE off_shelf_date <= %s", (today_date,))
+        cur.execute("SELECT * FROM products WHERE off_shelf_date >= %s", (today_date,))
 
         products = cur.fetchall()
         logging.info('start create product list')
@@ -152,8 +152,8 @@ async def get_seller_item(today_date: str, conn: Connection=Depends(get_db)):
             product_list.append({
                 "id":product[0],
                 "name":product[1],
-                "price": product[2],
-                "totalQuantity": product[3],
+                "price": str(product[2]),
+                "totalQuantity": str(product[3]),
                 "category": product[4],
                 "uploadDate":str(product[5]),
                 "offShelfDate":str(product[6]),
