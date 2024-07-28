@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react"
+import { CATEGORIES } from "@/constants/constants"
 import {
   Select,
   SelectContent,
@@ -14,40 +15,7 @@ interface selectProps {
 }
 
 export const CategorySelector:React.FC<selectProps> = (prop) => {
-  const categories =[
-    {
-      value: "vegetable",
-      name: "蔬菜"
-    },
-    {
-      value: "fruit",
-      name: "水果"
-    },
-    {
-      value: "egg",
-      name: "雞蛋"
-    },
-    {
-      value: "bean",
-      name: "豆類"
-    },
-    {
-      value: "rice",
-      name: "稻米"
-    },
-    {
-      value: "dairy",
-      name: "乳製品"
-    },
-    {
-      value: "seasoning",
-      name: "調味料"
-    },
-    {
-      value: "other",
-      name: "其他"
-    },
-  ]
+ 
   const [isOpen, setIsOpen] = useState(false);
   const [selectedValue, setSelectedValue] = useState('')
   const { handleIsOpen } = prop
@@ -70,7 +38,7 @@ export const CategorySelector:React.FC<selectProps> = (prop) => {
       
       <SelectContent>
         <SelectGroup>
-          {categories.map((category) => 
+          {CATEGORIES.map((category) => 
           <SelectItem key={category.value} value={category.value}>
             {category.name}
           </SelectItem>)}
