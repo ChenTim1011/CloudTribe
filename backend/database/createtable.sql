@@ -75,5 +75,5 @@ CREATE TABLE products (
     off_shelf_date Date NOT NULL,
     img_link VARCHAR(255) NOT NULL,
     img_id VARCHAR(36) NOT NULL,
-    owner_phone VARCHAR(20) NOT NULL
+    seller_id VARCHAR(20) NOT NULL
 );

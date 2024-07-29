@@ -73,7 +73,7 @@ export default function SellerDialog() {
         offShelfDate: date.toLocaleDateString().replaceAll("/", "-"),
         imgLink: res_img.imgLink,
         imgId: res_img.imgId,
-        ownerPhone: user && user.phone? user.phone:null
+        sellerId: user && user.id? user.id.toString():null
       }
       const res_item = await SellerService.upload_item(item)
       if(res_item != "upload items error")

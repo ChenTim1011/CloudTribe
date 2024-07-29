@@ -25,7 +25,8 @@ class UploadItemRequest(BaseModel):
     offShelfDate: str
     imgLink: str
     imgId: str
-    ownerPhone: str
+    sellerId: str
+
 class ProductBasicInfo(BaseModel):
     id: str
     name: str
@@ -39,3 +40,4 @@ class ProductInfo(UploadItemRequest):
     """
     id: str
     uploadDate: str
+

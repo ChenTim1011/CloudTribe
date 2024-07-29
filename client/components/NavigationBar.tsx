@@ -61,7 +61,7 @@ const NavigationBar = () => {
   const device = useRWD();
   if(device == "PC" || device == "tablet"){
     return (
-      <Menubar className="px-4 py-2 justify-between bg-[#E0EBAF] text-black">
+      <Menubar className="px-4 py-2 justify-between bg-[#E0EBAF] text-black sticky top-0">
         <div className="flex items-center space-x-4">
           <FontAwesomeIcon icon={faMountain} className="text-white h-6 w-6" />
           <Link href="/" className="font-bold text-lg">順路經濟平台</Link>
@@ -106,7 +106,7 @@ const NavigationBar = () => {
   }
   else{
     return(
-      <Menubar className="px-2 py-2 bg-[#E0EBAF] text-black w-full">
+      <Menubar className="px-2 py-2 bg-[#E0EBAF] text-black w-full ">
         <div className="flex items-center space-x-1">
           <FontAwesomeIcon icon={faMountain} className="text-white h-4 w-4" />
           <Link href="/" className="font-bold text-md">順路經濟平台</Link>

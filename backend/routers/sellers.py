@@ -79,9 +79,9 @@ async def upload_item(req: UploadItemRequest, conn: Connection = Depends(get_db)
                 break
         logging.info("Inserting new item")
         cur.execute(
-            """INSERT INTO products (id, name, price, total_quantity, category, upload_date, off_shelf_date, img_link, img_id, owner_phone) 
+            """INSERT INTO products (id, name, price, total_quantity, category, upload_date, off_shelf_date, img_link, img_id, seller_id) 
             VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)""",
-            (itemId, req.name, req.price, req.totalQuantity, req.category, str(datetime.date.today()), req.offShelfDate, req.imgLink, req.imgId, req.ownerPhone)
+            (itemId, req.name, req.price, req.totalQuantity, req.category, str(datetime.date.today()), req.offShelfDate, req.imgLink, req.imgId, req.sellerId)
         )
         conn.commit()
         logging.info("ItemId is %s", itemId)
@@ -93,8 +93,8 @@ async def upload_item(req: UploadItemRequest, conn: Connection = Depends(get_db)
     finally:
         cur.close()
 
-@router.get('/{phone}', response_model=List[ProductBasicInfo])
-async def get_seller_item(phone: str, conn: Connection=Depends(get_db)):
+@router.get('/{sellerId}', response_model=List[ProductBasicInfo])
+async def get_seller_item(sellerId: str, conn: Connection=Depends(get_db)):
     """
     Get Seller Product
 
@@ -107,8 +107,8 @@ async def get_seller_item(phone: str, conn: Connection=Depends(get_db)):
     """
     cur = conn.cursor()
     try:
-        logging.info("Get user  whose phone is %s uploaded product information.", phone)
-        cur.execute("SELECT id, name, upload_date, off_shelf_date FROM products WHERE owner_phone = %s", (phone,))
+        logging.info("Get user  whose id is %s uploaded product information.", sellerId)
+        cur.execute("SELECT id, name, upload_date, off_shelf_date FROM products WHERE seller_id = %s", (sellerId,))
 
         products = cur.fetchall()
         logging.info('start create product list')
@@ -159,7 +159,7 @@ async def get_on_shelf_item(today_date: str, conn: Connection=Depends(get_db)):
                 "offShelfDate":str(product[6]),
                 "imgLink": product[7],
                 "imgId": product[8],
-                "ownerPhone": product[9],    
+                "sellerId": product[9],    
             })
         return product_list
     except Exception as e:
