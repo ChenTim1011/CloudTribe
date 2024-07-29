@@ -1,4 +1,3 @@
-
 'use client'
 import React, { useState, useEffect } from "react";
 import { User, ProductInfo } from '@/services/interface'
@@ -19,12 +18,15 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import NavigationBar from "@/components/NavigationBar";
+import PaginationDemo from "@/components/buyer/PaginationDemo";
 
 export default function Page() {
+  const ITEM_PER_PAGE = 16
   const [user, setUser] = useState<User>()
   const [onShelfProducts, setOnShelfProducts] = useState<ProductInfo[]>()
   const [mapItems, setMapItems] = useState<ProductInfo[]>()
   const [searchContent, setSearchContent] = useState('')
+  const [currentPage, setCurrentPage] = useState(1);
 
   useEffect(() => {
     const _user = UserService.getLocalStorageUser()
@@ -34,7 +36,6 @@ export default function Page() {
 
   const get_on_shelf_product = async() => {
     const today = new Date()
-    console.log(today)
     const products = await SellerService.get_on_shelf_product(today.toLocaleDateString().replaceAll("/", "-"))
     setMapItems(products)
     setOnShelfProducts(products)
@@ -54,9 +55,12 @@ export default function Page() {
       setMapItems(products)
     }
   }
+  const startIdx = (currentPage - 1) * ITEM_PER_PAGE;
+  const endIdx = startIdx + ITEM_PER_PAGE;
+  const currentData = mapItems?.slice(startIdx, endIdx);
 
   return (
-    <div className="w-full  bg-gray-200">
+    <div className="w-full bg-gray-200">
       <NavigationBar /> 
       <header className="flex flex-col w-full bg-lime-800 lg:h-[300px] h-[150px] text-center items-center shadow-2xl sticky top-0 z-20">
         <p className="lg:text-5xl text-2xl font-bold tracking-wides lg:py-[50px] py-[10px] text-neutral-50">農產品列表</p>
@@ -93,13 +97,23 @@ export default function Page() {
       </header>
       {mapItems?.length == 0 && <text className="lg:text-2xl text-md">查無此類商品</text>}
       <div className="grid lg:grid-cols-4 grid-cols-2 items-center lg:p-28 px-2 py-5">
-        {mapItems!= undefined && mapItems.map((product) => (  
-          <div className="w-full lg:h-[540px] h-[220px] bg-white border-gray-200 border-4 text-center lg:p-5 p-1">
-            <img id={product.id} src={product.imgLink} className="w-full lg:h-[75%] h-[70%]"></img>
+        {currentData!= undefined && currentData.map((product) => (  
+          <div className="w-full lg:h-[550px] h-[250px] bg-white border-gray-200 border-4 text-center lg:p-5 p-1">
+            <img id={product.id} src={product.imgLink} className="lg:h-[70%] h-[55%]"></img>
             <div className="lg:h-1"/>
-            <div className="flex flex-col items-center">
+            <div className="flex flex-col items-center space-y-1">
               <text className="lg:text-2xl text-sm">{product.name}</text>
-              <text className="lg:text-3xl text-sm text-red-600">${product.price}</text>
+              <text className="lg:text-3xl text-md text-red-600">${product.price}</text>
+              <div className="flex flex-row space-x-2">
+                <label htmlFor={`quantity-${product.id}`} className="lg:text-2xl text-sm">購買數量:</label>
+                <input
+                    type="number"
+                    id={`quantity-${product.id}`}
+                    className="w-16 text-center border rounded"
+                    defaultValue={1}
+                    min={1}
+                  />
+                </div>
               <Button className="bg-black text-white lg:h-10 h-6 lg:w-1/2 w-2/3">
                 <FontAwesomeIcon icon={faShoppingCart} className="lg:mr-2" />
                 加入購物車
@@ -107,8 +121,13 @@ export default function Page() {
             </div>
           </div>
         ))}
-        
       </div>
+      <PaginationDemo
+        totalItems={mapItems?.length != undefined?mapItems?.length:0}
+        itemsPerPage={ITEM_PER_PAGE}
+        currentPage={currentPage}
+        onPageChange={setCurrentPage}
+      />
       
     </div>
   )
