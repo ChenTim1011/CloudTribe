@@ -3,6 +3,7 @@ import React, { useState, useEffect } from "react";
 import { User, ProductInfo } from '@/services/interface'
 import UserService from '@/services/user/user'
 import ConsumerService from '@/services/consumer/consumer'
+import { AddCartRequest } from "@/services/interface";
 import { CATEGORIES } from "@/constants/constants";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faShoppingCart } from '@fortawesome/free-solid-svg-icons';
@@ -19,6 +20,7 @@ import {
 } from "@/components/ui/select"
 import NavigationBar from "@/components/NavigationBar";
 import PaginationDemo from "@/components/tribe_resident/buyer/PaginationDemo";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 export default function Page() {
   const ITEM_PER_PAGE = 16
@@ -27,6 +29,7 @@ export default function Page() {
   const [mapItems, setMapItems] = useState<ProductInfo[]>()
   const [searchContent, setSearchContent] = useState('')
   const [currentPage, setCurrentPage] = useState(1);
+  const [cartMessage, setCartMessage] = useState('empty')
 
   useEffect(() => {
     const _user = UserService.getLocalStorageUser()
@@ -55,8 +58,31 @@ export default function Page() {
       setMapItems(products)
     }
   }
-  const handleAddCart = (productId: Number) => {
+  const handleAddCart = async(produceId: Number) => {
+    const inputElement = document.getElementById(`quantity-${produceId}`) as HTMLInputElement | null
+    if(user != undefined && inputElement != undefined){
+      const req: AddCartRequest = {
+        buyerId: user?.id.toString(), 
+        produceId: produceId, 
+        quantity:parseInt(inputElement?.value)}
+      const res = await ConsumerService.add_shopping_cart(req)
+      if(res == "shopping cart has already had this item"){
+        setCartMessage("購務車內已放入此商品")
+        setTimeout(() => setCartMessage('empty'), 2000);
+      }
+        
+      else if(res != "add item to shopping cart error"){
+        setCartMessage("成功加入購物車!")
+        setTimeout(() => setCartMessage('empty'), 2000);
+      }  
+      else{
+        setCartMessage("加入購物車失敗")
+        setTimeout(() => setCartMessage('empty'), 2000);
 
+      }
+        
+    }
+      
 
   }
   const startIdx = (currentPage - 1) * ITEM_PER_PAGE;
@@ -107,13 +133,21 @@ export default function Page() {
           <FontAwesomeIcon icon={faShoppingCart} className="lg:mr-2" />
           購物車
         </Button>
+        {cartMessage != 'empty' && 
+        <Alert className="absolute bg-yellow-300 text-black right-1 top-full w-fit text-center px-4 py-2">
+          <AlertDescription className="lg:text-3xl text-md">
+            {cartMessage}
+          </AlertDescription>
+        </Alert>}
       </header>
       
       {mapItems?.length == 0 && <text className="lg:text-2xl text-md">查無此類商品</text>}
       <div className="grid lg:grid-cols-4 grid-cols-2 items-center lg:p-28 px-2 py-5">
         {currentData!= undefined && currentData.map((product) => (  
           <div key={product.id.toString()} className="w-full lg:h-[550px] h-[250px] bg-white border-gray-200 border-4 text-center lg:p-5 p-1">
-            <img src={product.imgLink} className="lg:h-[70%] h-[55%]"></img>
+            <img src={product.imgLink} className="lg:h-[70%] h-[55%]"/>
+            
+            
             <div className="lg:h-1"/>
             <div className="flex flex-col items-center space-y-1">
               <text className="lg:text-2xl text-sm">{product.name}</text>

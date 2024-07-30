@@ -24,4 +24,9 @@ export interface ProductInfo extends UploadItem {
   id: Number
   uploadDate: string
 }
+export interface AddCartRequest {
+  buyerId: string
+  produceId: Number
+  quantity: Number
+}
     

@@ -7,3 +7,9 @@ class ProductInfo(UploadItemRequest):
     """
     id: int
     uploadDate: str
+    
+class AddCartRequest(BaseModel):
+    buyerId: str
+    produceId: int
+    quantity: int
+
