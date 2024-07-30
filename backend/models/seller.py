@@ -28,7 +28,7 @@ class UploadItemRequest(BaseModel):
     sellerId: str
 
 class ProductBasicInfo(BaseModel):
-    id: str
+    id: int
     name: str
     uploadDate: str
     offShelfDate: str
@@ -38,6 +38,6 @@ class ProductInfo(UploadItemRequest):
     the class extends UploadItemRequest:
     Model representing presented agricultural.
     """
-    id: str
+    id: int
     uploadDate: str
 

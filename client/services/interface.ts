@@ -14,14 +14,14 @@ export interface UploadItem {
   sellerId: string | null
 }
 export interface BasicProductInfo{
-  id: string
+  id: Number
   name: string
   uploadDate: string
   offShelfDate: string
 }
 
 export interface ProductInfo extends UploadItem {
-  id: string
+  id: Number
   uploadDate: string
 }
     

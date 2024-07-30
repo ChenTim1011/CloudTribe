@@ -69,22 +69,13 @@ async def upload_item(req: UploadItemRequest, conn: Connection = Depends(get_db)
     """
     cur = conn.cursor()
     try:
-        # generate random id(UUID)
-        while(True):
-            itemId = str(uuid.uuid4())
-            logging.info("Checking if item id %s already exists", itemId)
-            cur.execute("SELECT id FROM products WHERE id = %s", (itemId,))
-            existing_id= cur.fetchone()
-            if existing_id is None:
-                break
         logging.info("Inserting new item")
         cur.execute(
-            """INSERT INTO products (id, name, price, total_quantity, category, upload_date, off_shelf_date, img_link, img_id, seller_id) 
-            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)""",
-            (itemId, req.name, req.price, req.totalQuantity, req.category, str(datetime.date.today()), req.offShelfDate, req.imgLink, req.imgId, req.sellerId)
+            """INSERT INTO agricultural_produce (name, price, total_quantity, category, upload_date, off_shelf_date, img_link, img_id, seller_id) 
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)""",
+            (req.name, req.price, req.totalQuantity, req.category, str(datetime.date.today()), req.offShelfDate, req.imgLink, req.imgId, req.sellerId)
         )
         conn.commit()
-        logging.info("ItemId is %s", itemId)
         return "item create successfully"
     except Exception as e:
         conn.rollback()
@@ -108,7 +99,7 @@ async def get_seller_item(sellerId: str, conn: Connection=Depends(get_db)):
     cur = conn.cursor()
     try:
         logging.info("Get user  whose id is %s uploaded product information.", sellerId)
-        cur.execute("SELECT id, name, upload_date, off_shelf_date FROM products WHERE seller_id = %s", (sellerId,))
+        cur.execute("SELECT id, name, upload_date, off_shelf_date FROM agricultural_produce WHERE seller_id = %s", (sellerId,))
 
         products = cur.fetchall()
         logging.info('start create product list')
@@ -143,7 +134,7 @@ async def get_on_shelf_item(today_date: str, conn: Connection=Depends(get_db)):
     cur = conn.cursor()
     try:
         logging.info("Get agricultural product.(today_date: %s)", today_date)
-        cur.execute("SELECT * FROM products WHERE off_shelf_date >= %s", (today_date,))
+        cur.execute("SELECT * FROM agricultural_produce WHERE off_shelf_date >= %s", (today_date,))
 
         products = cur.fetchall()
         logging.info('start create product list')

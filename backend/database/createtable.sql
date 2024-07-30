@@ -77,3 +77,17 @@ CREATE TABLE products (
     img_id VARCHAR(36) NOT NULL,
     seller_id VARCHAR(20) NOT NULL
 );
+
+--agricultural produce
+CREATE TABLE agricultural_produce (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(25) NOT NULL,
+    price INTEGER NOT NULL,
+    total_quantity INTEGER NOT NULL,
+    category VARCHAR(15) NOT NULL,
+    upload_date DATE NOT NULL,
+    off_shelf_date Date NOT NULL,
+    img_link VARCHAR(255) NOT NULL,
+    img_id VARCHAR(36) NOT NULL,
+    seller_id VARCHAR(32) NOT NULL
+);
