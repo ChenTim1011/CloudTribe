@@ -64,20 +64,6 @@ CREATE TABLE driver_orders (
     previous_driver_phone VARCHAR(20)
 );
 
---agricultural product
-CREATE TABLE products (
-    id CHAR(36) PRIMARY KEY,
-    name VARCHAR(25) NOT NULL,
-    price INTEGER NOT NULL,
-    total_quantity INTEGER NOT NULL,
-    category VARCHAR(8) NOT NULL,
-    upload_date DATE NOT NULL,
-    off_shelf_date Date NOT NULL,
-    img_link VARCHAR(255) NOT NULL,
-    img_id VARCHAR(36) NOT NULL,
-    seller_id VARCHAR(20) NOT NULL
-);
-
 --agricultural produce
 CREATE TABLE agricultural_produce (
     id SERIAL PRIMARY KEY,
@@ -91,3 +77,12 @@ CREATE TABLE agricultural_produce (
     img_id VARCHAR(36) NOT NULL,
     seller_id VARCHAR(32) NOT NULL
 );
+
+CREATE TABLE agricultural_shopping_cart (
+    id SERIAL PRIMARY KEY,
+    buyer_id VARCHAR(32) NOT NULL,
+    produce_id integer NOT NULL,
+    quantity INTEGER NOT NULL,
+    status VARCHAR(5) NOT NULL --status:已送單/未送單
+)
+
