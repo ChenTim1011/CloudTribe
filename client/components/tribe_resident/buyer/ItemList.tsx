@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faShoppingCart, faSortAmountDown } from '@fortawesome/free-solid-svg-icons';
-import PaginationDemo from "@/components/buyer/PaginationDemo";
+import PaginationDemo from "@/components/tribe_resident/buyer/PaginationDemo";
 import { Button } from "@/components/ui/button";
 
 type Product = {

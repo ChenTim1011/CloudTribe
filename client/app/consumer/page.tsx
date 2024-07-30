@@ -18,7 +18,7 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import NavigationBar from "@/components/NavigationBar";
-import PaginationDemo from "@/components/buyer/PaginationDemo";
+import PaginationDemo from "@/components/tribe_resident/buyer/PaginationDemo";
 
 export default function Page() {
   const ITEM_PER_PAGE = 16
@@ -62,9 +62,10 @@ export default function Page() {
   return (
     <div className="w-full bg-gray-200">
       <NavigationBar /> 
-      <header className="flex flex-col w-full bg-lime-800 lg:h-[300px] h-[150px] text-center items-center shadow-2xl sticky top-0 z-20">
-        <p className="lg:text-5xl text-2xl font-bold tracking-wides lg:py-[50px] py-[10px] text-neutral-50">農產品列表</p>
-        <div className="flex flex-col lg:w-1/4 w-3/4 items-center">
+      <header className="flex flex-col w-full bg-lime-800 lg:h-[300px] h-[160px] text-center items-center shadow-2xl sticky top-0 z-20">
+       
+        <p className="lg:text-5xl text-3xl font-bold tracking-wides lg:py-[50px] py-[15px] text-neutral-50">部落農產品</p>
+        <div className="flex flex-col lg:w-1/4 w-3/4">
           <div className="flex w-full items-center space-x-2 ">
             <Input 
               type="email" 
@@ -77,11 +78,12 @@ export default function Page() {
               onClick={handleSearchButton}>
               搜尋
             </Button>
+            
           </div>
-          <div className="lg:h-4 h-1" />
+          <div className="lg:h-4 h-2" />
 
             <Select onValueChange={handleSelect}>
-              <SelectTrigger className="w-full">
+              <SelectTrigger className="w-full h-8 lg:h-12">
                 <SelectValue placeholder="請選擇要查尋的類別" />
               </SelectTrigger>
               <SelectContent>
@@ -92,14 +94,22 @@ export default function Page() {
                   </SelectItem>)}
                 </SelectGroup>
               </SelectContent>
-            </Select>
+            </Select>   
         </div>
+        <Button 
+          variant="outline" 
+          className="absolute right-1 top-1 lg:px-4 lg:py-2 p-1 lg:text-2xl text-sm font-bold border-2 border-black-500 text-black-500 hover:bg-blue-500 hover:text-white"
+        >
+          <FontAwesomeIcon icon={faShoppingCart} className="lg:mr-2" />
+          購物車
+        </Button>
       </header>
+      
       {mapItems?.length == 0 && <text className="lg:text-2xl text-md">查無此類商品</text>}
       <div className="grid lg:grid-cols-4 grid-cols-2 items-center lg:p-28 px-2 py-5">
         {currentData!= undefined && currentData.map((product) => (  
-          <div className="w-full lg:h-[550px] h-[250px] bg-white border-gray-200 border-4 text-center lg:p-5 p-1">
-            <img id={product.id} src={product.imgLink} className="lg:h-[70%] h-[55%]"></img>
+          <div key={product.id.toString()} className="w-full lg:h-[550px] h-[250px] bg-white border-gray-200 border-4 text-center lg:p-5 p-1">
+            <img src={product.imgLink} className="lg:h-[70%] h-[55%]"></img>
             <div className="lg:h-1"/>
             <div className="flex flex-col items-center space-y-1">
               <text className="lg:text-2xl text-sm">{product.name}</text>
