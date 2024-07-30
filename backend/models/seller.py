@@ -33,11 +33,4 @@ class ProductBasicInfo(BaseModel):
     uploadDate: str
     offShelfDate: str
 
-class ProductInfo(UploadItemRequest):
-    """
-    the class extends UploadItemRequest:
-    Model representing presented agricultural.
-    """
-    id: int
-    uploadDate: str
 

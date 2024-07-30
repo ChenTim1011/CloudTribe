@@ -2,7 +2,7 @@ import { UploadItem } from '@/services/interface'
 
 class SellerService {
   async upload_image(img: string){
-    const res = await fetch('/api/sellers/upload_image',{
+    const res = await fetch('/api/seller/upload_image',{
     method: 'Post',
     headers: {
       'Content-Type': 'application/json',
@@ -18,7 +18,7 @@ class SellerService {
     return data
  }
   async upload_item(req: UploadItem){
-    const res = await fetch('/api/sellers/',{
+    const res = await fetch('/api/seller/',{
     method: 'Post',
     headers: {
       'Content-Type': 'application/json',
@@ -34,8 +34,8 @@ class SellerService {
     return data
   }
 
-  async get_upload_product(phone: string){
-    const res = await fetch(`/api/sellers/${phone}`,{
+  async get_upload_product(sellerId: string){
+    const res = await fetch(`/api/seller/${sellerId}`,{
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -45,21 +45,6 @@ class SellerService {
           console.log("get upload items error, status: ", res.status)
           console.log(res.json())
           return "get upload items error"
-      }
-      const data = await res.json()
-      return data
-  }
-  async get_on_shelf_product(today_date: string){
-    const res = await fetch(`/api/sellers/shelf/${today_date}`,{
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    })
-      if(res.status!=200){
-          console.log("get on shelf items error, status: ", res.status)
-          console.log(res.json())
-          return "get on shelf items error"
       }
       const data = await res.json()
       return data

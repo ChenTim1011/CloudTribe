@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from "react";
 import { User, ProductInfo } from '@/services/interface'
 import UserService from '@/services/user/user'
-import SellerService from '@/services/seller/seller'
+import ConsumerService from '@/services/consumer/consumer'
 import { CATEGORIES } from "@/constants/constants";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faShoppingCart } from '@fortawesome/free-solid-svg-icons';
@@ -31,12 +31,12 @@ export default function Page() {
   useEffect(() => {
     const _user = UserService.getLocalStorageUser()
     setUser(_user)
-    get_on_shelf_product()
+    get_on_sell_product()
   },[]);
 
-  const get_on_shelf_product = async() => {
+  const get_on_sell_product = async() => {
     const today = new Date()
-    const products = await SellerService.get_on_shelf_product(today.toLocaleDateString().replaceAll("/", "-"))
+    const products = await ConsumerService.get_on_sell_product(today.toLocaleDateString().replaceAll("/", "-"))
     setMapItems(products)
     setOnShelfProducts(products)
   }
@@ -54,6 +54,10 @@ export default function Page() {
     if(products != undefined){
       setMapItems(products)
     }
+  }
+  const handleAddCart = (productId: Number) => {
+
+
   }
   const startIdx = (currentPage - 1) * ITEM_PER_PAGE;
   const endIdx = startIdx + ITEM_PER_PAGE;
@@ -124,7 +128,9 @@ export default function Page() {
                     min={1}
                   />
                 </div>
-              <Button className="bg-black text-white lg:h-10 h-6 lg:w-1/2 w-2/3">
+              <Button 
+                className="bg-black text-white lg:h-10 h-6 lg:w-1/2 w-2/3"
+                onClick={() => handleAddCart(product.id)}>
                 <FontAwesomeIcon icon={faShoppingCart} className="lg:mr-2" />
                 加入購物車
               </Button>
