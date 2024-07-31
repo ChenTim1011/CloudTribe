@@ -1,5 +1,6 @@
 'use client'
 import React, { useState, useEffect } from "react";
+import Link from 'next/link'
 import { User, ProductInfo } from '@/services/interface'
 import UserService from '@/services/user/user'
 import ConsumerService from '@/services/consumer/consumer'
@@ -135,10 +136,11 @@ export default function Page() {
         </div>
         <Button 
           variant="outline" 
-          className="absolute right-1 top-1 lg:px-4 lg:py-2 p-1 lg:text-2xl text-sm font-bold border-2 border-black-500 text-black-500 hover:bg-blue-500 hover:text-white"
-        >
-          <FontAwesomeIcon icon={faShoppingCart} className="lg:mr-2" />
-          購物車
+          className="absolute right-1 top-1 lg:px-4 lg:py-2 p-1 lg:text-2xl text-sm font-bold border-2 border-black-500 text-black-500 hover:bg-blue-500 hover:text-white">
+          <Link href="/consumer/shopping_cart">
+            <FontAwesomeIcon icon={faShoppingCart} className="lg:mr-2"/>
+            購物車
+          </Link> 
         </Button>
         {cartMessage != 'empty' && 
         <Alert className="absolute bg-yellow-300 text-black right-1 top-full w-fit text-center px-4 py-2">
