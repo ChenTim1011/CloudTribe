@@ -29,4 +29,13 @@ export interface AddCartRequest {
   produceId: Number
   quantity: Number
 }
+export interface CartItem {
+  id: Number
+  name: string
+  imgUrl: string
+  price: Number
+  quantity: Number
+
+}
+    
     

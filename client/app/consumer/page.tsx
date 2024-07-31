@@ -1,5 +1,6 @@
 'use client'
 import React, { useState, useEffect } from "react";
+import Link from 'next/link'
 import { User, ProductInfo } from '@/services/interface'
 import UserService from '@/services/user/user'
 import ConsumerService from '@/services/consumer/consumer'
@@ -38,9 +39,8 @@ export default function Page() {
   },[]);
 
   const get_on_sell_product = async() => {
-    let today = new Date()
     try{
-      const products = await ConsumerService.get_on_sell_product(today.toLocaleDateString().replaceAll("/", "-"))
+      const products = await ConsumerService.get_on_sell_product()
       setMapItems(products)
       setOnShelfProducts(products)
     }
@@ -135,10 +135,11 @@ export default function Page() {
         </div>
         <Button 
           variant="outline" 
-          className="absolute right-1 top-1 lg:px-4 lg:py-2 p-1 lg:text-2xl text-sm font-bold border-2 border-black-500 text-black-500 hover:bg-blue-500 hover:text-white"
-        >
-          <FontAwesomeIcon icon={faShoppingCart} className="lg:mr-2" />
-          購物車
+          className="absolute right-1 top-1 lg:px-4 lg:py-2 p-1 lg:text-2xl text-sm font-bold border-2 border-black-500 text-black-500 hover:bg-blue-500 hover:text-white">
+          <Link href="/consumer/shopping_cart">
+            <FontAwesomeIcon icon={faShoppingCart} className="lg:mr-2"/>
+            購物車
+          </Link> 
         </Button>
         {cartMessage != 'empty' && 
         <Alert className="absolute bg-yellow-300 text-black right-1 top-full w-fit text-center px-4 py-2">
@@ -148,7 +149,7 @@ export default function Page() {
         </Alert>}
       </header>
       
-      {mapItems?.length == 0 && <text className="lg:text-2xl text-md">查無此類商品</text>}
+      {mapItems?.length == 0 && <p className="lg:text-2xl text-md">查無此類商品</p>}
       <div className="grid lg:grid-cols-4 grid-cols-2 items-center lg:p-28 px-2 py-5">
         {currentData!= undefined && currentData.map((product) => (  
           <div key={product.id.toString()} className="w-full lg:h-[550px] h-[250px] bg-white border-gray-200 border-4 text-center lg:p-5 p-1">
@@ -157,8 +158,8 @@ export default function Page() {
             
             <div className="lg:h-1"/>
             <div className="flex flex-col items-center space-y-1">
-              <text className="lg:text-2xl text-sm">{product.name}</text>
-              <text className="lg:text-3xl text-md text-red-600">${product.price}</text>
+              <p className="lg:text-2xl text-sm">{product.name}</p>
+              <p className="lg:text-3xl text-md text-red-600">${product.price}</p>
               <div className="flex flex-row space-x-2">
                 <label htmlFor={`quantity-${product.id}`} className="lg:text-2xl text-sm">購買數量:</label>
                 <input
