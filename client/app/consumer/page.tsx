@@ -39,9 +39,8 @@ export default function Page() {
   },[]);
 
   const get_on_sell_product = async() => {
-    let today = new Date()
     try{
-      const products = await ConsumerService.get_on_sell_product(today.toLocaleDateString().replaceAll("/", "-"))
+      const products = await ConsumerService.get_on_sell_product()
       setMapItems(products)
       setOnShelfProducts(products)
     }

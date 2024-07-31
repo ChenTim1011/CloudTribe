@@ -11,39 +11,6 @@ import UserService from '@/services/user/user'
 import { User, CartItem } from '@/services/interface'
 import { useRouter } from 'next/navigation'
 
-
-const data=[
-  {
-    url:"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQCOFJh23mawfpZ6O_k255jSwXBz9mNXdjrWw&s",
-    name:'超極好吃的蔬菜水果',
-    price:'100',
-    quantity:'5'
-  },
-  {
-    url:"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQCOFJh23mawfpZ6O_k255jSwXBz9mNXdjrWw&s",
-    name:'超好吃的蔬菜水果',
-    price:'100',
-    quantity:'5'
-  },
-  {
-    url:"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQCOFJh23mawfpZ6O_k255jSwXBz9mNXdjrWw&s",
-    name:'超好吃的蔬菜水果',
-    price:'100',
-    quantity:'5'
-  },
-  {
-    url:"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQCOFJh23mawfpZ6O_k255jSwXBz9mNXdjrWw&s",
-    name:'超好吃的蔬菜水果',
-    price:'100',
-    quantity:'5'
-  },
-  {
-    url:"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQCOFJh23mawfpZ6O_k255jSwXBz9mNXdjrWw&s",
-    name:'超好吃的蔬菜水果',
-    price:'100',
-    quantity:'5'
-  }
-]
 export default function ShoppingCart(){
   const [user, setUser] = useState<User>()
   const [cart, setCart] = useState<CartItem[]>([])

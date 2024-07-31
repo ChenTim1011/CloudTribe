@@ -1,7 +1,7 @@
 import { AddCartRequest } from '@/services/interface'
 class ConsumerService{
-  async get_on_sell_product(today_date: string){
-    const res = await fetch(`/api/consumer/on_sell/${today_date}`,{
+  async get_on_sell_product(){
+    const res = await fetch('/api/consumer',{
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',

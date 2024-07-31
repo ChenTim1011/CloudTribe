@@ -18,8 +18,8 @@ def get_db():
         yield conn
     finally:
         conn.close()
-@router.get('/on_sell/{today_date}', response_model=List[ProductInfo])
-async def get_on_sell_item(today_date: str, conn: Connection=Depends(get_db)):
+@router.get('/', response_model=List[ProductInfo])
+async def get_on_sell_item(conn: Connection=Depends(get_db)):
     """
     Get agricultural product which off_shelf_date is larger than today_date
 
@@ -30,10 +30,11 @@ async def get_on_sell_item(today_date: str, conn: Connection=Depends(get_db)):
     Returns:
         List[ProductInfo]: A list of agricultural product information.
     """
+    today = datetime.date.today()
     cur = conn.cursor()
     try:
-        logging.info("Get agricultural product.(today_date: %s)", today_date)
-        cur.execute("SELECT * FROM agricultural_produce WHERE off_shelf_date >= %s", (today_date,))
+        logging.info("Get agricultural product.(today_date: %s)", today)
+        cur.execute("SELECT * FROM agricultural_produce WHERE off_shelf_date >= %s", (today,))
         products = cur.fetchall()
         logging.info('start create product list')
         product_list:List[ProductInfo] = []
