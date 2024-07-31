@@ -68,9 +68,9 @@ const NavigationBar = () => {
         </div>
         <div className="flex flex-row space-x-12">
           {components.map((component) => (
-            <MenubarMenu>
+            <MenubarMenu key={component.title}>
             <MenubarTrigger>
-              <Link key={component.title} href={component.href}>{component.title}</Link>
+              <Link href={component.href}>{component.title}</Link>
             </MenubarTrigger>
           </MenubarMenu>
           ))}
