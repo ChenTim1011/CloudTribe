@@ -48,8 +48,8 @@ export default function ShoppingCart(){
             <img src={item.imgUrl}/>
             </div> 
             <div className="flex flex-col w-5/12 text-center">
-              <text className="lg:text-2xl line-clamp-2 text-pretty">{item.name}</text>
-              <text className="lg:text-lg text-red-600">${item.price.toString()}</text>
+              <p className="lg:text-2xl line-clamp-2 text-pretty">{item.name}</p>
+              <p className="lg:text-lg text-red-600">${item.price.toString()}</p>
               
             </div>
             <Input defaultValue={item.quantity.toString()} className="w-2/12 text-center"/>

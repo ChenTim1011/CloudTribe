@@ -149,7 +149,7 @@ export default function Page() {
         </Alert>}
       </header>
       
-      {mapItems?.length == 0 && <text className="lg:text-2xl text-md">查無此類商品</text>}
+      {mapItems?.length == 0 && <p className="lg:text-2xl text-md">查無此類商品</p>}
       <div className="grid lg:grid-cols-4 grid-cols-2 items-center lg:p-28 px-2 py-5">
         {currentData!= undefined && currentData.map((product) => (  
           <div key={product.id.toString()} className="w-full lg:h-[550px] h-[250px] bg-white border-gray-200 border-4 text-center lg:p-5 p-1">
@@ -158,8 +158,8 @@ export default function Page() {
             
             <div className="lg:h-1"/>
             <div className="flex flex-col items-center space-y-1">
-              <text className="lg:text-2xl text-sm">{product.name}</text>
-              <text className="lg:text-3xl text-md text-red-600">${product.price}</text>
+              <p className="lg:text-2xl text-sm">{product.name}</p>
+              <p className="lg:text-3xl text-md text-red-600">${product.price}</p>
               <div className="flex flex-row space-x-2">
                 <label htmlFor={`quantity-${product.id}`} className="lg:text-2xl text-sm">購買數量:</label>
                 <input
