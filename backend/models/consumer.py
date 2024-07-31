@@ -13,3 +13,11 @@ class AddCartRequest(BaseModel):
     produceId: int
     quantity: int
 
+class CartItem(BaseModel):
+    id: int
+    name: str
+    imgUrl: str
+    price: int
+    quantity: int
+
+

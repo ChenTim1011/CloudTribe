@@ -33,8 +33,8 @@ const NavigationBar = () => {
     UserService.emptyLocalStorageUser()
   }
   
-  const { user, logout } = useAuth();
-  console.log('NavigationBar user:', user); 
+  //const { user, logout } = useAuth();
+  //console.log('NavigationBar user:', user); 
 
   const useRWD=()=>{
     const [device,setDevice]=useState("mobile");
