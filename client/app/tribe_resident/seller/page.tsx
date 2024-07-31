@@ -27,11 +27,9 @@ export default function Page(){
 
   const get_products = async(user:User) => {
     if(user != undefined){
-      const res_products = await SellerService.get_upload_product(user.id)
-      if(res_products != "get upload items error"){
-        var _products: BasicProductInfo[]= res_products
-        setProducts(_products)
-      }  
+      const res = await SellerService.get_upload_product(user.id)
+      var _products: BasicProductInfo[] = res
+      setProducts(_products)
     }
       
   }

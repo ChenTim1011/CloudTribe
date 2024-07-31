@@ -38,10 +38,17 @@ export default function Page() {
   },[]);
 
   const get_on_sell_product = async() => {
-    const today = new Date()
-    const products = await ConsumerService.get_on_sell_product(today.toLocaleDateString().replaceAll("/", "-"))
-    setMapItems(products)
-    setOnShelfProducts(products)
+    let today = new Date()
+    try{
+      const products = await ConsumerService.get_on_sell_product(today.toLocaleDateString().replaceAll("/", "-"))
+      setMapItems(products)
+      setOnShelfProducts(products)
+    }
+    catch(e){
+      console.log('Show agricultural produce error occur')
+    }
+    
+    
   }
   const handleSelect = (value: string) => {
     const products = onShelfProducts?.filter((product) => product.category == value)
@@ -61,26 +68,26 @@ export default function Page() {
   const handleAddCart = async(produceId: Number) => {
     const inputElement = document.getElementById(`quantity-${produceId}`) as HTMLInputElement | null
     if(user != undefined && inputElement != undefined){
-      const req: AddCartRequest = {
+      let req: AddCartRequest = {
         buyerId: user?.id.toString(), 
         produceId: produceId, 
         quantity:parseInt(inputElement?.value)}
-      const res = await ConsumerService.add_shopping_cart(req)
-      if(res == "shopping cart has already had this item"){
-        setCartMessage("購務車內已放入此商品")
-        setTimeout(() => setCartMessage('empty'), 2000);
+
+      try{
+        const res = await ConsumerService.add_shopping_cart(req)
+        if(res == "shopping cart has already had this item"){
+          setCartMessage("此商品被重複加入購物車")
+          setTimeout(() => setCartMessage('empty'), 2000);
+        } 
+        else{
+          setCartMessage("成功加入購物車!")
+          setTimeout(() => setCartMessage('empty'), 2000);
+        }     
       }
-        
-      else if(res != "add item to shopping cart error"){
-        setCartMessage("成功加入購物車!")
-        setTimeout(() => setCartMessage('empty'), 2000);
-      }  
-      else{
+      catch(e){
         setCartMessage("加入購物車失敗")
         setTimeout(() => setCartMessage('empty'), 2000);
-
-      }
-        
+      }  
     }
       
 

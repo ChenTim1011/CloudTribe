@@ -7,16 +7,14 @@ class ConsumerService{
         'Content-Type': 'application/json',
       },
     })
-      if(res.status!=200){  
-        console.log("get on sell items error, status: ", res.status)
-        console.log(res.json())
-        return "get on sell items error"
-      }
-      const data = await res.json()
-      return data
+    const data = await res.json()
+    
+    if(!res.ok)
+      throw new Error(`Error: ${data.detail}`)
+    return data
   }
   async add_shopping_cart(req: AddCartRequest){
-    const res = await fetch('/api/consumer/cart',{
+    const res = await fetch('/api/consumer/cart',{///cart
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -29,9 +27,8 @@ class ConsumerService{
       if(data.detail.includes('409'))
         return "shopping cart has already had this item"  
       else
-        return "add item to shopping cart error" 
+        throw new Error(`Error: ${data.detail}`)
     }
-    
     return data
   }
 }

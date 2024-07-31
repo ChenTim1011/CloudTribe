@@ -64,7 +64,13 @@ export default function SellerDialog() {
       setErrorMessage("上傳的檔案非圖片")
     else{
       setIsUploading(true)
-      const res_img = await SellerService.upload_image(imgBase64)
+      try{
+        var res_img = await SellerService.upload_image(imgBase64)
+      }
+      catch(e){
+        console.log(e)
+      }
+    
       const item: UploadItem = {
         name: itemName,
         price: itemPrice,
@@ -75,14 +81,14 @@ export default function SellerDialog() {
         imgId: res_img.imgId,
         sellerId: user && user.id? user.id.toString():null
       }
-      const res_item = await SellerService.upload_item(item)
-      if(res_item != "upload items error")
+      try{
+        const res_item = await SellerService.upload_item(item)
         setCloseDialog(true)
-      else{
+      }
+      catch(e){
         setErrorMessage('上傳發生錯誤，請再試一次') 
         setIsUploading(false)
-      }
-        
+      } 
     }   
   }
   const handleNameButton: React.ChangeEventHandler<HTMLInputElement> = (event) => {

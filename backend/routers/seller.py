@@ -53,6 +53,7 @@ async def upload_image(request: UploadImageRequset):
             return {"imgId": response_data["data"]["id"] , "imgLink": response_data["data"]["link"]}
     except Exception as e:
         logging.error("Error occurred during upload photo: %s", str(e))
+        raise HTTPException(status_code=500, detail=str(e)) from e
 
 @router.post('/')
 async def upload_item(req: UploadItemRequest, conn: Connection = Depends(get_db)):

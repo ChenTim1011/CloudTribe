@@ -3,34 +3,28 @@ import { UploadItem } from '@/services/interface'
 class SellerService {
   async upload_image(img: string){
     const res = await fetch('/api/seller/upload_image',{
-    method: 'Post',
+    method: 'POST',
     headers: {
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({ img:img }),
     })
-    if(res.status!=200){
-        console.log("upload photo error, status: ", res.status)
-        console.log(res.json())
-        return "upload photo error"
-    }
     const data = await res.json()
+    if(!res.ok)
+      throw new Error(`Error: ${data.detail}`)
     return data
  }
   async upload_item(req: UploadItem){
     const res = await fetch('/api/seller/',{
-    method: 'Post',
+    method: 'POST',
     headers: {
       'Content-Type': 'application/json',
     },
     body: JSON.stringify(req),
     })
-    if(res.status!=200){
-        console.log("upload items error, status: ", res.status)
-        console.log(res.json())
-        return "upload items error"
-    }
     const data = await res.json()
+    if(!res.ok)
+      throw new Error(`Error: ${data.detail}`)
     return data
   }
 
@@ -41,13 +35,10 @@ class SellerService {
         'Content-Type': 'application/json',
       },
     })
-      if(res.status!=200){
-          console.log("get upload items error, status: ", res.status)
-          console.log(res.json())
-          return "get upload items error"
-      }
-      const data = await res.json()
-      return data
+    const data = await res.json()
+    if(!res.ok)
+      throw new Error(`Error: ${data.detail}`)
+    return data
   }
   
 }
