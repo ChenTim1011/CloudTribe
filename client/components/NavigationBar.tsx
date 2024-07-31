@@ -22,9 +22,9 @@ import {
 
 const NavigationBar = () => {
   const components=[
-    {title:"購買農產品", href:"/buy_agri_produce"},
-    {title:"上架農產品", href:"/seller"},
-    {title:"購買生活用品", href:"/buyer"},
+    {title:"購買農產品", href:"/consumer"},
+    {title:"上架農產品", href:"/tribe_resident/seller"},
+    {title:"購買生活用品", href:"/tribe_resident/buyer"},
     {title:"司機專區", href:"/driver"},
     {title:"查看表單", href:"/viewform"},  
   ]
@@ -61,7 +61,7 @@ const NavigationBar = () => {
   const device = useRWD();
   if(device == "PC" || device == "tablet"){
     return (
-      <Menubar className="px-4 py-2 justify-between bg-[#E0EBAF] text-black">
+      <Menubar className="px-4 py-2 justify-between bg-[#E0EBAF] text-black sticky top-0">
         <div className="flex items-center space-x-4">
           <FontAwesomeIcon icon={faMountain} className="text-white h-6 w-6" />
           <Link href="/" className="font-bold text-lg">順路經濟平台</Link>
@@ -70,7 +70,7 @@ const NavigationBar = () => {
           {components.map((component) => (
             <MenubarMenu>
             <MenubarTrigger>
-              <Link href={component.href}>{component.title}</Link>
+              <Link key={component.title} href={component.href}>{component.title}</Link>
             </MenubarTrigger>
           </MenubarMenu>
           ))}
@@ -106,7 +106,7 @@ const NavigationBar = () => {
   }
   else{
     return(
-      <Menubar className="px-2 py-2 bg-[#E0EBAF] text-black w-full">
+      <Menubar className="px-2 py-2 bg-[#E0EBAF] text-black w-full ">
         <div className="flex items-center space-x-1">
           <FontAwesomeIcon icon={faMountain} className="text-white h-4 w-4" />
           <Link href="/" className="font-bold text-md">順路經濟平台</Link>
@@ -115,10 +115,10 @@ const NavigationBar = () => {
           <NavigationMenuList>
             <NavigationMenuItem>
               <NavigationMenuTrigger className="bg-[#E0EBAF] w-36">頁面導覽</NavigationMenuTrigger>
-              <NavigationMenuContent >
+              <NavigationMenuContent>
                 <ul className="grid w-full gap-3 p-4">
                   {components.map((component) => (
-                    <Link href={component.href}>{component.title}</Link>
+                    <Link key={component.title} href={component.href}>{component.title}</Link>
                   ))}
                 </ul>
               </NavigationMenuContent>

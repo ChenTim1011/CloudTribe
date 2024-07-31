@@ -1,11 +1,11 @@
 "use client";
 
 import React, { useState, useEffect, useCallback } from "react";
-import Sidebar from "@/components/buyer/Sidebar";
-import SearchBar from "@/components/buyer/SearchBar";
-import ItemList from "@/components/buyer/ItemList";
-import CartModal from "@/components/buyer/CartModal";
-import AddItemForm from "@/components/buyer/AddItemForm"; 
+import Sidebar from "@/components/tribe_resident/buyer/Sidebar";
+import SearchBar from "@/components/tribe_resident/buyer/SearchBar";
+import ItemList from "@/components/tribe_resident/buyer/ItemList";
+import CartModal from "@/components/tribe_resident/buyer/CartModal";
+import AddItemForm from "@/components/tribe_resident/buyer/AddItemForm"; 
 import "@/app/styles/globals.css";
 import NavigationBar from "@/components/NavigationBar"; 
 import { Button } from "@/components/ui/button";

@@ -1,18 +1,14 @@
 'use client'
 import React, { useState, useEffect } from "react"
-import SellerDialog from "@/components/seller/SellerDialog"
-import OnShelfTable from "@/components/seller/OnShelfTable"
-import HistoryProductTable from "@/components/seller/HistoryProductTable"
+import SellerDialog from "@/components/tribe_resident/seller/SellerDialog"
+import OnShelfTable from "@/components/tribe_resident/seller/OnShelfTable"
+import HistoryProductTable from "@/components/tribe_resident/seller/HistoryProductTable"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import NavigationBar from "@/components/NavigationBar"
 import UseService from "@/services/user/user"
 import SellerService from "@/services/seller/seller"
 import { User, BasicProductInfo } from '@/services/interface'
 import { useRouter } from 'next/navigation'
-import { get } from "http"
-
-
-
 
 export default function Page(){
   const [user, setUser] = useState<User>()
@@ -31,11 +27,9 @@ export default function Page(){
 
   const get_products = async(user:User) => {
     if(user != undefined){
-      const res_products = await SellerService.get_upload_product(user.phone)
-      if(res_products != "get upload items error"){
-        var _products: BasicProductInfo[]= res_products
-        setProducts(_products)
-      }  
+      const res = await SellerService.get_upload_product(user.id)
+      var _products: BasicProductInfo[] = res
+      setProducts(_products)
     }
       
   }

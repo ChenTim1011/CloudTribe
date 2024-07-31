@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react"
-import SellerService from '@/services/seller/seller'
 import { User, BasicProductInfo } from '@/services/interface'
 import { Button } from '@/components/ui/button'
 
@@ -31,7 +30,7 @@ const OnShelfTable:React.FC<sellerProp> = (prop) => {
       </TableHeader>
       <TableBody> 
         {prop.products.map((product) => (
-          <TableRow key={product.id} className="flex flex-row items-center">
+          <TableRow key={product.id.toString()} className="flex flex-row items-center">
             <TableCell className="text-center lg:text-lg text-balance w-1/3">{product.uploadDate}</TableCell>
             <TableCell className="text-center lg:text-lg text-balance w-1/3">{product.name}</TableCell>
             <TableCell className="w-1/3">

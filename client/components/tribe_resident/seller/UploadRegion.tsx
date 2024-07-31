@@ -51,7 +51,7 @@ export const UploadRegion: React.FC<middleProps> = (prop) => {
       </div>
       {img && (
         <div className="col-span-4 flex justify-center">
-          <img src={img} className="max-h-[350px]" alt="uploaded" />
+          <img src={img} className="lg:max-h-[350px] max-h-[250px]" alt="uploaded" />
         </div>  
       )}
     </div>  

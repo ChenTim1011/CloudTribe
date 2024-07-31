@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTrashAlt } from '@fortawesome/free-solid-svg-icons';
 
-import CheckoutForm from "@/components/buyer/CheckoutForm";
+import CheckoutForm from "@/components/tribe_resident/buyer/CheckoutForm";
 
 type CartItem = {
   id: string;
