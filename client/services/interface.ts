@@ -37,5 +37,5 @@ export interface CartItem {
   price: Number
   quantity: Number
 }
-    
+ 
     

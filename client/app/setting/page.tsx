@@ -1,6 +1,8 @@
 'use client'
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { LOCATIONS } from "@/constants/constants"
+import UserService from '@/services/user/user'
+import { User } from '@/services/interface'
 import { Label } from '@/components/ui/label'
 import { Button } from '@/components/ui/button'
 import {
@@ -13,13 +15,35 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 export default function Page(){
-  const [selectedValue, setSelectedValue] = useState('empty')
+  const [selectedLocation, setSelectedLocation] = useState('empty')
+  const [originLocation, setOriginLocation] = useState('')
+  const [user, setUser] = useState<User>()
+  const [isUpdating, setisUpdating] = useState(false)
+  
+  useEffect(() => {
+    const _user = UserService.getLocalStorageUser()
+    setUser(_user)
+    setOriginLocation(_user.location)
+  }, [])
+  
+  const handleSaveButton = async() => {
+    if(selectedLocation != originLocation && user != undefined){
+      try{
+        const res = await UserService.update_nearest_location(user.id, selectedLocation)
+      }
+      catch(e){
+        console.log(e)
+      }
+        
+    }
+    setisUpdating(false)
+  }
   return(
     <div className="text-center">
-      <p>Setting</p>
-      <p>User</p>
+      <div className="h-5"/>
       <div className="grid gap-4 ">
-        <Select onValueChange={setSelectedValue}>
+        <p>{user?.name}的基本資料</p>
+        <Select onValueChange={setSelectedLocation}>
           <div className="grid grid-cols-4 mx-5">
             <div className="col-span-2 flex items-center text-left">
               <Label htmlFor="picture" className="text-center lg:text-2xl text-md">
@@ -27,8 +51,8 @@ export default function Page(){
               </Label>
             </div>
             <div className="col-span-2">
-              <SelectTrigger className="w-full" >
-                <SelectValue placeholder="未選擇" defaultValue='empty'/>
+              <SelectTrigger className="w-full" disabled={!isUpdating}>
+                <SelectValue placeholder={user?.location} defaultValue={user?.location}/>
               </SelectTrigger>
             </div>
           </div>
@@ -44,7 +68,14 @@ export default function Page(){
         
       </div>
 
-      <Button className="my-5">更改資訊</Button>
+      {!isUpdating && 
+      <Button className="my-5" onClick={() => setisUpdating(true)}>
+        更改資訊
+      </Button>}
+      {isUpdating && 
+      <Button className="my-5" onClick={handleSaveButton}>
+        儲存
+      </Button>}
     </div>
   )
 

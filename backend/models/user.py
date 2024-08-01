@@ -8,4 +8,6 @@ class User(BaseModel):
     name: str
     phone: str
     location: str
+class UpdateLocationRequest(BaseModel):
+    location: str
 

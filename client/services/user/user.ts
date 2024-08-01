@@ -1,5 +1,3 @@
-//not finish
-import { User } from '@/services/interface'
 class UserService {
   // Get user from local storage
   getLocalStorageUser = () => {
@@ -18,6 +16,20 @@ class UserService {
     } catch (e) {
       console.log(e)
     }  
+  }
+  async update_nearest_location(userId: string, location: string){
+    const res = await fetch(`/api/users/location/${userId}`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({location: location}),
+    });
+    const data = await res.json()
+    if(!res.ok)
+      throw new Error(`Error: ${data.detail}`)
+    return data
+
   }
 }
 export default new UserService()
