@@ -37,7 +37,7 @@ export default function Page(){
 
   return(
     <div>
-      <NavigationBar /> 
+      <NavigationBar/> 
       <Tabs defaultValue="on shelf">
         <TabsList className="w-full">
           <TabsTrigger value="on shelf" className="w-1/2">我的架上商品</TabsTrigger>

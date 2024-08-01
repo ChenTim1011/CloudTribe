@@ -42,6 +42,7 @@ const AuthComponent: React.FC<authProps> = (prop) => {
   )
 }
 
+
 const NavigationBar = () => {
   const components = [
     {title:"購買農產品", href:"/consumer"},

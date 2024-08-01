@@ -66,6 +66,12 @@ export default function Page() {
     }
   }
   const handleAddCart = async(produceId: Number) => {
+    if(user?.id == 'empty'){
+      setCartMessage("請先登入")
+      setTimeout(() => setCartMessage('empty'), 2500);
+      return
+    }
+    
     const inputElement = document.getElementById(`quantity-${produceId}`) as HTMLInputElement | null
     if(user != undefined && inputElement != undefined){
       let req: AddCartRequest = {
@@ -89,8 +95,6 @@ export default function Page() {
         setTimeout(() => setCartMessage('empty'), 2000);
       }  
     }
-      
-
   }
   const startIdx = (currentPage - 1) * ITEM_PER_PAGE;
   const endIdx = startIdx + ITEM_PER_PAGE;
