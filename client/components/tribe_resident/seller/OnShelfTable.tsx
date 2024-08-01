@@ -19,7 +19,6 @@ interface sellerProp {
 const OnShelfTable:React.FC<sellerProp> = (prop) => {
 
   return (
-
     <Table>
       <TableHeader>
         <TableRow className="flex flex-row w-screen">

@@ -1,85 +1,47 @@
-import React from "react"
+import React, { useEffect, useState } from "react"
+import { User, BasicProductInfo } from '@/services/interface'
+import { Button } from '@/components/ui/button'
+
 import {
-    Table,
-    TableBody,
-    TableCell,
-    TableFooter,
-    TableHead,
-    TableHeader,
-    TableRow,
-  } from "@/components/ui/table"
-  
-  const invoices = [
-    {
-      invoice: "INV001",
-      paymentStatus: "Paid",
-      totalAmount: "$250.00",
-      paymentMethod: "Credit Card",
-    },
-    {
-      invoice: "INV002",
-      paymentStatus: "Pending",
-      totalAmount: "$150.00",
-      paymentMethod: "PayPal",
-    },
-    {
-      invoice: "INV003",
-      paymentStatus: "Unpaid",
-      totalAmount: "$350.00",
-      paymentMethod: "Bank Transfer",
-    },
-    {
-      invoice: "INV004",
-      paymentStatus: "Paid",
-      totalAmount: "$450.00",
-      paymentMethod: "Credit Card",
-    },
-    {
-      invoice: "INV005",
-      paymentStatus: "Paid",
-      totalAmount: "$550.00",
-      paymentMethod: "PayPal",
-    },
-    {
-      invoice: "INV006",
-      paymentStatus: "Pending",
-      totalAmount: "$200.00",
-      paymentMethod: "Bank Transfer",
-    },
-    {
-      invoice: "INV007",
-      paymentStatus: "Unpaid",
-      totalAmount: "$300.00",
-      paymentMethod: "Credit Card",
-    },
-  ]
-  
-  export default function HistoryProductTable() {
-    return (
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead className="text-center">商品名稱</TableHead>
-            <TableHead className="text-center">售出數量</TableHead>
-            <TableHead className="text-center">售出金額</TableHead>
+  Table,
+  TableBody,
+  TableCell,
+  TableFooter,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table"
+
+
+interface sellerProp {
+  products: BasicProductInfo[]
+}
+const OnShelfTable:React.FC<sellerProp> = (prop) => {
+
+  return (
+    <Table>
+      <TableHeader>
+        <TableRow className="flex flex-row w-screen">
+          <TableHead className="text-center text-lg w-1/3">上架日期</TableHead>
+          <TableHead className="text-center text-lg w-1/3">商品名稱</TableHead>
+          <TableHead className="text-center text-lg w-1/3">詳細資訊</TableHead>
+        </TableRow>
+      </TableHeader>
+      <TableBody> 
+        {prop.products.map((product) => (
+          <TableRow key={product.id.toString()} className="flex flex-row items-center">
+            <TableCell className="text-center lg:text-lg text-balance w-1/3">{product.uploadDate}</TableCell>
+            <TableCell className="text-center lg:text-lg text-balance w-1/3">{product.name}</TableCell>
+            <TableCell className="w-1/3">
+              <Button className='items-center'>
+                查看 
+              </Button>
+            </TableCell>
           </TableRow>
-        </TableHeader>
-        <TableBody>
-          {invoices.map((invoice) => (
-            <TableRow key={invoice.invoice}>
-              <TableCell>{invoice.invoice}</TableCell>
-              <TableCell>{invoice.paymentStatus}</TableCell>
-              <TableCell className="text-right">{invoice.totalAmount}</TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-        <TableFooter>
-          <TableRow>
-            <TableCell colSpan={3}>售出商品總金額</TableCell>
-            <TableCell className="text-center">{invoices.length}</TableCell>
-          </TableRow>
-        </TableFooter>
-      </Table>
-    )
-  }
-   
+        ))}
+      </TableBody>
+      
+    </Table>
+  )
+}
+export default OnShelfTable

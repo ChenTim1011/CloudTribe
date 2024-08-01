@@ -14,6 +14,7 @@ export default function Page(){
   const [user, setUser] = useState<User>()
   const [products, setProducts] = useState<BasicProductInfo[]>([])
   const router = useRouter()
+  const today = new Date()
   
   useEffect(() => {
     const _user = UseService.getLocalStorageUser()
@@ -27,8 +28,8 @@ export default function Page(){
 
   const get_products = async(user:User) => {
     if(user != undefined){
-      const res = await SellerService.get_upload_product(user.id)
-      var _products: BasicProductInfo[] = res
+      const res_products = await SellerService.get_upload_product(user.id)
+      var _products: BasicProductInfo[] = res_products
       setProducts(_products)
     }
       
@@ -43,11 +44,11 @@ export default function Page(){
           <TabsTrigger value="history" className="w-1/2">我的歷史商品</TabsTrigger>
         </TabsList>
         <TabsContent value="on shelf" className="justify-items-center text-center" >
-          <OnShelfTable products={products}/>
+          <OnShelfTable products={products.filter((product) => product.offShelfDate >= today.toISOString().split('T')[0])}/>
           <SellerDialog/>
         </TabsContent>
         <TabsContent value="history" className="justify-items-center text-center">
-          <HistoryProductTable/>
+          <HistoryProductTable products={products.filter((product) => product.offShelfDate < today.toISOString().split('T')[0])}/>
         </TabsContent>    
       </Tabs>
     </div>
