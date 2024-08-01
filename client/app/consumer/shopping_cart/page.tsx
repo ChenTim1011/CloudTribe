@@ -17,7 +17,7 @@ export default function ShoppingCart(){
   const router = useRouter()
   useEffect(()=>{
     const _user = UserService.getLocalStorageUser()
-    if(_user == null){
+    if(_user.name == 'empty'){
       router.replace('/login')
     }   
     setUser(_user)
