@@ -5,7 +5,7 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { Input } from "@/components/ui/input"
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTrashAlt } from '@fortawesome/free-solid-svg-icons';
-import NavigationBar from'@/components/NavigationBar'
+import { NavigationBar } from'@/components/NavigationBar'
 import ConsumerService from '@/services/consumer/consumer'
 import UserService from '@/services/user/user'
 import { User, CartItem } from '@/services/interface'

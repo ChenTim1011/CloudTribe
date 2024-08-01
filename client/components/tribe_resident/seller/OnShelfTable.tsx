@@ -16,8 +16,7 @@ import {
 interface sellerProp {
   products: BasicProductInfo[]
 }
-const OnShelfTable:React.FC<sellerProp> = (prop) => {
-
+export const OnShelfTable:React.FC<sellerProp> = (prop) => {
   return (
     <Table>
       <TableHeader>
@@ -44,4 +43,3 @@ const OnShelfTable:React.FC<sellerProp> = (prop) => {
     </Table>
   )
 }
-export default OnShelfTable

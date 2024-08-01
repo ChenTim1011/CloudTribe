@@ -32,17 +32,21 @@ export const CATEGORIES = [
     name: "其他"
   },
 ]
-export const TRIBE_PLACES = [
+export const LOCATIONS = [
   {
     id:'place-1',
-    value:'山上第一集散地'
+    value:'部落地點一'
   },
   {
     id:'place-2',
-    value:'山上第二集散地'
+    value:'部落地點二'
   },
   {
     id:'place-3',
-    value:'山上第三集散地'
+    value:'部落地點三'
+  },
+  {
+    id:'place-4',
+    value:'山下地點一'
   }
 ]

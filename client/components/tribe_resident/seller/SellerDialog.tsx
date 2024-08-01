@@ -16,9 +16,9 @@ import {
   DialogTrigger,
   DialogClose
 } from "@/components/ui/dialog"
-import { DatePicker } from "./DatePicker";
-import { CategorySelector } from "./CategorySelector";
-import { UploadRegion } from "./UploadRegion"
+import { DatePicker } from "@/components/tribe_resident/seller/DatePicker";
+import { CategorySelector } from "@/components/tribe_resident/seller/CategorySelector";
+import { UploadRegion } from "@/components/tribe_resident/seller/UploadRegion"
 
 interface SellerDialogProps {
   userInfo: User

@@ -1,10 +1,10 @@
 'use client'
 import React, { useState, useEffect } from "react"
 import { SellerDialog } from "@/components/tribe_resident/seller/SellerDialog"
-import OnShelfTable from "@/components/tribe_resident/seller/OnShelfTable"
-import HistoryProductTable from "@/components/tribe_resident/seller/HistoryProductTable"
+import { OnShelfTable } from "@/components/tribe_resident/seller/OnShelfTable"
+import { HistoryProductTable } from "@/components/tribe_resident/seller/HistoryProductTable"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import NavigationBar from "@/components/NavigationBar"
+import { NavigationBar } from "@/components/NavigationBar"
 import UseService from "@/services/user/user"
 import SellerService from "@/services/seller/seller"
 import { User, BasicProductInfo } from '@/services/interface'

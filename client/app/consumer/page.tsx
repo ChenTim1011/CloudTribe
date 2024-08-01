@@ -19,7 +19,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import NavigationBar from "@/components/NavigationBar";
+import { NavigationBar } from "@/components/NavigationBar";
 import PaginationDemo from "@/components/tribe_resident/buyer/PaginationDemo";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 

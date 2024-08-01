@@ -7,6 +7,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faMountain, faGear } from '@fortawesome/free-solid-svg-icons';
 import Link from 'next/link';
 import { useAuth } from '@/components/lib/AuthProvider';
+import { Button } from '@/components/ui/button'
 import {
   NavigationMenu,
   NavigationMenuContent,
@@ -37,13 +38,15 @@ const AuthComponent: React.FC<authProps> = (prop) => {
         </MenubarTrigger>
       </MenubarMenu>}
       {prop.userInfo?.id != 'empty' &&
-      <FontAwesomeIcon icon={faGear}/>}
+     
+        <Link href='/setting'><FontAwesomeIcon icon={faGear}/></Link>
+      }
     </div>
   )
 }
 
 
-const NavigationBar = () => {
+export const NavigationBar = () => {
   const components = [
     {title:"購買農產品", href:"/consumer"},
     {title:"上架農產品", href:"/tribe_resident/seller"},
@@ -141,4 +144,3 @@ const NavigationBar = () => {
   }
 };
 
-export default NavigationBar;
