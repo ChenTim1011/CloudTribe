@@ -20,7 +20,10 @@ import { DatePicker } from "./DatePicker";
 import { CategorySelector } from "./CategorySelector";
 import { UploadRegion } from "./UploadRegion"
 
-export default function SellerDialog() {
+interface SellerDialogProps {
+  userInfo: User
+}
+export const SellerDialog:React.FC<SellerDialogProps> = (prop) => {
   const [imgBase64, setImgBase64] = useState('')
   const [date, setDate] = useState<Date>()
   const [itemName, setItemName] = useState('')
@@ -34,17 +37,7 @@ export default function SellerDialog() {
   const [user, setUser] = useState<User>()
   const [isUploading, setIsUploading] = useState(false)
 
-  useEffect(() => {getUser()}, [])
-
-  const getUser = () => {
-    try {
-      var _user = localStorage.getItem('@user')
-      var checkedUser = _user ? JSON.parse(_user) : { id: null, name: '', phone: '' };
-      setUser(checkedUser)
-    } catch (e) {
-      console.log(e)
-    }  
-  }
+  useEffect(() => {setUser(prop.userInfo)}, [])
 
   const handleConfirm = async() =>{
     //get image URL

@@ -1,6 +1,6 @@
 'use client'
 import React, { useState, useEffect } from "react"
-import SellerDialog from "@/components/tribe_resident/seller/SellerDialog"
+import { SellerDialog } from "@/components/tribe_resident/seller/SellerDialog"
 import OnShelfTable from "@/components/tribe_resident/seller/OnShelfTable"
 import HistoryProductTable from "@/components/tribe_resident/seller/HistoryProductTable"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -44,7 +44,7 @@ export default function Page(){
         </TabsList>
         <TabsContent value="on shelf" className="justify-items-center text-center" >
           <OnShelfTable products={products.filter((product) => product.offShelfDate >= today.toISOString().split('T')[0])}/>
-          <SellerDialog/>
+          <SellerDialog userInfo={user != undefined? user:{id:'empty', name:'empty', phone:'empty'}}/>
         </TabsContent>
         <TabsContent value="history" className="justify-items-center text-center">
           <HistoryProductTable products={products.filter((product) => product.offShelfDate < today.toISOString().split('T')[0])}/>
