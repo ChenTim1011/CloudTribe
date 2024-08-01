@@ -10,6 +10,7 @@ import ConsumerService from '@/services/consumer/consumer'
 import UserService from '@/services/user/user'
 import { User, CartItem } from '@/services/interface'
 import { useRouter } from 'next/navigation'
+import Link from "next/link"
 
 export default function ShoppingCart(){
   const [user, setUser] = useState<User>()
@@ -32,12 +33,28 @@ export default function ShoppingCart(){
     catch(e){
       console.log(e)
     }
+  }
+  const handleDeleteButton = (itemId: Number) => {
+    try {
+      const res = ConsumerService.delete_shopping_cart_item(itemId)
+      setCart(cart.filter((item) => item.id != itemId))
+    }
+    catch(e){
+      console.log(e)
+    } 
 
   }
   return(
     <div>
       <NavigationBar/>
-      <Button className="w-1/5 lg:m-8 m-4">前往結帳</Button>
+      <div className="flex flex-row justify-between">
+        <Button className="w-fit lg:m-8 m-4 px-4">
+          <Link href="/consumer">
+            返回商品頁面
+          </Link>
+        </Button>
+        <Button className="w-fit lg:m-8 m-4 px-4">前往結帳</Button>
+      </div>
       <div className="grid lg:grid-cols-3 grid-cols-1 items-center">
         {cart.map((item)=>
           <div key={item.id.toString()} className="flex flex-row w-full lg:h-[150px] h-[100px] items-center text-center space-x-2 p-4 lg:border-4">
@@ -45,15 +62,24 @@ export default function ShoppingCart(){
               <Checkbox className="lg:h-6 lg:w-6"/>
             </div>
             <div className="w-3/12">
-            <img src={item.imgUrl}/>
+              <img src={item.imgUrl} className="lg:h-[150px] h-[100px] w-full py-2"/>
             </div> 
             <div className="flex flex-col w-5/12 text-center">
               <p className="lg:text-2xl line-clamp-2 text-pretty">{item.name}</p>
               <p className="lg:text-lg text-red-600">${item.price.toString()}</p>
               
             </div>
-            <Input defaultValue={item.quantity.toString()} className="w-2/12 text-center"/>
-            <Button variant="outline" className="bg-black text-white w-1/12">
+            <Input
+              type="number" 
+              id={`quantity-${item.id}`}
+              className="w-2/12 text-center lg:h-8 lg:text-lg"
+              defaultValue={item.quantity.toString()} 
+              min={1}/>
+            <Button 
+              variant="outline" 
+              id={`delete-${item.id}`}
+              className="bg-black text-white w-1/12"
+              onClick={() => handleDeleteButton(item.id)}>
               <FontAwesomeIcon icon={faTrashAlt} className="text-white"/>
             </Button>
           </div>
