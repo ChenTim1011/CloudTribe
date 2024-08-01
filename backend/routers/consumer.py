@@ -138,5 +138,32 @@ async def get_seller_item(userId: str, conn: Connection=Depends(get_db)):
     finally:
         cur.close()
 
+@router.delete('/cart/{itemId}')
+async def delete_cart_item(itemId: int, conn: Connection=Depends(get_db)):
+    """
+    Delete cart item
+
+    Args:
+        itemId(int):The item id
+        conn(Connection): The database connection.
+
+    Returns:
+        Dict: Success message.
+    """
+    cur = conn.cursor()
+    try:
+        logging.info("Delete cart item with id %s.", itemId)
+        cur.execute(
+            """DELETE FROM agricultural_shopping_cart
+            WHERE id = %s""", (itemId, ))
+        conn.commit()
+        return {"success":"delete"}
+    except Exception as e:
+        conn.rollback()
+        logging.error("Error occurred: %s", str(e))
+        raise HTTPException(status_code=500, detail=str(e)) from e
+    finally:
+        cur.close()
+
 
 

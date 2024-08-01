@@ -86,3 +86,4 @@ CREATE TABLE agricultural_shopping_cart (
     status VARCHAR(5) NOT NULL --status:已送單/未送單
 )
 
+

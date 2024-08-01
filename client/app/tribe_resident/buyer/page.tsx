@@ -7,7 +7,7 @@ import ItemList from "@/components/tribe_resident/buyer/ItemList";
 import CartModal from "@/components/tribe_resident/buyer/CartModal";
 import AddItemForm from "@/components/tribe_resident/buyer/AddItemForm"; 
 import "@/app/styles/globals.css";
-import NavigationBar from "@/components/NavigationBar"; 
+import { NavigationBar } from "@/components/NavigationBar"; 
 import { Button } from "@/components/ui/button";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faShoppingCart, faArrowLeft } from '@fortawesome/free-solid-svg-icons';

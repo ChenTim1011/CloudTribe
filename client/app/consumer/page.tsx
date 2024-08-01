@@ -19,7 +19,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import NavigationBar from "@/components/NavigationBar";
+import { NavigationBar } from "@/components/NavigationBar";
 import PaginationDemo from "@/components/tribe_resident/buyer/PaginationDemo";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 
@@ -66,6 +66,12 @@ export default function Page() {
     }
   }
   const handleAddCart = async(produceId: Number) => {
+    if(user?.id == 'empty'){
+      setCartMessage("請先登入")
+      setTimeout(() => setCartMessage('empty'), 2500);
+      return
+    }
+    
     const inputElement = document.getElementById(`quantity-${produceId}`) as HTMLInputElement | null
     if(user != undefined && inputElement != undefined){
       let req: AddCartRequest = {
@@ -89,8 +95,6 @@ export default function Page() {
         setTimeout(() => setCartMessage('empty'), 2000);
       }  
     }
-      
-
   }
   const startIdx = (currentPage - 1) * ITEM_PER_PAGE;
   const endIdx = startIdx + ITEM_PER_PAGE;
@@ -135,7 +139,7 @@ export default function Page() {
         </div>
         <Button 
           variant="outline" 
-          className="absolute right-1 top-1 lg:px-4 lg:py-2 p-1 lg:text-2xl text-sm font-bold border-2 border-black-500 text-black-500 hover:bg-blue-500 hover:text-white">
+          className="absolute right-1 top-1 lg:px-4 lg:py-2 p-1 lg:text-2xl text-sm font-bold border-2 border-black-500 text-black-500 hover:bg-black hover:text-white">
           <Link href="/consumer/shopping_cart">
             <FontAwesomeIcon icon={faShoppingCart} className="lg:mr-2"/>
             購物車
@@ -160,16 +164,16 @@ export default function Page() {
             <div className="flex flex-col items-center space-y-1">
               <p className="lg:text-2xl text-sm">{product.name}</p>
               <p className="lg:text-3xl text-md text-red-600">${product.price}</p>
-              <div className="flex flex-row space-x-2">
+              <div className="flex flex-row space-x-2 items-center text-center">
                 <label htmlFor={`quantity-${product.id}`} className="lg:text-2xl text-sm">購買數量:</label>
-                <input
-                    type="number"
-                    id={`quantity-${product.id}`}
-                    className="w-16 text-center border rounded"
-                    defaultValue={1}
-                    min={1}
-                  />
-                </div>
+                <Input
+                  type="number"
+                  id={`quantity-${product.id}`}
+                  className="w-16 text-center border max-h-fit lg:text-lg text-sm h-4 lg:h-10"
+                  defaultValue={1}
+                  min={1}
+                />
+              </div>
               <Button 
                 className="bg-black text-white lg:h-10 h-6 lg:w-1/2 w-2/3"
                 onClick={() => handleAddCart(product.id)}>

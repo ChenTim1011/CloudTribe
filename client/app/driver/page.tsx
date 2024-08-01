@@ -5,7 +5,7 @@ import DriverForm from "@/components/driver/DriverForm";
 import LoginForm from "@/components/driver/LoginForm";
 import OrderListWithPagination from "@/components/driver/OrderListWithPagination";
 import DriverOrdersPage from "@/components/driver/DriverOrdersPage";
-import NavigationBar from "@/components/NavigationBar";
+import { NavigationBar } from "@/components/NavigationBar";
 import { Button } from "@/components/ui/button";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowLeft } from '@fortawesome/free-solid-svg-icons';

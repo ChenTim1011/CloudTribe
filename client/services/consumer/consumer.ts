@@ -44,5 +44,18 @@ class ConsumerService{
     }
     return data
   }
+  async delete_shopping_cart_item(itemId: Number){
+    const res = await fetch(`/api/consumer/cart/${itemId}`,{
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+    })
+    const data = await res.json()
+    if(!res.ok){
+      throw new Error(`Error: ${data.detail}`)
+    }
+    return data
+  }
 }
 export default new ConsumerService()

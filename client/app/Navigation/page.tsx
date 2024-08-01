@@ -1,6 +1,6 @@
 // components/navigation/Navigation.tsx
 "use client";
-import NavigationBar from "@/components/NavigationBar";
+import { NavigationBar } from "@/components/NavigationBar";
 import MapComponent from "@/components/navigation/MapComponent";
 
 const Navigation: React.FC = () => {

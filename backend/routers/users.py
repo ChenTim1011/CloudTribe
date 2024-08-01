@@ -15,7 +15,7 @@ Endpoints:
 from fastapi import APIRouter, HTTPException, Depends
 from pydantic import BaseModel
 from psycopg2.extensions import connection as Connection
-from backend.models.models import User
+from backend.models.user import User, UpdateLocationRequest
 from backend.database import get_db_connection
 import logging
 
@@ -37,7 +37,7 @@ def get_db():
     finally:
         conn.close()
 
-@router.post("/login")
+@router.post("/login", response_model=User)
 async def login(request: LoginRequest, conn: Connection = Depends(get_db)):
     """
     Login user by phone number.
@@ -53,12 +53,12 @@ async def login(request: LoginRequest, conn: Connection = Depends(get_db)):
     try:
         phone = request.phone
         logging.info("Logging in user with phone number %s", phone)
-        cur.execute("SELECT id, name, phone FROM users WHERE phone = %s", (phone,))
+        cur.execute("SELECT * FROM users WHERE phone = %s", (phone,))
         user = cur.fetchone()
         if not user:
             logging.warning("User with phone number %s not found", phone)
             raise HTTPException(status_code=404, detail="User not found")
-        return {"id": user[0], "name": user[1], "phone": user[2]}
+        return {"id": user[0], "name": user[1], "phone": user[2], "location":user[3]}
     except Exception as e:
         logging.error("Error occurred during login: %s", str(e))
         raise HTTPException(status_code=500, detail=str(e)) from e
@@ -121,8 +121,40 @@ async def get_user(user_id: int, conn: Connection = Depends(get_db)):
         user = cur.fetchone()
         if not user:
             raise HTTPException(status_code=404, detail="User not found")
-        return {"id": user[0], "name": user[1], "phone": user[2]}
+        return {"id": user[0], "name": user[1], "phone": user[2], "location":user[3]}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e)) from e
     finally:
         cur.close()
+
+@router.patch("/location/{userId}")
+async def update_nearest_location(userId: str, req: UpdateLocationRequest, conn: Connection = Depends(get_db)):
+    """
+    Update user information by userId.
+
+    Args:
+        userId (str): The user's id.
+        location (str): The updated user nearest location.
+        conn (Connection): The database connection.
+
+    Returns:
+        dict: A success message.
+    """
+    cur = conn.cursor()
+    try:
+        cur.execute(
+            "UPDATE users SET location = %s WHERE id = %s",
+            ( req.location, userId )
+        )
+        if cur.rowcount == 0:
+            raise HTTPException(status_code=404, detail="User not found")
+        
+        conn.commit()
+        return {"status": "success"}
+    except Exception as e:
+        conn.rollback()
+        logging.error("Error updating user nearest location: %s", str(e))
+        raise HTTPException(status_code=500, detail=str(e)) from e
+    finally:
+        cur.close()
+

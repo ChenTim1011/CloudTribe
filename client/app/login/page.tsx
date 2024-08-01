@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import NavigationBar from "@/components/NavigationBar";
+import { NavigationBar } from "@/components/NavigationBar";
 import { Button } from "@/components/ui/button";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowLeft } from '@fortawesome/free-solid-svg-icons';
