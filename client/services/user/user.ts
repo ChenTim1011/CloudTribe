@@ -5,7 +5,7 @@ class UserService {
   getLocalStorageUser = () => {
     try {
       var _user = localStorage.getItem('@user')
-      var checkedUser = _user ? JSON.parse(_user) : { id: '', name: '', phone: '' };  
+      var checkedUser = _user ? JSON.parse(_user) : { id: 'empty', name: 'empty', phone: 'empty' };  
     } catch (e) {
       console.log(e)
     }  
@@ -14,7 +14,7 @@ class UserService {
   //Clear user from local storage when log out
   emptyLocalStorageUser = () => {
     try {
-      localStorage.setItem('@user', JSON.stringify({ id: '', name: '', phone: '' }))
+      localStorage.setItem('@user', JSON.stringify({ id: 'empty', name: 'empty', phone: 'empty' }))
     } catch (e) {
       console.log(e)
     }  

@@ -1,11 +1,10 @@
 'use client';
-
 import React, { useState, useEffect } from 'react';
-import  UserService from '@/services/user/user'
+import UserService from '@/services/user/user'
+import { User } from '@/services/interface'
 import { Menubar, MenubarContent, MenubarItem, MenubarMenu, MenubarTrigger, MenubarSeparator } from "@/components/ui/menubar";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faMountain } from '@fortawesome/free-solid-svg-icons';
-import { Button } from "@/components/ui/button";
+import { faMountain, faGear } from '@fortawesome/free-solid-svg-icons';
 import Link from 'next/link';
 import { useAuth } from '@/components/lib/AuthProvider';
 import {
@@ -19,19 +18,40 @@ import {
   NavigationMenuViewport,
 } from "@/components/ui/navigation-menu"
 
+interface authProps {
+  userInfo: User | undefined
+} 
+const AuthComponent: React.FC<authProps> = (prop) => {
+  return(
+    <div className='flex flex-row items-center'>
+      {prop.userInfo?.id == 'empty' &&
+      <MenubarMenu>
+        <MenubarTrigger>
+          <Link href="/login">登入</Link>
+        </MenubarTrigger>
+      </MenubarMenu>}
+      {prop.userInfo?.id != 'empty' &&
+      <MenubarMenu>
+        <MenubarTrigger>
+          <Link href="/login" onClick={() => UserService.emptyLocalStorageUser()}>登出</Link>
+        </MenubarTrigger>
+      </MenubarMenu>}
+      {prop.userInfo?.id != 'empty' &&
+      <FontAwesomeIcon icon={faGear}/>}
+    </div>
+  )
+}
 
 const NavigationBar = () => {
-  const components=[
+  const components = [
     {title:"購買農產品", href:"/consumer"},
     {title:"上架農產品", href:"/tribe_resident/seller"},
     {title:"購買生活用品", href:"/tribe_resident/buyer"},
     {title:"司機專區", href:"/driver"},
     {title:"查看表單", href:"/viewform"},  
   ]
+  const [user, setUser] = useState<User>()
 
-  const handleLogout = ()=>{
-    UserService.emptyLocalStorageUser()
-  }
   
   //const { user, logout } = useAuth();
   //console.log('NavigationBar user:', user); 
@@ -49,11 +69,14 @@ const NavigationBar = () => {
     }
   
     useEffect(()=>{ 
-        window.addEventListener('resize',handleRWD);
-        handleRWD();
-        return(()=>{
-            window.removeEventListener('resize',handleRWD);
-        })
+      const _user = UserService.getLocalStorageUser()
+      setUser(_user)
+
+      window.addEventListener('resize',handleRWD);
+      handleRWD();
+      return(()=>{
+          window.removeEventListener('resize',handleRWD);
+      })
     },[]);
   
     return device;
@@ -76,21 +99,6 @@ const NavigationBar = () => {
           ))}
           
         </div>
-        <div className='flex flex-row'>
-        <MenubarMenu>
-            <MenubarTrigger>
-              <Link href="/login">登入</Link>
-            </MenubarTrigger>
-          </MenubarMenu>
-          <MenubarMenu>
-            <MenubarTrigger>
-              <Link href="/login" onClick={handleLogout}>登出</Link>
-            </MenubarTrigger>
-          </MenubarMenu>
-          
-        </div>
-
-    
         {/*<div className="flex items-center space-x-4">
           {user ? (
             <>
@@ -101,12 +109,13 @@ const NavigationBar = () => {
             <Link href="/login">登入</Link>
           )}
         </div>*/}
+        <AuthComponent userInfo={user}/>
       </Menubar>
     );
   }
   else{
     return(
-      <Menubar className="px-2 py-2 bg-[#E0EBAF] text-black w-full ">
+      <Menubar className="px-2 py-2 justify-between bg-[#E0EBAF] text-black w-full ">
         <div className="flex items-center space-x-1">
           <FontAwesomeIcon icon={faMountain} className="text-white h-4 w-4" />
           <Link href="/" className="font-bold text-md">順路經濟平台</Link>
@@ -125,21 +134,8 @@ const NavigationBar = () => {
             </NavigationMenuItem>
           </NavigationMenuList>
         </NavigationMenu>
-
-        <div className='flex flex-row'>
-        <MenubarMenu>
-            <MenubarTrigger>
-              <Link href="/login">登入</Link>
-            </MenubarTrigger>
-          </MenubarMenu>
-          <MenubarMenu>
-            <MenubarTrigger>
-              <Link href="/login">登出</Link>
-            </MenubarTrigger>
-          </MenubarMenu>          
-        </div>
+        <AuthComponent userInfo={user}/>
       </Menubar>
-
     )
   }
 };
