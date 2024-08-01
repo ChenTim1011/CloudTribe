@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react'
 import { LOCATIONS } from "@/constants/constants"
 import UserService from '@/services/user/user'
+import { NavigationBar } from '@/components/NavigationBar'
 import { User } from '@/services/interface'
 import { Label } from '@/components/ui/label'
 import { Button } from '@/components/ui/button'
@@ -22,6 +23,7 @@ export default function Page(){
   
   useEffect(() => {
     const _user = UserService.getLocalStorageUser()
+    console.log('location:', _user.location)
     setUser(_user)
     setOriginLocation(_user.location)
   }, [])
@@ -30,6 +32,7 @@ export default function Page(){
     if(selectedLocation != originLocation && user != undefined){
       try{
         const res = await UserService.update_nearest_location(user.id, selectedLocation)
+        localStorage.setItem("@user", JSON.stringify({...user, location:selectedLocation}));
       }
       catch(e){
         console.log(e)
@@ -40,6 +43,7 @@ export default function Page(){
   }
   return(
     <div className="text-center">
+      <NavigationBar/>
       <div className="h-5"/>
       <div className="grid gap-4 ">
         <p>{user?.name}的基本資料</p>
@@ -52,7 +56,7 @@ export default function Page(){
             </div>
             <div className="col-span-2">
               <SelectTrigger className="w-full" disabled={!isUpdating}>
-                <SelectValue placeholder={user?.location} defaultValue={user?.location}/>
+                <SelectValue placeholder={user?.location}/>
               </SelectTrigger>
             </div>
           </div>

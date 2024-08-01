@@ -1,6 +1,7 @@
 'use client'
 import React, { useState, useEffect } from "react";
 import { User, UploadItem } from '@/services/interface'
+import UserService from '@/services/user/user'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
@@ -20,10 +21,8 @@ import { DatePicker } from "@/components/tribe_resident/seller/DatePicker";
 import { CategorySelector } from "@/components/tribe_resident/seller/CategorySelector";
 import { UploadRegion } from "@/components/tribe_resident/seller/UploadRegion"
 
-interface SellerDialogProps {
-  userInfo: User
-}
-export const SellerDialog:React.FC<SellerDialogProps> = (prop) => {
+
+export const SellerDialog = () => {
   const [imgBase64, setImgBase64] = useState('')
   const [date, setDate] = useState<Date>()
   const [itemName, setItemName] = useState('')
@@ -36,8 +35,14 @@ export const SellerDialog:React.FC<SellerDialogProps> = (prop) => {
   const [selectedCategory, setSelectedCategory] = useState('')
   const [user, setUser] = useState<User>()
   const [isUploading, setIsUploading] = useState(false)
+  const [locationError, setLocationError] = useState('empty')
 
-  useEffect(() => {setUser(prop.userInfo)}, [])
+  useEffect(() => {
+    const _user = UserService.getLocalStorageUser()
+    setUser(_user)
+    if(_user.location == '未選擇'){
+      setLocationError('請先點擊右上角的標誌來設定出貨物品放置地點')}
+  }, [])
 
   const handleConfirm = async() =>{
     //get image URL
@@ -110,15 +115,23 @@ export const SellerDialog:React.FC<SellerDialogProps> = (prop) => {
   }
 
   return (
+    <div>
+      {locationError != 'empty' && (
+        <Alert className="bg-red-500 text-white w-1/2">
+          <AlertDescription>{locationError}</AlertDescription>
+        </Alert>
+      )}
     <Dialog>
       <DialogTrigger asChild>
         <Button 
           variant="outline" 
           className="bg-black text-white w-1/2 bottom-0 fixed left-1/4 my-4"
+          disabled={locationError != 'empty'? true:false}
           onClick={handleAddItem}>
             新增商品
         </Button>
       </DialogTrigger>
+
       <DialogContent className="lg:max-w-[800px] max-w-[400px] justify-center max-h-[1000px]">
         <DialogHeader>
           <DialogTitle className="lg:text-3xl text-2xl">請輸入上架商品資訊</DialogTitle>
@@ -188,6 +201,7 @@ export const SellerDialog:React.FC<SellerDialogProps> = (prop) => {
         </DialogFooter>} 
       </DialogContent>
     </Dialog>
+    </div>
   )
 }
 

@@ -131,7 +131,7 @@ export const NavigationBar = () => {
               <NavigationMenuContent>
                 <ul className="grid w-full gap-3 p-4">
                   {components.map((component) => (
-                    <Link key={component.title} href={component.href}>{component.title}</Link>
+                    <Link key={component.title} href={component.href} onClick={() => {window.location.href = `${component.href}`}}>{component.title}</Link>
                   ))}
                 </ul>
               </NavigationMenuContent>
