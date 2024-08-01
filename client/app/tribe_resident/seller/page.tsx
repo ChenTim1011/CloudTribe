@@ -44,7 +44,7 @@ export default function Page(){
         </TabsList>
         <TabsContent value="on shelf" className="justify-items-center text-center" >
           <OnShelfTable products={products.filter((product) => product.offShelfDate >= today.toISOString().split('T')[0])}/>
-          <SellerDialog userInfo={user != undefined? user:{id:'empty', name:'empty', phone:'empty'}}/>
+          <SellerDialog userInfo={user != undefined? user:{id:'empty', name:'empty', phone:'empty', location:'empty'}}/>
         </TabsContent>
         <TabsContent value="history" className="justify-items-center text-center">
           <HistoryProductTable products={products.filter((product) => product.offShelfDate < today.toISOString().split('T')[0])}/>

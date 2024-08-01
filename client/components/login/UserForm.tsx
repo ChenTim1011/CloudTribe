@@ -55,7 +55,7 @@ export function UserForm() {
       if (response.ok) {
         const data = await response.json();
         console.log("Setting user:", data);
-        setUser({ id: data.id, name: data.name, phone: data.phone });
+        setUser({ id: data.id, name: data.name, phone: data.phone, location:data.location });
         setSuccessMessage('註冊成功');
       } else if (response.status === 409) {
         setErrorMessage('電話號碼已經存在');
@@ -91,9 +91,9 @@ export function UserForm() {
       if (response.ok) {
         const data = await response.json();
         console.log("Setting user:", data);
-        setUser({ id: data.id, name: data.name, phone: data.phone });
+        setUser({ id: data.id, name: data.name, phone: data.phone, location:data.location });
         //add
-        const userData: User = { id: data.id, name: data.name, phone: data.phone };
+        const userData: User = { id: data.id, name: data.name, phone: data.phone, location: data.location };
         try {
           localStorage.setItem('@user', JSON.stringify(userData));
         } catch (e) {

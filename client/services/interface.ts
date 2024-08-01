@@ -2,6 +2,7 @@ export interface User {
   id: string
   name: string
   phone: string 
+  location: string
 };
 export interface UploadItem {
   name: string
@@ -35,7 +36,6 @@ export interface CartItem {
   imgUrl: string
   price: Number
   quantity: Number
-
 }
     
     
