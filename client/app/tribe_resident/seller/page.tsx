@@ -19,8 +19,7 @@ export default function Page(){
   useEffect(() => {
     const _user = UseService.getLocalStorageUser()
     setUser(_user)
-    console.log('seller_user', _user)
-    if(_user == null){
+    if(_user.name == 'empty'){
       router.replace('/login')
     }   
     get_products(_user)
