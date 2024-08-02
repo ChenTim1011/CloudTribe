@@ -89,8 +89,8 @@ async def create_user(user: User, conn: Connection = Depends(get_db)):
         
         logging.info("Inserting new user with name %s and phone %s", user.name, user.phone)
         cur.execute(
-            "INSERT INTO users (name, phone) VALUES (%s, %s) RETURNING id",
-            (user.name, user.phone)
+            "INSERT INTO users (name, phone, location) VALUES (%s, %s, %s) RETURNING id",
+            (user.name, user.phone, '未選擇')
         )
         user_id = cur.fetchone()[0]
         conn.commit()
