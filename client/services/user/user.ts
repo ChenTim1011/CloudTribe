@@ -3,7 +3,7 @@ class UserService {
   getLocalStorageUser = () => {
     try {
       var _user = localStorage.getItem('@user')
-      var checkedUser = _user ? JSON.parse(_user) : { id: 'empty', name: 'empty', phone: 'empty', location:'empty' };  
+      var checkedUser = _user ? JSON.parse(_user) : { id: 0, name: 'empty', phone: 'empty', location:'empty' };  
     } catch (e) {
       console.log(e)
     }  
@@ -12,12 +12,12 @@ class UserService {
   //Clear user from local storage when log out
   emptyLocalStorageUser = () => {
     try {
-      localStorage.setItem('@user', JSON.stringify({ id: 'empty', name: 'empty', phone: 'empty', location:'empty' }))
+      localStorage.setItem('@user', JSON.stringify({ id: 0, name: 'empty', phone: 'empty', location:'empty' }))
     } catch (e) {
       console.log(e)
     }  
   }
-  async update_nearest_location(userId: string, location: string){
+  async update_nearest_location(userId: Number, location: string){
     const res = await fetch(`/api/users/location/${userId}`, {
       method: 'PATCH',
       headers: {
@@ -29,7 +29,18 @@ class UserService {
     if(!res.ok)
       throw new Error(`Error: ${data.detail}`)
     return data
-
+  }
+  async get_user(userId: Number){
+    const res = await fetch(`/api/users/${userId}`,{
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    })
+    const data = await res.json()
+    if(!res.ok)
+      throw new Error(`Error: ${data.detail}`)
+    return data
   }
 }
 export default new UserService()

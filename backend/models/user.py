@@ -7,7 +7,7 @@ class User(BaseModel):
     id: Optional[int] = None
     name: str
     phone: str
-    location: str
+    location: Optional[str] = None #str
 class UpdateLocationRequest(BaseModel):
     location: str
 

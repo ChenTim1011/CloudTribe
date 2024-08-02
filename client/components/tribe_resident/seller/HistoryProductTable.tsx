@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from "react"
-import { User, BasicProductInfo } from '@/services/interface'
+import React from "react"
+import { BasicProductInfo } from '@/services/interface'
 import { Button } from '@/components/ui/button'
 
 import {
@@ -29,7 +29,7 @@ export const HistoryProductTable:React.FC<sellerProp> = (prop) => {
       <TableBody> 
         {prop.products.map((product) => (
           <TableRow key={product.id.toString()} className="flex flex-row items-center">
-            <TableCell className="text-center lg:text-lg text-balance w-1/3">{product.uploadDate}</TableCell>
+            <TableCell className="text-center lg:text-lg text-balance w-1/3">{product.upload_date}</TableCell>
             <TableCell className="text-center lg:text-lg text-balance w-1/3">{product.name}</TableCell>
             <TableCell className="w-1/3">
               <Button className='items-center'>

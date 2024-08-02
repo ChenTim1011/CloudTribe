@@ -1,4 +1,4 @@
-import { AddCartRequest } from '@/services/interface'
+import { AddCartRequest, PurchaseProductRequest } from '@/services/interface'
 class ConsumerService{
   async get_on_sell_product(){
     const res = await fetch('/api/consumer',{
@@ -31,7 +31,7 @@ class ConsumerService{
     }
     return data
   }
-  async get_shopping_cart_items(userId: string){
+  async get_shopping_cart_items(userId: Number){
     const res = await fetch(`/api/consumer/cart/${userId}`,{
         method: 'GET',
         headers: {
@@ -55,6 +55,32 @@ class ConsumerService{
     if(!res.ok){
       throw new Error(`Error: ${data.detail}`)
     }
+    return data
+  }
+  async update_shopping_cart_quantity(itemId: Number, quantity: Number){
+    const res = await fetch(`/api/consumer/cart/${itemId}`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({quantity}),
+    });
+    const data = await res.json()
+    if(!res.ok)
+      throw new Error(`Error: ${data.detail}`)
+    return data
+  }
+  async add_product_order(req: PurchaseProductRequest){
+    const res = await fetch('/api/consumer/order',{
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body:JSON.stringify(req)
+    })
+    const data = await res.json()
+    if(!res.ok)
+      throw new Error(`Error: ${data.detail}`)
     return data
   }
 }

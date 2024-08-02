@@ -42,11 +42,11 @@ export default function Page(){
           <TabsTrigger value="history" className="w-1/2">我的歷史商品</TabsTrigger>
         </TabsList>
         <TabsContent value="on shelf" className="justify-items-center text-center" >
-          <OnShelfTable products={products.filter((product) => product.offShelfDate >= today.toISOString().split('T')[0])}/>
+          <OnShelfTable products={products.filter((product) => product.off_shelf_date >= today.toISOString().split('T')[0])}/>
           <SellerDialog/>
         </TabsContent>
         <TabsContent value="history" className="justify-items-center text-center">
-          <HistoryProductTable products={products.filter((product) => product.offShelfDate < today.toISOString().split('T')[0])}/>
+          <HistoryProductTable products={products.filter((product) => product.off_shelf_date < today.toISOString().split('T')[0])}/>
         </TabsContent>    
       </Tabs>
     </div>

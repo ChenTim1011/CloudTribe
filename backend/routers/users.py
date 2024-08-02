@@ -89,8 +89,8 @@ async def create_user(user: User, conn: Connection = Depends(get_db)):
         
         logging.info("Inserting new user with name %s and phone %s", user.name, user.phone)
         cur.execute(
-            "INSERT INTO users (name, phone) VALUES (%s, %s) RETURNING id",
-            (user.name, user.phone)
+            "INSERT INTO users (name, phone, location) VALUES (%s, %s, %s) RETURNING id",
+            (user.name, user.phone, '未選擇')
         )
         user_id = cur.fetchone()[0]
         conn.commit()
@@ -117,11 +117,12 @@ async def get_user(user_id: int, conn: Connection = Depends(get_db)):
     """
     cur = conn.cursor()
     try:
-        cur.execute("SELECT id, name, phone FROM users WHERE id = %s", (user_id,))
+        cur.execute("SELECT id, name, phone, location FROM users WHERE id = %s", (user_id,))
         user = cur.fetchone()
         if not user:
             raise HTTPException(status_code=404, detail="User not found")
         return {"id": user[0], "name": user[1], "phone": user[2], "location":user[3]}
+
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e)) from e
     finally:
@@ -134,7 +135,7 @@ async def update_nearest_location(userId: str, req: UpdateLocationRequest, conn:
 
     Args:
         userId (str): The user's id.
-        location (str): The updated user nearest location.
+        req (UpdateLocationRequest): The updated user nearest location.
         conn (Connection): The database connection.
 
     Returns:

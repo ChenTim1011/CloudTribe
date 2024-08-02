@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException, Depends
 from psycopg2.extensions import connection as Connection
-from backend.models.consumer import ProductInfo, AddCartRequest, CartItem
+from backend.models.consumer import ProductInfo, AddCartRequest, CartItem, UpdateCartQuantityRequest, PurchaseProductRequest
 from backend.database import get_db_connection
 import logging
 from typing import List
@@ -43,13 +43,13 @@ async def get_on_sell_item(conn: Connection=Depends(get_db)):
                 "id":product[0],
                 "name":product[1],
                 "price": str(product[2]),
-                "totalQuantity": str(product[3]),
+                "total_quantity": str(product[3]),
                 "category": product[4],
-                "uploadDate":str(product[5]),
-                "offShelfDate":str(product[6]),
-                "imgLink": product[7],
-                "imgId": product[8],
-                "sellerId": product[9],    
+                "upload_date":str(product[5]),
+                "off_shelf_date":str(product[6]),
+                "img_link": product[7],
+                "img_id": product[8],
+                "seller_id": product[9],    
             })
         return product_list
     except Exception as e:
@@ -75,7 +75,7 @@ async def add_cart(req: AddCartRequest, conn: Connection = Depends(get_db)):
         logging.info('check whether insert the same item')
         cur.execute(
             "SELECT produce_id FROM agricultural_shopping_cart WHERE produce_id = %s AND buyer_id = %s", 
-            (req.produceId, req.buyerId, )
+            (req.produce_id, req.buyer_id, )
         )
         repeated_id = cur.fetchone()
         if repeated_id:
@@ -85,7 +85,7 @@ async def add_cart(req: AddCartRequest, conn: Connection = Depends(get_db)):
         cur.execute(
             """INSERT INTO agricultural_shopping_cart (buyer_id, produce_id, quantity, status) 
             VALUES (%s, %s, %s, %s) RETURNING id""",
-            (req.buyerId, req.produceId, req.quantity, '未接單')
+            (req.buyer_id, req.produce_id, req.quantity, '未接單')
         )
         itemId = cur.fetchone()[0]
         conn.commit()
@@ -98,7 +98,7 @@ async def add_cart(req: AddCartRequest, conn: Connection = Depends(get_db)):
         cur.close()
 
 @router.get('/cart/{userId}', response_model=List[CartItem])
-async def get_seller_item(userId: str, conn: Connection=Depends(get_db)):
+async def get_seller_item(userId: int, conn: Connection=Depends(get_db)):
     """
     Get User cart items
 
@@ -114,7 +114,7 @@ async def get_seller_item(userId: str, conn: Connection=Depends(get_db)):
     try:
         logging.info("Get cart items of user whose id is %s.", userId)
         cur.execute(
-            """SELECT cart.id, produce.name, produce.img_link, produce.price, cart.quantity
+            """SELECT cart.id, produce.id, produce.name, produce.img_link, produce.price, cart.quantity, produce.seller_id
             FROM agricultural_shopping_cart as cart
             JOIN agricultural_produce as produce ON cart.produce_id=produce.id
             WHERE buyer_id = %s AND produce.off_shelf_date >= %s AND cart.status= %s""", (userId, today, '未接單'))
@@ -125,10 +125,12 @@ async def get_seller_item(userId: str, conn: Connection=Depends(get_db)):
         for item in items:
             cart_list.append({
                 "id":item[0],
-                "name":item[1],
-                "imgUrl":item[2],
-                "price":item[3],
-                "quantity":item[4]
+                "produce_id":item[1],
+                "name":item[2],
+                "img_url":item[3],
+                "price":item[4],
+                "quantity":item[5],
+                "seller_id":item[6]
             })
         return cart_list
     except Exception as e:
@@ -158,6 +160,67 @@ async def delete_cart_item(itemId: int, conn: Connection=Depends(get_db)):
             WHERE id = %s""", (itemId, ))
         conn.commit()
         return {"success":"delete"}
+    except Exception as e:
+        conn.rollback()
+        logging.error("Error occurred: %s", str(e))
+        raise HTTPException(status_code=500, detail=str(e)) from e
+    finally:
+        cur.close()
+@router.patch("/cart/{itemId}")
+async def update_cart_quantity(itemId: int, req: UpdateCartQuantityRequest, conn: Connection = Depends(get_db)):
+    """
+    Update quantity of shopping cart item.
+
+    Args:
+        itemId (int): The item's id.
+        req (UpdateCartQuantityRequest): The updated item quantity.
+        conn (Connection): The database connection.
+
+    Returns:
+        dict: A success message.
+    """
+    cur = conn.cursor()
+    try:
+        cur.execute(
+            "UPDATE agricultural_shopping_cart SET quantity = %s WHERE id = %s",
+            ( req.quantity, itemId )
+        )
+        if cur.rowcount == 0:
+            raise HTTPException(status_code=404, detail="Item not found")
+        
+        conn.commit()
+        return {"status": "success"}
+    except Exception as e:
+        conn.rollback()
+        logging.error("Error updating user nearest location: %s", str(e))
+        raise HTTPException(status_code=500, detail=str(e)) from e
+    finally:
+        cur.close()
+
+@router.post('/order')
+async def purchase_product(req: PurchaseProductRequest, conn: Connection = Depends(get_db)):
+    """
+    Add product order
+
+    Args:
+        req(PurchaseProductRequest):The order information
+        conn(Connection): The database connection.
+
+    Returns:
+        orderId(int):The id of added order.
+    """
+    cur = conn.cursor()
+    try:
+        logging.info("Inserting product order")
+        cur.execute(
+            """INSERT INTO product_order 
+            (seller_id, buyer_id, buyer_name, produce_id, quantity, starting_point, end_point, category) 
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s) RETURNING id""",
+            (req.seller_id, req.buyer_id, req.buyer_name, req.produce_id, req.quantity, req.starting_point, req.end_point, 'agriculture')
+        )
+        order_id = cur.fetchone()[0]
+        conn.commit()
+        return order_id
     except Exception as e:
         conn.rollback()
         logging.error("Error occurred: %s", str(e))

@@ -1,41 +1,53 @@
 export interface User {
-  id: string
+  id: Number
   name: string
   phone: string 
   location: string
-};
+}
 export interface UploadItem {
   name: string
   price: string
   category: string
-  totalQuantity: string
-  offShelfDate: string
-  imgLink: string
-  imgId: string
-  sellerId: string | null
+  total_quantity: string
+  off_shelf_date: string
+  img_link: string
+  img_id: string
+  seller_id: Number | null
 }
 export interface BasicProductInfo{
   id: Number
   name: string
-  uploadDate: string
-  offShelfDate: string
+  upload_date: string
+  off_shelf_date: string
 }
 
 export interface ProductInfo extends UploadItem {
   id: Number
-  uploadDate: string
+  upload_date: string
 }
 export interface AddCartRequest {
-  buyerId: string
-  produceId: Number
+  buyer_id: Number
+  produce_id: Number
   quantity: Number
 }
 export interface CartItem {
   id: Number
+  produce_id: Number
   name: string
-  imgUrl: string
+  img_url: string
   price: Number
   quantity: Number
+  seller_id: Number
+}
+export interface PurchaseProductRequest{
+  seller_id: Number
+  buyer_id: Number
+  buyer_name: string
+  produce_id: Number
+  quantity: Number
+  starting_point: string
+  end_point: string
+  category: string //agriculture or necessity
 }
  
     

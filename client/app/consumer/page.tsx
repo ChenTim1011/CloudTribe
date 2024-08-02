@@ -66,7 +66,7 @@ export default function Page() {
     }
   }
   const handleAddCart = async(produceId: Number) => {
-    if(user?.id == 'empty'){
+    if(user?.id == 0){
       setCartMessage("請先登入")
       setTimeout(() => setCartMessage('empty'), 2500);
       return
@@ -75,8 +75,8 @@ export default function Page() {
     const inputElement = document.getElementById(`quantity-${produceId}`) as HTMLInputElement | null
     if(user != undefined && inputElement != undefined){
       let req: AddCartRequest = {
-        buyerId: user?.id.toString(), 
-        produceId: produceId, 
+        buyer_id: user?.id, 
+        produce_id: produceId, 
         quantity:parseInt(inputElement?.value)}
 
       try{
@@ -140,8 +140,8 @@ export default function Page() {
         <Button 
           variant="outline" 
           className="absolute right-1 top-1 lg:px-4 lg:py-2 p-1 lg:text-2xl text-sm font-bold border-2 border-black-500 text-black-500 hover:bg-black hover:text-white">
+          <FontAwesomeIcon icon={faShoppingCart} className="lg:mr-2 max-h-fit max-w-fit"/>
           <Link href="/consumer/shopping_cart">
-            <FontAwesomeIcon icon={faShoppingCart} className="lg:mr-2"/>
             購物車
           </Link> 
         </Button>
@@ -157,7 +157,7 @@ export default function Page() {
       <div className="grid lg:grid-cols-4 grid-cols-2 items-center lg:p-28 px-2 py-5">
         {currentData!= undefined && currentData.map((product) => (  
           <div key={product.id.toString()} className="w-full lg:h-[550px] h-[250px] bg-white border-gray-200 border-4 text-center lg:p-5 p-1">
-            <img src={product.imgLink} className="lg:h-[70%] h-[55%]"/>
+            <img src={product.img_link} className="lg:h-[70%] h-[55%]"/>
             
             
             <div className="lg:h-1"/>
