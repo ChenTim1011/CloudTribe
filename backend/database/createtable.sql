@@ -87,7 +87,7 @@ CREATE TABLE agricultural_shopping_cart (
     status VARCHAR(5) NOT NULL --status:已送單/未送單
 )
 --order of agricultural products and necessities
-CREATE TABLE product_order {
+CREATE TABLE product_order(
     id SERIAL PRIMARY KEY,
     seller_id INTEGER, --if products are necessities, be null
     buyer_name VARCHAR(25) NOT NULL,
@@ -97,16 +97,16 @@ CREATE TABLE product_order {
     to VARCHAR(25) NOT NULL,
     category VARCHAR(15) NOT NULL,--agriculture or necessity
     timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP, --TIMESTAMP WITHOUT TIME ZONE
-}
+)
 
-CREATE TABLE driver_order {
+CREATE TABLE driver_order (
     id SERIAL PRIMARY KEY,
     driver_id INTEGER NOT NULL,
     product_order_id INTEGER, --if service is pick up people, can be null
     from VARCHAR(25) NOT NULL,
     to VARCHAR(25) NOT NULL,
     service VARCHAR(20) --kind: 1.pick up people, 2.carry products
-}
+)
 
 
 
