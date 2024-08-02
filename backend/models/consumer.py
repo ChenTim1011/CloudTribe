@@ -20,4 +20,7 @@ class CartItem(BaseModel):
     price: int
     quantity: int
 
+class UpdateCartQuantityRequest(BaseModel):
+    quantity: int
+
 

@@ -134,7 +134,7 @@ async def update_nearest_location(userId: str, req: UpdateLocationRequest, conn:
 
     Args:
         userId (str): The user's id.
-        location (str): The updated user nearest location.
+        req (UpdateLocationRequest): The updated user nearest location.
         conn (Connection): The database connection.
 
     Returns:

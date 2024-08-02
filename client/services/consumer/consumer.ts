@@ -57,5 +57,18 @@ class ConsumerService{
     }
     return data
   }
+  async update_shopping_cart_quantity(itemId: Number, quantity: Number){
+    const res = await fetch(`/api/consumer/cart/${itemId}`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({quantity}),
+    });
+    const data = await res.json()
+    if(!res.ok)
+      throw new Error(`Error: ${data.detail}`)
+    return data
+  }
 }
 export default new ConsumerService()

@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException, Depends
 from psycopg2.extensions import connection as Connection
-from backend.models.consumer import ProductInfo, AddCartRequest, CartItem
+from backend.models.consumer import ProductInfo, AddCartRequest, CartItem, UpdateCartQuantityRequest
 from backend.database import get_db_connection
 import logging
 from typing import List
@@ -161,6 +161,36 @@ async def delete_cart_item(itemId: int, conn: Connection=Depends(get_db)):
     except Exception as e:
         conn.rollback()
         logging.error("Error occurred: %s", str(e))
+        raise HTTPException(status_code=500, detail=str(e)) from e
+    finally:
+        cur.close()
+@router.patch("/cart/{itemId}")
+async def update_cart_quantity(itemId: int, req: UpdateCartQuantityRequest, conn: Connection = Depends(get_db)):
+    """
+    Update quantity of shopping cart item.
+
+    Args:
+        itemId (int): The item's id.
+        req (UpdateCartQuantityRequest): The updated item quantity.
+        conn (Connection): The database connection.
+
+    Returns:
+        dict: A success message.
+    """
+    cur = conn.cursor()
+    try:
+        cur.execute(
+            "UPDATE agricultural_shopping_cart SET quantity = %s WHERE id = %s",
+            ( req.quantity, itemId )
+        )
+        if cur.rowcount == 0:
+            raise HTTPException(status_code=404, detail="Item not found")
+        
+        conn.commit()
+        return {"status": "success"}
+    except Exception as e:
+        conn.rollback()
+        logging.error("Error updating user nearest location: %s", str(e))
         raise HTTPException(status_code=500, detail=str(e)) from e
     finally:
         cur.close()

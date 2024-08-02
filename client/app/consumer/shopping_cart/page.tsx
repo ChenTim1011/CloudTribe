@@ -15,6 +15,7 @@ import Link from "next/link"
 export default function ShoppingCart(){
   const [user, setUser] = useState<User>()
   const [cart, setCart] = useState<CartItem[]>([])
+  const [changedQuantity, setChangedQuantity] = useState([])
   const router = useRouter()
   useEffect(()=>{
     const _user = UserService.getLocalStorageUser()
@@ -22,6 +23,7 @@ export default function ShoppingCart(){
       router.replace('/login')
     }   
     setUser(_user)
+    setChangedQuantity([])
     get_shopping_cart_items(_user.id.toString())
   }, [])
   
@@ -44,11 +46,28 @@ export default function ShoppingCart(){
     } 
 
   }
+  const handleQuantityInput: React.ChangeEventHandler<HTMLInputElement> = (event) => {
+    setChangedQuantity({...changedQuantity, [event.target.id.split('-')[1]]:event.target.value})
+    console.log(changedQuantity)
+
+  }
+  
+  const storeChangedQuantity = async() => {
+    for(var key in changedQuantity){
+      console.log(key,changedQuantity[key])
+      try{
+        const res = await ConsumerService.update_shopping_cart_quantity(parseInt(key), changedQuantity[key])
+      }
+      catch(e){
+        console.log(e)
+      }  
+    }
+  }
   return(
     <div>
       <NavigationBar/>
       <div className="flex flex-row justify-between">
-        <Button className="w-fit lg:m-8 m-4 px-4">
+        <Button className="w-fit lg:m-8 m-4 px-4" onClick={storeChangedQuantity}>
           <Link href="/consumer">
             返回商品頁面
           </Link>
@@ -74,6 +93,7 @@ export default function ShoppingCart(){
               id={`quantity-${item.id}`}
               className="w-2/12 text-center lg:h-8 lg:text-lg"
               defaultValue={item.quantity.toString()} 
+              onChange={handleQuantityInput}
               min={1}/>
             <Button 
               variant="outline" 
