@@ -64,6 +64,7 @@ CREATE TABLE driver_orders (
     previous_driver_phone VARCHAR(20)
 );
 
+--add
 --agricultural produce
 CREATE TABLE agricultural_produce (
     id SERIAL PRIMARY KEY,
@@ -81,9 +82,31 @@ CREATE TABLE agricultural_produce (
 CREATE TABLE agricultural_shopping_cart (
     id SERIAL PRIMARY KEY,
     buyer_id VARCHAR(32) NOT NULL,
-    produce_id integer NOT NULL,
+    produce_id INTEGER NOT NULL,
     quantity INTEGER NOT NULL,
     status VARCHAR(5) NOT NULL --status:已送單/未送單
 )
+--order of agricultural products and necessities
+CREATE TABLE product_order {
+    id SERIAL PRIMARY KEY,
+    seller_id INTEGER, --if products are necessities, be null
+    buyer_name VARCHAR(25) NOT NULL,
+    produce_id INTEGER NOT NULL,
+    quantity INTEGER NOT NULL,
+    from VARCHAR(25) NOT NULL,
+    to VARCHAR(25) NOT NULL,
+    category VARCHAR(15) NOT NULL,--agriculture or necessity
+    timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP, --TIMESTAMP WITHOUT TIME ZONE
+}
+
+CREATE TABLE driver_order {
+    id SERIAL PRIMARY KEY,
+    driver_id INTEGER NOT NULL,
+    product_order_id INTEGER, --if service is pick up people, can be null
+    from VARCHAR(25) NOT NULL,
+    to VARCHAR(25) NOT NULL,
+    service VARCHAR(20) --kind: 1.pick up people, 2.carry products
+}
+
 
 
