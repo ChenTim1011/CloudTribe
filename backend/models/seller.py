@@ -12,8 +12,8 @@ class UploadImageResponse(BaseModel):
     """
     Model representing an image. 
     """
-    imgId: str
-    imgLink: str
+    img_id: str
+    img_link: str
 class UploadItemRequest(BaseModel):
     """
     Model representing upload agricultural product request.
@@ -21,16 +21,16 @@ class UploadItemRequest(BaseModel):
     name: str
     price: str
     category: str
-    totalQuantity: str
-    offShelfDate: str
-    imgLink: str
-    imgId: str
-    sellerId: str
+    total_quantity: str
+    off_shelf_date: str
+    img_link: str
+    img_id: str
+    seller_id: str
 
 class ProductBasicInfo(BaseModel):
     id: int
     name: str
-    uploadDate: str
-    offShelfDate: str
+    upload_date: str
+    off_shelf_date: str
 
 

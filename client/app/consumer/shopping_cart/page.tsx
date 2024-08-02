@@ -81,7 +81,7 @@ export default function ShoppingCart(){
               <Checkbox className="lg:h-6 lg:w-6"/>
             </div>
             <div className="w-3/12">
-              <img src={item.imgUrl} className="lg:h-[150px] h-[100px] w-full py-2"/>
+              <img src={item.img_url} className="lg:h-[150px] h-[100px] w-full py-2"/>
             </div> 
             <div className="flex flex-col w-5/12 text-center">
               <p className="lg:text-2xl line-clamp-2 text-pretty">{item.name}</p>

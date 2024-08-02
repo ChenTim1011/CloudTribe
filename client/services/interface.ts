@@ -3,37 +3,37 @@ export interface User {
   name: string
   phone: string 
   location: string
-};
+}
 export interface UploadItem {
   name: string
   price: string
   category: string
-  totalQuantity: string
-  offShelfDate: string
-  imgLink: string
-  imgId: string
-  sellerId: string | null
+  total_quantity: string
+  off_shelf_date: string
+  img_link: string
+  img_id: string
+  seller_id: string | null
 }
 export interface BasicProductInfo{
   id: Number
   name: string
-  uploadDate: string
-  offShelfDate: string
+  upload_date: string
+  off_shelf_date: string
 }
 
 export interface ProductInfo extends UploadItem {
   id: Number
-  uploadDate: string
+  upload_date: string
 }
 export interface AddCartRequest {
-  buyerId: string
-  produceId: Number
+  buyer_id: string
+  produce_id: Number
   quantity: Number
 }
 export interface CartItem {
   id: Number
   name: string
-  imgUrl: string
+  img_url: string
   price: Number
   quantity: Number
 }

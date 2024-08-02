@@ -43,13 +43,13 @@ async def get_on_sell_item(conn: Connection=Depends(get_db)):
                 "id":product[0],
                 "name":product[1],
                 "price": str(product[2]),
-                "totalQuantity": str(product[3]),
+                "total_quantity": str(product[3]),
                 "category": product[4],
-                "uploadDate":str(product[5]),
-                "offShelfDate":str(product[6]),
-                "imgLink": product[7],
-                "imgId": product[8],
-                "sellerId": product[9],    
+                "upload_date":str(product[5]),
+                "off_shelf_date":str(product[6]),
+                "img_link": product[7],
+                "img_id": product[8],
+                "seller_id": product[9],    
             })
         return product_list
     except Exception as e:
@@ -75,7 +75,7 @@ async def add_cart(req: AddCartRequest, conn: Connection = Depends(get_db)):
         logging.info('check whether insert the same item')
         cur.execute(
             "SELECT produce_id FROM agricultural_shopping_cart WHERE produce_id = %s AND buyer_id = %s", 
-            (req.produceId, req.buyerId, )
+            (req.produce_id, req.buyer_id, )
         )
         repeated_id = cur.fetchone()
         if repeated_id:
@@ -85,7 +85,7 @@ async def add_cart(req: AddCartRequest, conn: Connection = Depends(get_db)):
         cur.execute(
             """INSERT INTO agricultural_shopping_cart (buyer_id, produce_id, quantity, status) 
             VALUES (%s, %s, %s, %s) RETURNING id""",
-            (req.buyerId, req.produceId, req.quantity, '未接單')
+            (req.buyer_id, req.produce_id, req.quantity, '未接單')
         )
         itemId = cur.fetchone()[0]
         conn.commit()
@@ -126,7 +126,7 @@ async def get_seller_item(userId: str, conn: Connection=Depends(get_db)):
             cart_list.append({
                 "id":item[0],
                 "name":item[1],
-                "imgUrl":item[2],
+                "img_url":item[2],
                 "price":item[3],
                 "quantity":item[4]
             })

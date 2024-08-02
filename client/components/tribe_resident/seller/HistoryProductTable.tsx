@@ -29,7 +29,7 @@ export const HistoryProductTable:React.FC<sellerProp> = (prop) => {
       <TableBody> 
         {prop.products.map((product) => (
           <TableRow key={product.id.toString()} className="flex flex-row items-center">
-            <TableCell className="text-center lg:text-lg text-balance w-1/3">{product.uploadDate}</TableCell>
+            <TableCell className="text-center lg:text-lg text-balance w-1/3">{product.upload_date}</TableCell>
             <TableCell className="text-center lg:text-lg text-balance w-1/3">{product.name}</TableCell>
             <TableCell className="w-1/3">
               <Button className='items-center'>

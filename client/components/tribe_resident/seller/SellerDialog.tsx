@@ -73,11 +73,11 @@ export const SellerDialog = () => {
         name: itemName,
         price: itemPrice,
         category: selectedCategory,
-        totalQuantity: itemQuantity,
-        offShelfDate: date.toLocaleDateString().replaceAll("/", "-"),
-        imgLink: res_img.imgLink,
-        imgId: res_img.imgId,
-        sellerId: user && user.id? user.id.toString():null
+        total_quantity: itemQuantity,
+        off_shelf_date: date.toLocaleDateString().replaceAll("/", "-"),
+        img_link: res_img.img_link,
+        img_id: res_img.img_id,
+        seller_id: user && user.id? user.id.toString():null
       }
       try{
         const res_item = await SellerService.upload_item(item)

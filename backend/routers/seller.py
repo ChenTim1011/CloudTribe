@@ -50,7 +50,7 @@ async def upload_image(request: UploadImageRequset):
         print('response:', response)
         response_data = response.json()
         if response_data["success"] is True:
-            return {"imgId": response_data["data"]["id"] , "imgLink": response_data["data"]["link"]}
+            return {"img_id": response_data["data"]["id"] , "img_link": response_data["data"]["link"]}
     except Exception as e:
         logging.error("Error occurred during upload photo: %s", str(e))
         raise HTTPException(status_code=500, detail=str(e)) from e
@@ -73,7 +73,7 @@ async def upload_item(req: UploadItemRequest, conn: Connection = Depends(get_db)
         cur.execute(
             """INSERT INTO agricultural_produce (name, price, total_quantity, category, upload_date, off_shelf_date, img_link, img_id, seller_id) 
             VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)""",
-            (req.name, req.price, req.totalQuantity, req.category, str(datetime.date.today()), req.offShelfDate, req.imgLink, req.imgId, req.sellerId)
+            (req.name, req.price, req.total_quantity, req.category, str(datetime.date.today()), req.off_shelf_date, req.img_link, req.img_id, req.seller_id)
         )
         conn.commit()
         return "item create successfully"
@@ -90,7 +90,7 @@ async def get_seller_item(sellerId: str, conn: Connection=Depends(get_db)):
     Get Seller Product
 
     Args:
-        phone(str):The Seller phone
+        sellerId(str):The Seller phone
         conn(Connection): The database connection.
 
     Returns:
@@ -108,8 +108,8 @@ async def get_seller_item(sellerId: str, conn: Connection=Depends(get_db)):
             product_list.append({
                 "id":product[0],
                 "name":product[1],
-                "uploadDate":str(product[2]),
-                "offShelfDate":str(product[3]),
+                "upload_date":str(product[2]),
+                "off_shelf_date":str(product[3]),
             })
         return product_list
     except Exception as e:
