@@ -15,10 +15,12 @@ class AddCartRequest(BaseModel):
 
 class CartItem(BaseModel):
     id: int
+    produce_id: int
     name: str
     img_url: str
     price: int
     quantity: int
+    seller_id: int
 
 class UpdateCartQuantityRequest(BaseModel):
     quantity: int

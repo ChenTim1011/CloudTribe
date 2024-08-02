@@ -32,10 +32,12 @@ export interface AddCartRequest {
 }
 export interface CartItem {
   id: Number
+  produce_id: Number
   name: string
   img_url: string
   price: Number
   quantity: Number
+  seller_id: Number
 }
 export interface PurchaseProductRequest{
   seller_id: Number

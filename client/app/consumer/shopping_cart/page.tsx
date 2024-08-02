@@ -12,13 +12,14 @@ import UserService from '@/services/user/user'
 import { User, CartItem, PurchaseProductRequest } from '@/services/interface'
 import { useRouter } from 'next/navigation'
 import Link from "next/link"
+import { MutableRequestCookiesAdapter } from "next/dist/server/web/spec-extension/adapters/request-cookies";
 
 export default function ShoppingCart(){
   const [user, setUser] = useState<User>()
   const [cart, setCart] = useState<CartItem[]>([])
   const [changedQuantity, setChangedQuantity] = useState([])
   const [check, setCheck] = useState<string[]>([])
-  const [warning, setWarning] = useState('empty')
+  const [message, setMessage] = useState('empty')
   const router = useRouter()
 
   useEffect(()=>{
@@ -28,10 +29,10 @@ export default function ShoppingCart(){
     }   
     setUser(_user)
     setChangedQuantity([])
-    get_shopping_cart_items(_user.id.toString())
+    get_shopping_cart_items(_user.id)
   }, [])
   
-  const get_shopping_cart_items = async(userId: string) => {
+  const get_shopping_cart_items = async(userId: Number) => {
     try{
       const cart_items:CartItem[] = await ConsumerService.get_shopping_cart_items(userId)
       setCart(cart_items)
@@ -67,19 +68,46 @@ export default function ShoppingCart(){
       }  
     }  
   }
-  const handlePurchaseButton = () =>{
+  const handlePurchaseButton = async() =>{
     console.log(check)
     if(check.length == 0){
-      setWarning('請勾選商品')
-      setTimeout(() => setWarning('empty'), 2000)
+      setMessage('請勾選商品')
+      setTimeout(() => setMessage('empty'), 2000)
     }
     else if(user?.location=='未選擇'){
-      setWarning('請先至右上角的設定來填寫個人資料')
-      setTimeout(() => setWarning('empty'), 3500)
+      setMessage('請先至右上角的設定來填寫個人資料')
+      setTimeout(() => setMessage('empty'), 3500)
     }
     else{
-      console.log(check)
-     
+      storeChangedQuantity()
+      let requests:PurchaseProductRequest[] = []
+      check.map(async(checkedItemId)=> {
+        let item = cart.find((item) => item.id.toString() == checkedItemId)
+        if(item != undefined && user != undefined){
+          let req: PurchaseProductRequest = {
+            seller_id: item?.seller_id,
+            buyer_id: user?.id,
+            buyer_name: user?.name,
+            produce_id: item?.produce_id,
+            quantity: item?.quantity,
+            starting_point: '待定',
+            end_point: user?.location,
+            category: 'agriculture'
+          }
+          requests.push(req)
+        } 
+      })
+      console.log('request',requests)
+      requests.map(async(req)=>{
+        try{
+          const res = await ConsumerService.add_product_order(req)
+        }
+        catch(e){
+          console.log(e)
+        }
+      })
+      setMessage('成功訂購商品')
+      setTimeout(() => setMessage('empty'), 2000)
     }
   }
   const handleCheckBox: React.MouseEventHandler<HTMLButtonElement> = (event) => {
@@ -93,10 +121,10 @@ export default function ShoppingCart(){
   return(
     <div>
       <NavigationBar/>
-      {warning != 'empty' && 
+      {message != 'empty' && 
       <Alert className="bg-yellow-300 text-black w-fit text-center">
         <AlertDescription className="lg:text-lg text-md">
-          {warning}
+          {message}
         </AlertDescription>
       </Alert>}
       <div className="flex flex-row justify-between">
