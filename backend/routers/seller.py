@@ -85,7 +85,7 @@ async def upload_item(req: UploadItemRequest, conn: Connection = Depends(get_db)
         cur.close()
 
 @router.get('/{sellerId}', response_model=List[ProductBasicInfo])
-async def get_seller_item(sellerId: str, conn: Connection=Depends(get_db)):
+async def get_seller_item(sellerId: int, conn: Connection=Depends(get_db)):
     """
     Get Seller Product
 

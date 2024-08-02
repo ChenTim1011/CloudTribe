@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from "react"
-import { User, BasicProductInfo } from '@/services/interface'
+import React from "react"
+import { BasicProductInfo } from '@/services/interface'
 import { Button } from '@/components/ui/button'
 
 import {

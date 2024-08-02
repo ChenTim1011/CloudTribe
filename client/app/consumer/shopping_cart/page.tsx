@@ -2,13 +2,14 @@
 import React, { useEffect, useState } from "react"
 import { Button } from '@/components/ui/button'
 import { Checkbox } from "@/components/ui/checkbox"
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Input } from "@/components/ui/input"
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTrashAlt } from '@fortawesome/free-solid-svg-icons';
 import { NavigationBar } from'@/components/NavigationBar'
 import ConsumerService from '@/services/consumer/consumer'
 import UserService from '@/services/user/user'
-import { User, CartItem } from '@/services/interface'
+import { User, CartItem, PurchaseProductRequest } from '@/services/interface'
 import { useRouter } from 'next/navigation'
 import Link from "next/link"
 
@@ -16,7 +17,10 @@ export default function ShoppingCart(){
   const [user, setUser] = useState<User>()
   const [cart, setCart] = useState<CartItem[]>([])
   const [changedQuantity, setChangedQuantity] = useState([])
+  const [check, setCheck] = useState<string[]>([])
+  const [warning, setWarning] = useState('empty')
   const router = useRouter()
+
   useEffect(()=>{
     const _user = UserService.getLocalStorageUser()
     if(_user.name == 'empty'){
@@ -61,24 +65,58 @@ export default function ShoppingCart(){
       catch(e){
         console.log(e)
       }  
+    }  
+  }
+  const handlePurchaseButton = () =>{
+    console.log(check)
+    if(check.length == 0){
+      setWarning('請勾選商品')
+      setTimeout(() => setWarning('empty'), 2000)
     }
+    else if(user?.location=='未選擇'){
+      setWarning('請先至右上角的設定來填寫個人資料')
+      setTimeout(() => setWarning('empty'), 3500)
+    }
+    else{
+      console.log(check)
+     
+    }
+  }
+  const handleCheckBox: React.MouseEventHandler<HTMLButtonElement> = (event) => {
+    const target = event.target as HTMLButtonElement
+    const id = target.id.split('-')[1]
+    if(check.includes(id))
+      setCheck(check.filter((element) => element != id))
+    else
+      check.push(id)
   }
   return(
     <div>
       <NavigationBar/>
+      {warning != 'empty' && 
+      <Alert className="bg-yellow-300 text-black w-fit text-center">
+        <AlertDescription className="lg:text-lg text-md">
+          {warning}
+        </AlertDescription>
+      </Alert>}
       <div className="flex flex-row justify-between">
         <Button className="w-fit lg:m-8 m-4 px-4" onClick={storeChangedQuantity}>
           <Link href="/consumer">
             返回商品頁面
           </Link>
         </Button>
-        <Button className="w-fit lg:m-8 m-4 px-4">前往結帳</Button>
+        
+        
+        <Button className="w-fit lg:m-8 m-4 px-4" onClick={handlePurchaseButton}>購買勾選商品</Button>
       </div>
       <div className="grid lg:grid-cols-3 grid-cols-1 items-center">
         {cart.map((item)=>
           <div key={item.id.toString()} className="flex flex-row w-full lg:h-[150px] h-[100px] items-center text-center space-x-2 p-4 lg:border-4">
             <div className="w-1/12">
-              <Checkbox className="lg:h-6 lg:w-6"/>
+              <Checkbox 
+                id={`check-${item.id}`} 
+                className="lg:h-6 lg:w-6"
+                onClick={handleCheckBox}/>
             </div>
             <div className="w-3/12">
               <img src={item.img_url} className="lg:h-[150px] h-[100px] w-full py-2"/>

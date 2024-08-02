@@ -25,7 +25,7 @@ class UploadItemRequest(BaseModel):
     off_shelf_date: str
     img_link: str
     img_id: str
-    seller_id: str
+    seller_id: int
 
 class ProductBasicInfo(BaseModel):
     id: int

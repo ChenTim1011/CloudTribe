@@ -98,7 +98,7 @@ async def add_cart(req: AddCartRequest, conn: Connection = Depends(get_db)):
         cur.close()
 
 @router.get('/cart/{userId}', response_model=List[CartItem])
-async def get_seller_item(userId: str, conn: Connection=Depends(get_db)):
+async def get_seller_item(userId: int, conn: Connection=Depends(get_db)):
     """
     Get User cart items
 

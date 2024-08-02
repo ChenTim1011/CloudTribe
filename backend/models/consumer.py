@@ -9,7 +9,7 @@ class ProductInfo(UploadItemRequest):
     upload_date: str
     
 class AddCartRequest(BaseModel):
-    buyer_id: str
+    buyer_id: int
     produce_id: int
     quantity: int
 

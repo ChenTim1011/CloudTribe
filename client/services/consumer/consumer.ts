@@ -31,7 +31,7 @@ class ConsumerService{
     }
     return data
   }
-  async get_shopping_cart_items(userId: string){
+  async get_shopping_cart_items(userId: Number){
     const res = await fetch(`/api/consumer/cart/${userId}`,{
         method: 'GET',
         headers: {

@@ -76,12 +76,12 @@ CREATE TABLE agricultural_produce (
     off_shelf_date Date NOT NULL,
     img_link VARCHAR(255) NOT NULL,
     img_id VARCHAR(36) NOT NULL,
-    seller_id VARCHAR(32) NOT NULL
+    seller_id INTEGER NOT NULL
 );
 
 CREATE TABLE agricultural_shopping_cart (
     id SERIAL PRIMARY KEY,
-    buyer_id VARCHAR(32) NOT NULL,
+    buyer_id INTEGER NOT NULL,
     produce_id INTEGER NOT NULL,
     quantity INTEGER NOT NULL,
     status VARCHAR(5) NOT NULL --status:已送單/未送單

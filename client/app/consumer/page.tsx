@@ -66,7 +66,7 @@ export default function Page() {
     }
   }
   const handleAddCart = async(produceId: Number) => {
-    if(user?.id == 'empty'){
+    if(user?.id == 0){
       setCartMessage("請先登入")
       setTimeout(() => setCartMessage('empty'), 2500);
       return
@@ -75,7 +75,7 @@ export default function Page() {
     const inputElement = document.getElementById(`quantity-${produceId}`) as HTMLInputElement | null
     if(user != undefined && inputElement != undefined){
       let req: AddCartRequest = {
-        buyer_id: user?.id.toString(), 
+        buyer_id: user?.id, 
         produce_id: produceId, 
         quantity:parseInt(inputElement?.value)}
 

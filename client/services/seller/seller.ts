@@ -28,7 +28,7 @@ class SellerService {
     return data
   }
 
-  async get_upload_product(sellerId: string){
+  async get_upload_product(sellerId: Number){
     const res = await fetch(`/api/seller/${sellerId}`,{
       method: 'GET',
       headers: {

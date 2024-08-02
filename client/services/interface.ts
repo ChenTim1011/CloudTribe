@@ -1,5 +1,5 @@
 export interface User {
-  id: string
+  id: Number
   name: string
   phone: string 
   location: string
@@ -12,7 +12,7 @@ export interface UploadItem {
   off_shelf_date: string
   img_link: string
   img_id: string
-  seller_id: string | null
+  seller_id: Number | null
 }
 export interface BasicProductInfo{
   id: Number
@@ -26,7 +26,7 @@ export interface ProductInfo extends UploadItem {
   upload_date: string
 }
 export interface AddCartRequest {
-  buyer_id: string
+  buyer_id: Number
   produce_id: Number
   quantity: Number
 }
