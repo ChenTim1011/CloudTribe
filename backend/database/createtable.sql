@@ -93,18 +93,18 @@ CREATE TABLE product_order(
     buyer_name VARCHAR(25) NOT NULL,
     produce_id INTEGER NOT NULL,
     quantity INTEGER NOT NULL,
-    from VARCHAR(25) NOT NULL,
-    to VARCHAR(25) NOT NULL,
+    starting_point VARCHAR(25) NOT NULL,
+    end_point VARCHAR(25) NOT NULL,
     category VARCHAR(15) NOT NULL,--agriculture or necessity
-    timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP, --TIMESTAMP WITHOUT TIME ZONE
+    timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP --TIMESTAMP WITHOUT TIME ZONE
 )
 
 CREATE TABLE driver_order (
     id SERIAL PRIMARY KEY,
     driver_id INTEGER NOT NULL,
     product_order_id INTEGER, --if service is pick up people, can be null
-    from VARCHAR(25) NOT NULL,
-    to VARCHAR(25) NOT NULL,
+    starting_point VARCHAR(25) NOT NULL,
+    end_point VARCHAR(25) NOT NULL,
     service VARCHAR(20) --kind: 1.pick up people, 2.carry products
 )
 
