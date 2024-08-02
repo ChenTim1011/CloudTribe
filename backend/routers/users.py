@@ -117,11 +117,12 @@ async def get_user(user_id: int, conn: Connection = Depends(get_db)):
     """
     cur = conn.cursor()
     try:
-        cur.execute("SELECT id, name, phone FROM users WHERE id = %s", (user_id,))
+        cur.execute("SELECT id, name, phone, location FROM users WHERE id = %s", (user_id,))
         user = cur.fetchone()
         if not user:
             raise HTTPException(status_code=404, detail="User not found")
         return {"id": user[0], "name": user[1], "phone": user[2], "location":user[3]}
+
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e)) from e
     finally:

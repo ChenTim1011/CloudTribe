@@ -53,13 +53,10 @@ export default function ShoppingCart(){
   }
   const handleQuantityInput: React.ChangeEventHandler<HTMLInputElement> = (event) => {
     setChangedQuantity({...changedQuantity, [event.target.id.split('-')[1]]:event.target.value})
-    console.log(changedQuantity)
-
   }
   
   const storeChangedQuantity = async() => {
     for(var key in changedQuantity){
-      console.log(key,changedQuantity[key])
       try{
         const res = await ConsumerService.update_shopping_cart_quantity(parseInt(key), changedQuantity[key])
       }
@@ -69,7 +66,6 @@ export default function ShoppingCart(){
     }  
   }
   const handlePurchaseButton = async() =>{
-    console.log(check)
     if(check.length == 0){
       setMessage('請勾選商品')
       setTimeout(() => setMessage('empty'), 2000)
@@ -80,30 +76,29 @@ export default function ShoppingCart(){
     }
     else{
       storeChangedQuantity()
-      let requests:PurchaseProductRequest[] = []
       check.map(async(checkedItemId)=> {
         let item = cart.find((item) => item.id.toString() == checkedItemId)
         if(item != undefined && user != undefined){
-          let req: PurchaseProductRequest = {
-            seller_id: item?.seller_id,
-            buyer_id: user?.id,
-            buyer_name: user?.name,
-            produce_id: item?.produce_id,
-            quantity: item?.quantity,
-            starting_point: '待定',
-            end_point: user?.location,
-            category: 'agriculture'
+          try{
+            const res_seller = await UserService.get_user(item?.seller_id)
+            let req: PurchaseProductRequest = {
+              seller_id: item?.seller_id,
+              buyer_id: user?.id,
+              buyer_name: user?.name,
+              produce_id: item?.produce_id,
+              quantity: item?.quantity,
+              starting_point: res_seller.location,
+              end_point: user?.location,
+              category: 'agriculture'
+            }
+            const res_order = await ConsumerService.add_product_order(req) 
+            //未完成:
+            //把送出訂單的購物車商品改成已送單
+            //回到購買商品頁面
           }
-          requests.push(req)
-        } 
-      })
-      console.log('request',requests)
-      requests.map(async(req)=>{
-        try{
-          const res = await ConsumerService.add_product_order(req)
-        }
-        catch(e){
-          console.log(e)
+          catch(e){
+            console.log(e)
+          }
         }
       })
       setMessage('成功訂購商品')
