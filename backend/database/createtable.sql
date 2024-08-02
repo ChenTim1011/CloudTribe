@@ -90,6 +90,7 @@ CREATE TABLE agricultural_shopping_cart (
 CREATE TABLE product_order(
     id SERIAL PRIMARY KEY,
     seller_id INTEGER, --if products are necessities, be null
+    buyer_id INTEGER NOT NULL,
     buyer_name VARCHAR(25) NOT NULL,
     produce_id INTEGER NOT NULL,
     quantity INTEGER NOT NULL,
@@ -105,7 +106,7 @@ CREATE TABLE driver_order (
     product_order_id INTEGER, --if service is pick up people, can be null
     starting_point VARCHAR(25) NOT NULL,
     end_point VARCHAR(25) NOT NULL,
-    service VARCHAR(20) --kind: 1.pick up people, 2.carry products
+    service VARCHAR(20) NOT NULL --kind: 1.pick up people, 2.carry products
 )
 
 

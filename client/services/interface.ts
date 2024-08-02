@@ -37,5 +37,15 @@ export interface CartItem {
   price: Number
   quantity: Number
 }
+export interface PurchaseProductRequest{
+  seller_id: Number
+  buyer_id: Number
+  buyer_name: string
+  produce_id: Number
+  quantity: Number
+  starting_point: string
+  end_point: string
+  category: string //agriculture or necessity
+}
  
     

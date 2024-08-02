@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException, Depends
 from psycopg2.extensions import connection as Connection
-from backend.models.consumer import ProductInfo, AddCartRequest, CartItem, UpdateCartQuantityRequest
+from backend.models.consumer import ProductInfo, AddCartRequest, CartItem, UpdateCartQuantityRequest, PurchaseProductRequest
 from backend.database import get_db_connection
 import logging
 from typing import List
@@ -191,6 +191,37 @@ async def update_cart_quantity(itemId: int, req: UpdateCartQuantityRequest, conn
     except Exception as e:
         conn.rollback()
         logging.error("Error updating user nearest location: %s", str(e))
+        raise HTTPException(status_code=500, detail=str(e)) from e
+    finally:
+        cur.close()
+
+@router.post('/order')
+async def purchase_product(req: PurchaseProductRequest, conn: Connection = Depends(get_db)):
+    """
+    Add product order
+
+    Args:
+        req(PurchaseProductRequest):The order information
+        conn(Connection): The database connection.
+
+    Returns:
+        orderId(int):The id of added order.
+    """
+    cur = conn.cursor()
+    try:
+        logging.info("Inserting product order")
+        cur.execute(
+            """INSERT INTO product_order 
+            (seller_id, buyer_id, buyer_name, produce_id, quantity, starting_point, end_point, category) 
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s) RETURNING id""",
+            (req.seller_id, req.buyer_id, req.buyer_name, req.produce_id, req.quantity, req.starting_point, req.end_point, 'agriculture')
+        )
+        order_id = cur.fetchone()[0]
+        conn.commit()
+        return order_id
+    except Exception as e:
+        conn.rollback()
+        logging.error("Error occurred: %s", str(e))
         raise HTTPException(status_code=500, detail=str(e)) from e
     finally:
         cur.close()
