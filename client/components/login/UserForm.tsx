@@ -43,6 +43,19 @@ export function UserForm() {
       return;
     }
 
+    try{
+      const res_register = await UserService.register(name, phone)
+      if(res_register == "phone exists")
+        setErrorMessage('電話號碼已經存在')
+      else
+        setSuccessMessage('註冊成功')
+    }
+    catch(e){
+      setErrorMessage('註冊過程中出現錯誤')
+      console.log(e)
+    }
+    //The below code is origin code of register
+    /*
     try {
       console.log("Creating new user with name and phone:", name, phone);
       const response = await fetch('/api/users', {
@@ -66,25 +79,23 @@ export function UserForm() {
     } catch (error) {
       console.error("Error during handleRegister:", error);
       setErrorMessage('註冊過程中出現錯誤');
-    }
+    }*/
   };
 
   /**
    * Handles the login process when the user clicks the "登入" button.
    */
   const handleLogin = async () => {
-    console.log("Starting handleLogin");
-
     // clear error and success messages
     setErrorMessage('');
     setSuccessMessage('');
     try{
-      const res_user = await UserService.login(phone)
-      if(res_user == "user not found")
+      const res_login = await UserService.login(phone)
+      if(res_login == "user not found")
         setErrorMessage('電話輸入錯誤')
       else {
-        setUser(res_user)
-        localStorage.setItem('@user', JSON.stringify(res_user))
+        setUser(res_login)
+        localStorage.setItem('@user', JSON.stringify(res_login))
         setSuccessMessage('登入成功')
       }  
     }
@@ -92,7 +103,7 @@ export function UserForm() {
       setErrorMessage('登入過程中出現錯誤');
       console.log(e)
     }
-    //The below code is origin code
+    //The below code is origin code of login
 /*
     try {
       const response = await fetch('/api/users/login', {
