@@ -6,7 +6,7 @@ Endpoints:
 - GET /: Get on sell items
 - GET /cart/{userId}:  Get user shopping cart items 
 - PATCH /cart/quantity/{itemId}: Update quantity of item with id {itemId}
-- PATCH /cart/status/{itemId}: Update status to '已接單' with id {itemId}
+- PATCH /cart/status/{itemId}: Update status to '已送單' with id {itemId}
 - DELETE /cart/{itemId}: Delete specific item in shopping cart
 
 '''
@@ -86,8 +86,8 @@ async def add_cart(req: AddCartRequest, conn: Connection = Depends(get_db)):
     try:
         logging.info('check whether insert the same item')
         cur.execute(
-            "SELECT produce_id FROM agricultural_shopping_cart WHERE produce_id = %s AND buyer_id = %s", 
-            (req.produce_id, req.buyer_id, )
+            "SELECT produce_id FROM agricultural_shopping_cart WHERE produce_id = %s AND buyer_id = %s AND status = %s", 
+            (req.produce_id, req.buyer_id, '未送單')
         )
         repeated_id = cur.fetchone()
         if repeated_id:
@@ -97,7 +97,7 @@ async def add_cart(req: AddCartRequest, conn: Connection = Depends(get_db)):
         cur.execute(
             """INSERT INTO agricultural_shopping_cart (buyer_id, produce_id, quantity, status) 
             VALUES (%s, %s, %s, %s) RETURNING id""",
-            (req.buyer_id, req.produce_id, req.quantity, '未接單')
+            (req.buyer_id, req.produce_id, req.quantity, '未送單')
         )
         itemId = cur.fetchone()[0]
         conn.commit()
@@ -129,7 +129,7 @@ async def get_seller_item(userId: int, conn: Connection=Depends(get_db)):
             """SELECT cart.id, produce.id, produce.name, produce.img_link, produce.price, cart.quantity, produce.seller_id
             FROM agricultural_shopping_cart as cart
             JOIN agricultural_produce as produce ON cart.produce_id=produce.id
-            WHERE buyer_id = %s AND produce.off_shelf_date >= %s AND cart.status= %s""", (userId, today, '未送單'))
+            WHERE buyer_id = %s AND produce.off_shelf_date >= %s AND cart.status = %s""", (userId, today, '未送單'))
 
         items = cur.fetchall()
         logging.info('start create product list')
