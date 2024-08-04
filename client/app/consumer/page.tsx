@@ -105,7 +105,7 @@ export default function Page() {
       <NavigationBar /> 
       <header className="flex flex-col w-full bg-lime-800 lg:h-[300px] h-[160px] text-center items-center shadow-2xl sticky top-0 z-20">
        
-        <p className="lg:text-5xl text-3xl font-bold tracking-wides lg:py-[50px] py-[15px] text-neutral-50">部落農產品</p>
+        <p className="lg:text-5xl text-2xl font-bold tracking-wides lg:py-[50px] py-[15px] text-neutral-50">部落農產品</p>
         <div className="flex flex-col lg:w-1/4 w-3/4">
           <div className="flex w-full items-center space-x-2 ">
             <Input 
@@ -137,14 +137,23 @@ export default function Page() {
               </SelectContent>
             </Select>   
         </div>
-        <Button 
-          variant="outline" 
-          className="absolute right-1 top-1 lg:px-4 lg:py-2 p-1 lg:text-2xl text-sm font-bold border-2 border-black-500 text-black-500 hover:bg-black hover:text-white">
-          <FontAwesomeIcon icon={faShoppingCart} className="lg:mr-2 max-h-fit max-w-fit"/>
-          <Link href="/consumer/shopping_cart">
-            購物車
-          </Link> 
-        </Button>
+        <div className="flex flex-row lg:space-x-2 space-x-0.5 absolute right-1 top-1">
+          <Button 
+            variant="outline" 
+            className="lg:px-4 lg:py-2 p-1 lg:text-2xl text-xs font-bold border-2 border-black-500 text-black-500 hover:bg-black hover:text-white">
+            <Link href="/consumer/purchased_item">
+              我的商品
+            </Link> 
+          </Button>
+          <Button 
+            variant="outline" 
+            className=" lg:px-4 lg:py-2 p-1 lg:text-2xl text-xs font-bold border-2 border-black-500 text-black-500 hover:bg-black hover:text-white">
+            <FontAwesomeIcon icon={faShoppingCart} className="lg:mr-2 max-h-fit max-w-fit"/>
+            <Link href="/consumer/shopping_cart">
+              購物車
+            </Link> 
+          </Button>
+        </div>
         {cartMessage != 'empty' && 
         <Alert className="absolute bg-yellow-300 text-black right-1 top-full w-fit text-center px-4 py-2">
           <AlertDescription className="lg:text-3xl text-md">

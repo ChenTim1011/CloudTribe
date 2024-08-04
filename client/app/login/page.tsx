@@ -27,9 +27,8 @@ const LoginPage: React.FC = () => {
               返回主頁
           </Button>
       </div>
-
       <div className="flex-grow flex items-center justify-center">
-        <div className="bg-white bg-opacity-75 p-16 rounded-lg shadow-lg">
+        <div className="bg-white bg-opacity-75 lg:p-16 p-12 rounded-lg shadow-lg">
           <UserForm />
         </div>
       </div>

@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAuth } from '@/components/lib/AuthProvider';
 import  { User }  from '@/services/interface'
+import UserService from '@/services/user/user'
 
 /**
  * UserForm component for registering and logging in users.
@@ -42,6 +43,19 @@ export function UserForm() {
       return;
     }
 
+    try{
+      const res_register = await UserService.register(name, phone)
+      if(res_register == "phone exists")
+        setErrorMessage('電話號碼已經存在')
+      else
+        setSuccessMessage('註冊成功')
+    }
+    catch(e){
+      setErrorMessage('註冊過程中出現錯誤')
+      console.log(e)
+    }
+    //The below code is origin code of register
+    /*
     try {
       console.log("Creating new user with name and phone:", name, phone);
       const response = await fetch('/api/users', {
@@ -65,21 +79,33 @@ export function UserForm() {
     } catch (error) {
       console.error("Error during handleRegister:", error);
       setErrorMessage('註冊過程中出現錯誤');
-    }
+    }*/
   };
 
   /**
    * Handles the login process when the user clicks the "登入" button.
    */
   const handleLogin = async () => {
-    console.log("Starting handleLogin");
-
     // clear error and success messages
     setErrorMessage('');
     setSuccessMessage('');
-
+    try{
+      const res_login = await UserService.login(phone)
+      if(res_login == "user not found")
+        setErrorMessage('電話輸入錯誤')
+      else {
+        setUser(res_login)
+        localStorage.setItem('@user', JSON.stringify(res_login))
+        setSuccessMessage('登入成功')
+      }  
+    }
+    catch(e){
+      setErrorMessage('登入過程中出現錯誤');
+      console.log(e)
+    }
+    //The below code is origin code of login
+/*
     try {
-      console.log("Logging in with phone:", phone);
       const response = await fetch('/api/users/login', {
         method: 'POST',
         headers: {
@@ -108,11 +134,11 @@ export function UserForm() {
     } catch (error) {
       console.error("Error during handleLogin:", error);
       setErrorMessage('登入過程中出現錯誤');
-    }
+    }*/
   };
 
   return (
-    <Tabs defaultValue="login" className="w-[400px]">
+    <Tabs defaultValue="login" className="lg:w-[400px] w-full">
       <TabsList className="grid w-full grid-cols-2">
         <TabsTrigger value="register">註冊</TabsTrigger>
         <TabsTrigger value="login">登入</TabsTrigger>

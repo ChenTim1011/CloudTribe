@@ -12,7 +12,7 @@ import UserService from '@/services/user/user'
 import { User, CartItem, PurchaseProductRequest } from '@/services/interface'
 import { useRouter } from 'next/navigation'
 import Link from "next/link"
-import { MutableRequestCookiesAdapter } from "next/dist/server/web/spec-extension/adapters/request-cookies";
+
 
 export default function ShoppingCart(){
   const [user, setUser] = useState<User>()
@@ -93,10 +93,7 @@ export default function ShoppingCart(){
             }
             const res_order = await ConsumerService.add_product_order(req) 
             const res_cart_status = await ConsumerService.update_shopping_cart_status(item?.id)
-            
-
-            //未完成:
-            //回到購買商品頁面
+          
           }
           catch(e){
             console.log(e)
