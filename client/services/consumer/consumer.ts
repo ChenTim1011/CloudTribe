@@ -58,7 +58,7 @@ class ConsumerService{
     return data
   }
   async update_shopping_cart_quantity(itemId: Number, quantity: Number){
-    const res = await fetch(`/api/consumer/cart/${itemId}`, {
+    const res = await fetch(`/api/consumer/cart/quantity/${itemId}`, {
       method: 'PATCH',
       headers: {
         'Content-Type': 'application/json',

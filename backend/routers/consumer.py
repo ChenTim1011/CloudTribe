@@ -166,7 +166,7 @@ async def delete_cart_item(itemId: int, conn: Connection=Depends(get_db)):
         raise HTTPException(status_code=500, detail=str(e)) from e
     finally:
         cur.close()
-@router.patch("/cart/{itemId}")
+@router.patch("/cart/quantity/{itemId}")
 async def update_cart_quantity(itemId: int, req: UpdateCartQuantityRequest, conn: Connection = Depends(get_db)):
     """
     Update quantity of shopping cart item.
