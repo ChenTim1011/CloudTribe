@@ -42,5 +42,23 @@ class UserService {
       throw new Error(`Error: ${data.detail}`)
     return data
   }
+  async login(phone: string) {
+    const res = await fetch('/api/users/login', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ phone }),
+    });
+    const data = await res.json()
+    if(!res.ok){
+      if(data.detail.includes('404'))
+        return "user not found" 
+      else
+        throw new Error(`Error: ${data.detail}`) 
+    }
+      
+    return data
+  }
 }
 export default new UserService()

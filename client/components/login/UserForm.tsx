@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAuth } from '@/components/lib/AuthProvider';
 import  { User }  from '@/services/interface'
+import UserService from '@/services/user/user'
 
 /**
  * UserForm component for registering and logging in users.
@@ -77,9 +78,23 @@ export function UserForm() {
     // clear error and success messages
     setErrorMessage('');
     setSuccessMessage('');
-
+    try{
+      const res_user = await UserService.login(phone)
+      if(res_user == "user not found")
+        setErrorMessage('電話輸入錯誤')
+      else {
+        setUser(res_user)
+        localStorage.setItem('@user', JSON.stringify(res_user))
+        setSuccessMessage('登入成功')
+      }  
+    }
+    catch(e){
+      setErrorMessage('登入過程中出現錯誤');
+      console.log(e)
+    }
+    //The below code is origin code
+/*
     try {
-      console.log("Logging in with phone:", phone);
       const response = await fetch('/api/users/login', {
         method: 'POST',
         headers: {
@@ -108,7 +123,7 @@ export function UserForm() {
     } catch (error) {
       console.error("Error during handleLogin:", error);
       setErrorMessage('登入過程中出現錯誤');
-    }
+    }*/
   };
 
   return (
