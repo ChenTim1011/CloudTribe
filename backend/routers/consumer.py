@@ -129,7 +129,7 @@ async def get_seller_item(userId: int, conn: Connection=Depends(get_db)):
             """SELECT cart.id, produce.id, produce.name, produce.img_link, produce.price, cart.quantity, produce.seller_id
             FROM agricultural_shopping_cart as cart
             JOIN agricultural_produce as produce ON cart.produce_id=produce.id
-            WHERE buyer_id = %s AND produce.off_shelf_date >= %s AND cart.status= %s""", (userId, today, '未接單'))
+            WHERE buyer_id = %s AND produce.off_shelf_date >= %s AND cart.status= %s""", (userId, today, '未送單'))
 
         items = cur.fetchall()
         logging.info('start create product list')
