@@ -112,7 +112,7 @@ export function UserForm() {
   };
 
   return (
-    <Tabs defaultValue="login" className="w-[400px]">
+    <Tabs defaultValue="login" className="lg:w-[400px] w-full">
       <TabsList className="grid w-full grid-cols-2">
         <TabsTrigger value="register">註冊</TabsTrigger>
         <TabsTrigger value="login">登入</TabsTrigger>
