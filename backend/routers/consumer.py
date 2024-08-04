@@ -1,3 +1,15 @@
+'''
+Endpoints:
+- POST /: Create a new driver
+- POST /cart: Add item to shopping cart
+- POST /order: Add agricultural item order //may change later to add necessity
+- GET /: Get on sell items
+- GET /cart/{userId}:  Get user shopping cart items 
+- PATCH /cart/quantity/{itemId}: Update quantity of item with id {itemId}
+- PATCH /cart/status/{itemId}: Update status to '已接單' with id {itemId}
+- DELETE /cart/{itemId}: Delete specific item in shopping cart
+
+'''
 from fastapi import APIRouter, HTTPException, Depends
 from psycopg2.extensions import connection as Connection
 from backend.models.consumer import ProductInfo, AddCartRequest, CartItem, UpdateCartQuantityRequest, PurchaseProductRequest
@@ -224,6 +236,36 @@ async def purchase_product(req: PurchaseProductRequest, conn: Connection = Depen
     except Exception as e:
         conn.rollback()
         logging.error("Error occurred: %s", str(e))
+        raise HTTPException(status_code=500, detail=str(e)) from e
+    finally:
+        cur.close()
+
+@router.patch("/cart/status/{itemId}")
+async def update_cart_item_status(itemId: int, conn: Connection = Depends(get_db)):
+    """
+    Update quantity of shopping cart item.
+
+    Args:
+        itemId (int): The item's id.
+        conn (Connection): The database connection.
+
+    Returns:
+        dict: A success message.
+    """
+    cur = conn.cursor()
+    try:
+        cur.execute(
+            "UPDATE agricultural_shopping_cart SET status = %s WHERE id = %s",
+            ( '已送單', itemId )
+        )
+        if cur.rowcount == 0:
+            raise HTTPException(status_code=404, detail="Item not found")
+        
+        conn.commit()
+        return {"status": "success"}
+    except Exception as e:
+        conn.rollback()
+        logging.error("Error updating cart item status: %s", str(e))
         raise HTTPException(status_code=500, detail=str(e)) from e
     finally:
         cur.close()
