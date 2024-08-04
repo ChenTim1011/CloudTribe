@@ -92,8 +92,10 @@ export default function ShoppingCart(){
               category: 'agriculture'
             }
             const res_order = await ConsumerService.add_product_order(req) 
+            const res_cart_status = await ConsumerService.update_shopping_cart_status(item?.id)
+            
+
             //未完成:
-            //把送出訂單的購物車商品改成已送單
             //回到購買商品頁面
           }
           catch(e){
@@ -103,6 +105,8 @@ export default function ShoppingCart(){
       })
       setMessage('成功訂購商品')
       setTimeout(() => setMessage('empty'), 2000)
+      router.replace('/consumer')
+      
     }
   }
   const handleCheckBox: React.MouseEventHandler<HTMLButtonElement> = (event) => {

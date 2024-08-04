@@ -84,7 +84,7 @@ CREATE TABLE agricultural_shopping_cart (
     buyer_id INTEGER NOT NULL,
     produce_id INTEGER NOT NULL,
     quantity INTEGER NOT NULL,
-    status VARCHAR(5) NOT NULL --status:已送單/未送單
+    status VARCHAR(5) NOT NULL DEFAULT '未送單'--status:已送單/未送單
 )
 --order of agricultural products and necessities
 CREATE TABLE product_order(
