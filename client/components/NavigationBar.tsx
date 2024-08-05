@@ -25,19 +25,19 @@ interface authProps {
 const AuthComponent: React.FC<authProps> = (prop) => {
   return(
     <div className='flex flex-row items-center'>
-      {prop.userInfo?.id == 'empty' &&
+      {prop.userInfo?.id == 0 &&
       <MenubarMenu>
         <MenubarTrigger>
           <Link href="/login">登入</Link>
         </MenubarTrigger>
       </MenubarMenu>}
-      {prop.userInfo?.id != 'empty' &&
+      {prop.userInfo?.id != 0 &&
       <MenubarMenu>
         <MenubarTrigger>
           <Link href="/login" onClick={() => UserService.emptyLocalStorageUser()}>登出</Link>
         </MenubarTrigger>
       </MenubarMenu>}
-      {prop.userInfo?.id != 'empty' &&
+      {prop.userInfo?.id != 0 &&
      
         <Link href='/setting'><FontAwesomeIcon icon={faGear}/></Link>
       }

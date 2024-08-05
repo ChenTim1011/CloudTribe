@@ -21,10 +21,7 @@ export interface BasicProductInfo{
   off_shelf_date: string
 }
 
-export interface ProductInfo extends UploadItem {
-  id: Number
-  upload_date: string
-}
+
 export interface AddCartRequest {
   buyer_id: Number
   produce_id: Number
@@ -39,7 +36,7 @@ export interface CartItem {
   quantity: Number
   seller_id: Number
 }
-export interface PurchaseProductRequest{
+export interface PurchasedProductRequest{
   seller_id: Number
   buyer_id: Number
   buyer_name: string
@@ -48,6 +45,26 @@ export interface PurchaseProductRequest{
   starting_point: string
   end_point: string
   category: string //agriculture or necessity
+}
+export interface PurchasedProduct{
+  order_id: Number
+  quantity: Number
+  timestamp: string
+  product_name: string
+  product_price: Number
+  img_url: string
+  status: string //未接單or已接單or已送達
+}
+export interface ProductInfo {
+  id: Number
+  name: string
+  price: Number
+  category: string
+  total_quantity: Number
+  upload_date: string
+  off_shelf_date: string
+  img_link: string
+  img_id: string  
 }
  
     

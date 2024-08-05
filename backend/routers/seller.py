@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException, Depends
 from psycopg2.extensions import connection as Connection
-from backend.models.seller import UploadImageResponse, UploadImageRequset, UploadItemRequest, ProductBasicInfo
+from backend.models.seller import UploadImageResponse, UploadImageRequset, UploadItemRequest, ProductBasicInfo, ProductInfo
 from backend.database import get_db_connection
 from dotenv import load_dotenv
 import os
@@ -112,6 +112,45 @@ async def get_seller_item(sellerId: int, conn: Connection=Depends(get_db)):
                 "off_shelf_date":str(product[3]),
             })
         return product_list
+    except Exception as e:
+        conn.rollback()
+        logging.error("Error occurred: %s", str(e))
+        raise HTTPException(status_code=500, detail=str(e)) from e
+    finally:
+        cur.close()
+
+@router.get('/product/{productId}', response_model=ProductInfo)
+async def get_product_info(productId: int, conn: Connection=Depends(get_db)):
+    """
+    Get Seller Product
+
+    Args:
+        productId(str):The product id
+        conn(Connection): The database connection.
+
+    Returns:
+        ProductInfo: Specific product information.
+    """
+    cur = conn.cursor()
+    try:
+        logging.info("Get item information with id is %s.", productId)
+        cur.execute(
+            """SELECT id, name, price, category, total_quantity, upload_date, off_shelf_date, img_link, img_id
+            FROM agricultural_produce WHERE id = %s""", (productId,))
+ 
+        product = cur.fetchone()
+        _product = {
+            "id":product[0],
+            "name": product[1],
+            "price": product[2],
+            "category": product[3],
+            "total_quantity": product[4],
+            "upload_date":str(product[5]),
+            "off_shelf_date": str(product[6]),
+            "img_link": product[7],
+            "img_id": product[8]
+        }
+        return _product
     except Exception as e:
         conn.rollback()
         logging.error("Error occurred: %s", str(e))

@@ -9,7 +9,7 @@ import { faTrashAlt } from '@fortawesome/free-solid-svg-icons';
 import { NavigationBar } from'@/components/NavigationBar'
 import ConsumerService from '@/services/consumer/consumer'
 import UserService from '@/services/user/user'
-import { User, CartItem, PurchaseProductRequest } from '@/services/interface'
+import { User, CartItem, PurchasedProductRequest } from '@/services/interface'
 import { useRouter } from 'next/navigation'
 import Link from "next/link"
 
@@ -81,7 +81,7 @@ export default function ShoppingCart(){
         if(item != undefined && user != undefined){
           try{
             const res_seller = await UserService.get_user(item?.seller_id)
-            let req: PurchaseProductRequest = {
+            let req: PurchasedProductRequest = {
               seller_id: item?.seller_id,
               buyer_id: user?.id,
               buyer_name: user?.name,

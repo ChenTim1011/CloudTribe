@@ -32,5 +32,19 @@ class ProductBasicInfo(BaseModel):
     name: str
     upload_date: str
     off_shelf_date: str
+class ProductInfo(BaseModel):
+    id: int
+    name: str
+    price: int
+    category: str
+    total_quantity: int
+    upload_date: str
+    off_shelf_date: str
+    img_link: str
+    img_id: str
+    
+
+
+
 
 
