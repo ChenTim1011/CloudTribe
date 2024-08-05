@@ -49,5 +49,13 @@ export interface PurchaseProductRequest{
   end_point: string
   category: string //agriculture or necessity
 }
+export interface PurchasedProductResponse{
+  order_id: Number
+  quantity: Number
+  timestamp: string
+  product_name: string
+  product_price: Number
+  img_url: string
+}
  
     

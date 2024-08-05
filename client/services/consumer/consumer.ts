@@ -1,4 +1,4 @@
-import { AddCartRequest, PurchaseProductRequest } from '@/services/interface'
+import { AddCartRequest, PurchasedProductRequest } from '@/services/interface'
 class ConsumerService{
   async get_on_sell_product(){
     const res = await fetch('/api/consumer',{
@@ -70,7 +70,7 @@ class ConsumerService{
       throw new Error(`Error: ${data.detail}`)
     return data
   }
-  async add_product_order(req: PurchaseProductRequest){
+  async add_product_order(req: PurchasedProductRequest){
     const res = await fetch('/api/consumer/order',{
         method: 'POST',
         headers: {
@@ -93,6 +93,19 @@ class ConsumerService{
     const data = await res.json()
     if(!res.ok)
       throw new Error(`Error: ${data.detail}`)
+    return data
+  }
+  async get_purchased_items(userId: Number){
+    const res = await fetch(`/api/consumer/purchased/${userId}`,{
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+    })
+    const data = await res.json()
+    if(!res.ok){
+      throw new Error(`Error: ${data.detail}`)
+    }
     return data
   }
 }

@@ -35,4 +35,14 @@ class PurchaseProductRequest(BaseModel):
     end_point: str
     category: str #agriculture or necessity
 
+class PurchasedProductResponse(BaseModel):
+    order_id: int
+    quantity: int
+    timestamp: str
+    product_name: str
+    product_price: int
+    img_url: str
+
+
+
 

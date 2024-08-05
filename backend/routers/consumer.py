@@ -12,7 +12,7 @@ Endpoints:
 '''
 from fastapi import APIRouter, HTTPException, Depends
 from psycopg2.extensions import connection as Connection
-from backend.models.consumer import ProductInfo, AddCartRequest, CartItem, UpdateCartQuantityRequest, PurchaseProductRequest
+from backend.models.consumer import ProductInfo, AddCartRequest, CartItem, UpdateCartQuantityRequest, PurchaseProductRequest, PurchasedProductResponse
 from backend.database import get_db_connection
 import logging
 from typing import List
@@ -266,6 +266,47 @@ async def update_cart_item_status(itemId: int, conn: Connection = Depends(get_db
     except Exception as e:
         conn.rollback()
         logging.error("Error updating cart item status: %s", str(e))
+        raise HTTPException(status_code=500, detail=str(e)) from e
+    finally:
+        cur.close()
+
+@router.get('/purchased/{userId}', response_model=List[PurchasedProductResponse])
+async def get_purchase_item(userId: int, conn: Connection=Depends(get_db)):
+    """
+    Get User purchased items
+
+    Args:
+        userId(str):The user id
+        conn(Connection): The database connection.
+
+    Returns:
+        List[PurchasedProductResponse]: A list of purchased items.
+    """
+    cur = conn.cursor()
+    try:
+        logging.info("Get purchased items of user whose id is %s.", userId)
+        cur.execute(
+            """SELECT order.id, order.quantity, order.timestamp, produce.name, produce.price, produce.img_link
+            FROM product_order as order
+            JOIN agricultural_produce as produce ON order.produce_id=produce.id
+            WHERE buyer_id = %s  AND order.category = %s""", (userId, 'agriculture'))
+
+        items = cur.fetchall()
+        logging.info('start create purchased product list')
+        purchased_item_list:List[PurchasedProductResponse] = []
+        for item in items:
+            purchased_item_list.append({
+                "order_id":item[0],
+                "quantity":item[1],
+                "timestamp":item[2],
+                "product_name":item[3],
+                "product_price":item[4],
+                "img_url":item[5]
+            })
+        return purchased_item_list
+    except Exception as e:
+        conn.rollback()
+        logging.error("Error occurred: %s", str(e))
         raise HTTPException(status_code=500, detail=str(e)) from e
     finally:
         cur.close()
