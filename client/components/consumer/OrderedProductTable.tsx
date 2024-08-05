@@ -16,7 +16,6 @@ import Link from "next/link"
 
 interface orderedProductProp {
   products:PurchasedProduct[]
-
 }
 export const OrderedProductTable:React.FC<orderedProductProp> = (prop) => {
   return (
@@ -36,7 +35,7 @@ export const OrderedProductTable:React.FC<orderedProductProp> = (prop) => {
             <TableCell className="text-center lg:text-lg text-balance w-1/4">{product.product_name}</TableCell>
             <TableCell className="text-center lg:text-lg text-balance w-1/4">{(Number(product.product_price) * Number(product.quantity)).toString()}</TableCell>
             <TableCell className="w-1/4 text-center">
-              <ProductDetailDialog/>
+              <ProductDetailDialog products={prop.products} order_id={product.order_id}/>
             </TableCell>
           </TableRow>
         ))}
