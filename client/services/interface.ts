@@ -21,10 +21,7 @@ export interface BasicProductInfo{
   off_shelf_date: string
 }
 
-export interface ProductInfo extends UploadItem {
-  id: Number
-  upload_date: string
-}
+
 export interface AddCartRequest {
   buyer_id: Number
   produce_id: Number
@@ -57,6 +54,17 @@ export interface PurchasedProduct{
   product_price: Number
   img_url: string
   status: string //未接單or已接單or已送達
+}
+export interface ProductInfo {
+  id: Number
+  name: string
+  price: Number
+  category: string
+  total_quantity: Number
+  upload_date: string
+  off_shelf_date: string
+  img_link: string
+  img_id: string  
 }
  
     

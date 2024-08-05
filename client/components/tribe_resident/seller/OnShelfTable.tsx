@@ -11,12 +11,24 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
+import Link from "next/link"
+import { useRouter } from "next/navigation"
 
 
 interface sellerProp {
   products: BasicProductInfo[]
 }
 export const OnShelfTable:React.FC<sellerProp> = (prop) => {
+  const router = useRouter()
+  
+  const handleCheckDetail:React.MouseEventHandler<HTMLButtonElement> = (event) => {
+    const target = event.target as HTMLButtonElement
+    const id = target.id.split('-')[1]
+    console.log('id',id)
+    localStorage.setItem('@current_seller_product_id', id)
+    router.push("/tribe_resident/seller/product_detail")
+
+  }
   return (
     <Table>
       <TableHeader>
@@ -32,8 +44,8 @@ export const OnShelfTable:React.FC<sellerProp> = (prop) => {
             <TableCell className="text-center lg:text-lg text-balance w-1/3">{product.upload_date}</TableCell>
             <TableCell className="text-center lg:text-lg text-balance w-1/3">{product.name}</TableCell>
             <TableCell className="w-1/3">
-              <Button className='items-center'>
-                查看 
+              <Button  id={'link-'+ product.id.toString()} className='items-center' onClick={handleCheckDetail} >
+                查看
               </Button>
             </TableCell>
           </TableRow>
