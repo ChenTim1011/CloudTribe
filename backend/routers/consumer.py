@@ -286,7 +286,7 @@ async def get_purchase_item(userId: int, conn: Connection=Depends(get_db)):
     try:
         logging.info("Get purchased items of user whose id is %s.", userId)
         cur.execute(
-            """SELECT o.id, o.quantity, o.timestamp, produce.name, produce.price, produce.img_link
+            """SELECT o.id, o.quantity, o.timestamp, produce.name, produce.price, produce.img_link, o.status
             FROM product_order as o
             JOIN agricultural_produce as produce ON o.produce_id=produce.id
             WHERE buyer_id = %s  AND o.category = %s""", (userId, 'agriculture'))
@@ -301,7 +301,9 @@ async def get_purchase_item(userId: int, conn: Connection=Depends(get_db)):
                 "timestamp":str(item[2]),
                 "product_name":item[3],
                 "product_price":item[4],
-                "img_url":item[5]
+                "img_url":item[5],
+                "status":item[6]
+
             })
         return purchased_item_list
     except Exception as e:

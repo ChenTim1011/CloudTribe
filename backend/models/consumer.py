@@ -42,6 +42,7 @@ class PurchasedProduct(BaseModel):
     product_name: str
     product_price: int
     img_url: str
+    status: str
 
 
 
