@@ -39,7 +39,7 @@ export interface CartItem {
   quantity: Number
   seller_id: Number
 }
-export interface PurchaseProductRequest{
+export interface PurchasedProductRequest{
   seller_id: Number
   buyer_id: Number
   buyer_name: string
@@ -49,7 +49,7 @@ export interface PurchaseProductRequest{
   end_point: string
   category: string //agriculture or necessity
 }
-export interface PurchasedProductResponse{
+export interface PurchasedProduct{
   order_id: Number
   quantity: Number
   timestamp: string

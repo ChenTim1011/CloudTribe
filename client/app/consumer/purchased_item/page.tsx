@@ -7,29 +7,30 @@ import { OrderedProductTable } from "@/components/consumer/OrderedProductTable"
 import { ArrivedProductTable } from "@/components/consumer/ArrivedProductTable"
 import ConsumerService from '@/services/consumer/consumer'
 import UserSrevice from '@/services/user/user'
-import { User, PurchasedProductResponse } from '@/services/interface'
+import { User, PurchasedProduct } from '@/services/interface'
 import { useRouter } from 'next/navigation'
 import Link from "next/link"
 
 export default function Page(){
   const [user, setUser] = useState<User>()
-  const [purchasedItems, setPurchasedItem] = useState<PurchasedProductResponse>()
+  const [purchasedItems, setPurchasedItems] = useState<PurchasedProduct[]>([])
+  const router = useRouter()
   useEffect(()=>{
     const _user = UserSrevice.getLocalStorageUser()
     setUser(_user)
-  })
-  const get_purchased_items = async() => {
-    if(user != undefined){
-      try {
-        const res = await ConsumerService.get_purchased_items(user.id)
-      }
-      catch(e){
-        console.log(e)
-      }
-
+    if(_user.name == 'empty'){
+      router.replace('/login')
+    } 
+    get_purchased_items(_user)
+  },[])
+  const get_purchased_items = async(user: User) => {
+    try {
+      const res = await ConsumerService.get_purchased_items(user.id)
+      setPurchasedItems(res) 
     }
-      
-    
+    catch(e){
+      console.log(e)
+    }
   } 
  
   return(
@@ -41,10 +42,10 @@ export default function Page(){
           <TabsTrigger value="arrived" className="w-1/2">待收貨商品</TabsTrigger>
         </TabsList>
         <TabsContent value="ordered" className="justify-items-center text-center" >
-          <OrderedProductTable/>
+          <OrderedProductTable products={purchasedItems}/>
         </TabsContent>
         <TabsContent value="arrived" className="justify-items-center text-center">
-          <ArrivedProductTable/>
+          <ArrivedProductTable products={purchasedItems} user={user != undefined?user:{id:0, name:'empty', phone: 'empty', location:'empty'}}/>
         </TabsContent>    
       </Tabs>
     </div>

@@ -1,4 +1,4 @@
-import React from "react"
+import React, { useState } from "react"
 import { Button } from '@/components/ui/button'
 
 import {
@@ -9,21 +9,18 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
+import { PurchasedProduct, User } from '@/services/interface'
 import { NavigationBar } from "@/components/NavigationBar"
 import { ProductDetailDialog } from '@/components/consumer/ProductDetailDialog'
 import Link from "next/link"
 
-const products =[
-  {
-    order_id:1,
-    name:'蔬菜',
-    amount:'200', 
-    order_date:'2024-08-05',
 
-  }
-]
+interface arrivedProductProp {
+  products:PurchasedProduct[]
+  user: User
+}
+export const ArrivedProductTable:React.FC<arrivedProductProp> = (prop) => {
 
-export const ArrivedProductTable = () => {
   return (
     <div>
       <Table>
@@ -36,11 +33,11 @@ export const ArrivedProductTable = () => {
           </TableRow>
         </TableHeader>
         <TableBody> 
-          {products.map((product) => (
+          {prop.products.map((product) => (
             <TableRow key={product.order_id.toString()} className="flex flex-row items-center">
-                <TableCell className="text-center lg:text-lg text-balance w-1/4">{product.order_id}</TableCell>
-                <TableCell className="text-center lg:text-lg text-balance w-1/4">{product.name}</TableCell>
-                <TableCell className="text-center lg:text-lg text-balance w-1/4">{product.amount}</TableCell>
+                <TableCell className="text-center lg:text-lg text-balance w-1/4">{product.order_id.toString()}</TableCell>
+                <TableCell className="text-center lg:text-lg text-balance w-1/4">{product.product_name}</TableCell>
+                <TableCell className="text-center lg:text-lg text-balance w-1/4">{(Number(product.product_price) * Number(product.quantity)).toString()}</TableCell>
                 <TableCell className="w-1/4 text-center">
                 <Button variant='outline' className="hover:bg-black hover:text-white">確認</Button>
                 </TableCell>
@@ -49,7 +46,7 @@ export const ArrivedProductTable = () => {
         </TableBody>
         
       </Table>
-      <p>商品取貨地</p>
+      <p className="lg:text-2xl text-lg bg-[#E0EBAF] text-left m-3 text-center">商品取貨地:{prop.user.location}</p>
     </div>
   )
 }

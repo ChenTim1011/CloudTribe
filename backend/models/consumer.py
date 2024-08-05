@@ -35,7 +35,7 @@ class PurchaseProductRequest(BaseModel):
     end_point: str
     category: str #agriculture or necessity
 
-class PurchasedProductResponse(BaseModel):
+class PurchasedProduct(BaseModel):
     order_id: int
     quantity: int
     timestamp: str

@@ -9,21 +9,16 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import { NavigationBar } from "@/components/NavigationBar"
+import { PurchasedProduct } from "@/services/interface"
 import { ProductDetailDialog } from '@/components/consumer/ProductDetailDialog'
 import Link from "next/link"
 
-const products =[
-  {
-    order_id:1,
-    name:'蔬菜',
-    amount:'200', 
-    order_date:'2024-08-05',
 
-  }
-]
+interface orderedProductProp {
+  products:PurchasedProduct[]
 
-export const OrderedProductTable = () => {
+}
+export const OrderedProductTable:React.FC<orderedProductProp> = (prop) => {
   return (
     <Table>
       <TableHeader>
@@ -35,11 +30,11 @@ export const OrderedProductTable = () => {
         </TableRow>
       </TableHeader>
       <TableBody> 
-        {products.map((product) => (
+        {prop.products.map((product) => (
           <TableRow key={product.order_id.toString()} className="flex flex-row items-center">
-            <TableCell className="text-center lg:text-lg text-balance w-1/4">{product.order_id}</TableCell>
-            <TableCell className="text-center lg:text-lg text-balance w-1/4">{product.name}</TableCell>
-            <TableCell className="text-center lg:text-lg text-balance w-1/4">{product.amount}</TableCell>
+            <TableCell className="text-center lg:text-lg text-balance w-1/4">{product.order_id.toString()}</TableCell>
+            <TableCell className="text-center lg:text-lg text-balance w-1/4">{product.product_name}</TableCell>
+            <TableCell className="text-center lg:text-lg text-balance w-1/4">{(Number(product.product_price) * Number(product.quantity)).toString()}</TableCell>
             <TableCell className="w-1/4 text-center">
               <ProductDetailDialog/>
             </TableCell>

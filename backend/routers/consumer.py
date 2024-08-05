@@ -12,7 +12,7 @@ Endpoints:
 '''
 from fastapi import APIRouter, HTTPException, Depends
 from psycopg2.extensions import connection as Connection
-from backend.models.consumer import ProductInfo, AddCartRequest, CartItem, UpdateCartQuantityRequest, PurchaseProductRequest, PurchasedProductResponse
+from backend.models.consumer import ProductInfo, AddCartRequest, CartItem, UpdateCartQuantityRequest, PurchaseProductRequest, PurchasedProduct
 from backend.database import get_db_connection
 import logging
 from typing import List
@@ -270,7 +270,7 @@ async def update_cart_item_status(itemId: int, conn: Connection = Depends(get_db
     finally:
         cur.close()
 
-@router.get('/purchased/{userId}', response_model=List[PurchasedProductResponse])
+@router.get('/purchased/{userId}', response_model=List[PurchasedProduct])
 async def get_purchase_item(userId: int, conn: Connection=Depends(get_db)):
     """
     Get User purchased items
@@ -286,19 +286,19 @@ async def get_purchase_item(userId: int, conn: Connection=Depends(get_db)):
     try:
         logging.info("Get purchased items of user whose id is %s.", userId)
         cur.execute(
-            """SELECT order.id, order.quantity, order.timestamp, produce.name, produce.price, produce.img_link
-            FROM product_order as order
-            JOIN agricultural_produce as produce ON order.produce_id=produce.id
-            WHERE buyer_id = %s  AND order.category = %s""", (userId, 'agriculture'))
+            """SELECT o.id, o.quantity, o.timestamp, produce.name, produce.price, produce.img_link
+            FROM product_order as o
+            JOIN agricultural_produce as produce ON o.produce_id=produce.id
+            WHERE buyer_id = %s  AND o.category = %s""", (userId, 'agriculture'))
 
         items = cur.fetchall()
         logging.info('start create purchased product list')
-        purchased_item_list:List[PurchasedProductResponse] = []
+        purchased_item_list:List[PurchasedProduct] = []
         for item in items:
             purchased_item_list.append({
                 "order_id":item[0],
                 "quantity":item[1],
-                "timestamp":item[2],
+                "timestamp":str(item[2]),
                 "product_name":item[3],
                 "product_price":item[4],
                 "img_url":item[5]
