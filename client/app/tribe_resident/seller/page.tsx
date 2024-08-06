@@ -1,8 +1,7 @@
 'use client'
 import React, { useState, useEffect } from "react"
 import { SellerDialog } from "@/components/tribe_resident/seller/SellerDialog"
-import { OnShelfTable } from "@/components/tribe_resident/seller/OnShelfTable"
-import { HistoryProductTable } from "@/components/tribe_resident/seller/HistoryProductTable"
+import { ProductTable } from "@/components/tribe_resident/seller/ProductTable"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { NavigationBar } from "@/components/NavigationBar"
 import UseService from "@/services/user/user"
@@ -42,11 +41,11 @@ export default function Page(){
           <TabsTrigger value="history" className="w-1/2">我的歷史商品</TabsTrigger>
         </TabsList>
         <TabsContent value="on shelf" className="justify-items-center text-center" >
-          <OnShelfTable products={products.filter((product) => product.off_shelf_date >= today.toISOString().split('T')[0])}/>
+          <ProductTable products={products.filter((product) => product.off_shelf_date >= today.toISOString().split('T')[0])}/>
           <SellerDialog/>
         </TabsContent>
         <TabsContent value="history" className="justify-items-center text-center">
-          <HistoryProductTable products={products.filter((product) => product.off_shelf_date < today.toISOString().split('T')[0])}/>
+          <ProductTable products={products.filter((product) => product.off_shelf_date < today.toISOString().split('T')[0])}/>
         </TabsContent>    
       </Tabs>
     </div>

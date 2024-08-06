@@ -19,9 +19,18 @@ export default function Page(){
   return(
     <div>
       <NavigationBar/>
-      <div>
-        <p>{productInfo?.name}</p>
+      <div className="items-center border-y-2 border-black">
+        <div className="flex flex-row justify-center items-center lg:space-x-5 space-x-3 bg-[#E0EBAF] lg:p-8 p-4">
+          <img src={productInfo?.img_link} className="lg:w-2/12 w-1/2"/>
+          <div className="flex flex-col text-md lg:text-2xl leading-normal lg:leading-relaxed">
+            <p>商品名稱:{productInfo?.name}</p>
+            <p>商品價格:${productInfo?.price.toString()}</p>
+            <p>商品總數量:{productInfo?.total_quantity.toString()}</p>
+            <p>下架日期:{productInfo?.off_shelf_date}</p>
+          </div>
+        </div>
       </div>
+      <div className="h-4"/>
       <ProductDetailTable />
     </div>
   )

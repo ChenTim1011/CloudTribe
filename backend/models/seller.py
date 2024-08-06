@@ -42,6 +42,16 @@ class ProductInfo(BaseModel):
     off_shelf_date: str
     img_link: str
     img_id: str
+
+class ProductOrderInfo(BaseModel):
+    order_id: int
+    buyer_name: str
+    quantity: int
+    product_price: int
+    status: str
+    timestamp: str
+
+
     
 
 
