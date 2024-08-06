@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException, Depends
 from psycopg2.extensions import connection as Connection
-from backend.models.seller import UploadImageResponse, UploadImageRequset, UploadItemRequest, ProductBasicInfo, ProductInfo
+from backend.models.seller import UploadImageResponse, UploadImageRequset, UploadItemRequest, ProductBasicInfo, ProductInfo, ProductOrderInfo
 from backend.database import get_db_connection
 from dotenv import load_dotenv
 import os
@@ -122,7 +122,7 @@ async def get_seller_item(sellerId: int, conn: Connection=Depends(get_db)):
 @router.get('/product/{productId}', response_model=ProductInfo)
 async def get_product_info(productId: int, conn: Connection=Depends(get_db)):
     """
-    Get Seller Product
+    Get Seller Product information
 
     Args:
         productId(str):The product id
@@ -157,6 +157,50 @@ async def get_product_info(productId: int, conn: Connection=Depends(get_db)):
         raise HTTPException(status_code=500, detail=str(e)) from e
     finally:
         cur.close()
+
+
+@router.get('/product/order/{productId}', response_model=List[ProductOrderInfo])
+async def get_product_order(productId: int, conn: Connection=Depends(get_db)):
+    """
+    Get orders of seller product
+
+    Args:
+        productId(str):The product id
+        conn(Connection): The database connection.
+
+    Returns:
+        List[ProductOrderInfo]: A list of product order information.
+    """
+    cur = conn.cursor()
+    try:
+        logging.info("Get orders of item with id %s.", productId)
+        cur.execute(
+            """SELECT o.id, o.buyer_name, o.quantity, produce.price, o.status, o.timestamp
+            FROM product_order as o
+            JOIN agricultural_produce as produce ON o.produce_id=produce.id
+            WHERE produce_id = %s  AND o.category = %s""", (productId, 'agriculture'))
+
+        items = cur.fetchall()
+        logging.info('start create product order list')
+        item_order_list:List[ProductOrderInfo] = []
+        for item in items:
+            item_order_list.append({
+                "order_id":item[0],
+                "buyer_name":item[1],
+                "quantity":item[2],
+                "product_price":item[3],
+                "status":item[4],
+                "timestamp":str(item[5]),
+            })
+        return item_order_list
+    except Exception as e:
+        conn.rollback()
+        logging.error("Error occurred: %s", str(e))
+        raise HTTPException(status_code=500, detail=str(e)) from e
+    finally:
+        cur.close()
+
+ 
 
 
 

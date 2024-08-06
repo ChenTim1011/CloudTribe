@@ -66,5 +66,15 @@ export interface ProductInfo {
   img_link: string
   img_id: string  
 }
+
+export interface ProductOrderInfo {
+  order_id: Number
+  buyer_name: string
+  quantity: Number
+  product_price: Number
+  status: string
+  timestamp: string
+}
+    
  
     

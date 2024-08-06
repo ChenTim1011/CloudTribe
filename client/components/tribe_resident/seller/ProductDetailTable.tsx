@@ -1,4 +1,6 @@
-import React from "react"
+import React, { useState, useEffect } from "react"
+import SellerService from '@/services/seller/seller'
+import { ProductOrderInfo } from "@/services/interface"
 import { Button } from '@/components/ui/button'
 
 import {
@@ -10,52 +12,19 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-const invoices = [
-    {
-      invoice: "INV001",
-      paymentStatus: "Paid",
-      totalAmount: "$250.00",
-      paymentMethod: "Credit Card",
-    },
-    {
-      invoice: "INV002",
-      paymentStatus: "Pending",
-      totalAmount: "$150.00",
-      paymentMethod: "PayPal",
-    },
-    {
-      invoice: "INV003",
-      paymentStatus: "Unpaid",
-      totalAmount: "$350.00",
-      paymentMethod: "Bank Transfer",
-    },
-    {
-      invoice: "INV004",
-      paymentStatus: "Paid",
-      totalAmount: "$450.00",
-      paymentMethod: "Credit Card",
-    },
-    {
-      invoice: "INV005",
-      paymentStatus: "Paid",
-      totalAmount: "$550.00",
-      paymentMethod: "PayPal",
-    },
-    {
-      invoice: "INV006",
-      paymentStatus: "Pending",
-      totalAmount: "$200.00",
-      paymentMethod: "Bank Transfer",
-    },
-    {
-      invoice: "INV007",
-      paymentStatus: "Unpaid",
-      totalAmount: "$300.00",
-      paymentMethod: "Credit Card",
-    },
-]
 
-export const ProductDetailTable= ()=> {
+export const ProductDetailTable = ()=> {
+  const [orders, setOrders] = useState<ProductOrderInfo[]>([])
+  useEffect(() => {
+    let productId = localStorage.getItem('@current_seller_product_id')
+    if(productId != null)
+      get_product_order(parseInt(productId))
+ 
+  }, [])
+  const get_product_order = async(productId: Number) => {
+    const res = await SellerService.get_product_order(productId)
+    setOrders(res)
+  }
   return (
     <Table>
       <TableHeader>
@@ -64,17 +33,19 @@ export const ProductDetailTable= ()=> {
           <TableHead className="text-left text-lg whitespace-nowrap">購買者姓名</TableHead>
           <TableHead className="text-left text-lg whitespace-nowrap">購買數量</TableHead>
           <TableHead className="text-left text-lg whitespace-nowrap">總金額</TableHead>
-          <TableHead className="text-left text-lg whitespace-nowrap">商品狀態</TableHead>
+          <TableHead className="text-left text-lg whitespace-nowrap">訂單狀態</TableHead>
+          <TableHead className="text-left text-lg whitespace-nowrap">下單日期</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
-        {invoices.map((invoice) => (
-          <TableRow key={invoice.invoice}>
-            <TableCell className="text-left">{invoice.invoice}</TableCell>
-            <TableCell className="text-left">{invoice.invoice}</TableCell>
-            <TableCell className="text-left">{invoice.paymentStatus}</TableCell>
-            <TableCell className="text-left">{invoice.paymentMethod}</TableCell>
-            <TableCell className="text-right">{invoice.totalAmount}</TableCell>
+        {orders.map((order) => (
+          <TableRow key={order.order_id.toString()}>
+            <TableCell className="text-left">{order.order_id.toString()}</TableCell>
+            <TableCell className="text-left">{order.buyer_name}</TableCell>
+            <TableCell className="text-left">{order.quantity.toString()}</TableCell>
+            <TableCell className="text-left">{(Number(order.quantity) * Number(order.product_price)).toString()}</TableCell>
+            <TableCell className="text-left">{order.status}</TableCell>
+            <TableCell className="text-left">{order.timestamp.split(' ')[0]}</TableCell>
           </TableRow>
         ))}
       </TableBody>
