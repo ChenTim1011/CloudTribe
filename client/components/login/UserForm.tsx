@@ -138,13 +138,24 @@ export function UserForm() {
   };
 
   return (
-    <Tabs defaultValue="login" className="lg:w-[400px] w-full">
-      <TabsList className="grid w-full grid-cols-2">
-        <TabsTrigger value="register">註冊</TabsTrigger>
-        <TabsTrigger value="login">登入</TabsTrigger>
+    <Tabs defaultValue="login" className="lg:w-full max-w-[400px]">
+      <TabsList className="grid w-full max-w-[400px] grid-cols-2">
+        {/* 設置統一的樣式，並確保兩個按鈕大小一致 */}
+        <TabsTrigger
+          value="register"
+          className="w-full py-2 text-center border-b-2 border-transparent hover:border-black focus:border-black"
+        >
+          註冊
+        </TabsTrigger>
+        <TabsTrigger
+          value="login"
+          className="w-full py-2 text-center border-b-2 border-transparent hover:border-black focus:border-black"
+        >
+          登入
+        </TabsTrigger>
       </TabsList>
       <TabsContent value="register">
-        <Card>
+        <Card className="w-full max-w-[400px] min-h-[350px]"> {/* 設置固定寬度 */}
           <CardHeader>
             <CardTitle>註冊</CardTitle>
             <CardDescription>
@@ -179,7 +190,7 @@ export function UserForm() {
         </Card>
       </TabsContent>
       <TabsContent value="login">
-        <Card>
+        <Card className="w-full max-w-[400px] min-h-[350px]"> {/* 設置固定寬度 */}
           <CardHeader>
             <CardTitle>登入</CardTitle>
             <CardDescription>
@@ -187,7 +198,7 @@ export function UserForm() {
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-2">
-            <div className="space-y-1">
+            <div className="space-y-2">
               <Label htmlFor="phone">電話</Label>
               <Input id="phone" value={phone} onChange={(e) => setPhone(e.target.value)} />
             </div>
