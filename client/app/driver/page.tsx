@@ -165,7 +165,7 @@ const DriverPage: React.FC = () => {
                     backgroundRepeat: 'no-repeat',
                     backgroundPosition: 'center',
                     opacity: 1,
-                    height: '400px',
+                    height: '100vh', 
                 }}
             >
                 <div className="content flex-grow p-10 bg-white bg-opacity-10 flex flex-col items-center">
@@ -176,7 +176,7 @@ const DriverPage: React.FC = () => {
                     </Button>
                 </div>
                     <h1 className="mb-20 text-4xl font-bold text-white text-center" style={{ marginTop: '40px' }}>司機專區</h1>
-                    <div className="flex space-x-4">
+                    <div className="flex flex-wrap space-x-4 justify-center">
                         <Button 
                             className="mb-10 px-6 py-3 text-lg font-bold border-2 border-black text-black bg-white hover:bg-blue-500 hover:text-white"
                             onClick={() => setShowRegisterForm(true)}
