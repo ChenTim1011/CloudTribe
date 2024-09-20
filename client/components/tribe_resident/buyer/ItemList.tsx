@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faShoppingCart, faSortAmountDown } from '@fortawesome/free-solid-svg-icons';
+import { faShoppingCart,faDollarSign, faSortAmountDown } from '@fortawesome/free-solid-svg-icons';
 import PaginationDemo from "@/components/tribe_resident/buyer/PaginationDemo";
 import { Button } from "@/components/ui/button";
 
@@ -83,7 +83,8 @@ const ItemList: React.FC<ItemListProps> = ({ products, itemsPerPage, addToCart }
                   min={1}
                 />
               </div>
-              <div className="flex justify-center">
+              <div className="flex flex-col items-center">
+                {/* 加入購物車按鈕 */}
                 <Button
                   className="flex items-center justify-center"
                   onClick={() => {
@@ -94,6 +95,19 @@ const ItemList: React.FC<ItemListProps> = ({ products, itemsPerPage, addToCart }
                   <FontAwesomeIcon icon={faShoppingCart} className="mr-2" />
                   加入購物車
                 </Button>
+
+                {/* 商品連結按鈕 */}
+                <a 
+                  href={`https://online.carrefour.com.tw/zh/search/?q=${product.name}`} 
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="mt-4"
+                >
+                  <Button className="flex items-center justify-center">
+                    <FontAwesomeIcon icon={faDollarSign} className="mr-2" /> {/* 金錢 icon */}
+                    商品連結(目前實際價格)
+                  </Button>
+                </a>
               </div>
             </div>
           </div>

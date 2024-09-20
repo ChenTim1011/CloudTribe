@@ -45,22 +45,22 @@ export default function Page() {
           </Button>
           <Button className="lg:h-16 h-12 lg:text-2xl text-md rounded-2xl bg-gray-500 shadow-2xl font-mono hover:bg-slate-400">
             <Link href="/driver">
-              測試司機專區
+              司機專區
             </Link>
           </Button>
           <Button className="lg:h-16 h-12 lg:text-2xl text-md rounded-2xl bg-gray-500 shadow-2xl font-mono hover:bg-slate-400">
             <Link href="/tribe_resident/buyer">
-              測試部落居民專區-購買服務
+              部落居民專區-購買服務
             </Link>
           </Button>
           <Button className="lg:h-16 h-12 lg:text-2xl text-md rounded-2xl bg-gray-500 shadow-2xl font-mono hover:bg-slate-400">
             <Link href="/viewform">
-              測試查看表單
+              查看表單
             </Link>
           </Button>
           <Button className="lg:h-16 h-12 lg:text-2xl text-md rounded-2xl bg-gray-500 shadow-2xl font-mono hover:bg-slate-400">
             <Link href="/login">
-              測試註冊
+              註冊與登入
             </Link>
           </Button>
         </div>}
