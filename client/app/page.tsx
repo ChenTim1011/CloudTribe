@@ -32,10 +32,14 @@ export default function Page() {
         </div>
         {isVisible &&
         <div className="lg:p-8 flex lg:flex-row  flex-col gap-2 items-center justify-center">
-          <Button 
-            className="lg:h-16 h-12 lg:text-2xl text-md rounded-2xl bg-gray-500 shadow-2xl text-white font-mono hover:bg-slate-400">
+          <Button className="lg:h-16 h-12 lg:text-2xl text-md rounded-2xl bg-gray-500 shadow-2xl font-mono hover:bg-slate-400">
+            <Link href="/login">
+              註冊與登入
+            </Link>
+          </Button>
+          <Button className="lg:h-16 h-12 lg:text-2xl text-md rounded-2xl bg-gray-500 shadow-2xl font-mono hover:bg-slate-400">
             <Link href="/tribe_resident/buyer">
-              部落居民專區
+              部落居民專區-購買服務
             </Link>
           </Button>
           <Button className="lg:h-16 h-12 lg:text-2xl text-md rounded-2xl bg-gray-500 shadow-2xl font-mono hover:bg-slate-400">
@@ -49,20 +53,11 @@ export default function Page() {
             </Link>
           </Button>
           <Button className="lg:h-16 h-12 lg:text-2xl text-md rounded-2xl bg-gray-500 shadow-2xl font-mono hover:bg-slate-400">
-            <Link href="/tribe_resident/buyer">
-              部落居民專區-購買服務
-            </Link>
-          </Button>
-          <Button className="lg:h-16 h-12 lg:text-2xl text-md rounded-2xl bg-gray-500 shadow-2xl font-mono hover:bg-slate-400">
             <Link href="/viewform">
               查看表單
             </Link>
           </Button>
-          <Button className="lg:h-16 h-12 lg:text-2xl text-md rounded-2xl bg-gray-500 shadow-2xl font-mono hover:bg-slate-400">
-            <Link href="/login">
-              註冊與登入
-            </Link>
-          </Button>
+
         </div>}
       </div>
     </main>

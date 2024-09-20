@@ -98,14 +98,14 @@ const ItemList: React.FC<ItemListProps> = ({ products, itemsPerPage, addToCart }
 
                 {/* 商品連結按鈕 */}
                 <a 
-                  href={`https://online.carrefour.com.tw/zh/search/?q=${product.name}`} 
+                  href={`https://online.carrefour.com.tw/zh/search/?q=${product.name.replace(/\(.*?\)/g, '').trim()}`} 
                   target="_blank"
                   rel="noopener noreferrer"
                   className="mt-4"
                 >
                   <Button className="flex items-center justify-center">
                     <FontAwesomeIcon icon={faDollarSign} className="mr-2" /> {/* 金錢 icon */}
-                    商品連結(目前實際價格)
+                    商品連結(目前的實際價格)
                   </Button>
                 </a>
               </div>
