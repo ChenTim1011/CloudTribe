@@ -1,8 +1,10 @@
 -- users table
+-- users table (updated version)
 CREATE TABLE users (
     id SERIAL PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
-    phone VARCHAR(20) UNIQUE NOT NULL
+    phone VARCHAR(20) UNIQUE NOT NULL,
+    location VARCHAR(15) DEFAULT '未選擇'
 );
 
 -- drivers table
@@ -16,6 +18,17 @@ CREATE TABLE drivers (
     start_time TIME,
     end_time TIME
 );
+
+-- add 24/10/1
+-- driver_time table
+CREATE TABLE driver_time (
+    id SERIAL PRIMARY KEY,
+    driver_id INT REFERENCES drivers(id),
+    date DATE,
+    start_time TIME,
+    end_time TIME
+);
+
 
 -- orders table
 CREATE TABLE orders (
@@ -85,7 +98,7 @@ CREATE TABLE agricultural_shopping_cart (
     produce_id INTEGER NOT NULL,
     quantity INTEGER NOT NULL,
     status VARCHAR(5) NOT NULL DEFAULT '未送單'--status:已送單/未送單
-)
+);
 --order of agricultural products and necessities
 CREATE TABLE product_order(
     id SERIAL PRIMARY KEY,
@@ -99,7 +112,7 @@ CREATE TABLE product_order(
     category VARCHAR(15) NOT NULL,--agriculture or necessity
     timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP, --TIMESTAMP WITHOUT TIME ZONE
     status VARCHAR(5) DEFAULT '未接單' --未接單 or 已接單 or 已送達
-)
+);
 
 CREATE TABLE driver_order (
     id SERIAL PRIMARY KEY,
