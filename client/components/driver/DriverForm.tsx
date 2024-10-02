@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
+import UserService from '@/services/user/user'; 
 
 /**
  * Represents the form for creating or updating a driver.
@@ -13,14 +14,30 @@ import { Label } from "@/components/ui/label";
  * @param initialData - Initial data for pre-filling the form (optional).
  */
 const DriverForm: React.FC<{ onClose: () => void, onUpdateSuccess: (data: any) => void, initialData?: any }> = ({ onClose, onUpdateSuccess, initialData }) => {
-    const [name, setName] = useState(initialData?.driver_name || "");
-    const [phone, setPhone] = useState(initialData?.driver_phone || "");
+    const [name, setName] = useState<string>(initialData?.driver_name || "");
+    const [phone, setPhone] = useState<string>(initialData?.driver_phone || "");
     const [direction, setDirection] = useState<string | undefined>(initialData?.direction);
     const [date, setDate] = useState<string>(initialData?.available_date || "");
     const [startTime, setStartTime] = useState<string | undefined>(initialData?.start_time);
     const [endTime, setEndTime] = useState<string | undefined>(initialData?.end_time);
     const [showAlert, setShowAlert] = useState(false);
     const [error, setError] = useState("");
+
+    useEffect(() => {
+        // Get user information from local storage and pre-fill it into the form
+        const user = UserService.getLocalStorageUser();
+        if (user) {
+            setName(user.name);  
+            setPhone(user.phone); 
+        }
+
+        if (initialData) {
+            setDirection(initialData.direction);
+            setDate(initialData.available_date);
+            setStartTime(initialData.start_time);
+            setEndTime(initialData.end_time);
+        }
+    }, [initialData]);
 
     /**
      * Handles form submission.

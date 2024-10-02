@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Calendar as CalendarIcon } from "lucide-react";
@@ -11,6 +11,7 @@ import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from "@
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetFooter, SheetClose } from "@/components/ui/sheet";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
+import UserService from '@/services/user/user';  
 
 type CartItem = {
   id: string;
@@ -44,6 +45,16 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onClose, clearCart, cartIte
   const [note, setNote] = useState<string>("");  // Note field
   const [showAlert, setShowAlert] = useState(false);
   const [error, setError] = useState("");
+
+  useEffect(() => {
+    // Get user information from local storage and pre-fill it into the form
+    const user = UserService.getLocalStorageUser();  
+    if (user) {
+      setName(user.name);
+      setPhone(user.phone);
+    }
+  }, []);
+
 
   /**
    * Handles the form submission.
@@ -82,6 +93,8 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onClose, clearCart, cartIte
       return;
     }
 
+    const user = UserService.getLocalStorageUser();
+
     // All validations passed
     const orderData: {
       id?: number;
@@ -112,10 +125,10 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onClose, clearCart, cartIte
         img: string;
       }[];
     } = {
-      buyer_id: 1,  // TODO: Replace with the actual buyer ID  =>login function
+      buyer_id: user.id ,  // TODO: Replace with the actual buyer ID  =>login function
       buyer_name: name,
       buyer_phone: phone,
-      seller_id: 2,  // TODO: Replace with the actual buyer ID => login function
+      seller_id: 0,  // TODO: Replace with the actual buyer ID => login function
       seller_name: '賣家名稱', 
       seller_phone: '賣家電話',
       date: date.toISOString().split('T')[0], 

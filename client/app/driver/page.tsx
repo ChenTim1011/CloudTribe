@@ -181,7 +181,7 @@ const DriverPage: React.FC = () => {
                             className="mb-10 px-6 py-3 text-lg font-bold border-2 border-black text-black bg-white hover:bg-blue-500 hover:text-white"
                             onClick={() => setShowRegisterForm(true)}
                         >
-                            首次使用
+                            申請司機
                         </Button>
                         <Button 
                             className="mb-10 px-6 py-3 text-lg font-bold border-2 border-black text-black bg-white hover:bg-blue-500 hover:text-white"
@@ -203,7 +203,7 @@ const DriverPage: React.FC = () => {
                     <Sheet open={showRegisterForm} onOpenChange={setShowRegisterForm}>
                         <SheetContent className="w-full max-w-2xl" aria-describedby="register-form-description">
                             <SheetHeader>
-                                <SheetTitle>首次使用</SheetTitle>
+                                <SheetTitle>申請司機</SheetTitle>
                                 <SheetClose />
                             </SheetHeader>
                             <DriverForm onClose={() => setShowRegisterForm(false)} onUpdateSuccess={handleUpdateSuccess} />
