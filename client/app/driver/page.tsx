@@ -11,6 +11,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowLeft } from '@fortawesome/free-solid-svg-icons';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetClose } from "@/components/ui/sheet";
 import { useRouter } from 'next/navigation';
+import UserService from '@/services/user/user'; 
 
 const DriverPage: React.FC = () => {
     const [showRegisterForm, setShowRegisterForm] = useState(false);
@@ -20,7 +21,17 @@ const DriverPage: React.FC = () => {
     const [filteredOrders, setFilteredOrders] = useState<any[]>([]);
     const [driverData, setDriverData] = useState<{ id: number } | null>(null);
     const [driverOrders, setDriverOrders] = useState([]); // State to store driver's orders
+    const [isDriver, setIsDriver] = useState(false);  // State to check if the user is a driver
     const router = useRouter();
+
+    useEffect(() => {
+        // check if the user is a driver
+        const user = UserService.getLocalStorageUser();
+        setIsDriver(user.is_driver);
+        if (user.is_driver) {
+            setDriverData({ id: user.id });
+        }
+    }, []);
 
     const handleFetchOrders = async (phone: string) => {
         try {
@@ -150,6 +161,13 @@ const DriverPage: React.FC = () => {
     const handleUpdateSuccess = (data: any): void => {
         console.log("Updating driverData with:", data);
         setDriverData(data);
+
+        // update user data in local storage
+        const user = UserService.getLocalStorageUser();
+        const updatedUser = { ...user, is_driver: true };
+        UserService.setLocalStorageUser(updatedUser);
+
+        setIsDriver(true); // Set the user as a driver
         setShowRegisterForm(false);
         setShowLoginForm(true);  // Open login form
     };
@@ -175,29 +193,38 @@ const DriverPage: React.FC = () => {
                         返回主頁
                     </Button>
                 </div>
-                    <h1 className="mb-20 text-4xl font-bold text-white text-center" style={{ marginTop: '40px' }}>司機專區</h1>
+                <h1 className="mb-20 text-4xl font-bold text-white text-center" style={{ marginTop: '40px' }}>司機專區</h1>
                     <div className="flex flex-wrap space-x-4 justify-center">
-                        <Button 
-                            className="mb-10 px-6 py-3 text-lg font-bold border-2 border-black text-black bg-white hover:bg-blue-500 hover:text-white"
-                            onClick={() => setShowRegisterForm(true)}
-                        >
-                            申請司機
-                        </Button>
-                        <Button 
-                            className="mb-10 px-6 py-3 text-lg font-bold border-2 border-black text-black bg-white hover:bg-blue-500 hover:text-white"
-                            onClick={() => setShowLoginForm(true)}
-                        >
-                            查看表單
-                        </Button>
-                        <Button 
-                            className="mb-10 px-6 py-3 text-lg font-bold border-2 border-black text-black bg-white hover:bg-blue-500 hover:text-white"
-                            onClick={() => {
-                                setShowDriverOrders(true);
-                                handleFetchDriverOrders(); // Fetch driver orders when opening the sheet
-                            }}
-                        >
-                            管理訂單
-                        </Button>
+                        {/* if the user is not the driver */}
+                        {!isDriver && (
+                            <Button 
+                                className="mb-10 px-6 py-3 text-lg font-bold border-2 border-black text-black bg-white hover:bg-blue-500 hover:text-white"
+                                onClick={() => setShowRegisterForm(true)}
+                            >
+                                申請司機
+                            </Button>
+                        )}
+
+                        {/* if the user is the driver */}
+                        {isDriver && (
+                            <>
+                                <Button 
+                                    className="mb-10 px-6 py-3 text-lg font-bold border-2 border-black text-black bg-white hover:bg-blue-500 hover:text-white"
+                                    onClick={() => setShowLoginForm(true)}
+                                >
+                                    查看表單
+                                </Button>
+                                <Button 
+                                    className="mb-10 px-6 py-3 text-lg font-bold border-2 border-black text-black bg-white hover:bg-blue-500 hover:text-white"
+                                    onClick={() => {
+                                        setShowDriverOrders(true);
+                                        handleFetchDriverOrders(); // Fetch driver orders when opening the sheet
+                                    }}
+                                >
+                                    管理訂單
+                                </Button>
+                            </>
+                        )}
                     </div>
 
                     <Sheet open={showRegisterForm} onOpenChange={setShowRegisterForm}>

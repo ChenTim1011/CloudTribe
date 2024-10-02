@@ -3,16 +3,30 @@ class UserService {
   getLocalStorageUser = () => {
     try {
       var _user = localStorage.getItem('@user')
-      var checkedUser = _user ? JSON.parse(_user) : { id: 0, name: 'empty', phone: 'empty', location:'empty' };  
+      var checkedUser = _user ? JSON.parse(_user) : { id: 0, name: 'empty', phone: 'empty', location:'empty' 
+        , is_driver: false 
+      };  
     } catch (e) {
       console.log(e)
     }  
     return checkedUser
   }
+
+  // Store user to local storage
+  setLocalStorageUser = (user: any) => {
+    try {
+      localStorage.setItem('@user', JSON.stringify(user));
+    } catch (e) {
+      console.log(e);
+    }
+  };
+
   //Clear user from local storage when log out
   emptyLocalStorageUser = () => {
     try {
-      localStorage.setItem('@user', JSON.stringify({ id: 0, name: 'empty', phone: 'empty', location:'empty' }))
+      localStorage.setItem('@user', JSON.stringify({ id: 0, name: 'empty', phone: 'empty', location:'empty'
+        , is_driver: false
+      }))
     } catch (e) {
       console.log(e)
     }  
@@ -57,6 +71,16 @@ class UserService {
       else
         throw new Error(`Error: ${data.detail}`) 
     } 
+
+    // Store user data to local storage
+    const userData = {
+      id: data.id,
+      name: data.name,
+      phone: data.phone,
+      location: data.location,
+      is_driver: data.is_driver || false,  
+    };
+    this.setLocalStorageUser(userData); 
     return data
   }
   async register(name: string, phone: string){

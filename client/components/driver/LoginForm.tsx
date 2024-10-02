@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import DriverForm from "./DriverForm";
+import UserService from '@/services/user/user';
 
 /**
  * LoginForm component for driver login.
@@ -24,6 +25,16 @@ const LoginForm: React.FC<{
     const [showUpdateForm, setShowUpdateForm] = useState(false);
     const [driverData, setDriverData] = useState(null);
     const [error, setError] = useState("");
+
+        // Check if the user is already a driver and bypass the phone login
+        useEffect(() => {
+            const user = UserService.getLocalStorageUser();
+            if (user && user.is_driver) {
+                setPhone(user.phone); // Set the phone automatically from local storage
+                setShowOptions(true); // Automatically show options if the user is a driver
+                setDriverData(user);  // Set driver data from local storage
+            }
+        }, []);
 
     /**
      * Handles the login process.
@@ -83,8 +94,8 @@ const LoginForm: React.FC<{
      * @param data - Updated driver data.
      */
     const handleUpdateSuccess = async (data: any) => {
+
         setShowUpdateForm(false);
-        setShowOptions(false);
         onFetchDriverData(data);
     };
 
@@ -139,15 +150,7 @@ const LoginForm: React.FC<{
                     <span className="block sm:inline">{error}</span>
                 </div>
             )}
-            {!showOptions ? (
-                <>
-                    <div className="mb-4">
-                        <Label htmlFor="phone" className="block text-sm font-medium text-gray-700">電話</Label>
-                        <Input id="phone" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="輸入您的電話" />
-                    </div>
-                    <Button className="bg-black text-white w-full" onClick={handleLogin}>司機選單</Button>
-                </>
-            ) : !showUpdateForm ? (
+            {!showUpdateForm ? (
                 <>
                     <div className="mb-4">
                         <p className="text-sm font-medium text-gray-700">會根據填寫的時間篩選表單</p>

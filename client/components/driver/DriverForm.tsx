@@ -89,8 +89,15 @@ const DriverForm: React.FC<{ onClose: () => void, onUpdateSuccess: (data: any) =
             return;
         }
 
+        // check if user is logged in
+        const user = UserService.getLocalStorageUser();
+        if (user.id === 0) {
+            setError("用戶未登入");
+            return;
+        }
+
         const driverData = {
-            //user_id: , //TODO: Replace with actual user ID
+            user_id: user.id,
             driver_name: name,
             driver_phone: phone,
             direction,
@@ -125,17 +132,6 @@ const DriverForm: React.FC<{ onClose: () => void, onUpdateSuccess: (data: any) =
             setError('提交司機資料時出錯，不可以註冊重複的電話號碼');
         }
     };
-
-    useEffect(() => {
-        if (initialData) {
-            setName(initialData.driver_name);
-            setPhone(initialData.driver_phone);
-            setDirection(initialData.direction);
-            setDate(initialData.available_date);
-            setStartTime(initialData.start_time);
-            setEndTime(initialData.end_time);
-        }
-    }, [initialData]);
 
     return (
         <>
