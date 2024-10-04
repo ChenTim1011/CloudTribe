@@ -21,17 +21,27 @@ const DriverPage: React.FC = () => {
     const [filteredOrders, setFilteredOrders] = useState<any[]>([]);
     const [driverData, setDriverData] = useState<{ id: number } | null>(null);
     const [driverOrders, setDriverOrders] = useState([]); // State to store driver's orders
-    const [isDriver, setIsDriver] = useState(false);  // State to check if the user is a driver
     const router = useRouter();
+    const [user, setUser] = useState(UserService.getLocalStorageUser());
 
     useEffect(() => {
-        // check if the user is a driver
-        const user = UserService.getLocalStorageUser();
-        setIsDriver(user.is_driver);
-        if (user.is_driver) {
-            setDriverData({ id: user.id });
-        }
-    }, []);
+        const handleUserDataChanged = () => {
+          const updatedUser = UserService.getLocalStorageUser();
+          setUser(updatedUser);
+        };
+    
+        window.addEventListener('userDataChanged', handleUserDataChanged);
+    
+        return () => {
+          window.removeEventListener('userDataChanged', handleUserDataChanged);
+        };
+      }, []);
+
+
+    // 如果需要，確保 user.is_driver 是布林值
+    if (user && typeof user.is_driver === 'string') {
+        user.is_driver = user.is_driver === 'true';
+    }
 
     const handleFetchOrders = async (phone: string) => {
         try {
@@ -45,6 +55,14 @@ const DriverPage: React.FC = () => {
             console.error('Error fetching orders:', error);
         }
     };
+
+    const handleApplyDriverClick = () => {
+        if (!user || user.id === 0 || user.name === 'empty' || user.phone === 'empty') {
+          alert('請先按右上角的登入');
+        } else {
+          setShowRegisterForm(true);
+        }
+      };
 
     const handleFetchDriverOrders = async () => {
         console.log("Fetching driver orders with driverData:", driverData);
@@ -158,16 +176,40 @@ const DriverPage: React.FC = () => {
         setFilteredOrders(filtered);
     };
 
+    const handleApplyDriver = async () => {
+        const user = UserService.getLocalStorageUser();
+        if (!user.id) {
+            alert("用戶未登入");
+            return;
+        }
+
+        try {
+            const response = await fetch(`/api/users/driver/${user.id}`, {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            });
+
+            if (response.ok) {
+                const updatedUser = { ...user, is_driver: true };
+                UserService.setLocalStorageUser(updatedUser);
+            } else {
+                alert('申請司機失敗');
+            }
+        } catch (error) {
+            console.error('Error updating user to driver:', error);
+        }
+    };
+
     const handleUpdateSuccess = (data: any): void => {
         console.log("Updating driverData with:", data);
         setDriverData(data);
 
         // update user data in local storage
-        const user = UserService.getLocalStorageUser();
         const updatedUser = { ...user, is_driver: true };
         UserService.setLocalStorageUser(updatedUser);
-
-        setIsDriver(true); // Set the user as a driver
+        setUser(updatedUser);
         setShowRegisterForm(false);
         setShowLoginForm(true);  // Open login form
     };
@@ -196,17 +238,17 @@ const DriverPage: React.FC = () => {
                 <h1 className="mb-20 text-4xl font-bold text-white text-center" style={{ marginTop: '40px' }}>司機專區</h1>
                     <div className="flex flex-wrap space-x-4 justify-center">
                         {/* if the user is not the driver */}
-                        {!isDriver && (
+                        {(!user.is_driver)  && (
                             <Button 
                                 className="mb-10 px-6 py-3 text-lg font-bold border-2 border-black text-black bg-white hover:bg-blue-500 hover:text-white"
-                                onClick={() => setShowRegisterForm(true)}
+                                onClick={handleApplyDriverClick}
                             >
                                 申請司機
                             </Button>
                         )}
 
                         {/* if the user is the driver */}
-                        {isDriver && (
+                        {user.is_driver && (
                             <>
                                 <Button 
                                     className="mb-10 px-6 py-3 text-lg font-bold border-2 border-black text-black bg-white hover:bg-blue-500 hover:text-white"

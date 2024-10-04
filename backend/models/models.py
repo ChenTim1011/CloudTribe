@@ -39,13 +39,7 @@ class Order(BaseModel):
     previous_driver_phone: Optional[str] = None
     items: List[OrderItem]
 
-class User(BaseModel):
-    """
-    Model representing a user.
-    """
-    id: Optional[int] = None
-    name: str
-    phone: str
+
 
 class Driver(BaseModel):
     """

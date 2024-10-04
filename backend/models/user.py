@@ -8,6 +8,7 @@ class User(BaseModel):
     name: str
     phone: str
     location: Optional[str] = None #str
+    is_driver: Optional[bool] = False  #bool
 class UpdateLocationRequest(BaseModel):
     location: str
 

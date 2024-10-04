@@ -10,8 +10,6 @@ Endpoints:
 - GET /users/{user_id}: Retrieve a user by ID.
 
 """
-
-
 from fastapi import APIRouter, HTTPException, Depends
 from pydantic import BaseModel
 from psycopg2.extensions import connection as Connection
@@ -53,12 +51,12 @@ async def login(request: LoginRequest, conn: Connection = Depends(get_db)):
     try:
         phone = request.phone
         logging.info("Logging in user with phone number %s", phone)
-        cur.execute("SELECT * FROM users WHERE phone = %s", (phone,))
+        cur.execute("SELECT id, name, phone, location, is_driver FROM users WHERE phone = %s", (phone,))
         user = cur.fetchone()
         if not user:
             logging.warning("User with phone number %s not found", phone)
             raise HTTPException(status_code=404, detail="User not found")
-        return {"id": user[0], "name": user[1], "phone": user[2], "location":user[3]}
+        return {"id": user[0], "name": user[1], "phone": user[2], "location":user[3], "is_driver": user[4]}
     except Exception as e:
         logging.error("Error occurred during login: %s", str(e))
         raise HTTPException(status_code=500, detail=str(e)) from e
@@ -89,8 +87,8 @@ async def create_user(user: User, conn: Connection = Depends(get_db)):
         
         logging.info("Inserting new user with name %s and phone %s", user.name, user.phone)
         cur.execute(
-            "INSERT INTO users (name, phone, location) VALUES (%s, %s, %s) RETURNING id",
-            (user.name, user.phone, '未選擇')
+            "INSERT INTO users (name, phone, location,is_driver) VALUES (%s, %s, %s, %s) RETURNING id",
+            (user.name, user.phone, '未選擇', False)
         )
         user_id = cur.fetchone()[0]
         conn.commit()
@@ -117,11 +115,11 @@ async def get_user(user_id: int, conn: Connection = Depends(get_db)):
     """
     cur = conn.cursor()
     try:
-        cur.execute("SELECT id, name, phone, location FROM users WHERE id = %s", (user_id,))
+        cur.execute("SELECT id, name, phone, location , is_driver FROM users WHERE id = %s", (user_id,))
         user = cur.fetchone()
         if not user:
             raise HTTPException(status_code=404, detail="User not found")
-        return {"id": user[0], "name": user[1], "phone": user[2], "location":user[3]}
+        return {"id": user[0], "name": user[1], "phone": user[2], "location":user[3], "is_driver": user[4]}
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e)) from e
@@ -159,3 +157,23 @@ async def update_nearest_location(userId: str, req: UpdateLocationRequest, conn:
     finally:
         cur.close()
 
+@router.patch("/driver/{user_id}", response_model=dict)
+async def update_is_driver(user_id: int, conn: Connection = Depends(get_db)):
+    """
+    Update the user's is_driver status to True
+    """
+    cur = conn.cursor()
+    try:
+        cur.execute(
+            "UPDATE users SET is_driver = TRUE WHERE id = %s", (user_id,)
+        )
+        if cur.rowcount == 0:
+            raise HTTPException(status_code=404, detail="User not found")
+
+        conn.commit()
+        return {"status": "success"}
+    except Exception as e:
+        conn.rollback()
+        raise HTTPException(status_code=500, detail=f"Error updating user to driver: {str(e)}") from e
+    finally:
+        cur.close()

@@ -1,36 +1,50 @@
 class UserService {
   // Get user from local storage
   getLocalStorageUser = () => {
+    let checkedUser = { id: 0, name: 'empty', phone: 'empty', location: 'empty', is_driver: false };
     try {
-      var _user = localStorage.getItem('@user')
-      var checkedUser = _user ? JSON.parse(_user) : { id: 0, name: 'empty', phone: 'empty', location:'empty' 
-        , is_driver: false 
-      };  
+      const _user = localStorage.getItem('@user');
+      if (_user) {
+        const parsedUser = JSON.parse(_user);
+
+        // ensure the user object has the correct properties
+        parsedUser.is_driver = parsedUser.is_driver === true || parsedUser.is_driver === 'true';
+
+        checkedUser = parsedUser;
+      }
     } catch (e) {
-      console.log(e)
-    }  
-    return checkedUser
-  }
+      console.error('Error reading user from local storage:', e);
+    }
+    return checkedUser;
+  };
 
   // Store user to local storage
-  setLocalStorageUser = (user: any) => {
+  setLocalStorageUser = (user:any) => {
     try {
       localStorage.setItem('@user', JSON.stringify(user));
+      // Dispatch custom event
+      const event = new Event('userDataChanged');
+      window.dispatchEvent(event);
     } catch (e) {
-      console.log(e);
+      console.error('Error saving user to local storage:', e);
     }
   };
 
   //Clear user from local storage when log out
   emptyLocalStorageUser = () => {
     try {
-      localStorage.setItem('@user', JSON.stringify({ id: 0, name: 'empty', phone: 'empty', location:'empty'
-        , is_driver: false
-      }))
+      localStorage.setItem('@user', JSON.stringify({
+        id: 0, name: 'empty', phone: 'empty', location: 'empty', is_driver: false
+      }));
+      // Dispatch custom event
+      const event = new Event('userDataChanged');
+      window.dispatchEvent(event);
     } catch (e) {
-      console.log(e)
-    }  
-  }
+      console.error('Error clearing user from local storage:', e);
+    }
+  };
+
+
   async update_nearest_location(userId: Number, location: string){
     const res = await fetch(`/api/users/location/${userId}`, {
       method: 'PATCH',
@@ -81,15 +95,17 @@ class UserService {
       is_driver: data.is_driver || false,  
     };
     this.setLocalStorageUser(userData); 
+    const event = new Event('userDataChanged');
+    window.dispatchEvent(event);
     return data
   }
-  async register(name: string, phone: string){
+  async register(name: string, phone: string, location: string, is_driver: boolean) {
     const res = await fetch('/api/users', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ name, phone }),
+      body: JSON.stringify({ name, phone, location, is_driver }),
     });
     const data = await res.json()
     if(!res.ok){

@@ -121,6 +121,10 @@ const DriverForm: React.FC<{ onClose: () => void, onUpdateSuccess: (data: any) =
             }
 
             const updatedData = await response.json();
+
+            await updateUserToDriver(user.id);
+
+
             setShowAlert(true);
             setTimeout(() => {
                 setShowAlert(false);
@@ -130,6 +134,29 @@ const DriverForm: React.FC<{ onClose: () => void, onUpdateSuccess: (data: any) =
         } catch (error) {
             console.error('Error submitting driver data:', error);
             setError('提交司機資料時出錯，不可以註冊重複的電話號碼');
+        }
+    };
+
+    // Function to update the user to driver
+    const updateUserToDriver = async (userId: number) => {
+        try {
+            const response = await fetch(`/api/users/driver/${userId}`, {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ is_driver: true })
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to update user to driver');
+            }
+
+            const user = UserService.getLocalStorageUser();
+            const updatedUser = { ...user, is_driver: true };
+            UserService.setLocalStorageUser(updatedUser);
+        } catch (error) {
+            console.error('Error updating user to driver:', error);
         }
     };
 
