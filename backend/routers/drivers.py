@@ -16,6 +16,7 @@ import logging
 from fastapi import APIRouter, HTTPException, Depends
 from psycopg2.extensions import connection as Connection
 from backend.models.models import Driver
+from backend.models.models import DriverTime
 from backend.database import get_db_connection
 
 router = APIRouter()
@@ -188,5 +189,41 @@ async def get_driver_orders(driver_id: int, conn: Connection = Depends(get_db)):
     except Exception as e:
         logging.error("Error fetching driver orders: %s", str(e))
         raise HTTPException(status_code=500, detail=str(e)) from e
+    finally:
+        cur.close()
+
+
+# 新增司機可用時間的路由
+@router.post("/time")
+async def add_driver_time(driver_time: DriverTime, conn: Connection = Depends(get_db)):
+    cur = conn.cursor()
+    try:
+        cur.execute(
+            """
+            INSERT INTO driver_time (driver_id, date, start_time, end_time, locations)
+            VALUES (%s, %s, %s, %s, %s)
+            RETURNING id;
+            """,
+            (driver_time.driver_id, driver_time.date, driver_time.start_time, driver_time.end_time, driver_time.locations)
+        )
+        conn.commit()
+        new_id = cur.fetchone()[0]
+        return {"id": new_id, "status": "success"}
+    except Exception as e:
+        conn.rollback()
+        raise HTTPException(status_code=500, detail=str(e))
+    finally:
+        cur.close()
+
+# 獲取司機可用時間的路由
+@router.get("/{driver_id}/times")
+async def get_driver_times(driver_id: int, conn: Connection = Depends(get_db)):
+    cur = conn.cursor()
+    try:
+        cur.execute("SELECT id, date, start_time, end_time, locations FROM driver_time WHERE driver_id = %s", (driver_id,))
+        times = cur.fetchall()
+        return [{"id": time[0], "date": time[1].isoformat(), "start_time": str(time[2]), "end_time": str(time[3]), "locations": time[4]} for time in times]
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
     finally:
         cur.close()

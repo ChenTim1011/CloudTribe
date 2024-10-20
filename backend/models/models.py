@@ -52,6 +52,17 @@ class Driver(BaseModel):
     start_time: Optional[str] = None
     end_time: Optional[str] = None
 
+
+class DriverTime(BaseModel):
+    """
+    Model representing a driver's time.
+    """
+    driver_id: int
+    date: str
+    start_time: str
+    end_time: str
+    locations: str
+
 class DriverOrder(BaseModel):
     """
     Model representing the association between a driver and an order.

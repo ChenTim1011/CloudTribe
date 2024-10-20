@@ -27,7 +27,8 @@ CREATE TABLE driver_time (
     driver_id INT REFERENCES drivers(id),
     date DATE,
     start_time TIME,
-    end_time TIME
+    end_time TIME,
+    locations VARCHAR(255),
 );
 
 

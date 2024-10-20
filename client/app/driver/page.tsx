@@ -8,8 +8,10 @@ import DriverOrdersPage from "@/components/driver/DriverOrdersPage";
 import { NavigationBar } from "@/components/NavigationBar";
 import { Button } from "@/components/ui/button";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faArrowLeft } from '@fortawesome/free-solid-svg-icons';
+import { faArrowLeft, faPlus } from '@fortawesome/free-solid-svg-icons';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetClose } from "@/components/ui/sheet";
+import { Input } from "@/components/ui/input";
+import { Calendar } from "@/components/ui/calendar";
 import { useRouter } from 'next/navigation';
 import UserService from '@/services/user/user'; 
 
@@ -17,14 +19,21 @@ const DriverPage: React.FC = () => {
     const [showRegisterForm, setShowRegisterForm] = useState(false);
     const [showLoginForm, setShowLoginForm] = useState(false);
     const [showDriverOrders, setShowDriverOrders] = useState(false);
+    const [showAddTimeSheet, setShowAddTimeSheet] = useState(false); // 新增的 state，用來控制新增時間的 Sheet
     const [orders, setOrders] = useState([]);
     const [filteredOrders, setFilteredOrders] = useState<any[]>([]);
     const [driverData, setDriverData] = useState<{ id: number } | null>(null);
     const [driverOrders, setDriverOrders] = useState([]); // State to store driver's orders
+    const [date, setDate] = useState<Date | undefined>(new Date()); // 日期狀態
+    const [startTime, setStartTime] = useState<string>("");
+    const [endTime, setEndTime] = useState<string>("");
+    const [locations, setLocations] = useState<string>(""); // 地點狀態
     const router = useRouter();
     const [user, setUser] = useState(UserService.getLocalStorageUser());
+    const [isClient, setIsClient] = useState(false); 
 
     useEffect(() => {
+        setIsClient(true);
         const handleUserDataChanged = () => {
           const updatedUser = UserService.getLocalStorageUser();
           setUser(updatedUser);
@@ -215,6 +224,32 @@ const DriverPage: React.FC = () => {
         setShowLoginForm(true);  // Open login form
     };
 
+    // 新增時間的提交邏輯
+    const handleAddTimeSlot = async () => {
+        if (date && startTime && endTime && locations) {
+            try {
+                const response = await fetch(`/api/driver/time`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        driver_id: driverData?.id,
+                        date: date.toISOString().split('T')[0], // 日期格式 YYYY-MM-DD
+                        start_time: startTime,
+                        end_time: endTime,
+                        locations,
+                    }),
+                });
+                const result = await response.json();
+                console.log("Time slot added:", result);
+                setShowAddTimeSheet(false); // 關閉 Sheet
+            } catch (error) {
+                console.error("Error adding time slot:", error);
+            }
+        }
+    };
+
     return (
         <div>
             <NavigationBar />
@@ -239,7 +274,7 @@ const DriverPage: React.FC = () => {
                 <h1 className="mb-20 text-4xl font-bold text-white text-center" style={{ marginTop: '40px' }}>司機專區</h1>
                     <div className="flex flex-wrap space-x-4 justify-center">
                         {/* if the user is not the driver */}
-                        {(!user.is_driver)  && (
+                        {(isClient && !user.is_driver)  && (
                             <Button 
                                 className="mb-10 px-6 py-3 text-lg font-bold border-2 border-black text-black bg-white hover:bg-blue-500 hover:text-white"
                                 onClick={handleApplyDriverClick}
@@ -249,7 +284,7 @@ const DriverPage: React.FC = () => {
                         )}
 
                         {/* if the user is the driver */}
-                        {user.is_driver && (
+                        {isClient && user.is_driver && (
                             <>
                                 <Button 
                                     className="mb-10 px-6 py-3 text-lg font-bold border-2 border-black text-black bg-white hover:bg-blue-500 hover:text-white"
@@ -265,6 +300,15 @@ const DriverPage: React.FC = () => {
                                     }}
                                 >
                                     管理訂單
+                                </Button>
+
+                                {/* 新增時間的按鈕 */}
+                                <Button 
+                                    className="mb-10 px-6 py-3 text-lg font-bold border-2 border-black text-black bg-white hover:bg-blue-500 hover:text-white"
+                                    onClick={() => setShowAddTimeSheet(true)}
+                                >
+                                    <FontAwesomeIcon icon={faPlus} className="h-6 w-6" />
+                                    新增時間
                                 </Button>
                             </>
                         )}
@@ -302,6 +346,71 @@ const DriverPage: React.FC = () => {
                                 <SheetClose />
                             </SheetHeader>
                             <DriverOrdersPage driverData={driverData} />
+                        </SheetContent>
+                    </Sheet>
+
+                    <Sheet open={showAddTimeSheet} onOpenChange={setShowAddTimeSheet}> 
+                        <SheetContent className="w-full max-w-2xl" aria-describedby="add-time-description">
+                            <SheetHeader>
+                                <SheetTitle>新增可用時間</SheetTitle>
+                                <SheetClose />
+                            </SheetHeader>
+                            <div className="mt-4">
+                                {/* 日期選擇 */}
+                                <Calendar
+                                    mode="single"
+                                    selected={date}
+                                    onSelect={setDate}
+                                    className="rounded-md border mt-2"
+                                />
+
+                                {/* 時間選擇 */}
+                                <div className="flex space-x-4 mt-4">
+                                    <div>
+                                        <label className="block text-sm font-medium">開始時間</label>
+                                        <select
+                                            title="開始時間"
+                                            value={startTime}
+                                            onChange={(e) => setStartTime(e.target.value)}
+                                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
+                                        >
+                                            <option value="">選擇開始時間</option>
+                                            {["08:00", "09:00", "10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00", "17:00", "18:00", "19:00", "20:00"].map((time) => (
+                                                <option key={time} value={time}>{time}</option>
+                                            ))}
+                                        </select>
+                                    </div>
+
+                                    <div>
+                                        <label className="block text-sm font-medium">結束時間</label>
+                                        <select
+                                            title="結束時間"
+                                            value={endTime}
+                                            onChange={(e) => setEndTime(e.target.value)}
+                                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
+                                        >
+                                            <option value="">選擇結束時間</option>
+                                            {["08:00", "09:00", "10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00", "17:00", "18:00", "19:00", "20:00"].map((time) => (
+                                                <option key={time} value={time}>{time}</option>
+                                            ))}
+                                        </select>
+                                    </div>
+                                </div>
+
+                                {/* 地點輸入 */}
+                                <Input
+                                    type="text"
+                                    value={locations}
+                                    onChange={(e) => setLocations(e.target.value)}
+                                    placeholder="輸入地點"
+                                    className="mt-4"
+                                />
+
+                                {/* 新增按鈕 */}
+                                <Button className="mt-4 bg-blue-500 text-white" onClick={handleAddTimeSlot}>
+                                    新增時間
+                                </Button>
+                            </div>
                         </SheetContent>
                     </Sheet>
 
