@@ -13,14 +13,14 @@ export default function Page(){
   const [user, setUser] = useState<User>()
   const [purchasedItems, setPurchasedItems] = useState<PurchasedProduct[]>([])
   const router = useRouter()
-  useEffect(()=>{
-    const _user = UserSrevice.getLocalStorageUser()
-    setUser(_user)
-    if(_user.name == 'empty'){
-      router.replace('/login')
-    } 
-    get_purchased_items(_user)
-  },[])
+  useEffect(() => {
+    const _user = UserSrevice.getLocalStorageUser();
+    setUser(_user);
+    if (_user.name === 'empty') {
+      router.replace('/login');
+    }
+    get_purchased_items(_user);
+  }, [router]); // Add 'router' to the dependency array
   const get_purchased_items = async(user: User) => {
     try {
       const res = await ConsumerService.get_purchased_items(user.id)

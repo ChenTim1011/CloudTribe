@@ -22,7 +22,7 @@ export default function Page(){
       router.replace('/login')
     }   
     get_products(_user)
-  }, [])
+  }, [router])
 
   const get_products = async(user:User) => {
     if(user != undefined){

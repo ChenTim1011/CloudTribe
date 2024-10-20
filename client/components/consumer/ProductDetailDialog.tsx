@@ -17,10 +17,10 @@ interface DetailDialogProp {
 
 export const ProductDetailDialog:React.FC<DetailDialogProp> = (prop) => {
   const [item, setItem] = useState<PurchasedProduct>()
-  useEffect(()=>{
-    var product = prop.products.find((product) => product.order_id === prop.order_id)
-    setItem(product)
-  }, [])
+  useEffect(() => {
+    const product = prop.products.find((product) => product.order_id === prop.order_id);
+    setItem(product);
+  }, [prop.order_id, prop.products]); // Add 'prop.order_id' and 'prop.products' to the dependency array
   return (
     <Dialog>
       <DialogTrigger asChild>

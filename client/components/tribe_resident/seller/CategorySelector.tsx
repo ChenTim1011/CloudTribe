@@ -19,7 +19,11 @@ export const CategorySelector:React.FC<selectProps> = (prop) => {
   const [isOpen, setIsOpen] = useState(false);
   const [selectedValue, setSelectedValue] = useState('')
   const { handleIsOpen } = prop
-  useEffect(() =>{setTimeout(() => {handleIsOpen(isOpen, selectedValue)}, 10)},[isOpen])
+  useEffect(() => {
+    setTimeout(() => {
+      handleIsOpen(isOpen, selectedValue);
+    }, 10);
+  }, [isOpen, handleIsOpen, selectedValue]); // Add 'handleIsOpen' and 'selectedValue' to the dependency array
   
   return (
     <Select onValueChange={setSelectedValue} onOpenChange={(open) =>open?setIsOpen(true):setIsOpen(false)}>

@@ -22,7 +22,7 @@ export const DatePicker:React.FC<sendDateProps> = (prop) => {
   const { handleSendDate } = prop
   useEffect(() => {
     handleSendDate(date)
-  }, [date])
+  }, [handleSendDate, date])
  
   return (
     <Popover>
