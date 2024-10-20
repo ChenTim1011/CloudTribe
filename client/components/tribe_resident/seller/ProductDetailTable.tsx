@@ -18,11 +18,13 @@ export const ProductDetailTable = ()=> {
   const [total, setTotal] = useState(0)
   const [message, setMessage] = useState('')
   useEffect(() => {
-    let productId = localStorage.getItem('@current_seller_product_id')
-    if(productId != null)
-      get_product_order(parseInt(productId))
-    
- 
+    // Ensure localStorage is only accessed on the client-side
+    if (typeof window !== 'undefined') {
+      const productId = localStorage.getItem('@current_seller_product_id')
+      if (productId != null) {
+        get_product_order(parseInt(productId))
+      }
+    }
   }, [])
   const get_product_order = async(productId: Number) => {
     const res:ProductOrderInfo[] = await SellerService.get_product_order(productId)

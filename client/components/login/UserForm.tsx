@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -18,6 +18,18 @@ export function UserForm() {
   const [errorMessage, setErrorMessage] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
   const { setUser } = useAuth();
+
+  // 使用 useEffect 來安全地存取 localStorage
+  useEffect(() => {
+    // 檢查是否在客戶端環境
+    if (typeof window !== 'undefined') {
+      // 從 localStorage 讀取上次登錄的電話號碼
+      const lastPhone = localStorage.getItem('lastPhone');
+      if (lastPhone) {
+        setPhone(lastPhone);
+      }
+    }
+  }, []);
 
   /**
    * Handles the registration process when the user clicks the "註冊" button.
@@ -135,6 +147,11 @@ export function UserForm() {
       console.error("Error during handleLogin:", error);
       setErrorMessage('登入過程中出現錯誤');
     }*/
+
+    // 登錄成功後，保存電話號碼到 localStorage
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('lastPhone', phone);
+    }
   };
 
   return (

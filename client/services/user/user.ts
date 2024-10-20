@@ -2,48 +2,48 @@ class UserService {
   // Get user from local storage
   getLocalStorageUser = () => {
     let checkedUser = { id: 0, name: 'empty', phone: 'empty', location: 'empty', is_driver: false };
-    try {
-      const _user = localStorage.getItem('@user');
-      if (_user) {
-        const parsedUser = JSON.parse(_user);
-
-        // ensure the user object has the correct properties
-        parsedUser.is_driver = parsedUser.is_driver === true || parsedUser.is_driver === 'true';
-
-        checkedUser = parsedUser;
+    if (typeof window !== 'undefined') {
+      try {
+        const _user = localStorage.getItem('@user');
+        if (_user) {
+          const parsedUser = JSON.parse(_user);
+          parsedUser.is_driver = parsedUser.is_driver === true || parsedUser.is_driver === 'true';
+          checkedUser = parsedUser;
+        }
+      } catch (e) {
+        console.error('Error reading user from local storage:', e);
       }
-    } catch (e) {
-      console.error('Error reading user from local storage:', e);
     }
     return checkedUser;
   };
 
   // Store user to local storage
-  setLocalStorageUser = (user:any) => {
-    try {
-      localStorage.setItem('@user', JSON.stringify(user));
-      // Dispatch custom event
-      const event = new Event('userDataChanged');
-      window.dispatchEvent(event);
-    } catch (e) {
-      console.error('Error saving user to local storage:', e);
+  setLocalStorageUser = (user: any) => {
+    if (typeof window !== 'undefined') {
+      try {
+        localStorage.setItem('@user', JSON.stringify(user));
+        const event = new Event('userDataChanged');
+        window.dispatchEvent(event);
+      } catch (e) {
+        console.error('Error saving user to local storage:', e);
+      }
     }
   };
 
-  //Clear user from local storage when log out
+  // Clear user from local storage when log out
   emptyLocalStorageUser = () => {
-    try {
-      localStorage.setItem('@user', JSON.stringify({
-        id: 0, name: 'empty', phone: 'empty', location: 'empty', is_driver: false
-      }));
-      // Dispatch custom event
-      const event = new Event('userDataChanged');
-      window.dispatchEvent(event);
-    } catch (e) {
-      console.error('Error clearing user from local storage:', e);
+    if (typeof window !== 'undefined') {
+      try {
+        localStorage.setItem('@user', JSON.stringify({
+          id: 0, name: 'empty', phone: 'empty', location: 'empty', is_driver: false
+        }));
+        const event = new Event('userDataChanged');
+        window.dispatchEvent(event);
+      } catch (e) {
+        console.error('Error clearing user from local storage:', e);
+      }
     }
   };
-
 
   async update_nearest_location(userId: Number, location: string){
     const res = await fetch(`/api/users/location/${userId}`, {
@@ -117,4 +117,5 @@ class UserService {
 
   }
 }
+
 export default new UserService()

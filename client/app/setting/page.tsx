@@ -15,6 +15,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+
 export default function Page(){
   const [selectedLocation, setSelectedLocation] = useState('empty')
   const [originLocation, setOriginLocation] = useState('')
@@ -22,22 +23,26 @@ export default function Page(){
   const [isUpdating, setisUpdating] = useState(false)
   
   useEffect(() => {
-    const _user = UserService.getLocalStorageUser()
-    console.log('location:', _user.location)
-    setUser(_user)
-    setOriginLocation(_user.location)
+    // Move localStorage access inside useEffect
+    if (typeof window !== 'undefined') {
+      const _user = UserService.getLocalStorageUser()
+      console.log('location:', _user.location)
+      setUser(_user)
+      setOriginLocation(_user.location)
+    }
   }, [])
   
   const handleSaveButton = async() => {
     if(selectedLocation != originLocation && user != undefined){
       try{
         const res = await UserService.update_nearest_location(user.id, selectedLocation)
-        localStorage.setItem("@user", JSON.stringify({...user, location:selectedLocation}));
+        if (typeof window !== 'undefined') {
+          localStorage.setItem("@user", JSON.stringify({...user, location:selectedLocation}));
+        }
       }
       catch(e){
         console.log(e)
       }
-        
     }
     setisUpdating(false)
   }

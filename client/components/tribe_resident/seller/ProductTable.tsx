@@ -1,4 +1,4 @@
-import React from "react"
+import React, { useEffect } from "react"
 import { BasicProductInfo } from '@/services/interface'
 import { Button } from '@/components/ui/button'
 
@@ -24,7 +24,12 @@ export const ProductTable:React.FC<sellerProp> = (prop) => {
     const target = event.target as HTMLButtonElement
     const id = target.id.split('-')[1]
     console.log('id',id)
-    localStorage.setItem('@current_seller_product_id', id)
+    
+    // Ensure localStorage is only accessed on the client-side
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('@current_seller_product_id', id)
+    }
+    
     router.push("/tribe_resident/seller/product_detail")
 
   }

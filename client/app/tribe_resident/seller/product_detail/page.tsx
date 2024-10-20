@@ -9,10 +9,12 @@ import Image from 'next/image';
 export default function Page(){
   const [productInfo, setProductInfo] = useState<ProductInfo>()
   useEffect(()=>{
-    let product_id = localStorage.getItem('@current_seller_product_id')
+    if (typeof window !== 'undefined') {
+      let product_id = localStorage.getItem('@current_seller_product_id')
     if(product_id != null){
         get_product_info(parseInt(product_id))
-    }
+      }
+  }
   }, [])
   const get_product_info = async(productId: Number) =>{
     const res = await SellerService.get_product_info(productId)
