@@ -16,7 +16,7 @@ from typing import List
 import logging
 
 from psycopg2.extensions import connection as Connection
-from fastapi import APIRouter, HTTPException, Depends, Query
+from fastapi import APIRouter, HTTPException, Depends
 from backend.models.models import Order, DriverOrder, TransferOrderRequest
 from backend.database import get_db_connection
 
@@ -51,7 +51,9 @@ async def create_order(order: Order, conn: Connection = Depends(get_db)):
         cur.execute(
             "INSERT INTO orders (buyer_id, buyer_name, buyer_phone, seller_id, seller_name, seller_phone, date, time, location, is_urgent, total_price, order_type, order_status, note, shipment_count, required_orders_count, previous_driver_id, previous_driver_name, previous_driver_phone) "
             "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s) RETURNING id",
-            (order.buyer_id, order.buyer_name, order.buyer_phone, order.seller_id, order.seller_name, order.seller_phone, order.date, order.time, order.location, order.is_urgent, order.total_price, order.order_type, order.order_status, order.note, order.shipment_count, order.required_orders_count, order.previous_driver_id, order.previous_driver_name, order.previous_driver_phone)
+            (order.buyer_id, order.buyer_name, order.buyer_phone, order.seller_id, order.seller_name, order.seller_phone, order.date,
+            order.time, order.location, order.is_urgent, order.total_price, order.order_type, order.order_status, order.note, order.shipment_count, order.required_orders_count, order.previous_driver_id, 
+            order.previous_driver_name, order.previous_driver_phone)
         )
         order_id = cur.fetchone()[0]
         for item in order.items:

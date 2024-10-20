@@ -106,7 +106,7 @@ const ItemList: React.FC<ItemListProps> = ({ products, itemsPerPage, addToCart }
 
                 {/* 商品連結按鈕 */}
                 <a 
-                  href={`https://online.carrefour.com.tw/zh/search/?q=${product.name.replace(/\(.*?\)/g, '').trim()}`} 
+                  href={`https://online.carrefour.com.tw/zh/search/?q=${product.name.replace(/\(.*?\)|※.*$|因.*$/g, '').trim()}`}   
                   target="_blank"
                   rel="noopener noreferrer"
                   className="mt-4"

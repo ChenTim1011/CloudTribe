@@ -180,19 +180,7 @@ const DriverForm: React.FC<{ onClose: () => void, onUpdateSuccess: (data: any) =
             <div className="mb-4">
                 <Label htmlFor="phone" className="block text-sm font-medium text-gray-700">電話</Label>
                 <Input id="phone" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="輸入您的電話" disabled={!!initialData} />
-            </div>
-            <div className="mb-4">
-                <Label htmlFor="direction" className="block text-sm font-medium text-gray-700">方向</Label>
-                <Select onValueChange={setDirection} value={direction}>
-                    <SelectTrigger className="w-full">
-                        <SelectValue placeholder="選擇方向" />
-                    </SelectTrigger>
-                    <SelectContent>
-                        <SelectItem value="山下往山上">山下往山上</SelectItem>
-                        <SelectItem value="山上往山下">山上往山下</SelectItem>
-                    </SelectContent>
-                </Select>
-            </div>
+            </div>                                                      
             <div className="mb-4">
                 <Label htmlFor="available_date" className="block text-sm font-medium text-gray-700">方便運送的日期</Label>
                 <Input

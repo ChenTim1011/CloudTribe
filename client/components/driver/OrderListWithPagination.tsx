@@ -30,6 +30,7 @@ const OrderListWithPagination: React.FC<OrderListWithPaginationProps> = ({ order
     const itemsPerPage = 5;
 
     useEffect(() => {
+        console.log('Received orders:', orders);
         setFilteredOrders(orders);
     }, [orders]);
 
@@ -45,21 +46,24 @@ const OrderListWithPagination: React.FC<OrderListWithPaginationProps> = ({ order
     const startIndex = (currentPage - 1) * itemsPerPage;
     const currentOrders = filteredOrders.slice(startIndex, startIndex + itemsPerPage);
 
-    return (
-        <div>
-            {currentOrders.length > 0 ? (
-                currentOrders.map(order => (
-                    <OrderCard
-                        key={order.id}
-                        order={order}
-                        driverId={driverId}
-                        onAccept={onAccept}
-                        onTransfer={onTransfer}
-                        onNavigate={onNavigate}
-                        onComplete={onComplete}
-                    />
-                ))
-            ) : (
+ return (
+     <div>
+         {currentOrders.length > 0 ? (
+             currentOrders.map(order => {
+                 console.log('Rendering order:', order); // 檢查每個訂單
+                 return (
+                     <OrderCard
+                         key={order.id}
+                         order={order}
+                         driverId={driverId}
+                         onAccept={onAccept}
+                         onTransfer={onTransfer}
+                         onNavigate={onNavigate}
+                         onComplete={onComplete}
+                     />
+                 );
+             })
+         ) : (
                 <p className="text-center mt-8">沒有符合的訂單。</p>
             )}
             <PaginationDemo

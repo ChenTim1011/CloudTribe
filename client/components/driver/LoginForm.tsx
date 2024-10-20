@@ -128,8 +128,8 @@ const LoginForm: React.FC<{
                 console.log('order.time:', order.time);
                 const orderDateTime = new Date(Date.parse(`${order.date}T${order.time}`));
                 console.log('Order DateTime:', orderDateTime);
-
-                return orderDateTime > driverEndDateTime && order.order_status === '未接單';
+                //test orderDateTime > driverEndDateTime 
+                return order.order_status === '未接單';
             }).sort((a: any, b: any) => {
                 const aDateTime = new Date(Date.parse(`${a.date}T${a.time}`)).getTime();
                 const bDateTime = new Date(Date.parse(`${b.date}T${b.time}`)).getTime();

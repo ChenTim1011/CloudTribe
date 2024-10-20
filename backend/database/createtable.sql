@@ -63,7 +63,8 @@ CREATE TABLE order_items (
     item_name VARCHAR(255),
     price FLOAT,
     quantity INT,
-    img VARCHAR(255)
+    img VARCHAR(255),
+    location VARCHAR(255) -- new: add location column to order_items table
 );
 
 -- driver_orders table

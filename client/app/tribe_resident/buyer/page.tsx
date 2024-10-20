@@ -11,6 +11,7 @@ import { NavigationBar } from "@/components/NavigationBar";
 import { Button } from "@/components/ui/button";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faShoppingCart, faArrowLeft } from '@fortawesome/free-solid-svg-icons';
+import { useMediaQuery } from 'react-responsive';
 
 type Product = {
   category: string;
@@ -34,6 +35,11 @@ const BuyerPage: React.FC = () => {
   const [initialLoad, setInitialLoad] = useState<boolean>(true);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isAddItemFormOpen, setIsAddItemFormOpen] = useState(false); 
+
+    // Define media queries
+    const isMobile = useMediaQuery({ maxWidth: 767 });
+    const isTablet = useMediaQuery({ minWidth: 768, maxWidth: 1024 });
+    const isDesktop = useMediaQuery({ minWidth: 1025 });
 
   useEffect(() => {
     const fetchData = async () => {
@@ -119,8 +125,8 @@ const BuyerPage: React.FC = () => {
           height: '400px', 
         }}
       >
-        <div className="content flex-grow p-10 bg-white bg-opacity-50 flex flex-col items-center">
-          <div className="fixed top-20 left-4 z-50">
+       <div className={`content flex-grow p-10 bg-white bg-opacity-50 flex flex-col items-center ${isMobile ? 'mobile-class' : isTablet ? 'tablet-class' : 'desktop-class'}`}>
+          <div className={`fixed ${isMobile ? 'relative' : 'top-20 left-4'} z-50`}>
             <Button 
               variant="outline" 
               onClick={() => setIsCartOpen(true)} 
@@ -139,7 +145,7 @@ const BuyerPage: React.FC = () => {
               返回主頁
             </Button>
           </div>
-          <h1 className="mb-10 text-4xl font-bold text-center">今天我想要來點...</h1>
+          <h1 className={`mb-10 text-4xl font-bold text-center ${isMobile ? 'text-2xl' : ''}`}>今天我想要來點...</h1>
           <div className="flex justify-center w-full mb-3">
             <SearchBar onSearch={handleSearch} className="w-80" />
           </div>

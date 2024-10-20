@@ -37,6 +37,11 @@ const DriverOrdersPage: React.FC<{ driverData: any }> = ({ driverData }) => {
         fetchDriverOrders();
     }, [driverData]);
 
+     // if driverData is not loaded, show loading message
+     if (!driverData || !driverData.id) {
+        return <p> 沒有資料...</p>;
+    }
+
     /**
      * Handles the transfer of an order to another driver.
      * @param {string} orderId - The ID of the order to transfer.

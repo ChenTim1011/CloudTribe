@@ -51,7 +51,12 @@ async def create_driver(driver: Driver, conn: Connection = Depends(get_db)):
         
         cur.execute(
             "INSERT INTO drivers (driver_name, driver_phone, direction, available_date, start_time, end_time) VALUES (%s, %s, %s, %s, %s, %s)",
-            (driver.driver_name, driver.driver_phone, driver.direction, driver.available_date, driver.start_time, driver.end_time)
+            (driver.driver_name, 
+             driver.driver_phone, 
+             driver.direction or None, 
+             driver.available_date or None, 
+             driver.start_time or None, 
+             driver.end_time or None)
         )
         conn.commit()
         return {"status": "success"}
@@ -85,10 +90,10 @@ async def get_driver(phone: str, conn: Connection = Depends(get_db)):
             "id": driver[0],
             "driver_name": driver[1],
             "driver_phone": driver[2],
-            "direction": driver[3],
-            "available_date": driver[4].isoformat(),
-            "start_time": driver[5].isoformat(),
-            "end_time": driver[6].isoformat(),
+            "direction": driver[3] or None,
+            "available_date": driver[4].isoformat() if driver[4] else None,
+            "start_time": driver[5].isoformat() if driver[5] else None,
+            "end_time": driver[6].isoformat() if driver[6] else None,
         }
     except Exception as e:
         logging.error("Error fetching driver: %s", str(e))

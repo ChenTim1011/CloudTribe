@@ -51,7 +51,7 @@ const CartModal: React.FC<CartModalProps> = ({ cart, onClose, removeFromCart, up
 
   return (
     <Sheet open={true} onOpenChange={onClose}>
-      <SheetContent className="w-full max-w-xl">
+      <SheetContent className="w-full max-w-xl overflow-y-auto max-h-[80vh]">
         <SheetHeader>
           <SheetTitle>購物車結帳 ({cart.reduce((total, item) => total + item.quantity, 0)})</SheetTitle>
         </SheetHeader>
@@ -73,7 +73,7 @@ const CartModal: React.FC<CartModalProps> = ({ cart, onClose, removeFromCart, up
               <div className="flex-grow">
                 <h2 className="text-lg font-bold truncate" style={{ maxWidth: "12rem" }}>{item.name}</h2>
                 <p>${item.price} x {item.quantity} = ${(item.price * item.quantity).toFixed(2)}</p>
-                <div className="flex items-center">
+                <div className="flex items-center justify-between">
                   <Button variant="outline" onClick={() => updateQuantity(item.id, -1)}>-</Button>
                   <input
                     title="Quantity"
