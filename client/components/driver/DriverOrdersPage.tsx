@@ -107,7 +107,10 @@ const DriverOrdersPage: React.FC<{ driverData: any }> = ({ driverData }) => {
                         key={order.id}
                         order={order}
                         driverId={driverData.id}
-                        onAccept={() => {}}
+                        onAccept={async (orderId: string) => {
+                            // Implement the accept order logic here
+                            console.log(`Order ${orderId} accepted`);
+                        }}
                         onTransfer={handleTransferOrder}
                         onNavigate={handleNavigateOrder}
                         onComplete={handleCompleteOrder}

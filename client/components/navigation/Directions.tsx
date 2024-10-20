@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import React, { useState, useEffect } from "react";
 import { DirectionsRenderer, DirectionsService } from "@react-google-maps/api";
 
 interface DirectionsProps {
@@ -44,34 +44,32 @@ const Directions: React.FC<DirectionsProps> = ({
   const [directionsRenderer, setDirectionsRenderer] = useState<google.maps.DirectionsRenderer | null>(null);
 
   useEffect(() => {
-    if (!window.google) return;
-
-    setDirectionsService(new window.google.maps.DirectionsService());
-    setDirectionsRenderer(new window.google.maps.DirectionsRenderer());
+    if (typeof window !== 'undefined' && window.google) {
+      setDirectionsService(new window.google.maps.DirectionsService());
+      setDirectionsRenderer(new window.google.maps.DirectionsRenderer());
+    }
   }, []);
 
   useEffect(() => {
     if (!directionsService || !directionsRenderer) return;
 
-    directionsService
-      .route({
-        origin,
-        destination,
-        travelMode: google.maps.TravelMode.DRIVING,
-        provideRouteAlternatives: true,
-      })
-      .then((response) => {
-        directionsRenderer.setDirections(response);
-        setRoutes(response.routes as Route[]);
-        
-        const firstLeg = response.routes[0].legs[0];
-        if (firstLeg.distance) {
-          setTotalDistance(firstLeg.distance.text);
-        }
-        if (firstLeg.duration) {
-          setTotalTime(firstLeg.duration.text);
-        }
-      });
+    directionsService.route({
+      origin,
+      destination,
+      travelMode: google.maps.TravelMode.DRIVING,
+      provideRouteAlternatives: true,
+    }).then((response) => {
+      directionsRenderer.setDirections(response);
+      setRoutes(response.routes as Route[]);
+
+      const firstLeg = response.routes[0].legs[0];
+      if (firstLeg.distance) {
+        setTotalDistance(firstLeg.distance.text);
+      }
+      if (firstLeg.duration) {
+        setTotalTime(firstLeg.duration.text);
+      }
+    });
 
     return () => directionsRenderer.setMap(null);
   }, [directionsService, directionsRenderer, origin, destination, setRoutes, setTotalDistance, setTotalTime]);

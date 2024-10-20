@@ -77,7 +77,7 @@ export const SellerDialog = () => {
         off_shelf_date: date.toLocaleDateString().replaceAll("/", "-"),
         img_link: res_img.img_link,
         img_id: res_img.img_id,
-        seller_id: user && user.id? user.id.toString():null
+        seller_id: user && user.id ? Number(user.id) : null
       }
       try{
         const res_item = await SellerService.upload_item(item)

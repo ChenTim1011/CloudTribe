@@ -44,7 +44,7 @@ export function UserForm() {
     }
 
     try{
-      const res_register = await UserService.register(name, phone)
+      const res_register = await UserService.register(name, phone, 'default_location', false)
       if(res_register == "phone exists")
         setErrorMessage('電話號碼已經存在')
       else

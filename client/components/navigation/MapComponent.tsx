@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect, useRef, useCallback } from "react";
+import React, { useState, useEffect, useRef, useCallback, Suspense } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -22,7 +22,7 @@ interface Route {
   }[];
 }
 
-const libraries: LoadScriptProps['libraries'] = ["places", "directions"];
+const libraries: LoadScriptProps['libraries'] = ["places"];
 
 const MapComponent: React.FC = () => {
   const [origin, setOrigin] = useState<string>("");
@@ -55,7 +55,7 @@ const MapComponent: React.FC = () => {
   });
 
   useEffect(() => {
-    if (navigator.geolocation) {
+    if (typeof navigator !== 'undefined' && navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (position) => {
           const { latitude, longitude } = position.coords;
@@ -215,118 +215,119 @@ const MapComponent: React.FC = () => {
   }
 
   return (
-
-    <div className="max-w-full mx-auto  space-y-6">
+    <Suspense fallback={<div>Loading map...</div>}>
+      <div className="max-w-full mx-auto space-y-6">
         <div className="w-full flex justify-start p-4">
-        <Button variant="outline" onClick={() => window.history.back()}>
-          <FontAwesomeIcon icon={faArrowLeft} className="mr-2" />
-          上一頁
-        </Button>
-      </div>
-      <div id="map" className="mb-6" style={{ height: "60vh", width: "100%" }}>
-        <GoogleMap
-          center={center!}
-          zoom={14}
-          mapContainerStyle={{ width: "100%", height: "100%" }}
-        >
-          {currentLocation && <Marker position={currentLocation} />}
-          <Directions
-            routes={routes}
-            setRoutes={setRoutes}
-            origin={origin}
-            destination={destination}
-            setTotalDistance={setTotalDistance}
-            setTotalTime={setTotalTime}
-          />
-        </GoogleMap>
-      </div>
-      <Card className="my-10 shadow-lg mb-6">   
-        <CardHeader className="bg-black text-white p-4 rounded-t-md flex justify-between">
-          <div>
-            <CardTitle className="my-3 text-lg font-bold">導航地圖</CardTitle>
-            <CardDescription className="my-3 text-white text-sm">顯示路線與地圖</CardDescription>
-          </div>
-          
-        </CardHeader>
-        <CardContent className="p-4">
-        <Button onClick={handleViewOrder} className="my-5 bg-black text-white max-w-xs w-1/2 mx-auto block">查看表單</Button>
-        {orderData && orderData.location && (
+          <Button variant="outline" onClick={() => window.history.back()}>
+            <FontAwesomeIcon icon={faArrowLeft} className="mr-2" />
+            上一頁
+          </Button>
+        </div>
+        <div id="map" className="mb-6" style={{ height: "60vh", width: "100%" }}>
+          <GoogleMap
+            center={center!}
+            zoom={14}
+            mapContainerStyle={{ width: "100%", height: "100%" }}
+          >
+            {currentLocation && <Marker position={currentLocation} />}
+            <Directions
+              routes={routes}
+              setRoutes={setRoutes}
+              origin={origin}
+              destination={destination}
+              setTotalDistance={setTotalDistance}
+              setTotalTime={setTotalTime}
+            />
+          </GoogleMap>
+        </div>
+        <Card className="my-10 shadow-lg mb-6">   
+          <CardHeader className="bg-black text-white p-4 rounded-t-md flex justify-between">
+            <div>
+              <CardTitle className="my-3 text-lg font-bold">導航地圖</CardTitle>
+              <CardDescription className="my-3 text-white text-sm">顯示路線與地圖</CardDescription>
+            </div>
+            
+          </CardHeader>
+          <CardContent className="p-4">
+            <Button onClick={handleViewOrder} className="my-5 bg-black text-white max-w-xs w-1/2 mx-auto block">查看表單</Button>
+            {orderData && orderData.location && (
               <Button className="bg-black text-white max-w-xs w-1/2 mx-auto block" onClick={() => handleNavigateOrder(orderData.location)}>
                 目前位置到送貨地點的導覽連結
               </Button>
             )}
-          <div className="flex flex-col space-y-4">
-            <h2 className="text-lg font-bold">起點</h2>
-            <div className="flex mb-4 w-full">
-              <Autocomplete
-                onLoad={(autocomplete) => {
-                  autocompleteOriginRef.current = autocomplete;
-                }}
-                onPlaceChanged={() => handlePlaceChanged(autocompleteOriginRef, setOrigin, setOriginName)}
-              >
-                <div className="flex items-center w-full"> 
-                  <Input type="text" placeholder="搜尋起點" className="w-full" />
-                </div>
-              </Autocomplete>
+            <div className="flex flex-col space-y-4">
+              <h2 className="text-lg font-bold">點擊</h2>
+              <div className="flex mb-4 w-full">
+                <Autocomplete
+                  onLoad={(autocomplete) => {
+                    autocompleteOriginRef.current = autocomplete;
+                  }}
+                  onPlaceChanged={() => handlePlaceChanged(autocompleteOriginRef, setOrigin, setOriginName)}
+                >
+                  <div className="flex items-center w-full"> 
+                    <Input type="text" placeholder="搜尋起點" className="w-full" />
+                  </div>
+                </Autocomplete>
+              </div>
+              <Button onClick={handleMoveMapToOrigin}>移動地圖到起點</Button>
+              <Button onClick={handleGetCurrentLocation}>以目前位置為起點</Button>
+              <h2 className="text-lg font-bold">終點</h2>
+              <div className="flex items-center w-full">
+                <Autocomplete
+                  onLoad={(autocomplete) => {
+                    autocompleteDestinationRef.current = autocomplete;
+                  }}
+                  onPlaceChanged={() => handlePlaceChanged(autocompleteDestinationRef, setDestination, setDestinationName)}
+                >
+                  <div className="flex mb-4 w-full">
+                    <Input type="text" placeholder="搜尋終點" className="w-full" />
+                  </div>
+                </Autocomplete>
+              </div>
+              <Button onClick={handleMoveMapToDestination}>移動地圖到終點</Button>
+              {error && (
+                <Alert variant="destructive">
+                  <AlertTitle>錯誤</AlertTitle>
+                  <AlertDescription>{error}</AlertDescription>
+                </Alert>
+              )}
+              <Button onClick={handleGenerateNavigationLink} className="mt-2">生成導航連結</Button>
+              {navigationUrl && (
+                <p className="text-center mt-2">
+                  <a href={navigationUrl} target="_blank" rel="noopener noreferrer">點此查看從 {originName} 到 {destinationName} 的導航路徑</a>
+                </p>
+              )}
             </div>
-            <Button onClick={handleMoveMapToOrigin}>移動地圖到起點</Button>
-            <Button onClick={handleGetCurrentLocation}>以目前位置為起點</Button>
-            <h2 className="text-lg font-bold">終點</h2>
-            <div className="flex items-center w-full">
-              <Autocomplete
-                onLoad={(autocomplete) => {
-                  autocompleteDestinationRef.current = autocomplete;
-                }}
-                onPlaceChanged={() => handlePlaceChanged(autocompleteDestinationRef, setDestination, setDestinationName)}
-              >
-                <div className="flex mb-4 w-full">
-                  <Input type="text" placeholder="搜尋終點" className="w-full" />
-                </div>
-              </Autocomplete>
-            </div>
-            <Button onClick={handleMoveMapToDestination}>移動地圖到終點</Button>
-            {error && (
-              <Alert variant="destructive">
-                <AlertTitle>錯誤</AlertTitle>
-                <AlertDescription>{error}</AlertDescription>
-              </Alert>
-            )}
-            <Button onClick={handleGenerateNavigationLink} className="mt-2">生成導航連結</Button>
-            {navigationUrl && (
-              <p className="text-center mt-2">
-                <a href={navigationUrl} target="_blank" rel="noopener noreferrer">點此查看從 {originName} 到 {destinationName} 的導航路徑</a>
-              </p>
-            )}
-          </div>
-        </CardContent>
-      </Card>
-      {totalDistance && totalTime && (
-        <Card className="shadow-lg mb-6">
-          <CardFooter className="p-4 flex flex-col space-y-4">
-            <div className="space-y-2">
-              <p className="text-lg">總距離: {totalDistance}</p>
-              <p className="text-lg">總時間: {totalTime}</p>
-            </div>
-          </CardFooter>
+          </CardContent>
         </Card>
-      )}
+        {totalDistance && totalTime && (
+          <Card className="shadow-lg mb-6">
+            <CardFooter className="p-4 flex flex-col space-y-4">
+              <div className="space-y-2">
+                <p className="text-lg">總距離: {totalDistance}</p>
+                <p className="text-lg">總時間: {totalTime}</p>
+              </div>
+            </CardFooter>
+          </Card>
+        )}
 
-      <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
-        <SheetContent className="w-full max-w-2xl max-h-[calc(100vh-200px)] overflow-y-auto">
-          <SheetHeader>
-            <SheetTitle>訂單詳情</SheetTitle>
-            <SheetClose />
-          </SheetHeader>
-          {showDriverOrders ? (
-            <DriverOrdersPage driverData={{ id: driverId }} />
-          ) : (
-            <div className="p-4">
-              <p>正在加載訂單資料...</p>
-            </div>
-          )}
-        </SheetContent>
-      </Sheet>
-    </div>
+        <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
+          <SheetContent className="w-full max-w-2xl max-h-[calc(100vh-200px)] overflow-y-auto">
+            <SheetHeader>
+              <SheetTitle>訂單詳情</SheetTitle>
+              <SheetClose />
+            </SheetHeader>
+            {showDriverOrders ? (
+              <DriverOrdersPage driverData={{ id: driverId }} />
+            ) : (
+              <div className="p-4">
+                <p>正在加載訂單資料...</p>
+              </div>
+            )}
+          </SheetContent>
+        </Sheet>
+      </div>
+    </Suspense>
   );
 };
 

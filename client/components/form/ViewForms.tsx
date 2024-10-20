@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import FormOrderCard from '@/components/form/FormOrderCard'; 
@@ -26,13 +26,13 @@ const ViewForms: React.FC = () => {
     const [error, setError] = useState<string>('');
     const [showSheet, setShowSheet] = useState(false);
     const [orderStatus, setOrderStatus] = useState<string>('未接單'); // 新增訂單狀態
-    const [startDate, setStartDate] = useState<Date | null>(null); // 新增開始時間
+    const [startDate, setStartDate] = useState<Date | null>(null); // 
     const [endDate, setEndDate] = useState<Date | null>(null); // 新增結束時間
 
     /**
      * Fetches orders based on role and phone number.
      */
-    const handleFetchOrders = async () => {
+    const handleFetchOrders = useCallback(async () => {
         if (!role || !phone) {
             setError('請選擇角色並輸入電話號碼');
             return;
@@ -49,7 +49,7 @@ const ViewForms: React.FC = () => {
         } catch (err) {
             setError((err as Error).message);
         }
-    };
+    }, [role, phone]); // Add 'role' and 'phone' as dependencies
 
     /**
      * Filters orders based on the selected status and time range.
@@ -129,7 +129,7 @@ const ViewForms: React.FC = () => {
         if (showSheet) {
             handleFetchOrders();
         }
-    }, [startDate, endDate]);
+    }, [handleFetchOrders, showSheet]); // 'handleFetchOrders' is now stable
 
     return (
         <div>
@@ -199,7 +199,7 @@ const ViewForms: React.FC = () => {
                                                     </Button>
                                                 </PopoverTrigger>
                                                 <PopoverContent className="w-auto p-0">
-                                                    <Calendar mode="single" selected={startDate} onSelect={setStartDate} initialFocus />
+                                                    <Calendar mode="single" selected={startDate || undefined} onSelect={(day) => setStartDate(day || null)} initialFocus />
                                                 </PopoverContent>
                                             </Popover>
                                         </div>
@@ -212,7 +212,7 @@ const ViewForms: React.FC = () => {
                                                     </Button>
                                                 </PopoverTrigger>
                                                 <PopoverContent className="w-auto p-0">
-                                                    <Calendar mode="single" selected={endDate} onSelect={setEndDate} initialFocus />
+                                                    <Calendar mode="single" selected={endDate || undefined} onSelect={(day) => setEndDate(day || null)} initialFocus />
                                                 </PopoverContent>
                                             </Popover>
                                         </div>
