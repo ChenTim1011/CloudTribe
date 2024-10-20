@@ -12,7 +12,7 @@ import UserService from '@/services/user/user'
 import { User, CartItem, PurchasedProductRequest } from '@/services/interface'
 import { useRouter } from 'next/navigation'
 import Link from "next/link"
-
+import Image from 'next/image';
 
 export default function ShoppingCart(){
   const [user, setUser] = useState<User>()
@@ -143,7 +143,14 @@ export default function ShoppingCart(){
                 onClick={handleCheckBox}/>
             </div>
             <div className="w-3/12">
-              <img src={item.img_url} className="lg:h-[150px] h-[100px] w-full py-2"/>
+              <Image 
+                src={item.img_url} 
+                alt={item.name} 
+                layout="responsive" 
+                width={150} 
+                height={100} 
+                className="w-full py-2"
+              />
             </div> 
             <div className="flex flex-col w-5/12 text-center">
               <p className="lg:text-2xl line-clamp-2 text-pretty">{item.name}</p>

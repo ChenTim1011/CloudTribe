@@ -5,6 +5,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faShoppingCart,faDollarSign, faSortAmountDown } from '@fortawesome/free-solid-svg-icons';
 import PaginationDemo from "@/components/tribe_resident/buyer/PaginationDemo";
 import { Button } from "@/components/ui/button";
+import Image from 'next/image';
 
 type Product = {
   category: string;
@@ -69,7 +70,14 @@ const ItemList: React.FC<ItemListProps> = ({ products, itemsPerPage, addToCart }
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         {currentData.map((product) => (
           <div key={product.id} className="card p-4 bg-white shadow-md rounded-lg">
-            <img src={product.img} alt={product.name} className="w-full h-48 object-cover" style={{ height: '250px', objectFit: 'contain' }} />
+            <Image 
+              src={product.img} 
+              alt={product.name} 
+              width={250} 
+              height={250} 
+              className="object-cover"
+              style={{ objectFit: 'contain' }}
+            />
             <div className="p-4 text-center">
               <h2 className="text-xl font-bold mb-2">{product.name}</h2>
               <p className="text-2xl font-bold text-red-500 mb-4">參考價格: ${product.price}</p>

@@ -4,6 +4,8 @@ import { NavigationBar } from "@/components/NavigationBar";
 import { ProductDetailTable } from "@/components/tribe_resident/seller/ProductDetailTable";
 import SellerService from '@/services/seller/seller'
 import { ProductInfo } from '@/services/interface'
+import Image from 'next/image';
+
 export default function Page(){
   const [productInfo, setProductInfo] = useState<ProductInfo>()
   useEffect(()=>{
@@ -21,7 +23,14 @@ export default function Page(){
       <NavigationBar/>
       <div className="items-center border-y-2 border-black">
         <div className="flex flex-row justify-center items-center lg:space-x-5 space-x-3 bg-[#E0EBAF] lg:p-8 p-4">
-          <img src={productInfo?.img_link} className="lg:w-2/12 w-1/2"/>
+          <Image 
+            src={productInfo?.img_link || '/default-image.png'} 
+            alt={productInfo?.name || 'Product Image'} 
+            layout="responsive" 
+            width={200} 
+            height={200} 
+            className="lg:w-2/12 w-1/2"
+          />
           <div className="flex flex-col text-md lg:text-2xl leading-normal lg:leading-relaxed">
             <p>商品名稱:{productInfo?.name}</p>
             <p>商品價格:${productInfo?.price.toString()}</p>

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import Image from 'next/image';
 
 /**
  * Represents a form for an order card.
@@ -72,7 +73,13 @@ const FormOrderCard: React.FC<{
             {order.items.map((item: any) => (
               <li key={item.item_id} className="text-sm text-gray-700 mb-2">
                 <div className="flex items-center space-x-2">
-                  <img src={item.img} alt={item.item_name} className="w-10 h-10 object-cover rounded" />
+                  <Image 
+                    src={item.img} 
+                    alt={item.item_name || '未命名'} 
+                    width={40} 
+                    height={40} 
+                    className="object-cover rounded"
+                  />
                   <div>
                     <span className="block font-semibold text-black truncate" style={{ maxWidth: '20rem' }}>
                       {item.item_name || '未命名'}

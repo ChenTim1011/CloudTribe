@@ -33,5 +33,6 @@ export default async (phase) => {
         },
       ];
     },
+    output: "export",
   };
 };

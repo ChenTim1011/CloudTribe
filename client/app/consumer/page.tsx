@@ -22,6 +22,7 @@ import {
 import { NavigationBar } from "@/components/NavigationBar";
 import PaginationDemo from "@/components/tribe_resident/buyer/PaginationDemo";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import Image from 'next/image';
 
 export default function Page() {
   const ITEM_PER_PAGE = 16
@@ -166,13 +167,20 @@ export default function Page() {
       <div className="grid lg:grid-cols-4 grid-cols-2 items-center lg:p-28 px-2 py-5">
         {currentData!= undefined && currentData.map((product) => (  
           <div key={product.id.toString()} className="w-full lg:h-[550px] h-[250px] bg-white border-gray-200 border-4 text-center lg:p-5 p-1">
-            <img src={product.img_link} className="lg:h-[70%] h-[55%]"/>
+            <Image 
+              src={product.img_link} 
+              alt={product.name} 
+              layout="responsive" 
+              width={500} 
+              height={500} 
+              className="lg:h-[70%] h-[55%]"
+            />
             
             
             <div className="lg:h-1"/>
             <div className="flex flex-col items-center space-y-1">
               <p className="lg:text-2xl text-sm">{product.name}</p>
-              <p className="lg:text-3xl text-md text-red-600">${product.price}</p>
+              <p className="lg:text-3xl text-md text-red-600">{String(product.price)}</p>
               <div className="flex flex-row space-x-2 items-center text-center">
                 <label htmlFor={`quantity-${product.id}`} className="lg:text-2xl text-sm">購買數量:</label>
                 <Input

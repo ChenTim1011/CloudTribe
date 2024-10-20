@@ -8,6 +8,8 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog"
 import { PurchasedProduct } from "@/services/interface"
+import Image from 'next/image';
+
 interface DetailDialogProp {
   products: PurchasedProduct[]
   order_id: Number
@@ -29,7 +31,13 @@ export const ProductDetailDialog:React.FC<DetailDialogProp> = (prop) => {
           <DialogTitle className="lg:text-2xl text-lg">其他資訊</DialogTitle>
         </DialogHeader>
         <div className="grid gap-4 py-4">
-          <img src={item?.img_url}/>
+          <Image 
+            src={item?.img_url || '/default-image.png'} 
+            alt={item?.product_name || 'Product Image'} 
+            layout="responsive" 
+            width={150} 
+            height={150} 
+          />
           <div className="grid grid-cols-5 items-center gap-4">
             <p className="lg:text-2xl text-md col-span-2">商品名稱</p>
             <p className="lg:text-2xl text-md col-span-3">{item?.product_name}</p>
