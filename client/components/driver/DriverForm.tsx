@@ -32,7 +32,7 @@ const DriverForm: React.FC<{ onClose: () => void, onUpdateSuccess: (data: any) =
         }
 
         if (initialData) {
-            setDirection(initialData.direction);
+            setDirection("討論後不使用方向");
             setDate(initialData.available_date);
             setStartTime(initialData.start_time);
             setEndTime(initialData.end_time);
@@ -55,10 +55,7 @@ const DriverForm: React.FC<{ onClose: () => void, onUpdateSuccess: (data: any) =
             return;
         }
 
-        if (!direction) {
-            setError("未選擇方向");
-            return;
-        }
+        
 
         if (!date) {
             setError("未選擇日期");

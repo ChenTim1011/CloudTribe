@@ -49,14 +49,13 @@ async def create_driver(driver: Driver, conn: Connection = Depends(get_db)):
         existing_driver = cur.fetchone()
         if existing_driver:
             raise HTTPException(status_code=409, detail="電話號碼已存在")
-        
         cur.execute(
             "INSERT INTO drivers (driver_name, driver_phone, direction, available_date, start_time, end_time) VALUES (%s, %s, %s, %s, %s, %s)",
-            (driver.driver_name, 
-             driver.driver_phone, 
-             driver.direction or None, 
-             driver.available_date or None, 
-             driver.start_time or None, 
+            (driver.driver_name,
+             driver.driver_phone,
+             driver.direction or None,
+             driver.available_date or None,
+             driver.start_time or None,
              driver.end_time or None)
         )
         conn.commit()
@@ -86,7 +85,6 @@ async def get_driver(phone: str, conn: Connection = Depends(get_db)):
         driver = cur.fetchone()
         if not driver:
             raise HTTPException(status_code=404, detail="電話號碼未註冊")
-        
         return {
             "id": driver[0],
             "driver_name": driver[1],
@@ -119,12 +117,11 @@ async def update_driver(phone: str, driver: Driver, conn: Connection = Depends(g
     try:
         cur.execute(
             "UPDATE drivers SET driver_name = %s, direction = %s, available_date = %s, start_time = %s, end_time = %s WHERE driver_phone = %s",
-            (driver.driver_name, driver.direction, driver.available_date, driver.start_time, driver.end_time, phone)
+            (driver.driver_name, driver.direction, driver.available_date,
+             driver.start_time, driver.end_time, phone)
         )
-        
         if cur.rowcount == 0:
             raise HTTPException(status_code=404, detail="Driver not found")
-        
         conn.commit()
         return {"status": "success"}
     except Exception as e:
@@ -182,7 +179,8 @@ async def get_driver_orders(driver_id: int, conn: Connection = Depends(get_db)):
             }
             cur.execute("SELECT * FROM order_items WHERE order_id = %s", (order[0],))
             items = cur.fetchall()
-            order_dict["items"] = [{"item_id": item[2], "item_name": item[3], "price": item[4], "quantity": item[5], "img": item[6]} for item in items]
+            order_dict["items"] = [{"item_id": item[2], "item_name": item[3], "price": item[4],
+                                    "quantity": item[5], "img": item[6]} for item in items]
             order_list.append(order_dict)
         
         return order_list
@@ -192,38 +190,110 @@ async def get_driver_orders(driver_id: int, conn: Connection = Depends(get_db)):
     finally:
         cur.close()
 
-
-# 新增司機可用時間的路由
+# Add a new available time slot for a driver.
 @router.post("/time")
 async def add_driver_time(driver_time: DriverTime, conn: Connection = Depends(get_db)):
+    """
+    Add a new available time slot for a driver.
+
+    Args:
+        driver_time (DriverTime): The driver's time slot details 
+        including driver ID, date, start time, and location.
+        conn (Connection): The database connection.
+
+    Returns:
+        dict: A dictionary containing the newly created time slot ID and the success status.
+    """
     cur = conn.cursor()
     try:
         cur.execute(
             """
-            INSERT INTO driver_time (driver_id, date, start_time, end_time, locations)
-            VALUES (%s, %s, %s, %s, %s)
+            INSERT INTO driver_time (driver_id, date, start_time, locations)
+            VALUES (%s, %s, %s, %s)
             RETURNING id;
             """,
-            (driver_time.driver_id, driver_time.date, driver_time.start_time, driver_time.end_time, driver_time.locations)
+            (driver_time.driver_id, driver_time.date, driver_time.start_time, driver_time.locations)
         )
         conn.commit()
         new_id = cur.fetchone()[0]
         return {"id": new_id, "status": "success"}
     except Exception as e:
         conn.rollback()
+        raise HTTPException(status_code=500, detail=str(e)) from e
+    finally:
+        cur.close()
+
+# Retrieve available time slots for a specific driver.
+@router.get("/{driver_id}/times")
+async def get_driver_times(driver_id: int, conn: Connection = Depends(get_db)):
+    """
+    Retrieve available time slots for a specific driver.
+
+    Args:
+        driver_id (int): The driver's ID.
+        conn (Connection): The database connection.
+
+    Returns:
+        list: A list of dictionaries representing the available time slots for the driver. Each dictionary contains
+              the time slot ID, date, start time, location, driver's name, and phone number.
+    """
+
+    cur = conn.cursor()
+    try:
+        cur.execute(
+            """
+            SELECT dt.id, dt.date, dt.start_time, dt.locations, d.driver_name, d.driver_phone
+            FROM driver_time dt
+            JOIN drivers d ON dt.driver_id = d.id
+            WHERE dt.driver_id = %s
+            """,
+            (driver_id,)
+        )
+        times = cur.fetchall()
+        return [
+            {
+                "id": time[0],
+                "date": time[1].isoformat(),
+                "start_time": str(time[2]),
+                "locations": time[3],
+                "driver_name": time[4],
+                "driver_phone": time[5]
+            }
+            for time in times
+        ]
+    except Exception as e:
+        print(f"Error occurred: {e}") 
         raise HTTPException(status_code=500, detail=str(e))
     finally:
         cur.close()
 
-# 獲取司機可用時間的路由
-@router.get("/{driver_id}/times")
-async def get_driver_times(driver_id: int, conn: Connection = Depends(get_db)):
+
+# Delete an available time slot for a driver.
+@router.delete("/time/{id}")
+async def delete_driver_time(id: int, conn: Connection = Depends(get_db)):
+    """
+    Delete an available time slot for a driver.
+
+    Args:
+        id (int): The ID of the time slot to delete.
+        conn (Connection): The database connection.
+
+    Returns:
+        dict: A dictionary containing the success status and a message indicating the deleted time slot ID.
+    """
     cur = conn.cursor()
     try:
-        cur.execute("SELECT id, date, start_time, end_time, locations FROM driver_time WHERE driver_id = %s", (driver_id,))
-        times = cur.fetchall()
-        return [{"id": time[0], "date": time[1].isoformat(), "start_time": str(time[2]), "end_time": str(time[3]), "locations": time[4]} for time in times]
+        cur.execute(
+            """
+            DELETE FROM driver_time
+            WHERE id = %s
+            """,
+            (id,)
+        )
+        conn.commit()
+        return {"status": "success", "message": f"Deleted time slot with ID {id}"}
     except Exception as e:
+        conn.rollback()
         raise HTTPException(status_code=500, detail=str(e))
     finally:
         cur.close()

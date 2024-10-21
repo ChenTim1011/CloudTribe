@@ -11,4 +11,4 @@ UPDATE users SET is_driver = FALSE;
 
 ALTER TABLE driver_time ADD COLUMN locations VARCHAR(255) ;
 
-
+ALTER TABLE driver_time DROP COLUMN end_time;

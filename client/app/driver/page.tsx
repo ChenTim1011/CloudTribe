@@ -5,6 +5,7 @@ import DriverForm from "@/components/driver/DriverForm";
 import LoginForm from "@/components/driver/LoginForm";
 import OrderListWithPagination from "@/components/driver/OrderListWithPagination";
 import DriverOrdersPage from "@/components/driver/DriverOrdersPage";
+import DriverAvailableTimes from "@/components/driver/DriverAvailableTimes"; 
 import { NavigationBar } from "@/components/NavigationBar";
 import { Button } from "@/components/ui/button";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -228,7 +229,7 @@ const DriverPage: React.FC = () => {
     const handleAddTimeSlot = async () => {
         if (date && startTime && endTime && locations) {
             try {
-                const response = await fetch(`/api/driver/time`, {
+                const response = await fetch(`/api/drivers/time`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -265,12 +266,12 @@ const DriverPage: React.FC = () => {
                 }}
             >
                 <div className="content flex-grow p-10 bg-white bg-opacity-10 flex flex-col items-center">
-                <div className="w-full flex justify-start space-x-2 mt-4">
-                    <Button variant="outline" onClick={() => window.location.href = '/'}>
-                        <FontAwesomeIcon icon={faArrowLeft} className="mr-2" />
-                        返回主頁
-                    </Button>
-                </div>
+                    <div className="w-full flex justify-start space-x-2 mt-4">
+                        <Button variant="outline" onClick={() => window.location.href = '/'}>
+                            <FontAwesomeIcon icon={faArrowLeft} className="mr-2" />
+                            返回主頁
+                        </Button>
+                    </div>
                 <h1 className="mb-20 text-4xl font-bold text-white text-center" style={{ marginTop: '40px' }}>司機專區</h1>
                     <div className="flex flex-wrap space-x-4 justify-center">
                         {/* if the user is not the driver */}
@@ -286,6 +287,8 @@ const DriverPage: React.FC = () => {
                         {/* if the user is the driver */}
                         {isClient && user.is_driver && (
                             <>
+                                <DriverAvailableTimes driverId={user.id} />
+
                                 <Button 
                                     className="mb-10 px-6 py-3 text-lg font-bold border-2 border-black text-black bg-white hover:bg-blue-500 hover:text-white"
                                     onClick={() => setShowLoginForm(true)}
@@ -301,15 +304,7 @@ const DriverPage: React.FC = () => {
                                 >
                                     管理訂單
                                 </Button>
-
-                                {/* 新增時間的按鈕 */}
-                                <Button 
-                                    className="mb-10 px-6 py-3 text-lg font-bold border-2 border-black text-black bg-white hover:bg-blue-500 hover:text-white"
-                                    onClick={() => setShowAddTimeSheet(true)}
-                                >
-                                    <FontAwesomeIcon icon={faPlus} className="h-6 w-6" />
-                                    新增時間
-                                </Button>
+           
                             </>
                         )}
                     </div>
@@ -349,70 +344,6 @@ const DriverPage: React.FC = () => {
                         </SheetContent>
                     </Sheet>
 
-                    <Sheet open={showAddTimeSheet} onOpenChange={setShowAddTimeSheet}> 
-                        <SheetContent className="w-full max-w-2xl" aria-describedby="add-time-description">
-                            <SheetHeader>
-                                <SheetTitle>新增可用時間</SheetTitle>
-                                <SheetClose />
-                            </SheetHeader>
-                            <div className="mt-4">
-                                {/* 日期選擇 */}
-                                <Calendar
-                                    mode="single"
-                                    selected={date}
-                                    onSelect={setDate}
-                                    className="rounded-md border mt-2"
-                                />
-
-                                {/* 時間選擇 */}
-                                <div className="flex space-x-4 mt-4">
-                                    <div>
-                                        <label className="block text-sm font-medium">開始時間</label>
-                                        <select
-                                            title="開始時間"
-                                            value={startTime}
-                                            onChange={(e) => setStartTime(e.target.value)}
-                                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
-                                        >
-                                            <option value="">選擇開始時間</option>
-                                            {["08:00", "09:00", "10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00", "17:00", "18:00", "19:00", "20:00"].map((time) => (
-                                                <option key={time} value={time}>{time}</option>
-                                            ))}
-                                        </select>
-                                    </div>
-
-                                    <div>
-                                        <label className="block text-sm font-medium">結束時間</label>
-                                        <select
-                                            title="結束時間"
-                                            value={endTime}
-                                            onChange={(e) => setEndTime(e.target.value)}
-                                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
-                                        >
-                                            <option value="">選擇結束時間</option>
-                                            {["08:00", "09:00", "10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00", "17:00", "18:00", "19:00", "20:00"].map((time) => (
-                                                <option key={time} value={time}>{time}</option>
-                                            ))}
-                                        </select>
-                                    </div>
-                                </div>
-
-                                {/* 地點輸入 */}
-                                <Input
-                                    type="text"
-                                    value={locations}
-                                    onChange={(e) => setLocations(e.target.value)}
-                                    placeholder="輸入地點"
-                                    className="mt-4"
-                                />
-
-                                {/* 新增按鈕 */}
-                                <Button className="mt-4 bg-blue-500 text-white" onClick={handleAddTimeSlot}>
-                                    新增時間
-                                </Button>
-                            </div>
-                        </SheetContent>
-                    </Sheet>
 
                     <div className="w-full mt-10">
                         {driverData?.id && (

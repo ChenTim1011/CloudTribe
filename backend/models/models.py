@@ -60,7 +60,6 @@ class DriverTime(BaseModel):
     driver_id: int
     date: str
     start_time: str
-    end_time: str
     locations: str
 
 class DriverOrder(BaseModel):
