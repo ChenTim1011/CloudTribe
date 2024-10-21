@@ -51,9 +51,7 @@ class ProductOrderInfo(BaseModel):
     status: str
     timestamp: str
 
-
     
-
 
 
 

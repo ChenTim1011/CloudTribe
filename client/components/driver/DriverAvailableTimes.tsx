@@ -77,7 +77,9 @@ const DriverAvailableTimes: React.FC<{ driverId: number }> = ({ driverId }) => {
             return [result]; // if not an array, return the single result
           }
         });
-          
+
+        await fetchTimeSlots();
+        
         setSuccessMessage("時間新增成功！"); 
         
         setTimeout(() => setSuccessMessage(null), 3000); // after 3 seconds, remove the success message

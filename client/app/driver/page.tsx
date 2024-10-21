@@ -20,15 +20,15 @@ const DriverPage: React.FC = () => {
     const [showRegisterForm, setShowRegisterForm] = useState(false);
     const [showLoginForm, setShowLoginForm] = useState(false);
     const [showDriverOrders, setShowDriverOrders] = useState(false);
-    const [showAddTimeSheet, setShowAddTimeSheet] = useState(false); // 新增的 state，用來控制新增時間的 Sheet
+    const [showAddTimeSheet, setShowAddTimeSheet] = useState(false); 
     const [orders, setOrders] = useState([]);
     const [filteredOrders, setFilteredOrders] = useState<any[]>([]);
     const [driverData, setDriverData] = useState<{ id: number } | null>(null);
     const [driverOrders, setDriverOrders] = useState([]); // State to store driver's orders
-    const [date, setDate] = useState<Date | undefined>(new Date()); // 日期狀態
+    const [date, setDate] = useState<Date | undefined>(new Date()); 
     const [startTime, setStartTime] = useState<string>("");
     const [endTime, setEndTime] = useState<string>("");
-    const [locations, setLocations] = useState<string>(""); // 地點狀態
+    const [locations, setLocations] = useState<string>(""); 
     const router = useRouter();
     const [user, setUser] = useState(UserService.getLocalStorageUser());
     const [isClient, setIsClient] = useState(false); 
@@ -48,7 +48,7 @@ const DriverPage: React.FC = () => {
       }, []);
 
 
-    // 如果需要，確保 user.is_driver 是布林值
+    // ensure user.is_driver is boolean
     if (user && typeof user.is_driver === 'string') {
         user.is_driver = user.is_driver === 'true';
     }
@@ -175,7 +175,7 @@ const DriverPage: React.FC = () => {
                 throw new Error('Failed to complete order');
             }
 
-            setFilteredOrders(filteredOrders.filter(order => order.id !== orderId)); // 直接移除已完成的訂單
+            setFilteredOrders(filteredOrders.filter(order => order.id !== orderId)); // Remove the completed order from the list
             alert('訂單已完成');
         } catch (error) {
             console.error('Error completing order:', error);
@@ -225,7 +225,7 @@ const DriverPage: React.FC = () => {
         setShowLoginForm(true);  // Open login form
     };
 
-    // 新增時間的提交邏輯
+    // add a new time slot
     const handleAddTimeSlot = async () => {
         if (date && startTime && endTime && locations) {
             try {
@@ -236,7 +236,7 @@ const DriverPage: React.FC = () => {
                     },
                     body: JSON.stringify({
                         driver_id: driverData?.id,
-                        date: date.toISOString().split('T')[0], // 日期格式 YYYY-MM-DD
+                        date: date.toISOString().split('T')[0], 
                         start_time: startTime,
                         end_time: endTime,
                         locations,
