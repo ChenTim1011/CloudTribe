@@ -46,7 +46,7 @@ export default async (phase) => {
           source: "/api/:path*",
           destination: isDev
             ? "http://localhost:8000/api/:path*" // 開發環境 API
-            : "https://your-production-api.com/api/:path*", // 生產環境 API
+            : "https://www.cloudtribe.online/api/:path*", // 生產環境 API
         },
       ];
     },
