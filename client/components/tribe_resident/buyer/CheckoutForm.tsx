@@ -123,6 +123,7 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onClose, clearCart, cartIte
         price: number;
         quantity: number;
         img: string;
+        location: string;
       }[];
     } = {
       buyer_id: user.id ,  // TODO: Replace with the actual buyer ID  =>login function
@@ -149,7 +150,8 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onClose, clearCart, cartIte
         item_name: item.name,
         price: item.price,
         quantity: item.quantity,
-        img: item.img
+        img: item.img,
+        location: "家樂福",
       }))
     };
 

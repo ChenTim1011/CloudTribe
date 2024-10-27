@@ -71,11 +71,11 @@ const ItemList: React.FC<ItemListProps> = ({ products, itemsPerPage, addToCart }
         {currentData.map((product) => (
           <div key={product.id} className="card p-4 bg-white shadow-md rounded-lg">
             <img 
-	      src={`https://www.cloudtribe.online${product.img}`}
+	            src={`https://www.cloudtribe.online${product.img}`}
               alt={product.name} 
               width={250} 
               height={250} 
-              className="object-cover"
+              className="object-cover mx-auto"
               style={{ objectFit: 'contain' }}
             />
             <div className="p-4 text-center">

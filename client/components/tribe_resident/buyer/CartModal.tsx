@@ -4,7 +4,6 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetFooter, SheetClose }
 import { Input } from "@/components/ui/input";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTrashAlt } from '@fortawesome/free-solid-svg-icons';
-import Image from 'next/image';
 
 import CheckoutForm from "@/components/tribe_resident/buyer/CheckoutForm";
 
@@ -63,13 +62,14 @@ const CartModal: React.FC<CartModalProps> = ({ cart, onClose, removeFromCart, up
           )}
           {cart.map((item) => (
             <div key={item.id} className="flex items-center mb-4 bg-white p-4 rounded shadow">
-              <Image 
-                src={item.img} 
+              <img 
+                src={`https://www.cloudtribe.online${item.img}`}
                 alt={item.name} 
                 width={64} 
                 height={64} 
                 className="object-cover mr-4"
               />
+              
               <div className="flex-grow">
                 <h2 className="text-lg font-bold truncate" style={{ maxWidth: "12rem" }}>{item.name}</h2>
                 <p>${item.price} x {item.quantity} = ${(item.price * item.quantity).toFixed(2)}</p>

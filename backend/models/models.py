@@ -15,6 +15,7 @@ class OrderItem(BaseModel):
     price: float
     quantity: int
     img: str
+    location: Optional[str] = '家樂福'
 
 class Order(BaseModel):
     id: Optional[int] = None 

@@ -45,6 +45,9 @@ const DriverPage: React.FC = () => {
         return () => {
           window.removeEventListener('userDataChanged', handleUserDataChanged);
         };
+
+        
+
       }, []);
 
 
@@ -262,6 +265,7 @@ const DriverPage: React.FC = () => {
                     backgroundRepeat: 'no-repeat',
                     backgroundPosition: 'center',
                     opacity: 1,
+                    width: '100vw',
                     height: '100vh', 
                 }}
             >

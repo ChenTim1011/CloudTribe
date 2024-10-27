@@ -26,18 +26,23 @@ import Image from 'next/image';
 
 export default function Page() {
   const ITEM_PER_PAGE = 16
-  const [user, setUser] = useState<User>()
+  const [user, setUser] = useState<User | null>(null); 
   const [onShelfProducts, setOnShelfProducts] = useState<ProductInfo[]>()
   const [mapItems, setMapItems] = useState<ProductInfo[]>()
   const [searchContent, setSearchContent] = useState('')
   const [currentPage, setCurrentPage] = useState(1);
   const [cartMessage, setCartMessage] = useState('empty')
-
+  
   useEffect(() => {
-    const _user = UserService.getLocalStorageUser()
-    setUser(_user)
-    get_on_sell_product()
-  },[]);
+    const _user = UserService.getLocalStorageUser();
+    if (!_user || _user.id === 0 || _user.name === 'empty' || _user.phone === 'empty') {
+      setUser(null);  // set to not login
+    } else {
+      setUser(_user);  // set to login
+    }
+    get_on_sell_product();
+  }, []);
+  
 
   const get_on_sell_product = async() => {
     try{
@@ -66,37 +71,36 @@ export default function Page() {
       setMapItems(products)
     }
   }
-  const handleAddCart = async(produceId: Number) => {
-    if(user?.id == 0){
-      setCartMessage("請先登入")
-      setTimeout(() => setCartMessage('empty'), 2500);
-      return
+  const handleAddCart = async (produceId: Number) => {
+    // check if user is login
+    if (!user || user.id === 0 || user.name === 'empty' || user.phone === 'empty') {
+      alert('請先按右上角的登入');
+      return;
     }
-    
-    const inputElement = document.getElementById(`quantity-${produceId}`) as HTMLInputElement | null
-    if(user != undefined && inputElement != undefined){
-      let req: AddCartRequest = {
-        buyer_id: user?.id, 
-        produce_id: produceId, 
-        quantity:parseInt(inputElement?.value)}
-
-      try{
-        const res = await ConsumerService.add_shopping_cart(req)
-        if(res == "shopping cart has already had this item"){
-          setCartMessage("此商品被重複加入購物車")
-          setTimeout(() => setCartMessage('empty'), 2000);
-        } 
-        else{
-          setCartMessage("成功加入購物車!")
-          setTimeout(() => setCartMessage('empty'), 2000);
-        }     
-      }
-      catch(e){
-        setCartMessage("加入購物車失敗")
+  
+    // check if input is valid
+    const inputElement = document.getElementById(`quantity-${produceId}`) as HTMLInputElement | null;
+    if (inputElement && user) {
+      const req: AddCartRequest = {
+        buyer_id: user.id,
+        produce_id: produceId,
+        quantity: parseInt(inputElement.value, 10),
+      };
+  
+      try {
+        const res = await ConsumerService.add_shopping_cart(req);
+        if (res === "shopping cart has already had this item") {
+          setCartMessage("此商品已在購物車中");
+        } else {
+          setCartMessage("成功加入購物車!");
+        }
         setTimeout(() => setCartMessage('empty'), 2000);
-      }  
+      } catch (e) {
+        setCartMessage("加入購物車失敗");
+        setTimeout(() => setCartMessage('empty'), 2000);
+      }
     }
-  }
+  };
   const startIdx = (currentPage - 1) * ITEM_PER_PAGE;
   const endIdx = startIdx + ITEM_PER_PAGE;
   const currentData = mapItems?.slice(startIdx, endIdx);

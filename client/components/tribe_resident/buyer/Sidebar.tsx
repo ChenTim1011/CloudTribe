@@ -148,6 +148,7 @@ const Sidebar: React.FC<SidebarProps> = ({ filterCategory, className }) => {
     const category = categories.find((cat) => cat.name === categoryName);
     setSelectedCategory(category ? category.name : null);
     setOpen(false); // Close the popover when a category is selected.
+    setSheetOpen(true);
   };
 
   /**
@@ -190,7 +191,6 @@ const Sidebar: React.FC<SidebarProps> = ({ filterCategory, className }) => {
                   value={category.name}
                   onSelect={() => {
                     handleCategorySelect(category.name);
-                    setSheetOpen(true); // 將 Sheet 開啟狀態移到此處
                   }}
                 >
                     <Check

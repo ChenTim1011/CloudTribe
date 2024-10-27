@@ -103,7 +103,7 @@ async def get_orders_view_form(role: str = Query(...), phone: str = Query(...), 
                 "previous_driver_id": order[16],
                 "previous_driver_name": order[17],
                 "previous_driver_phone": order[18],
-                "items": [{"order_id": item[1], "item_id": item[2], "item_name": item[3], "price": float(item[4]), "quantity": int(item[5]), "img": str(item[6])} for item in items]
+                "items": [{"order_id": item[1], "item_id": item[2], "item_name": item[3], "price": float(item[4]), "quantity": int(item[5]), "img": str(item[6]), "location" : str(item[7])} for item in items]
             }
             order_list.append(order_data)
 

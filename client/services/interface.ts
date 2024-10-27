@@ -3,7 +3,9 @@ export interface User {
   name: string
   phone: string 
   location: string
+  is_driver: boolean
 }
+
 export interface UploadItem {
   name: string
   price: string
