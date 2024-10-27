@@ -5,7 +5,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faShoppingCart,faDollarSign, faSortAmountDown } from '@fortawesome/free-solid-svg-icons';
 import PaginationDemo from "@/components/tribe_resident/buyer/PaginationDemo";
 import { Button } from "@/components/ui/button";
-import Image from 'next/image';
+
 
 type Product = {
   category: string;
@@ -70,8 +70,8 @@ const ItemList: React.FC<ItemListProps> = ({ products, itemsPerPage, addToCart }
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         {currentData.map((product) => (
           <div key={product.id} className="card p-4 bg-white shadow-md rounded-lg">
-            <Image 
-              src={product.img} 
+            <img 
+	      src={`https://www.cloudtribe.online${product.img}`}
               alt={product.name} 
               width={250} 
               height={250} 

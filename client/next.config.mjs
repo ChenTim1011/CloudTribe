@@ -19,7 +19,7 @@ export default async (phase) => {
 
   return {
     reactStrictMode: true,
-
+    trailingSlash: false,
     // 設置 Google Map API 環境變量
     env: {
       NEXT_PUBLIC_GOOGLE_MAPS_API_KEY:
@@ -29,6 +29,7 @@ export default async (phase) => {
 
 
     images: {
+
       remotePatterns: [
         {
           protocol: 'https', // 協議，例如 http 或 https
