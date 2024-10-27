@@ -123,7 +123,7 @@ CREATE TABLE driver_order (
     starting_point VARCHAR(25) NOT NULL,
     end_point VARCHAR(25) NOT NULL,
     service VARCHAR(20) NOT NULL --kind: 1.pick up people, 2.carry products
-)
+);
 
 
 

@@ -38,8 +38,13 @@ export default function Page() {
             </Link>
           </Button>
           <Button className="lg:h-16 h-12 lg:text-2xl text-md rounded-2xl bg-gray-500 shadow-2xl font-mono hover:bg-slate-400">
-            <Link href="/tribe_resident/buyer">
+            <Link href="/tribe_resident/buyer"> 
               部落居民專區-購買服務
+            </Link>
+          </Button>
+          <Button className="lg:h-16 h-12 lg:text-2xl text-md rounded-2xl bg-gray-500 shadow-2xl font-mono hover:bg-slate-400">
+            <Link href="/tribe_resident/seller"> 
+              部落居民專區-商品上架服務
             </Link>
           </Button>
           <Button className="lg:h-16 h-12 lg:text-2xl text-md rounded-2xl bg-gray-500 shadow-2xl font-mono hover:bg-slate-400">
@@ -52,12 +57,6 @@ export default function Page() {
               司機專區
             </Link>
           </Button>
-          <Button className="lg:h-16 h-12 lg:text-2xl text-md rounded-2xl bg-gray-500 shadow-2xl font-mono hover:bg-slate-400">
-            <Link href="/viewform">
-              查看表單
-            </Link>
-          </Button>
-
         </div>}
       </div>
     </main>
