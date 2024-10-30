@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import UserService from '@/services/user/user'; 
+import { Driver } from '@/interfaces/driver/Driver';
 
 /**
  * Represents the form for creating or updating a driver.
@@ -13,7 +14,7 @@ import UserService from '@/services/user/user';
  * @param onUpdateSuccess - Callback function to handle successful update.
  * @param initialData - Initial data for pre-filling the form (optional).
  */
-const DriverForm: React.FC<{ onClose: () => void, onUpdateSuccess: (data: any) => void, initialData?: any }> = ({ onClose, onUpdateSuccess, initialData }) => {
+const DriverForm: React.FC<{ onClose: () => void, onUpdateSuccess: (data: Driver) => void, initialData?: Driver }> = ({ onClose, onUpdateSuccess, initialData }) => {
     const [name, setName] = useState<string>(initialData?.driver_name || "");
     const [phone, setPhone] = useState<string>(initialData?.driver_phone || "");
     const [direction, setDirection] = useState<string | undefined>(initialData?.direction);
@@ -22,6 +23,7 @@ const DriverForm: React.FC<{ onClose: () => void, onUpdateSuccess: (data: any) =
     const [endTime, setEndTime] = useState<string | undefined>(initialData?.end_time);
     const [showAlert, setShowAlert] = useState(false);
     const [error, setError] = useState("");
+
 
     useEffect(() => {
         // Get user information from local storage and pre-fill it into the form
@@ -32,8 +34,8 @@ const DriverForm: React.FC<{ onClose: () => void, onUpdateSuccess: (data: any) =
         }
 
         if (initialData) {
-            setDirection("討論後不使用方向");
-            setDate(initialData.available_date);
+            setDirection(initialData.direction);
+            setDate(initialData.available_date || "");
             setStartTime(initialData.start_time);
             setEndTime(initialData.end_time);
         }
@@ -88,8 +90,8 @@ const DriverForm: React.FC<{ onClose: () => void, onUpdateSuccess: (data: any) =
 
         // check if user is logged in
         const user = UserService.getLocalStorageUser();
-        if (user.id === 0) {
-            setError("用戶未登入");
+        if (!user || user.id === 0) {
+            setError("使用者未登入");
             return;
         }
 

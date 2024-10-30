@@ -15,16 +15,16 @@ import { Input } from "@/components/ui/input";
 import { Calendar } from "@/components/ui/calendar";
 import { useRouter } from 'next/navigation';
 import UserService from '@/services/user/user'; 
+import { Driver } from '@/interfaces/driver/Driver'; // 引入 Driver 接口
 
 const DriverPage: React.FC = () => {
     const [showRegisterForm, setShowRegisterForm] = useState(false);
     const [showLoginForm, setShowLoginForm] = useState(false);
     const [showDriverOrders, setShowDriverOrders] = useState(false);
     const [showAddTimeSheet, setShowAddTimeSheet] = useState(false); 
-    const [orders, setOrders] = useState([]);
-    const [filteredOrders, setFilteredOrders] = useState<any[]>([]);
-    const [driverData, setDriverData] = useState<{ id: number } | null>(null);
-    const [driverOrders, setDriverOrders] = useState([]); // State to store driver's orders
+    const [unacceptedOrders, setUnacceptedOrders] = useState<any[]>([]);
+    const [acceptedOrders, setAcceptedOrders] = useState<any[]>([]);
+    const [driverData, setDriverData] = useState<Driver | null>(null);
     const [date, setDate] = useState<Date | undefined>(new Date()); 
     const [startTime, setStartTime] = useState<string>("");
     const [endTime, setEndTime] = useState<string>("");
@@ -33,72 +33,106 @@ const DriverPage: React.FC = () => {
     const [user, setUser] = useState(UserService.getLocalStorageUser());
     const [isClient, setIsClient] = useState(false); 
 
+    // 新增狀態變數來控制訂單列表的顯示
+    const [showUnacceptedOrders, setShowUnacceptedOrders] = useState(false);
+    const [showAcceptedOrders, setShowAcceptedOrders] = useState(false);
+
     useEffect(() => {
         setIsClient(true);
         const handleUserDataChanged = () => {
-          const updatedUser = UserService.getLocalStorageUser();
-          setUser(updatedUser);
+            const updatedUser = UserService.getLocalStorageUser();
+            setUser(updatedUser);
         };
     
         window.addEventListener('userDataChanged', handleUserDataChanged);
     
         return () => {
-          window.removeEventListener('userDataChanged', handleUserDataChanged);
+            window.removeEventListener('userDataChanged', handleUserDataChanged);
         };
+    }, []);
 
-        
+    // 確保 user.is_driver 為布林值
+    useEffect(() => {
+        if (user && typeof user.is_driver === 'string') {
+            user.is_driver = user.is_driver === 'true';
+            setUser({ ...user });
+        }
+    }, [user]);
 
-      }, []);
+    // 根據 user.id 獲取 driverData
+    useEffect(() => {
+        if (isClient && user && user.is_driver) {
+            fetchDriverData(user.id);
+        }
+    }, [isClient, user]);
 
-
-    // ensure user.is_driver is boolean
-    if (user && typeof user.is_driver === 'string') {
-        user.is_driver = user.is_driver === 'true';
-    }
-
-    const handleFetchOrders = async (phone: string) => {
+    /**
+     * Fetch driver data based on user_id.
+     * @param userId - The user's ID.
+     */
+    const fetchDriverData = async (userId: number) => {
         try {
-            const response = await fetch(`/api/orders`);
+            const response = await fetch(`/api/drivers/user/${userId}`);
             if (!response.ok) {
-                throw new Error('Failed to fetch orders');
+                if (response.status === 404) {
+                    console.warn("用戶尚未成為司機");
+                } else {
+                    throw new Error('Failed to fetch driver data');
+                }
+            } else {
+                const data: Driver = await response.json();
+                console.log('Fetched driver data:', data);
+                setDriverData(data);
+                // 獲取已接單訂單
+                handleFetchDriverOrders(data.id);
             }
-            const data = await response.json();
-            console.log('Fetched orders:', data); 
-            setOrders(data);
         } catch (error) {
-            console.error('Error fetching orders:', error);
+            console.error('Error fetching driver data:', error);
         }
     };
 
-    const handleApplyDriverClick = () => {
-        if (!user || user.id === 0 || user.name === 'empty' || user.phone === 'empty') {
-          alert('請先按右上角的登入');
-        } else {
-          setShowRegisterForm(true);
-        }
-      };
-
-    const handleFetchDriverOrders = async () => {
-        console.log("Fetching driver orders with driverData:", driverData);
-        if (!driverData || !driverData.id) {
-            console.error("Driver data is missing or incomplete");
-            return;
-        }
+    /**
+     * Fetch unaccepted orders.
+     */
+    const handleFetchUnacceptedOrders = async () => {
         try {
-            const response = await fetch(`/api/drivers/${driverData.id}/orders`);
+            const response = await fetch(`/api/orders?status=未接單`);
+            if (!response.ok) {
+                throw new Error('Failed to fetch unaccepted orders');
+            }
+            const data = await response.json();
+            console.log('Fetched unaccepted orders:', data); 
+            setUnacceptedOrders(data);
+        } catch (error) {
+            console.error('Error fetching unaccepted orders:', error);
+        }
+    };
+
+    /**
+     * Fetch accepted orders assigned to the driver.
+     * @param driverId - The driver's ID.
+     */
+    const handleFetchDriverOrders = async (driverId: number) => {
+        try {
+            const response = await fetch(`/api/drivers/${driverId}/orders`);
             if (!response.ok) {
                 throw new Error('Failed to fetch driver orders');
             }
             const data = await response.json();
-            setDriverOrders(data);
+            console.log('Fetched driver orders:', data);
+            setAcceptedOrders(data);
         } catch (error) {
             console.error('Error fetching driver orders:', error);
         }
     };
 
+    /**
+     * Handle accepting an order.
+     * @param orderId - The ID of the order to accept.
+     */
     const handleAcceptOrder = async (orderId: string) => {
         try {
-            console.log("handleAcceptOrder called with driverData:", driverData);
+            console.log("handleAcceptOrder called with driverId:", driverData?.id);
             console.log("Accepting order with orderId:", orderId);
             if (!driverData || !driverData.id) {
                 console.error("Driver data is missing or incomplete");
@@ -128,15 +162,22 @@ const DriverPage: React.FC = () => {
                 throw new Error(`Failed to accept order: ${errorText}`);
             }
         
-            setFilteredOrders(filteredOrders.filter(order => order.id !== orderId));
             alert('接單成功');
-            handleFetchDriverOrders(); // Notify parent component that an order has been accepted
+            if (driverData) {
+                handleFetchDriverOrders(driverData.id); // 更新已接單訂單
+            }
+            handleFetchUnacceptedOrders(); // 更新未接單訂單
         } catch (error) {
             console.error('Error accepting order:', error);
             alert('接單失敗');
         }
     };
 
+    /**
+     * Handle transferring an order.
+     * @param orderId - The ID of the order to transfer.
+     * @param newDriverPhone - The phone number of the new driver.
+     */
     const handleTransferOrder = async (orderId: string, newDriverPhone: string) => {
         try {
             const response = await fetch(`/api/orders/${orderId}/transfer`, {
@@ -152,19 +193,33 @@ const DriverPage: React.FC = () => {
                 throw new Error(`Failed to transfer order: ${errorText}`);
             }
     
-            setFilteredOrders(filteredOrders.filter(order => order.id !== orderId));
             alert('轉單成功');
+            if (driverData) {
+                handleFetchDriverOrders(driverData.id); // 更新已接單訂單
+            }
+            handleFetchUnacceptedOrders(); // 更新未接單訂單
         } catch (error) {
+
+
             console.error('Error transferring order:', error);
             alert('轉單失敗');
         }
     };
 
+    /**
+     * Handle navigating to order details.
+     * @param orderId - The ID of the order to navigate to.
+     * @param driverId - The driver's ID.
+     */
     const handleNavigate = (orderId: string, driverId: number) => {
-        console.log("Navigating to order with driverData:", driverData);
+        console.log("Navigating to order with driverId:", driverId);
         router.push(`/navigation?orderId=${orderId}&driverId=${driverId}`);
     };
 
+    /**
+     * Handle completing an order.
+     * @param orderId - The ID of the order to complete.
+     */
     const handleCompleteOrder = async (orderId: string) => {
         try {
             const response = await fetch(`/api/orders/${orderId}/complete`, {
@@ -178,57 +233,44 @@ const DriverPage: React.FC = () => {
                 throw new Error('Failed to complete order');
             }
 
-            setFilteredOrders(filteredOrders.filter(order => order.id !== orderId)); // Remove the completed order from the list
             alert('訂單已完成');
+            handleFetchDriverOrders(driverData!.id); // 更新已接單訂單
         } catch (error) {
             console.error('Error completing order:', error);
             alert('完成訂單失敗');
         }
     };
 
-    const handleFilteredOrders = (filtered: any[]) => {
-        setFilteredOrders(filtered);
-    };
-
-    const handleApplyDriver = async () => {
-        const user = UserService.getLocalStorageUser();
-        if (!user.id) {
-            alert("用戶未登入");
-            return;
-        }
-
-        try {
-            const response = await fetch(`/api/users/driver/${user.id}`, {
-                method: 'PATCH',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-            });
-
-            if (response.ok) {
-                const updatedUser = { ...user, is_driver: true };
-                UserService.setLocalStorageUser(updatedUser);
-            } else {
-                alert('申請司機失敗');
-            }
-        } catch (error) {
-            console.error('Error updating user to driver:', error);
+    /**
+     * Handle applying to become a driver.
+     */
+    const handleApplyDriverClick = () => {
+        if (!user || user.id === 0 || user.name === 'empty' || user.phone === 'empty') {
+            alert('請先按右上角的登入');
+        } else {
+            setShowRegisterForm(true);
         }
     };
 
-    const handleUpdateSuccess = (data: any): void => {
+    /**
+     * Handle successful driver data update.
+     * @param data - Updated driver data.
+     */
+    const handleUpdateSuccess = (data: Driver): void => {
         console.log("Updating driverData with:", data);
         setDriverData(data);
 
-        // update user data in local storage
+        // 更新本地存儲的使用者資料
         const updatedUser = { ...user, is_driver: true };
         UserService.setLocalStorageUser(updatedUser);
         setUser(updatedUser);
         setShowRegisterForm(false);
-        setShowLoginForm(true);  // Open login form
+        setShowLoginForm(true);  // 打開登入表單
     };
 
-    // add a new time slot
+    /**
+     * Handle adding a new time slot.
+     */
     const handleAddTimeSlot = async () => {
         if (date && startTime && endTime && locations) {
             try {
@@ -238,7 +280,7 @@ const DriverPage: React.FC = () => {
                         'Content-Type': 'application/json',
                     },
                     body: JSON.stringify({
-                        driver_id: driverData?.id,
+                        driver_id: driverData?.id, // 使用 driverData.id
                         date: date.toISOString().split('T')[0], 
                         start_time: startTime,
                         end_time: endTime,
@@ -252,6 +294,34 @@ const DriverPage: React.FC = () => {
                 console.error("Error adding time slot:", error);
             }
         }
+    };
+
+    /**
+     * Toggle the visibility of Unaccepted Orders List
+     */
+    const toggleUnacceptedOrders = () => {
+        setShowUnacceptedOrders(prev => {
+            const newState = !prev;
+            if (newState && unacceptedOrders.length === 0) {
+                handleFetchUnacceptedOrders();
+            }
+            return newState;
+        });
+    };
+
+    /**
+     * Toggle the visibility of Accepted Orders List
+     */
+    const toggleAcceptedOrders = () => {
+        setShowAcceptedOrders(prev => {
+            const newState = !prev;
+            if (newState && acceptedOrders.length === 0) {
+                if (driverData?.id) {
+                    handleFetchDriverOrders(driverData.id);
+                }
+            }
+            return newState;
+        });
     };
 
     return (
@@ -276,10 +346,10 @@ const DriverPage: React.FC = () => {
                             返回主頁
                         </Button>
                     </div>
-                <h1 className="mb-20 text-4xl font-bold text-white text-center" style={{ marginTop: '40px' }}>司機專區</h1>
+                    <h1 className="mb-20 text-4xl font-bold text-white text-center" style={{ marginTop: '40px' }}>司機專區</h1>
                     <div className="flex flex-wrap space-x-4 justify-center">
-                        {/* if the user is not the driver */}
-                        {(isClient && !user.is_driver)  && (
+                        {/* 使用者不是司機 */}
+                        {(isClient && !user?.is_driver)  && (
                             <Button 
                                 className="mb-10 px-6 py-3 text-lg font-bold border-2 border-black text-black bg-white hover:bg-blue-500 hover:text-white"
                                 onClick={handleApplyDriverClick}
@@ -288,10 +358,10 @@ const DriverPage: React.FC = () => {
                             </Button>
                         )}
 
-                        {/* if the user is the driver */}
-                        {isClient && user.is_driver && (
+                        {/* 使用者是司機 */}
+                        {isClient && user?.is_driver && (
                             <>
-                                <DriverAvailableTimes driverId={user.id} />
+                                <DriverAvailableTimes driverId={driverData?.id || 0} />
 
                                 <Button 
                                     className="mb-10 px-6 py-3 text-lg font-bold border-2 border-black text-black bg-white hover:bg-blue-500 hover:text-white"
@@ -299,20 +369,40 @@ const DriverPage: React.FC = () => {
                                 >
                                     查看表單
                                 </Button>
+
+                                {/* 「取得未接單表單」按鈕 */}
+                                <Button 
+                                    className="mb-10 px-6 py-3 text-lg font-bold border-2 border-black text-black bg-white hover:bg-blue-500 hover:text-white"
+                                    onClick={toggleUnacceptedOrders}
+                                >
+                                    {showUnacceptedOrders ? '隱藏未接單表單' : '取得未接單表單'}
+                                </Button>
+
+                                {/* 「取得已接單表單」按鈕 */}
+                                <Button 
+                                    className="mb-10 px-6 py-3 text-lg font-bold border-2 border-black text-black bg-white hover:bg-blue-500 hover:text-white"
+                                    onClick={toggleAcceptedOrders}
+                                >
+                                    {showAcceptedOrders ? '隱藏已接單表單' : '取得已接單表單'}
+                                </Button>
+
                                 <Button 
                                     className="mb-10 px-6 py-3 text-lg font-bold border-2 border-black text-black bg-white hover:bg-blue-500 hover:text-white"
                                     onClick={() => {
                                         setShowDriverOrders(true);
-                                        handleFetchDriverOrders(); // Fetch driver orders when opening the sheet
+                                        if (driverData?.id) {
+                                            handleFetchDriverOrders(driverData.id);
+                                        }
                                     }}
                                 >
                                     管理訂單
                                 </Button>
-           
+       
                             </>
                         )}
                     </div>
 
+                    {/* 申請司機表單 */}
                     <Sheet open={showRegisterForm} onOpenChange={setShowRegisterForm}>
                         <SheetContent className="w-full max-w-2xl" aria-describedby="register-form-description">
                             <SheetHeader>
@@ -323,6 +413,7 @@ const DriverPage: React.FC = () => {
                         </SheetContent>
                     </Sheet>
 
+                    {/* 查看表單 */}
                     <Sheet open={showLoginForm} onOpenChange={setShowLoginForm}>
                         <SheetContent className="w-full max-w-2xl" aria-describedby="login-form-description">
                             <SheetHeader>
@@ -331,13 +422,14 @@ const DriverPage: React.FC = () => {
                             </SheetHeader>
                             <LoginForm
                                 onClose={() => setShowLoginForm(false)}
-                                onFetchOrders={handleFetchOrders}
-                                onFetchDriverData={(data) => setDriverData(data)}
-                                onFilteredOrders={handleFilteredOrders}
+                                onFetchOrders={handleFetchUnacceptedOrders}
+                                onFetchDriverData={(data: Driver) => setDriverData(data)}
+                                onFilteredOrders={(accepted: any[]) => setAcceptedOrders(accepted)}
                             />
                         </SheetContent>
                     </Sheet>
 
+                    {/* 管理訂單頁面 */}
                     <Sheet open={showDriverOrders} onOpenChange={setShowDriverOrders}> 
                         <SheetContent className="w-full max-w-2xl max-h-[calc(100vh-200px)] overflow-y-auto" aria-describedby="driver-orders-description">
                             <SheetHeader>
@@ -348,23 +440,43 @@ const DriverPage: React.FC = () => {
                         </SheetContent>
                     </Sheet>
 
-
+                    {/* 訂單列表 */}
                     <div className="w-full mt-10">
-                        {driverData?.id && (
-                            <OrderListWithPagination
-                                orders={filteredOrders}
-                                onAccept={handleAcceptOrder}
-                                onTransfer={handleTransferOrder}
-                                onNavigate={handleNavigate}
-                                onComplete={handleCompleteOrder}
-                                driverId={driverData.id}
-                            />
+                        {/* 未接單訂單列表 */}
+                        {showUnacceptedOrders && (
+                            <div className="mb-10">
+                                <h2 className="text-2xl font-bold mb-4">未接單訂單</h2>
+                                <OrderListWithPagination
+                                    orders={unacceptedOrders}
+                                    onAccept={handleAcceptOrder}
+                                    onTransfer={handleTransferOrder}
+                                    onNavigate={handleNavigate}
+                                    onComplete={handleCompleteOrder}
+                                    driverId={driverData?.id || 0} // 使用 driverData.id 作為 driverId
+                                />
+                            </div>
+                        )}
+
+                        {/* 已接單訂單列表 */}
+                        {showAcceptedOrders && (
+                            <div>
+                                <h2 className="text-2xl font-bold mb-4">已接單訂單</h2>
+                                <OrderListWithPagination
+                                    orders={acceptedOrders}
+                                    onAccept={handleAcceptOrder}
+                                    onTransfer={handleTransferOrder}
+                                    onNavigate={handleNavigate}
+                                    onComplete={handleCompleteOrder}
+                                    driverId={driverData?.id || 0} // 使用 driverData.id 作為 driverId
+                                />
+                            </div>
                         )}
                     </div>
                 </div>
             </div>
         </div>
     );
+
 };
 
 export default DriverPage;

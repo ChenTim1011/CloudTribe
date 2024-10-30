@@ -1,15 +1,16 @@
 import React, { useEffect, useState } from 'react';
 import OrderCard from '@/components/driver/OrderCard';
 import { useRouter } from 'next/navigation';
-
+import { Order } from '@/interfaces/order/Order';
+import { Driver } from '@/interfaces/driver/Driver';
 /**
  * Represents the page component for displaying driver orders.
  * @param {Object} props - The component props.
- * @param {any} props.driverData - The driver data.
+ * @param {Driver} props.driverData - The driver data.
  * @returns {JSX.Element} - The driver orders page component.
  */
-const DriverOrdersPage: React.FC<{ driverData: any }> = ({ driverData }) => {
-    const [orders, setOrders] = useState<any[]>([]);
+const DriverOrdersPage: React.FC<{ driverData: Driver }> = ({ driverData }) => {
+    const [orders, setOrders] = useState<Order[]>([]);
     const router = useRouter();
 
     useEffect(() => {
@@ -28,7 +29,7 @@ const DriverOrdersPage: React.FC<{ driverData: any }> = ({ driverData }) => {
                     throw new Error('Failed to fetch driver orders');
                 }
                 const data = await response.json();
-                setOrders(data.filter((order: any) => order.order_status !== '已完成')); // Only display orders that are not completed
+                setOrders(data.filter((order: Order) => order.order_status !== '已完成')); // Only display orders that are not completed
             } catch (error) {
                 console.error('Error fetching driver orders:', error);
             }
@@ -62,7 +63,7 @@ const DriverOrdersPage: React.FC<{ driverData: any }> = ({ driverData }) => {
                 throw new Error(`轉單失敗: ${errorText}`);
             }
 
-            setOrders(orders.filter(order => order.id !== orderId));
+            setOrders(orders.filter(order => order.id?.toString() !== orderId));
             alert('轉單成功');
         } catch (error) {
             console.error('轉單失敗:', error);
@@ -95,7 +96,7 @@ const DriverOrdersPage: React.FC<{ driverData: any }> = ({ driverData }) => {
                 throw new Error('Failed to complete order');
             }
 
-            setOrders(orders.filter(order => order.id !== orderId)); // Remove the completed order directly
+            setOrders(orders.filter(order => order.id?.toString() !== orderId));
             alert('訂單已完成');
         } catch (error) {
             console.error('Error completing order:', error);

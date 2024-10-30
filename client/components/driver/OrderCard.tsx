@@ -14,6 +14,7 @@ const OrderCard: React.FC<{
   onNavigate: (orderId: string, driverId: number) => void; // Callback function for navigating to an order
   onComplete: (orderId: string) => Promise<void>; // Callback function for completing an order
 }> = ({ order, driverId, onAccept, onTransfer, onNavigate, onComplete }) => {
+  console.log('OrderCard received order:', order);
   const [showTransferForm, setShowTransferForm] = useState(false); // State for showing the transfer form
   const [newDriverPhone, setNewDriverPhone] = useState(""); // State for the new driver's phone number
   const [transferError, setTransferError] = useState(""); // State for transfer error message

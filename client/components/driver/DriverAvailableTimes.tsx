@@ -6,15 +6,8 @@ import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import TimeCard from './TimeCard';
 import { Sheet, SheetTrigger, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import { TimeSlot } from '@/interfaces/driver/TimeSlot';
 
-interface TimeSlot {
-  id: number;
-  driver_name: string;
-  driver_phone: string;
-  date: string;
-  start_time: string;
-  locations: string;
-}
 
 // use `timeOptions` to populate the select dropdown for start time
 const timeOptions = [

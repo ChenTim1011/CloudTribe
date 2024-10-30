@@ -26,13 +26,9 @@ interface OrderListWithPaginationProps {
  */
 const OrderListWithPagination: React.FC<OrderListWithPaginationProps> = ({ orders, onAccept, onTransfer, onNavigate, onComplete, driverId }) => {
     const [currentPage, setCurrentPage] = useState(1);
-    const [filteredOrders, setFilteredOrders] = useState<any[]>([]);
+
     const itemsPerPage = 5;
 
-    useEffect(() => {
-        console.log('Received orders:', orders);
-        setFilteredOrders(orders);
-    }, [orders]);
 
     /**
      * Handles the page change event.
@@ -44,8 +40,7 @@ const OrderListWithPagination: React.FC<OrderListWithPaginationProps> = ({ order
     };
 
     const startIndex = (currentPage - 1) * itemsPerPage;
-    const currentOrders = filteredOrders.slice(startIndex, startIndex + itemsPerPage);
-
+    const currentOrders = orders.slice(startIndex, startIndex + itemsPerPage);
  return (
      <div>
          {currentOrders.length > 0 ? (
@@ -67,7 +62,7 @@ const OrderListWithPagination: React.FC<OrderListWithPaginationProps> = ({ order
                 <p className="text-center mt-8">沒有符合的訂單。</p>
             )}
             <PaginationDemo
-                totalItems={filteredOrders.length}
+                totalItems={orders.length}
                 itemsPerPage={itemsPerPage}
                 currentPage={currentPage}
                 onPageChange={handlePageChange}
