@@ -12,3 +12,6 @@ UPDATE users SET is_driver = FALSE;
 ALTER TABLE driver_time ADD COLUMN locations VARCHAR(255) ;
 
 ALTER TABLE driver_time DROP COLUMN end_time;
+-- 更新 drivers 表格，新增 user_id 欄位
+ALTER TABLE drivers
+ADD COLUMN user_id INT UNIQUE REFERENCES users(id) ON DELETE CASCADE;

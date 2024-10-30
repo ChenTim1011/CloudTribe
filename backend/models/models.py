@@ -46,6 +46,8 @@ class Driver(BaseModel):
     """
     Model representing a driver.
     """
+    id: Optional[int] = None 
+    user_id: int
     driver_name: str
     driver_phone: str
     direction: Optional[str] = None

@@ -45,25 +45,95 @@ async def create_driver(driver: Driver, conn: Connection = Depends(get_db)):
     """
     cur = conn.cursor()
     try:
-        cur.execute("SELECT driver_phone FROM drivers WHERE driver_phone = %s", (driver.driver_phone,))
+        # 檢查 user_id 是否存在
+        cur.execute("SELECT id FROM users WHERE id = %s", (driver.user_id,))
+        user = cur.fetchone()
+        if not user:
+            raise HTTPException(status_code=404, detail="使用者不存在")
+
+        # 檢查使用者是否已經成為司機
+        cur.execute("SELECT id FROM drivers WHERE user_id = %s", (driver.user_id,))
         existing_driver = cur.fetchone()
         if existing_driver:
+            raise HTTPException(status_code=409, detail="使用者已經是司機")
+
+        # 檢查 driver_phone 是否已存在
+        cur.execute("SELECT id FROM drivers WHERE driver_phone = %s", (driver.driver_phone,))
+        phone_exists = cur.fetchone()
+        if phone_exists:
             raise HTTPException(status_code=409, detail="電話號碼已存在")
+
+        # 插入新司機
         cur.execute(
-            "INSERT INTO drivers (driver_name, driver_phone, direction, available_date, start_time, end_time) VALUES (%s, %s, %s, %s, %s, %s)",
-            (driver.driver_name,
-             driver.driver_phone,
-             driver.direction or None,
-             driver.available_date or None,
-             driver.start_time or None,
-             driver.end_time or None)
+            """
+            INSERT INTO drivers (user_id, driver_name, driver_phone, direction, available_date, start_time, end_time)
+            VALUES (%s, %s, %s, %s, %s, %s, %s)
+            RETURNING id;
+            """,
+            (
+                driver.user_id,
+                driver.driver_name,
+                driver.driver_phone,
+                driver.direction,
+                driver.available_date,
+                driver.start_time,
+                driver.end_time
+            )
         )
+        new_driver_id = cur.fetchone()[0]
         conn.commit()
-        return {"status": "success"}
+        return {"status": "success", "driver_id": new_driver_id}
+    except HTTPException as he:
+        conn.rollback()
+        raise he
     except Exception as e:
         conn.rollback()
         logging.error("Error creating driver: %s", str(e))
-        raise HTTPException(status_code=500, detail=str(e)) from e
+        raise HTTPException(status_code=500, detail="伺服器內部錯誤") from e
+    finally:
+        cur.close()
+
+@router.get("/user/{user_id}")
+async def get_driver_by_user(user_id: int, conn: Connection = Depends(get_db)):
+    """
+    Get driver information by user ID.
+
+    Args:
+        user_id (int): The user's ID.
+        conn (Connection): The database connection.
+
+    Returns:
+        dict: The driver information.
+    """
+    cur = conn.cursor()
+    try:
+        cur.execute(
+            """
+            SELECT id, user_id, driver_name, driver_phone, direction, available_date, start_time, end_time
+            FROM drivers
+            WHERE user_id = %s
+            """,
+            (user_id,)
+        )
+        driver = cur.fetchone()
+        if not driver:
+            raise HTTPException(status_code=404, detail="該用戶不是司機或不存在")
+
+        return {
+            "id": driver[0],
+            "user_id": driver[1],
+            "driver_name": driver[2],
+            "driver_phone": driver[3],
+            "direction": driver[4],
+            "available_date": driver[5].isoformat() if driver[5] else None,
+            "start_time": driver[6].isoformat() if driver[6] else None,
+            "end_time": driver[7].isoformat() if driver[7] else None,
+        }
+    except HTTPException as he:
+        raise he
+    except Exception as e:
+        logging.error("Error fetching driver by user: %s", str(e))
+        raise HTTPException(status_code=500, detail="伺服器內部錯誤") from e
     finally:
         cur.close()
 
@@ -115,19 +185,57 @@ async def update_driver(phone: str, driver: Driver, conn: Connection = Depends(g
     """
     cur = conn.cursor()
     try:
+        # 獲取 driver_id 和 user_id
         cur.execute(
-            "UPDATE drivers SET driver_name = %s, direction = %s, available_date = %s, start_time = %s, end_time = %s WHERE driver_phone = %s",
-            (driver.driver_name, driver.direction, driver.available_date,
-             driver.start_time, driver.end_time, phone)
+            """
+            SELECT id, user_id FROM drivers
+            WHERE driver_phone = %s
+            """,
+            (phone,)
         )
-        if cur.rowcount == 0:
-            raise HTTPException(status_code=404, detail="Driver not found")
+        driver_record = cur.fetchone()
+        if not driver_record:
+            raise HTTPException(status_code=404, detail="司機不存在")
+
+        driver_id = driver_record[0]
+        user_id = driver_record[1]
+
+        # 檢查是否要更新 driver_phone，且是否已存在
+        if driver.driver_phone != phone:
+            cur.execute(
+                "SELECT id FROM drivers WHERE driver_phone = %s",
+                (driver.driver_phone,)
+            )
+            if cur.fetchone():
+                raise HTTPException(status_code=409, detail="新的電話號碼已存在")
+
+        # 更新司機資訊
+        cur.execute(
+            """
+            UPDATE drivers
+            SET driver_name = %s, driver_phone = %s, direction = %s, available_date = %s, start_time = %s, end_time = %s
+            WHERE driver_phone = %s
+            """,
+            (
+                driver.driver_name,
+                driver.driver_phone,
+                driver.direction,
+                driver.available_date,
+                driver.start_time,
+                driver.end_time,
+                phone
+            )
+        )
+
         conn.commit()
         return {"status": "success"}
+    except HTTPException as he:
+        conn.rollback()
+        raise he
     except Exception as e:
         conn.rollback()
         logging.error("Error updating driver: %s", str(e))
-        raise HTTPException(status_code=500, detail=str(e)) from e
+        raise HTTPException(status_code=500, detail="伺服器內部錯誤") from e
     finally:
         cur.close()
 
@@ -145,6 +253,12 @@ async def get_driver_orders(driver_id: int, conn: Connection = Depends(get_db)):
     """
     cur = conn.cursor()
     try:
+        # 檢查 driver_id 是否存在
+        cur.execute("SELECT id FROM drivers WHERE id = %s", (driver_id,))
+        if not cur.fetchone():
+            raise HTTPException(status_code=404, detail="司機不存在")
+
+        # 獲取已接單的訂單
         cur.execute("""
             SELECT orders.*, driver_orders.previous_driver_name, driver_orders.previous_driver_phone
             FROM orders 
@@ -162,8 +276,8 @@ async def get_driver_orders(driver_id: int, conn: Connection = Depends(get_db)):
                 "seller_id": order[4],
                 "seller_name": order[5],
                 "seller_phone": order[6],
-                "date": order[7],
-                "time": order[8],
+                "date": order[7].isoformat(),
+                "time": order[8].isoformat(),
                 "location": order[9],
                 "is_urgent": order[10],
                 "total_price": order[11],
@@ -177,16 +291,28 @@ async def get_driver_orders(driver_id: int, conn: Connection = Depends(get_db)):
                 "previous_driver_phone": order[19],
                 "items": []
             }
-            cur.execute("SELECT * FROM order_items WHERE order_id = %s", (order[0],))
+            # 獲取訂單項目
+            cur.execute("SELECT item_id, item_name, price, quantity, img, location FROM order_items WHERE order_id = %s", (order[0],))
             items = cur.fetchall()
-            order_dict["items"] = [{"item_id": item[2], "item_name": item[3], "price": item[4],
-                                    "quantity": item[5], "img": item[6], "location":item[7]} for item in items]
+            order_dict["items"] = [
+                {
+                    "item_id": item[0],
+                    "item_name": item[1],
+                    "price": item[2],
+                    "quantity": item[3],
+                    "img": item[4],
+                    "location": item[5]
+                }
+                for item in items
+            ]
             order_list.append(order_dict)
         
         return order_list
+    except HTTPException as he:
+        raise he
     except Exception as e:
         logging.error("Error fetching driver orders: %s", str(e))
-        raise HTTPException(status_code=500, detail=str(e)) from e
+        raise HTTPException(status_code=500, detail="伺服器內部錯誤") from e
     finally:
         cur.close()
 
@@ -198,7 +324,7 @@ async def add_driver_time(driver_time: DriverTime, conn: Connection = Depends(ge
 
     Args:
         driver_time (DriverTime): The driver's time slot details 
-        including driver ID, date, start time, and location.
+            including driver ID, date, start time, and location.
         conn (Connection): The database connection.
 
     Returns:
@@ -206,6 +332,12 @@ async def add_driver_time(driver_time: DriverTime, conn: Connection = Depends(ge
     """
     cur = conn.cursor()
     try:
+        # 檢查 driver_id 是否存在
+        cur.execute("SELECT id FROM drivers WHERE id = %s", (driver_time.driver_id,))
+        if not cur.fetchone():
+            raise HTTPException(status_code=404, detail="司機不存在")
+
+        # 插入時間段
         cur.execute(
             """
             INSERT INTO driver_time (driver_id, date, start_time, locations)
@@ -214,12 +346,16 @@ async def add_driver_time(driver_time: DriverTime, conn: Connection = Depends(ge
             """,
             (driver_time.driver_id, driver_time.date, driver_time.start_time, driver_time.locations)
         )
-        conn.commit()
         new_id = cur.fetchone()[0]
+        conn.commit()
         return {"id": new_id, "status": "success"}
+    except HTTPException as he:
+        conn.rollback()
+        raise he
     except Exception as e:
         conn.rollback()
-        raise HTTPException(status_code=500, detail=str(e)) from e
+        logging.error("Error adding driver time: %s", str(e))
+        raise HTTPException(status_code=500, detail="伺服器內部錯誤") from e
     finally:
         cur.close()
 
@@ -240,6 +376,11 @@ async def get_driver_times(driver_id: int, conn: Connection = Depends(get_db)):
 
     cur = conn.cursor()
     try:
+        # 檢查 driver_id 是否存在
+        cur.execute("SELECT id FROM drivers WHERE id = %s", (driver_id,))
+        if not cur.fetchone():
+            raise HTTPException(status_code=404, detail="司機不存在")
+
         cur.execute(
             """
             SELECT dt.id, dt.date, dt.start_time, dt.locations, d.driver_name, d.driver_phone
@@ -254,19 +395,20 @@ async def get_driver_times(driver_id: int, conn: Connection = Depends(get_db)):
             {
                 "id": time[0],
                 "date": time[1].isoformat(),
-                "start_time": str(time[2]),
+                "start_time": time[2].isoformat(),
                 "locations": time[3],
                 "driver_name": time[4],
                 "driver_phone": time[5]
             }
             for time in times
         ]
+    except HTTPException as he:
+        raise he
     except Exception as e:
-        print(f"Error occurred: {e}") 
-        raise HTTPException(status_code=500, detail=str(e))
+        logging.error("Error fetching driver times: %s", str(e))
+        raise HTTPException(status_code=500, detail="伺服器內部錯誤") from e
     finally:
         cur.close()
-
 
 # Delete an available time slot for a driver.
 @router.delete("/time/{id}")
@@ -283,6 +425,11 @@ async def delete_driver_time(id: int, conn: Connection = Depends(get_db)):
     """
     cur = conn.cursor()
     try:
+        # 檢查時間段是否存在
+        cur.execute("SELECT id FROM driver_time WHERE id = %s", (id,))
+        if not cur.fetchone():
+            raise HTTPException(status_code=404, detail="時間段不存在")
+
         cur.execute(
             """
             DELETE FROM driver_time
@@ -292,8 +439,12 @@ async def delete_driver_time(id: int, conn: Connection = Depends(get_db)):
         )
         conn.commit()
         return {"status": "success", "message": f"Deleted time slot with ID {id}"}
+    except HTTPException as he:
+        conn.rollback()
+        raise he
     except Exception as e:
         conn.rollback()
-        raise HTTPException(status_code=500, detail=str(e))
+        logging.error("Error deleting driver time: %s", str(e))
+        raise HTTPException(status_code=500, detail="伺服器內部錯誤") from e
     finally:
         cur.close()

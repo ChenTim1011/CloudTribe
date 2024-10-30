@@ -12,6 +12,7 @@ CREATE TABLE users (
 CREATE TABLE drivers (
     -- user_id INT PRIMARY KEY REFERENCES users(id),
     id SERIAL PRIMARY KEY,
+    user_id INT UNIQUE REFERENCES users(id) ON DELETE CASCADE,
     driver_name VARCHAR(255) NOT NULL,
     driver_phone VARCHAR(20) UNIQUE NOT NULL,
     direction VARCHAR(255),
