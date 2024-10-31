@@ -33,7 +33,7 @@ const DriverPage: React.FC = () => {
     const [user, setUser] = useState(UserService.getLocalStorageUser());
     const [isClient, setIsClient] = useState(false); 
 
-    // 新增狀態變數來控制訂單列表的顯示
+    // add state for showing unaccepted orders
     const [showUnacceptedOrders, setShowUnacceptedOrders] = useState(false);
     const [showAcceptedOrders, setShowAcceptedOrders] = useState(false);
 
@@ -51,7 +51,7 @@ const DriverPage: React.FC = () => {
         };
     }, []);
 
-    // 確保 user.is_driver 為布林值
+    // ensure user.is_driver is a boolean
     useEffect(() => {
         if (user && typeof user.is_driver === 'string') {
             user.is_driver = user.is_driver === 'true';
@@ -164,9 +164,9 @@ const DriverPage: React.FC = () => {
         
             alert('接單成功');
             if (driverData) {
-                handleFetchDriverOrders(driverData.id); // 更新已接單訂單
+                handleFetchDriverOrders(driverData.id); 
             }
-            handleFetchUnacceptedOrders(); // 更新未接單訂單
+            handleFetchUnacceptedOrders(); 
         } catch (error) {
             console.error('Error accepting order:', error);
             alert('接單失敗');
@@ -195,9 +195,9 @@ const DriverPage: React.FC = () => {
     
             alert('轉單成功');
             if (driverData) {
-                handleFetchDriverOrders(driverData.id); // 更新已接單訂單
+                handleFetchDriverOrders(driverData.id); 
             }
-            handleFetchUnacceptedOrders(); // 更新未接單訂單
+            handleFetchUnacceptedOrders(); 
         } catch (error) {
 
 
@@ -260,12 +260,12 @@ const DriverPage: React.FC = () => {
         console.log("Updating driverData with:", data);
         setDriverData(data);
 
-        // 更新本地存儲的使用者資料
+        // Update user to driver
         const updatedUser = { ...user, is_driver: true };
         UserService.setLocalStorageUser(updatedUser);
         setUser(updatedUser);
         setShowRegisterForm(false);
-        setShowLoginForm(true);  // 打開登入表單
+        setShowLoginForm(true);  
     };
 
     /**
@@ -304,21 +304,6 @@ const DriverPage: React.FC = () => {
             const newState = !prev;
             if (newState && unacceptedOrders.length === 0) {
                 handleFetchUnacceptedOrders();
-            }
-            return newState;
-        });
-    };
-
-    /**
-     * Toggle the visibility of Accepted Orders List
-     */
-    const toggleAcceptedOrders = () => {
-        setShowAcceptedOrders(prev => {
-            const newState = !prev;
-            if (newState && acceptedOrders.length === 0) {
-                if (driverData?.id) {
-                    handleFetchDriverOrders(driverData.id);
-                }
             }
             return newState;
         });
@@ -378,13 +363,7 @@ const DriverPage: React.FC = () => {
                                     {showUnacceptedOrders ? '隱藏未接單表單' : '取得未接單表單'}
                                 </Button>
 
-                                {/* 「取得已接單表單」按鈕 */}
-                                <Button 
-                                    className="mb-10 px-6 py-3 text-lg font-bold border-2 border-black text-black bg-white hover:bg-blue-500 hover:text-white"
-                                    onClick={toggleAcceptedOrders}
-                                >
-                                    {showAcceptedOrders ? '隱藏已接單表單' : '取得已接單表單'}
-                                </Button>
+
 
                                 <Button 
                                     className="mb-10 px-6 py-3 text-lg font-bold border-2 border-black text-black bg-white hover:bg-blue-500 hover:text-white"
@@ -436,7 +415,7 @@ const DriverPage: React.FC = () => {
                                 <SheetTitle>我的訂單</SheetTitle>
                                 <SheetClose />
                             </SheetHeader>
-                            <DriverOrdersPage driverData={driverData} />
+                            {driverData && <DriverOrdersPage driverData={driverData} />}
                         </SheetContent>
                     </Sheet>
 

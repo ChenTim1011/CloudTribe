@@ -137,6 +137,53 @@ async def get_driver_by_user(user_id: int, conn: Connection = Depends(get_db)):
     finally:
         cur.close()
 
+
+@router.get("/{driver_id}")
+async def get_driver_by_id(driver_id: int, conn: Connection = Depends(get_db)):
+    """
+    Get driver information by driver ID.
+
+    Args:
+        driver_id (int): The driver's ID.
+        conn (Connection): The database connection.
+
+    Returns:
+        dict: The driver information.
+    """
+    cur = conn.cursor()
+    try:
+        # check driver_id exists in the database
+        cur.execute(
+            """
+            SELECT id, user_id, driver_name, driver_phone, direction, available_date, start_time, end_time
+            FROM drivers
+            WHERE id = %s
+            """,
+            (driver_id,)
+        )
+        driver = cur.fetchone()
+        
+        # check if driver exists
+        if not driver:
+            raise HTTPException(status_code=404, detail="該司機不存在")
+
+        # return driver information
+        return {
+            "id": driver[0],
+            "user_id": driver[1],
+            "driver_name": driver[2],
+            "driver_phone": driver[3],
+            "direction": driver[4],
+            "available_date": driver[5].isoformat() if driver[5] else None,
+            "start_time": driver[6].isoformat() if driver[6] else None,
+            "end_time": driver[7].isoformat() if driver[7] else None,
+        }
+    except Exception as e:
+        logging.error("Error fetching driver by ID: %s", str(e))
+        raise HTTPException(status_code=500, detail="伺服器內部錯誤") from e
+    finally:
+        cur.close()
+
 @router.get("/{phone}")
 async def get_driver(phone: str, conn: Connection = Depends(get_db)):
     """

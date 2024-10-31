@@ -24,7 +24,7 @@ const LoginForm: React.FC<{
     const [phone, setPhone] = useState("");
     const [showOptions, setShowOptions] = useState(false);
     const [showUpdateForm, setShowUpdateForm] = useState(false);
-    const [driverData, setDriverData] = useState<Driver | null>(null);
+    const [driverData, setDriverData] = useState<Driver | undefined>(undefined);
     const [error, setError] = useState("");
 
         // Check if the user is already a driver and bypass the phone login

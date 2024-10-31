@@ -45,7 +45,7 @@ const OrderListWithPagination: React.FC<OrderListWithPaginationProps> = ({ order
      <div>
          {currentOrders.length > 0 ? (
              currentOrders.map(order => {
-                 console.log('Rendering order:', order); // 檢查每個訂單
+                 console.log('Rendering order:', order); 
                  return (
                      <OrderCard
                          key={order.id}

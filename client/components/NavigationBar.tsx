@@ -7,7 +7,6 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faMountain, faGear } from '@fortawesome/free-solid-svg-icons';
 import Link from 'next/link';
 import { useAuth } from '@/components/lib/AuthProvider';
-import { Button } from '@/components/ui/button'
 import {
   NavigationMenu,
   NavigationMenuContent,
@@ -51,8 +50,7 @@ export const NavigationBar = () => {
     {title:"購買農產品", href:"/consumer"},
     {title:"上架農產品", href:"/tribe_resident/seller"},
     {title:"購買生活用品", href:"/tribe_resident/buyer"},
-    {title:"司機專區", href:"/driver"},
-    {title:"查看表單", href:"/viewform"},  
+    {title:"司機專區", href:"/driver"},  
   ]
   const [user, setUser] = useState<User>()
 
