@@ -1,25 +1,8 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import { DirectionsRenderer, DirectionsService } from "@react-google-maps/api";
-
-interface DirectionsProps {
-  origin: string;
-  destination: string;
-  routes: Route[];
-  setRoutes: React.Dispatch<React.SetStateAction<Route[]>>;
-  setTotalDistance: React.Dispatch<React.SetStateAction<string | null>>;
-  setTotalTime: React.Dispatch<React.SetStateAction<string | null>>;
-}
-
-interface Route {
-  summary: string;
-  legs: {
-    start_address: string;
-    end_address: string;
-    distance: { text: string };
-    duration: { text: string };
-  }[];
-}
+import { DirectionsProps } from "@/interfaces/navigation/DirectionsProps";
+import { Route } from "@/interfaces/navigation/Route";
 
 /**
  * Renders the directions component.
