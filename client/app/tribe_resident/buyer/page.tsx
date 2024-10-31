@@ -158,12 +158,16 @@ const BuyerPage: React.FC = () => {
 
   const handleAddToCart = (product: Product, quantity: number) => {
     setCart((prevCart) => {
-      const existingItem = prevCart.find((item) => item.id === product.id);
+      // check if the item already exists in the cart
+      const existingItem = prevCart.find((item) => item.name === product.name);
+  
       if (existingItem) {
+        // if it exists, update the quantity
         return prevCart.map((item) =>
-          item.id === product.id ? { ...item, quantity: item.quantity + quantity } : item
+          item.name === product.name ? { ...item, quantity: item.quantity + quantity } : item
         );
       } else {
+        // if it doesn't exist, add the new item to the cart
         return [...prevCart, { ...product, quantity }];
       }
     });
@@ -234,7 +238,7 @@ const BuyerPage: React.FC = () => {
             <Sidebar filterCategory={handleFilterCategory} className="w-80" />
           </div>
           {selectedCategory && (
-            <div className="mt-3 text-2xl font-semibold text-center">
+            <div className="mt-5 text-2xl font-semibold text-center">
               商品種類: {selectedCategory}
             </div>
           )}
@@ -244,7 +248,7 @@ const BuyerPage: React.FC = () => {
           {isAddItemFormOpen && (
             <AddItemForm
               onClose={() => setIsAddItemFormOpen(false)}
-              addToCart={(item) => handleAddToCart({ ...item, category: "", id: "" }, item.quantity)}
+              addToCart={(item) => handleAddToCart({ ...item, category: "購買類", id: "Date.now().toString()" }, item.quantity)}
             />
           )}
           {isCartOpen && (

@@ -42,52 +42,65 @@ const CartModal: React.FC<CartModalProps> = ({ cart, onClose, removeFromCart, up
               <span className="block sm:inline">{error}</span>
             </div>
           )}
+
           {cart.map((item) => (
-            <div key={item.id} className="flex items-center mb-4 bg-white p-4 rounded shadow">
-              <img 
-                src={`https://www.cloudtribe.online${item.img}`}
-                alt={item.name} 
-                width={64} 
-                height={64} 
-                className="object-cover mr-4"
-              />
-              
-              <div className="flex-grow">
-                <h2 className="text-lg font-bold truncate" style={{ maxWidth: "12rem" }}>{item.name}</h2>
-                <p>${item.price} x {item.quantity} = ${(item.price * item.quantity).toFixed(2)}</p>
-                <div className="flex items-center justify-between">
-                  <Button variant="outline" onClick={() => updateQuantity(item.id, -1)}>-</Button>
-                  <input
-                    title="Quantity"
-                    type="number"
-                    value={item.quantity}
-                    onChange={(e) => updateQuantity(item.id, parseInt(e.target.value) - item.quantity)}
-                    className="w-12 text-center mx-2 border rounded"
-                    min={1}
-                  />
-                  <Button variant="outline" onClick={() => updateQuantity(item.id, 1)}>+</Button>
+            <React.Fragment key={item.id}>
+            <div className="relative flex items-center mb-4 bg-white p-4 rounded shadow">
+              <Button 
+                variant="outline" 
+                className="absolute top-0 left-0 w-6 h-6 bg-black text-white p-1" 
+                onClick={() => removeFromCart(item.id)}
+              >
+                <FontAwesomeIcon icon={faTrashAlt} className="text-white text-xs" />
+              </Button>
+                <img 
+                  src={`https://www.cloudtribe.online${item.img}`}
+                  alt={item.name} 
+                  width={64} 
+                  height={64} 
+                  className="object-cover mr-4"
+                />
+                
+                <div className="flex-grow">
+                  <h2 className="text-left text-g font-bold truncate" style={{ maxWidth: "12rem" }}>{item.name}</h2>
+                  <h2 className="text-g font-bold truncate" style={{ maxWidth: "12rem" }}> 地點: {item.location}</h2>
+                  <p> {item.price} 元 x {item.quantity} = {(item.price * item.quantity)} 元</p>
+                  <div className="flex items-center justify-between">
+                    <Button variant="outline" onClick={() => updateQuantity(item.id, -1)}>-</Button>
+                    <input
+                      title="Quantity"
+                      type="number"
+                      value={item.quantity}
+                      onChange={(e) => updateQuantity(item.id, parseInt(e.target.value) - item.quantity)}
+                      className="w-12 text-center mx-2 border rounded"
+                      min={1}
+                    />
+                    <Button variant="outline" onClick={() => updateQuantity(item.id, 1)}>+</Button>
+                  </div>
                 </div>
               </div>
-              <Button variant="outline" className="bg-black text-white ml-2" onClick={() => removeFromCart(item.id)}>
-                <FontAwesomeIcon icon={faTrashAlt} className="text-white" />
-              </Button>
-            </div>
+            </React.Fragment>
           ))}
-          <div className="text-right font-bold text-xl">總計: ${totalPrice.toFixed(2)}</div>
+          <div className="flex justify-between items-center font-bold text-xl">
+            <span>總計: ${totalPrice}</span>
+            <Button 
+              className="bg-black text-white" 
+              onClick={() => {
+                if (totalPrice > 0) {
+                  setIsCheckout(true);
+                } else {
+                  alert('購物車中沒有商品或總價為0');
+                }
+              }}
+            >
+              結帳
+            </Button>
+          </div>
         </div>
         <SheetFooter>
-          <Button 
-            className="bg-black text-white" 
-            onClick={() => {
-              if (totalPrice > 0) {
-                setIsCheckout(true);
-              } else {
-                alert('購物車中沒有商品或總價為0');
-              }
-            }}
-          >
-            結帳
-          </Button>
+   
+
+
         </SheetFooter>
       </SheetContent>
       {isCheckout && <CheckoutForm onClose={() => { setIsCheckout(false); onClose(); }} clearCart={clearCart} cartItems={cartItems} totalPrice={totalPrice} />}

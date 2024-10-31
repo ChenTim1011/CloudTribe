@@ -5,13 +5,12 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetFooter } from "@/components/ui/sheet";
 import { AddItemFormProps } from "@/interfaces/tribe_resident/buyer/AddItemFormProps";
-
+import { CartItem } from "@/interfaces/tribe_resident/buyer/CartItem";
 
 
 /**
  * Represents the form for adding an item to the cart.
  * @param onClose - Callback function to close the form.
- * @param addToCart - Callback function to add the item to the cart.
  */
 const AddItemForm: React.FC<AddItemFormProps> = ({ onClose, addToCart }) => {
   const [name, setName] = useState("");
@@ -52,10 +51,17 @@ const AddItemForm: React.FC<AddItemFormProps> = ({ onClose, addToCart }) => {
       return;
     }
 
-    // All validations passed
-    addToCart({ name, quantity: Number(quantity), price: Number(price), img: "/will.jpg",location, });
-    onClose();
+    addToCart({ 
+      name, 
+      quantity: Number(quantity), 
+      price: Number(price), 
+      location, 
+      img: "/external-image/on/demandware.static/-/Sites-carrefour-tw-m-inner/default/dwa27eb49f/images/large/3270236800101.jpg", 
+    });
+    onClose()
   };
+
+
 
   return (
     <Sheet open={true} onOpenChange={onClose}>

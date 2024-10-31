@@ -67,7 +67,9 @@ const ItemList: React.FC<ItemListProps> = ({ products, itemsPerPage, addToCart }
               style={{ objectFit: 'contain' }}
             />
             <div className="p-4 text-center">
-              <h2 className="text-xl font-bold mb-2">{product.name}</h2>
+              <h2 className="text-xl font-bold mb-2"
+              style={{ height: '3rem', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+              >{product.name}</h2>
               <p className="text-2xl font-bold text-red-500 mb-4">參考價格: ${product.price}</p>
               <div className="flex justify-center items-center mb-4">
                 <label htmlFor={`quantity-${product.id}`} className="mr-2">購買數量:</label>
@@ -82,7 +84,7 @@ const ItemList: React.FC<ItemListProps> = ({ products, itemsPerPage, addToCart }
               <div className="flex flex-col items-center">
                 {/* 加入購物車按鈕 */}
                 <Button
-                  className="flex items-center justify-center"
+                  className="flex items-center justify-center  mb-2"
                   onClick={() => {
                     const quantity = parseInt((document.getElementById(`quantity-${product.id}`) as HTMLInputElement)?.value || '1', 10);
                     addToCart(product, quantity);
