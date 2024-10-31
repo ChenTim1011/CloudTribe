@@ -22,10 +22,6 @@ const LoginPage: React.FC = () => {
       </div>
       
       <div className="w-full flex justify-start space-x-2 mt-4">
-          <Button variant="outline" onClick={() => window.location.href = '/'}>
-              <FontAwesomeIcon icon={faArrowLeft} className="mr-2" />
-              返回主頁
-          </Button>
       </div>
       <div className="flex-grow flex items-center justify-center">
         <div className="bg-white bg-opacity-75 lg:p-16 p-12 rounded-lg shadow-lg">

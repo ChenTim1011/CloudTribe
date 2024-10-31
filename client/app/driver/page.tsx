@@ -184,11 +184,12 @@ const DriverPage: React.FC = () => {
                 throw new Error(`Failed to transfer order: ${errorText}`);
             }
     
-            alert('轉單成功');
+            alert('轉單成功，重整頁面可看到更新結果');
             if (driverData) {
                 handleFetchDriverOrders(driverData.id); 
             }
-            handleFetchUnacceptedOrders(); 
+            
+
         } catch (error) {
 
 
@@ -289,10 +290,6 @@ const DriverPage: React.FC = () => {
             >
                 <div className="content flex-grow p-10 bg-white bg-opacity-10 flex flex-col items-center">
                     <div className="w-full flex justify-start space-x-2 mt-4">
-                        <Button variant="outline" onClick={() => window.location.href = '/'}>
-                            <FontAwesomeIcon icon={faArrowLeft} className="mr-2" />
-                            返回主頁
-                        </Button>
                     </div>
                     <h1 className="mb-20 text-4xl font-bold text-white text-center" style={{ marginTop: '40px' }}>司機專區</h1>
                     <div className="flex flex-wrap space-x-4 justify-center">

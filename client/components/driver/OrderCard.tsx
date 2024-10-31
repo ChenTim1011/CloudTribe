@@ -49,6 +49,7 @@ const OrderCard: React.FC<{
     } else {
       setTransferError("電話號碼必須是7到10位的數字");
     }
+
   };
 
   /**

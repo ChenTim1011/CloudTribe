@@ -147,10 +147,6 @@ const ViewForms: React.FC = () => {
             >
                 <div className="content flex-grow p-10 bg-white bg-opacity-10 flex flex-col items-center">
                     <div className="w-full flex justify-start space-x-2 mt-4">
-                        <Button variant="outline" onClick={() => window.location.href = '/'}>
-                            <FontAwesomeIcon icon={faArrowLeft} className="mr-2" />
-                            返回主頁
-                        </Button>
                     </div>
                     <h1 className="mb-5 text-4xl font-bold text-white text-center" style={{ marginTop: '40px' }}>查看表單</h1>
                     <div className="w-full flex flex-col items-center space-y-4">
