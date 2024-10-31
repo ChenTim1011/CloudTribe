@@ -12,21 +12,8 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetFooter, SheetClose }
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import UserService from '@/services/user/user';  
-
-type CartItem = {
-  id: string;
-  name: string;
-  price: number;
-  quantity: number;
-  img: string;
-};
-
-type CheckoutFormProps = {
-  onClose: () => void;
-  clearCart: () => void;
-  cartItems: CartItem[];
-  totalPrice: number;
-};
+import { CartItem } from '@/interfaces/tribe_resident/buyer/CartItem';
+import { CheckoutFormProps } from '@/interfaces/tribe_resident/buyer/CheckoutFormProps';
 
 /**
  * CheckoutForm component for submitting an order.
@@ -179,7 +166,7 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onClose, clearCart, cartIte
       setTimeout(() => {
         setShowAlert(false);
         onClose();
-      }, 3000);
+      }, 2000);
     } catch (error) {
       console.error('Error submitting order:', error);
       setError('提交訂單時出錯');
@@ -189,7 +176,7 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onClose, clearCart, cartIte
   return (
     <>
       <Sheet open={true} onOpenChange={onClose}>
-        <SheetContent className="w-full max-w-2xl" aria-describedby="checkout-form-description">
+        <SheetContent className="w-full max-w-2xl overflow-y-auto" aria-describedby="checkout-form-description">
           <SheetHeader>
             <SheetTitle>結帳資訊</SheetTitle>
             <SheetClose />
@@ -208,11 +195,21 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onClose, clearCart, cartIte
             )}
             <div className="mb-4">
               <Label htmlFor="name" className="block text-sm font-medium text-gray-700">姓名</Label>
-              <Input id="name" value={name} onChange={(e) => setName(e.target.value)} placeholder="輸入您的姓名" />
+              <Input 
+              id="name" 
+              value={name} 
+              readOnly  
+              className="bg-gray-100 text-gray-500 cursor-not-allowed"  
+              onChange={(e) => setName(e.target.value)} placeholder="輸入您的姓名" />
             </div>
             <div className="mb-4">
               <Label htmlFor="phone" className="block text-sm font-medium text-gray-700">電話</Label>
-              <Input id="phone" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="輸入您的電話" />
+              <Input 
+              id="phone" 
+              value={phone} 
+              readOnly  
+              className="bg-gray-100 text-gray-500 cursor-not-allowed"  
+              onChange={(e) => setPhone(e.target.value)} placeholder="輸入您的電話" />
             </div>
             <div className="mb-4">
               <Label htmlFor="date" className="block text-sm font-medium text-gray-700">可以接受司機接單的最後日期(超過時間沒有司機接單就放棄)</Label>
@@ -256,7 +253,7 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onClose, clearCart, cartIte
                   <SelectValue placeholder="選擇地點" />
                 </SelectTrigger>
                 <SelectContent>
-                  {["飛鼠不渴露營農場", "樹不老休閒莊園", "戀戀雅渡農場"].map(location => (
+                  {["飛鼠不渴露營農場", "樹不老休閒莊園", "戀戀雅渡農場","政治大學大門"].map(location => (
                     <SelectItem key={location} value={location}>{location}</SelectItem>
                   ))}
                 </SelectContent>

@@ -5,21 +5,9 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faShoppingCart,faDollarSign, faSortAmountDown } from '@fortawesome/free-solid-svg-icons';
 import PaginationDemo from "@/components/tribe_resident/buyer/PaginationDemo";
 import { Button } from "@/components/ui/button";
+import { Product } from '@/interfaces/tribe_resident/buyer/Product';  
+import { ItemListProps } from '@/interfaces/tribe_resident/buyer/ItemListProps';
 
-
-type Product = {
-  category: string;
-  img: string;
-  id: string;
-  name: string;
-  price: number;
-};
-
-type ItemListProps = {
-  products: Product[];
-  itemsPerPage: number;
-  addToCart: (product: Product, quantity: number) => void;
-};
 
 /**
  * Renders a list of items with pagination and sorting functionality.

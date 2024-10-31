@@ -1,29 +1,11 @@
 import React, { useState } from 'react'; 
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetFooter, SheetClose } from "@/components/ui/sheet";
-import { Input } from "@/components/ui/input";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTrashAlt } from '@fortawesome/free-solid-svg-icons';
-
+import { CartItem } from "@/interfaces/tribe_resident/buyer/CartItem";
+import { CartModalProps } from '@/interfaces/tribe_resident/buyer/CartModalProps';
 import CheckoutForm from "@/components/tribe_resident/buyer/CheckoutForm";
-
-type CartItem = {
-  id: string;
-  name: string;
-  price: number;
-  quantity: number;
-  img: string;
-};
-
-type CartModalProps = {
-  cart: CartItem[];
-  onClose: () => void;
-  removeFromCart: (id: string) => void;
-  updateQuantity: (id: string, quantity: number) => void;
-  clearCart: () => void;
-  cartItems: CartItem[];
-  totalPrice: number;
-};
 
 /**
  * Represents a modal component for the shopping cart.

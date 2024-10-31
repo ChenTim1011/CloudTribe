@@ -4,11 +4,9 @@ import React, { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetFooter } from "@/components/ui/sheet";
+import { AddItemFormProps } from "@/interfaces/tribe_resident/buyer/AddItemFormProps";
 
-type AddItemFormProps = {
-  onClose: () => void;
-  addToCart: (item: { name: string; quantity: number; price: number; img: string }) => void;
-};
+
 
 /**
  * Represents the form for adding an item to the cart.
@@ -19,6 +17,7 @@ const AddItemForm: React.FC<AddItemFormProps> = ({ onClose, addToCart }) => {
   const [name, setName] = useState("");
   const [quantity, setQuantity] = useState<string | number>("");
   const [price, setPrice] = useState<string | number>("");
+  const [location, setLocation] = useState<string>("");
   const [error, setError] = useState("");
 
   /**
@@ -48,13 +47,13 @@ const AddItemForm: React.FC<AddItemFormProps> = ({ onClose, addToCart }) => {
     }
 
     // All validations passed
-    addToCart({ name, quantity: Number(quantity), price: Number(price), img: "/will.jpg" });
+    addToCart({ name, quantity: Number(quantity), price: Number(price), img: "/will.jpg",location, });
     onClose();
   };
 
   return (
     <Sheet open={true} onOpenChange={onClose}>
-      <SheetContent className="w-full max-w-2xl">
+      <SheetContent className="w-full max-w-2xl overflow-y-auto">
         <SheetHeader>
           <SheetTitle>如果找不到，想要買的東西</SheetTitle>
         </SheetHeader>
@@ -82,6 +81,14 @@ const AddItemForm: React.FC<AddItemFormProps> = ({ onClose, addToCart }) => {
               onChange={(e) => setPrice(e.target.value)}
               min={1}
               placeholder="輸入購買價格"
+            />
+          </div>
+          <div className="mb-10">
+            <label className="mb-5 block text-sm font-medium text-gray-700">地點</label>
+            <Input
+              value={location}
+              onChange={(e) => setLocation(e.target.value)}
+              placeholder="輸入地點"
             />
           </div>
         </div>
