@@ -265,7 +265,6 @@ const DriverPage: React.FC = () => {
         UserService.setLocalStorageUser(updatedUser);
         setUser(updatedUser);
         setShowRegisterForm(false);
-        setShowLoginForm(true);  
     };
 
     /**
@@ -348,12 +347,6 @@ const DriverPage: React.FC = () => {
                             <>
                                 <DriverAvailableTimes driverId={driverData?.id || 0} />
 
-                                <Button 
-                                    className="mb-10 px-6 py-3 text-lg font-bold border-2 border-black text-black bg-white hover:bg-blue-500 hover:text-white"
-                                    onClick={() => setShowLoginForm(true)}
-                                >
-                                    查看表單
-                                </Button>
 
                                 {/* 「取得未接單表單」按鈕 */}
                                 <Button 
