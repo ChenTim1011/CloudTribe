@@ -49,3 +49,6 @@ __pycache__/
 *.venv
 .env
 .venv
+
+venv/
+fastapi-env/
