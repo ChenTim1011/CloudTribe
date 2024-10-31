@@ -46,6 +46,12 @@ const AddItemForm: React.FC<AddItemFormProps> = ({ onClose, addToCart }) => {
       return;
     }
 
+    // Validate the location
+    if (!location) {
+      setError("地點不能是空的");
+      return;
+    }
+
     // All validations passed
     addToCart({ name, quantity: Number(quantity), price: Number(price), img: "/will.jpg",location, });
     onClose();

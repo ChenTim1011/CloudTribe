@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect, useRef, useCallback, Suspense } from "react";
+import React, { useState, useEffect, useRef, Suspense } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -11,12 +11,11 @@ import { GoogleMap, Autocomplete, Marker, useJsApiLoader, LoadScriptProps } from
 import { useSearchParams } from 'next/navigation';
 import Directions from "@/components/navigation/Directions";
 import DriverOrdersPage from "@/components/driver/DriverOrdersPage";
-import { MapComponentState } from "@/interfaces/navigation/MapComponentState";
 import { LatLng } from "@/interfaces/navigation/LatLng";
 import { Route } from "@/interfaces/navigation/Route";
 import { Driver } from "@/interfaces/driver/Driver";
 
-// 定義地圖的所需庫
+// define the libraries to load
 const libraries: LoadScriptProps['libraries'] = ["places"];
 
 const fetchCoordinates = async (placeName: string) => {
@@ -73,7 +72,7 @@ const MapComponentContent: React.FC = () => {
   const driverId = searchParams.get('driverId');
   const orderId = searchParams.get('orderId');
 
-  // 定義狀態變數
+  // define state
   const [origin, setOrigin] = useState<string>("");
   const [destination, setDestination] = useState<string>("");
   const [originName, setOriginName] = useState<string>("");
@@ -81,7 +80,6 @@ const MapComponentContent: React.FC = () => {
   const [totalDistance, setTotalDistance] = useState<string | null>(null);
   const [totalTime, setTotalTime] = useState<string | null>(null);
   const [routes, setRoutes] = useState<Route[]>([]);
-  const [routeIndex, setRouteIndex] = useState<number>(0); 
   const [currentLocation, setCurrentLocation] = useState<LatLng | null>(null);
   const [center, setCenter] = useState<LatLng | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -91,11 +89,11 @@ const MapComponentContent: React.FC = () => {
   const [showDriverOrders, setShowDriverOrders] = useState(false);
   const [driverData, setDriverData] = useState<Driver | null>(null);
 
-  // 自動完成參考
+  // autocomplete refs
   const autocompleteOriginRef = useRef<google.maps.places.Autocomplete | null>(null);
   const autocompleteDestinationRef = useRef<google.maps.places.Autocomplete | null>(null);
 
-  // 加載 Google Maps API
+  // Google Maps API
   const { isLoaded, loadError } = useJsApiLoader({
     googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY as string,
     libraries,
@@ -236,38 +234,6 @@ const handleGenerateNavigationLinkFromInput = () => {
     setIsSheetOpen(true);
   };
 
-  const handleCompleteOrder = async () => {
-    if (!orderData || !orderData.id) return;
-    try {
-      const response = await fetch(`/api/orders/${orderData.id}/complete`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-      if (!response.ok) {
-        throw new Error('Failed to complete order');
-      }
-      const updatedOrder = { ...orderData, order_status: '已完成' };
-      setOrderData(updatedOrder);
-      alert('訂單已完成');
-    } catch (error) {
-      console.error('Error completing order:', error);
-      alert('完成訂單失敗');
-    }
-  };
-
-    // Handler for manual search button
-    const handleManualSearch = async (placeName: string, setFn: React.Dispatch<React.SetStateAction<string>>, setNameFn: React.Dispatch<React.SetStateAction<string>>) => {
-      const location = await fetchCoordinates(placeName);
-      if (location) {
-        setFn(`${location.lat},${location.lng}`);
-        setNameFn(placeName);
-        setError(null);
-      } else {
-        setError("無法找到該地點，請重新輸入或選取有效的地點名稱");
-      }
-    };
 
     const handleClearOrigin = () => {
       setOrigin("");

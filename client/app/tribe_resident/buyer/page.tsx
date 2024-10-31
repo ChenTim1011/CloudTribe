@@ -123,10 +123,11 @@ const BuyerPage: React.FC = () => {
     }
   };
 
-  const handleViewForm = () => {
+  const handleViewForm = async () => {
     if ( user && user.id){
       const userOrders = orders.filter(order => order.buyer_id === user.id);
       setFilteredOrders(userOrders)
+      await fetchOrders();
     }
     setIsFormOpen(true);
     

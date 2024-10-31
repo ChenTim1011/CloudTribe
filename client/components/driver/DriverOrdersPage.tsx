@@ -13,27 +13,27 @@ const DriverOrdersPage: React.FC<{ driverData: Driver }> = ({ driverData }) => {
     const [orders, setOrders] = useState<Order[]>([]);
     const router = useRouter();
 
+    /**
+     * Fetches the driver orders from the server.
+     */
+    const fetchDriverOrders = async () => {
+        try {
+            const response = await fetch(`/api/drivers/${driverData.id}/orders`);
+            if (!response.ok) {
+                throw new Error('Failed to fetch driver orders');
+            }
+            const data = await response.json();
+            setOrders(data.filter((order: Order) => order.order_status !== '已完成')); // Only display orders that are not completed
+        } catch (error) {
+            console.error('Error fetching driver orders:', error);
+        }
+    };
+
     useEffect(() => {
         if (!driverData || !driverData.id) {
             console.error("Driver data is missing or incomplete");
             return;
         }
-
-        /**
-         * Fetches the driver orders from the server.
-         */
-        const fetchDriverOrders = async () => {
-            try {
-                const response = await fetch(`/api/drivers/${driverData.id}/orders`);
-                if (!response.ok) {
-                    throw new Error('Failed to fetch driver orders');
-                }
-                const data = await response.json();
-                setOrders(data.filter((order: Order) => order.order_status !== '已完成')); // Only display orders that are not completed
-            } catch (error) {
-                console.error('Error fetching driver orders:', error);
-            }
-        };
 
         fetchDriverOrders();
     }, [driverData]);
@@ -97,6 +97,7 @@ const DriverOrdersPage: React.FC<{ driverData: Driver }> = ({ driverData }) => {
             }
 
             setOrders(orders.filter(order => order.id?.toString() !== orderId));
+            fetchDriverOrders(); // Refresh the orders list
             alert('訂單已完成');
         } catch (error) {
             console.error('Error completing order:', error);

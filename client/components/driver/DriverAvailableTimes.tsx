@@ -52,7 +52,7 @@ const DriverAvailableTimes: React.FC<{ driverId: number }> = ({ driverId }) => {
   const handleAddTimeSlot = async () => {
     setError(null);
     const finalLocation = locations === "自定義" ? customLocation : locations;
-        // 日期、時間和地點驗證
+        // validate the form fields
         if (!date || date < new Date()) {
           setError("請選擇有效日期（不能早於今天）。");
           return;
@@ -171,7 +171,6 @@ const DriverAvailableTimes: React.FC<{ driverId: number }> = ({ driverId }) => {
                 </SelectContent>
               </Select>
 
-              {/* 當選擇 "自定義" 時顯示自定義輸入框 */}
               {locations === "自定義" && (
                 <Input
                   type="text"

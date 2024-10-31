@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Order } from '@/interfaces/order/Order';
 
 /**
  * Represents an order card component.
@@ -27,6 +28,7 @@ const OrderCard: React.FC<{
     try {
       await onAccept(order.id);
       setAcceptError(""); // Clear any previous errors
+      
     } catch (error: any) {
       if (error.response && error.response.data.detail) {
         setAcceptError(error.response.data.detail);
@@ -55,6 +57,7 @@ const OrderCard: React.FC<{
   const handleNavigate = () => {
     onNavigate(order.id, driverId);
   };
+
 
   return (
     <Card className="max-w-md mx-auto my-6 shadow-lg">

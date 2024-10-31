@@ -1,9 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
 import DriverForm from "./DriverForm";
 import UserService from '@/services/user/user';
 import { Driver } from '@/interfaces/driver/Driver';
@@ -116,13 +114,13 @@ const LoginForm: React.FC<{
             const driverStartDateTime = new Date(Date.parse(`${available_date}T${start_time}`));
             const driverEndDateTime = new Date(Date.parse(`${available_date}T${end_time}`));
 
-            const filtered = orders.filter((order: any) => {
+            const filtered = orders.filter((order: Order) => {
                 console.log('order.date:', order.date);
                 console.log('order.time:', order.time);
                 const orderDateTime = new Date(Date.parse(`${order.date}T${order.time}`));
                 console.log('Order DateTime:', orderDateTime);
                 return order.order_status === '未接單' && orderDateTime < driverEndDateTime;
-            }).sort((a: any, b: any) => {
+            }).sort((a: Order, b: Order) => {
                 const aDateTime = new Date(Date.parse(`${a.date}T${a.time}`)).getTime();
                 const bDateTime = new Date(Date.parse(`${b.date}T${b.time}`)).getTime();
                 return aDateTime - bDateTime;

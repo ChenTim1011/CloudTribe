@@ -9,10 +9,8 @@ import DriverAvailableTimes from "@/components/driver/DriverAvailableTimes";
 import { NavigationBar } from "@/components/NavigationBar";
 import { Button } from "@/components/ui/button";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faArrowLeft, faPlus } from '@fortawesome/free-solid-svg-icons';
+import { faArrowLeft } from '@fortawesome/free-solid-svg-icons';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetClose } from "@/components/ui/sheet";
-import { Input } from "@/components/ui/input";
-import { Calendar } from "@/components/ui/calendar";
 import { useRouter } from 'next/navigation';
 import UserService from '@/services/user/user'; 
 import { Driver } from '@/interfaces/driver/Driver'; // 引入 Driver 接口
@@ -21,21 +19,15 @@ const DriverPage: React.FC = () => {
     const [showRegisterForm, setShowRegisterForm] = useState(false);
     const [showLoginForm, setShowLoginForm] = useState(false);
     const [showDriverOrders, setShowDriverOrders] = useState(false);
-    const [showAddTimeSheet, setShowAddTimeSheet] = useState(false); 
     const [unacceptedOrders, setUnacceptedOrders] = useState<any[]>([]);
     const [acceptedOrders, setAcceptedOrders] = useState<any[]>([]);
     const [driverData, setDriverData] = useState<Driver | null>(null);
-    const [date, setDate] = useState<Date | undefined>(new Date()); 
-    const [startTime, setStartTime] = useState<string>("");
-    const [endTime, setEndTime] = useState<string>("");
-    const [locations, setLocations] = useState<string>(""); 
     const router = useRouter();
     const [user, setUser] = useState(UserService.getLocalStorageUser());
     const [isClient, setIsClient] = useState(false); 
 
     // add state for showing unaccepted orders
     const [showUnacceptedOrders, setShowUnacceptedOrders] = useState(false);
-    const [showAcceptedOrders, setShowAcceptedOrders] = useState(false);
 
     useEffect(() => {
         setIsClient(true);
@@ -59,7 +51,7 @@ const DriverPage: React.FC = () => {
         }
     }, [user]);
 
-    // 根據 user.id 獲取 driverData
+    // use user.id to get driverData
     useEffect(() => {
         if (isClient && user && user.is_driver) {
             fetchDriverData(user.id);
@@ -75,7 +67,7 @@ const DriverPage: React.FC = () => {
             const response = await fetch(`/api/drivers/user/${userId}`);
             if (!response.ok) {
                 if (response.status === 404) {
-                    console.warn("用戶尚未成為司機");
+                    console.warn("使用者尚未成為司機");
                 } else {
                     throw new Error('Failed to fetch driver data');
                 }
@@ -83,7 +75,6 @@ const DriverPage: React.FC = () => {
                 const data: Driver = await response.json();
                 console.log('Fetched driver data:', data);
                 setDriverData(data);
-                // 獲取已接單訂單
                 handleFetchDriverOrders(data.id);
             }
         } catch (error) {
@@ -267,33 +258,6 @@ const DriverPage: React.FC = () => {
         setShowRegisterForm(false);
     };
 
-    /**
-     * Handle adding a new time slot.
-     */
-    const handleAddTimeSlot = async () => {
-        if (date && startTime && endTime && locations) {
-            try {
-                const response = await fetch(`/api/drivers/time`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        driver_id: driverData?.id, // 使用 driverData.id
-                        date: date.toISOString().split('T')[0], 
-                        start_time: startTime,
-                        end_time: endTime,
-                        locations,
-                    }),
-                });
-                const result = await response.json();
-                console.log("Time slot added:", result);
-                setShowAddTimeSheet(false); // 關閉 Sheet
-            } catch (error) {
-                console.error("Error adding time slot:", error);
-            }
-        }
-    };
 
     /**
      * Toggle the visibility of Unaccepted Orders List
@@ -342,13 +306,11 @@ const DriverPage: React.FC = () => {
                             </Button>
                         )}
 
-                        {/* 使用者是司機 */}
                         {isClient && user?.is_driver && (
                             <>
                                 <DriverAvailableTimes driverId={driverData?.id || 0} />
 
 
-                                {/* 「取得未接單表單」按鈕 */}
                                 <Button 
                                     className="mb-10 px-6 py-3 text-lg font-bold border-2 border-black text-black bg-white hover:bg-blue-500 hover:text-white"
                                     onClick={toggleUnacceptedOrders}
@@ -429,20 +391,6 @@ const DriverPage: React.FC = () => {
                             </div>
                         )}
 
-                        {/* 已接單訂單列表 */}
-                        {showAcceptedOrders && (
-                            <div>
-                                <h2 className="text-2xl font-bold mb-4">已接單訂單</h2>
-                                <OrderListWithPagination
-                                    orders={acceptedOrders}
-                                    onAccept={handleAcceptOrder}
-                                    onTransfer={handleTransferOrder}
-                                    onNavigate={handleNavigate}
-                                    onComplete={handleCompleteOrder}
-                                    driverId={driverData?.id || 0} // 使用 driverData.id 作為 driverId
-                                />
-                            </div>
-                        )}
                     </div>
                 </div>
             </div>

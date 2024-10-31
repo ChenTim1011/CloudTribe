@@ -117,7 +117,7 @@ async def get_driver_by_user(user_id: int, conn: Connection = Depends(get_db)):
         )
         driver = cur.fetchone()
         if not driver:
-            raise HTTPException(status_code=404, detail="該用戶不是司機或不存在")
+            raise HTTPException(status_code=404, detail="該使用者不是司機或不存在")
 
         return {
             "id": driver[0],
