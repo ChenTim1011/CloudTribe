@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
+import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from "@/components/ui/select";
 import TimeCard from './TimeCard';
 import { Sheet, SheetTrigger, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { TimeSlot } from '@/interfaces/driver/TimeSlot';
@@ -16,14 +17,17 @@ const timeOptions = [
   "18:00", "19:00", "20:00"
 ];
 
+const locationOptions = ["飛鼠不渴露營農場", "樹不老休閒莊園", "戀戀雅渡農場","政治大學大門", "自定義"];
+
 const DriverAvailableTimes: React.FC<{ driverId: number }> = ({ driverId }) => {
   const [date, setDate] = useState<Date | undefined>(new Date());
   const [startTime, setStartTime] = useState<string>("");
   const [locations, setLocations] = useState<string>("");
-  const [timeSlots, setTimeSlots] = useState<TimeSlot[]>([]); // 存放時間卡片
+  const [customLocation, setCustomLocation] = useState<string>("");
+  const [timeSlots, setTimeSlots] = useState<TimeSlot[]>([]); 
   const [openSheet, setOpenSheet] = useState(false);
-  const [successMessage, setSuccessMessage] = useState<string | null>(null); // 成功訊息
- 
+  const [successMessage, setSuccessMessage] = useState<string | null>(null); 
+  const [error, setError] = useState<string | null>(null);  
 
    // to fetch the time slots for the driver
    const fetchTimeSlots = async () => {
@@ -46,7 +50,23 @@ const DriverAvailableTimes: React.FC<{ driverId: number }> = ({ driverId }) => {
 
   // add a new time slot
   const handleAddTimeSlot = async () => {
-    if (date && startTime  && locations) {
+    setError(null);
+    const finalLocation = locations === "自定義" ? customLocation : locations;
+        // 日期、時間和地點驗證
+        if (!date || date < new Date()) {
+          setError("請選擇有效日期（不能早於今天）。");
+          return;
+        }
+        if (!startTime) {
+          setError("請選擇開始時間。");
+          return;
+        }
+        if (!finalLocation) {
+          setError("請選擇或輸入地點。");
+          return;
+        }
+
+    if (date && startTime  && finalLocation) {
       try {
         const response = await fetch(`/api/drivers/time`, {
           method: 'POST',
@@ -57,7 +77,7 @@ const DriverAvailableTimes: React.FC<{ driverId: number }> = ({ driverId }) => {
             driver_id: driverId,
             date: date.toISOString().split('T')[0], 
             start_time: startTime,
-            locations,
+            locations: finalLocation,
           }),
         });
         const result = await response.json();
@@ -75,7 +95,7 @@ const DriverAvailableTimes: React.FC<{ driverId: number }> = ({ driverId }) => {
         
         setSuccessMessage("時間新增成功！"); 
         
-        setTimeout(() => setSuccessMessage(null), 3000); // after 3 seconds, remove the success message
+        setTimeout(() => setSuccessMessage(null), 1000); // after 3 seconds, remove the success message
       } catch (error) {
         console.error("Error adding time slot:", error);
       }
@@ -136,14 +156,36 @@ const DriverAvailableTimes: React.FC<{ driverId: number }> = ({ driverId }) => {
               </div>
             </div>
                 
-            {/* input locations */}
-            <Input
-              type="text"
-              value={locations}
-              onChange={(e) => setLocations(e.target.value)}
-              placeholder="輸入地點"
-              className="mt-5"
-            />
+            <div className="mt-5">
+              <label className="block text-sm font-medium text-gray-700">地點</label>
+            <Select onValueChange={setLocations} defaultValue="飛鼠不渴露營農場">
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="選擇地點" />
+                </SelectTrigger>
+                <SelectContent>
+                  {locationOptions.map((locationOption) => (
+                    <SelectItem key={locationOption} value={locationOption}>
+                      {locationOption}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+
+              {/* 當選擇 "自定義" 時顯示自定義輸入框 */}
+              {locations === "自定義" && (
+                <Input
+                  type="text"
+                  value={customLocation}
+                  onChange={(e) => setCustomLocation(e.target.value)}
+                  placeholder="輸入自定義地點"
+                  className="mt-3"
+                />
+              )}
+            </div>
+
+            {error && (
+                <p className="mt-2 text-red-600">{error}</p>
+            )}
 
             {successMessage && (
               <p className="mt-2 text-green-600">{successMessage}</p>
