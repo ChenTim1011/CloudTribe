@@ -45,25 +45,25 @@ async def create_driver(driver: Driver, conn: Connection = Depends(get_db)):
     """
     cur = conn.cursor()
     try:
-        # 檢查 user_id 是否存在
+        # Check if user_id exists
         cur.execute("SELECT id FROM users WHERE id = %s", (driver.user_id,))
         user = cur.fetchone()
         if not user:
             raise HTTPException(status_code=404, detail="使用者不存在")
 
-        # 檢查使用者是否已經成為司機
+        # Check if the user is already a driver
         cur.execute("SELECT id FROM drivers WHERE user_id = %s", (driver.user_id,))
         existing_driver = cur.fetchone()
         if existing_driver:
             raise HTTPException(status_code=409, detail="使用者已經是司機")
 
-        # 檢查 driver_phone 是否已存在
+        # Check if driver_phone already exists
         cur.execute("SELECT id FROM drivers WHERE driver_phone = %s", (driver.driver_phone,))
         phone_exists = cur.fetchone()
         if phone_exists:
             raise HTTPException(status_code=409, detail="電話號碼已存在")
 
-        # 插入新司機
+        # Insert the new driver
         cur.execute(
             """
             INSERT INTO drivers (user_id, driver_name, driver_phone, direction, available_date, start_time, end_time)
@@ -137,7 +137,6 @@ async def get_driver_by_user(user_id: int, conn: Connection = Depends(get_db)):
     finally:
         cur.close()
 
-
 @router.get("/{driver_id}")
 async def get_driver_by_id(driver_id: int, conn: Connection = Depends(get_db)):
     """
@@ -152,7 +151,7 @@ async def get_driver_by_id(driver_id: int, conn: Connection = Depends(get_db)):
     """
     cur = conn.cursor()
     try:
-        # check driver_id exists in the database
+        # Check if driver_id exists in the database
         cur.execute(
             """
             SELECT id, user_id, driver_name, driver_phone, direction, available_date, start_time, end_time
@@ -163,11 +162,11 @@ async def get_driver_by_id(driver_id: int, conn: Connection = Depends(get_db)):
         )
         driver = cur.fetchone()
         
-        # check if driver exists
+        # Check if driver exists
         if not driver:
             raise HTTPException(status_code=404, detail="該司機不存在")
 
-        # return driver information
+        # Return driver information
         return {
             "id": driver[0],
             "user_id": driver[1],
@@ -198,7 +197,7 @@ async def get_driver(phone: str, conn: Connection = Depends(get_db)):
     """
     cur = conn.cursor()
     try:
-        cur.execute("SELECT id,driver_name, driver_phone, direction, available_date, start_time, end_time FROM drivers WHERE driver_phone = %s", (phone,))
+        cur.execute("SELECT id, driver_name, driver_phone, direction, available_date, start_time, end_time FROM drivers WHERE driver_phone = %s", (phone,))
         driver = cur.fetchone()
         if not driver:
             raise HTTPException(status_code=404, detail="電話號碼未註冊")
@@ -232,7 +231,7 @@ async def update_driver(phone: str, driver: Driver, conn: Connection = Depends(g
     """
     cur = conn.cursor()
     try:
-        # 獲取 driver_id 和 user_id
+        # Retrieve driver_id and user_id
         cur.execute(
             """
             SELECT id, user_id FROM drivers
@@ -247,7 +246,7 @@ async def update_driver(phone: str, driver: Driver, conn: Connection = Depends(g
         driver_id = driver_record[0]
         user_id = driver_record[1]
 
-        # 檢查是否要更新 driver_phone，且是否已存在
+        # Check if driver_phone needs to be updated and if it already exists
         if driver.driver_phone != phone:
             cur.execute(
                 "SELECT id FROM drivers WHERE driver_phone = %s",
@@ -256,7 +255,7 @@ async def update_driver(phone: str, driver: Driver, conn: Connection = Depends(g
             if cur.fetchone():
                 raise HTTPException(status_code=409, detail="新的電話號碼已存在")
 
-        # 更新司機資訊
+        # Update driver information
         cur.execute(
             """
             UPDATE drivers
@@ -300,17 +299,17 @@ async def get_driver_orders(driver_id: int, conn: Connection = Depends(get_db)):
     """
     cur = conn.cursor()
     try:
-        # 檢查 driver_id 是否存在
+        # Check if driver_id exists
         cur.execute("SELECT id FROM drivers WHERE id = %s", (driver_id,))
         if not cur.fetchone():
             raise HTTPException(status_code=404, detail="司機不存在")
 
-        # 獲取已接單的訂單
+        # Retrieve accepted orders
         cur.execute("""
             SELECT orders.*, driver_orders.previous_driver_name, driver_orders.previous_driver_phone
             FROM orders 
             JOIN driver_orders ON orders.id = driver_orders.order_id 
-            WHERE driver_orders.driver_id = %s AND driver_orders.action = '接單'
+            WHERE driver_orders.driver_id = %s  
         """, (driver_id,))
         orders = cur.fetchall()
         order_list = []
@@ -338,7 +337,7 @@ async def get_driver_orders(driver_id: int, conn: Connection = Depends(get_db)):
                 "previous_driver_phone": order[19],
                 "items": []
             }
-            # 獲取訂單項目
+            # Retrieve order items
             cur.execute("SELECT item_id, item_name, price, quantity, img, location FROM order_items WHERE order_id = %s", (order[0],))
             items = cur.fetchall()
             order_dict["items"] = [
@@ -363,7 +362,6 @@ async def get_driver_orders(driver_id: int, conn: Connection = Depends(get_db)):
     finally:
         cur.close()
 
-# Add a new available time slot for a driver.
 @router.post("/time")
 async def add_driver_time(driver_time: DriverTime, conn: Connection = Depends(get_db)):
     """
@@ -379,12 +377,12 @@ async def add_driver_time(driver_time: DriverTime, conn: Connection = Depends(ge
     """
     cur = conn.cursor()
     try:
-        # 檢查 driver_id 是否存在
+        # Check if driver_id exists
         cur.execute("SELECT id FROM drivers WHERE id = %s", (driver_time.driver_id,))
         if not cur.fetchone():
             raise HTTPException(status_code=404, detail="司機不存在")
 
-        # 插入時間段
+        # Insert the time slot
         cur.execute(
             """
             INSERT INTO driver_time (driver_id, date, start_time, locations)
@@ -406,7 +404,6 @@ async def add_driver_time(driver_time: DriverTime, conn: Connection = Depends(ge
     finally:
         cur.close()
 
-# Retrieve available time slots for a specific driver.
 @router.get("/{driver_id}/times")
 async def get_driver_times(driver_id: int, conn: Connection = Depends(get_db)):
     """
@@ -420,10 +417,9 @@ async def get_driver_times(driver_id: int, conn: Connection = Depends(get_db)):
         list: A list of dictionaries representing the available time slots for the driver. Each dictionary contains
               the time slot ID, date, start time, location, driver's name, and phone number.
     """
-
     cur = conn.cursor()
     try:
-        # 檢查 driver_id 是否存在
+        # Check if driver_id exists
         cur.execute("SELECT id FROM drivers WHERE id = %s", (driver_id,))
         if not cur.fetchone():
             raise HTTPException(status_code=404, detail="司機不存在")
@@ -457,7 +453,6 @@ async def get_driver_times(driver_id: int, conn: Connection = Depends(get_db)):
     finally:
         cur.close()
 
-# Delete an available time slot for a driver.
 @router.delete("/time/{id}")
 async def delete_driver_time(id: int, conn: Connection = Depends(get_db)):
     """
@@ -472,7 +467,7 @@ async def delete_driver_time(id: int, conn: Connection = Depends(get_db)):
     """
     cur = conn.cursor()
     try:
-        # 檢查時間段是否存在
+        # Check if the time slot exists
         cur.execute("SELECT id FROM driver_time WHERE id = %s", (id,))
         if not cur.fetchone():
             raise HTTPException(status_code=404, detail="時間段不存在")
