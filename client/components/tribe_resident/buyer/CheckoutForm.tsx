@@ -62,8 +62,21 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onClose, clearCart, cartIte
     }
 
     // Validate the date
-    if (!date || date < new Date()) {
-      setError("未選擇日期或不能選比現在的時間更早");
+    if (!date ||!time) {
+      setError("未選擇日期和時間");
+      return;
+    }
+
+    // Get the current date and time
+    const now = new Date();
+
+    // conbine date and time to a single datetime object
+    const [hours, minutes] = time.split(":").map(Number);
+    const combinedDateTime = new Date(date);
+    combinedDateTime.setHours(hours, minutes, 0, 0);
+
+    if (combinedDateTime < now) {
+      setError("不能選比現在更早的時間");
       return;
     }
 
@@ -110,6 +123,7 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onClose, clearCart, cartIte
         quantity: number;
         img: string;
         location: string;
+        category: string;
       }[];
     } = {
       buyer_id: user.id ,       
@@ -118,7 +132,7 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onClose, clearCart, cartIte
       seller_id: 1,             // TODO: Replace with the actual buyer ID => login function
       seller_name: '賣家名稱', 
       seller_phone: '賣家電話',
-      date: date.toISOString().split('T')[0], 
+      date: new Date(date.getTime() - date.getTimezoneOffset() * 60000).toISOString().split('T')[0], 
       time: time, 
       location: location,
       is_urgent: is_urgent,
@@ -137,7 +151,8 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onClose, clearCart, cartIte
         price: item.price,
         quantity: item.quantity,
         img: item.img,
-        location: "家樂福",
+        location: item.location || "家樂福",
+        category: item.category
       }))
     };
 

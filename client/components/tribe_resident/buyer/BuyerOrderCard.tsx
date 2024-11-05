@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Order } from '@/interfaces/order/Order';
 
 /**
  * A functional component that displays a simplified order card for buyers.
@@ -9,18 +10,17 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/componen
  * @param {Object} props.order - The order object containing details such as date, time, location, items, and order status.
  */
 const BuyerOrderCard: React.FC<{
-  order: any; // The order object
+  order: Order; // The order object
 }> = ({ order }) => {
   // Log the received order object for debugging purposes
   console.log('BuyerOrderCard received order:', order);
 
-  // Get today's date for comparison
-  const today = new Date();
-  // Parse the order date
-  const orderDate = new Date(order.date);
+  // Parse the order date and time
+  const orderDateTime = new Date(`${order.date}T${order.time}`);
+  const now = new Date();
 
   // If the order date is in the past and the order is not accepted, do not render the card
-  if (orderDate < today && order.order_status === '未接單') {
+  if (now > orderDateTime && order.order_status === '未接單') {
     return null;
   }
 
@@ -50,7 +50,11 @@ const BuyerOrderCard: React.FC<{
                 <div className="flex items-center space-x-2">
                   {/* Image of the item */}
                   <img
-                    src={`https://www.cloudtribe.online${item.img}`} 
+                    src={
+                      item.category === "小木屋鬆餅" || item.category === "金鰭" || item.category === "原丼力"
+                      ? `/test/${encodeURIComponent(item.img)}` // Local image from the public folder
+                      : `https://www.cloudtribe.online${item.img}` // Online image URL
+                    }
                     alt={item.item_name || '未命名'} 
                     width={40} 
                     height={40} 

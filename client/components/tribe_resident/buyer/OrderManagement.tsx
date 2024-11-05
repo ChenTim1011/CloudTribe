@@ -40,12 +40,27 @@ const OrderManagement: React.FC<OrderManagementProps> = ({ isOpen, onClose, orde
    * Memoized function to filter orders based on status and date range
    */
   const finalFilteredOrders = useMemo(() => {
+    
+    const now = new Date();
+
     return filteredOrders.filter((order) => {
-      const orderDate = new Date(order.date);
+      const orderDateTime = new Date(`${order.date}T${order.time}`);
       const matchesStatus = order.order_status === orderStatus;
-      const matchesStartDate = startDate ? orderDate >= startDate : true;
-      const matchesEndDate = endDate ? orderDate <= endDate  : true;
-      return matchesStatus && matchesStartDate && matchesEndDate;
+      const matchesStartDate = startDate ? new Date(order.date) >= startDate : true;
+      const matchesEndDate = endDate ? new Date(order.date) <= endDate  : true;
+      
+      // Show the future pending orders 
+      const isFuturePendingOrder = orderDateTime > now && order.order_status === "未接單";
+
+      // Filter orders based on status and date range
+      if (orderStatus === "未接單") {
+        return isFuturePendingOrder && matchesStartDate && matchesEndDate;
+      } else if (orderStatus === "接單" || orderStatus === "已完成") {
+        return matchesStatus && order.order_status === orderStatus && matchesStartDate && matchesEndDate;
+      }
+
+      return false;
+     
     });
   }, [filteredOrders, orderStatus, startDate, endDate]);
 
@@ -58,7 +73,7 @@ const OrderManagement: React.FC<OrderManagementProps> = ({ isOpen, onClose, orde
     <Sheet open={isOpen} onOpenChange={onClose}>
       <SheetContent className="w-full max-w-2xl h-full overflow-y-auto" aria-describedby="form-description">
         <SheetHeader>
-          <SheetTitle>Order Details</SheetTitle>
+          <SheetTitle>我的訂單</SheetTitle>
           <SheetClose />
         </SheetHeader>
         <div className="p-4">
@@ -129,7 +144,7 @@ const OrderManagement: React.FC<OrderManagementProps> = ({ isOpen, onClose, orde
             {/* Display total price if there are matching orders */}
             {finalFilteredOrders.length > 0 && (
               <div className="w-full flex justify-center mt-4">
-                <span className="text-lg font-bold">Total Price: {totalPrice.toFixed(2)} 元</span>
+                <span className="text-lg font-bold">總金額: {totalPrice.toFixed(2)} 元</span>
               </div>
             )}
           </>
@@ -141,10 +156,10 @@ const OrderManagement: React.FC<OrderManagementProps> = ({ isOpen, onClose, orde
                 <BuyerOrderCard key={order.id} order={order} />
               ))
             ) : (
-              <p className="mt-4 text-center">No orders match the criteria.</p>
+              <p className="mt-4 text-center">沒有符合條件的訂單</p>
             )
           ) : (
-            <p>No relevant orders at the moment.</p>
+            <p>沒有相關的訂單</p>
           )}
 
           {/* Display error message if needed */}
