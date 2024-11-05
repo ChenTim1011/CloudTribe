@@ -1,5 +1,7 @@
+"use client";
+
 import React from 'react';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 
 /**
  * A functional component that displays a simplified order card for buyers.

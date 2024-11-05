@@ -12,7 +12,6 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetFooter, SheetClose }
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import UserService from '@/services/user/user';  
-import { CartItem } from '@/interfaces/tribe_resident/buyer/CartItem';
 import { CheckoutFormProps } from '@/interfaces/tribe_resident/buyer/CheckoutFormProps';
 
 /**
@@ -113,10 +112,10 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onClose, clearCart, cartIte
         location: string;
       }[];
     } = {
-      buyer_id: user.id ,  // TODO: Replace with the actual buyer ID  =>login function
+      buyer_id: user.id ,       
       buyer_name: name,
       buyer_phone: phone,
-      seller_id: 1,  // TODO: Replace with the actual buyer ID => login function
+      seller_id: 1,             // TODO: Replace with the actual buyer ID => login function
       seller_name: '賣家名稱', 
       seller_phone: '賣家電話',
       date: date.toISOString().split('T')[0], 
@@ -127,7 +126,7 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onClose, clearCart, cartIte
       order_type: "購買類",
       order_status: "未接單",
       note: note,
-      shipment_count: 1,  //TODO: seller function
+      shipment_count: 1,         //TODO: seller function
       required_orders_count: 1,  //TODO: seller function
       previous_driver_id: null,
       previous_driver_name: null,

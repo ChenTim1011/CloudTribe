@@ -42,7 +42,6 @@ const BuyerPage: React.FC = () => {
   // Media query hooks to detect the device type
   const isMobile = useMediaQuery({ maxWidth: 767 });
   const isTablet = useMediaQuery({ minWidth: 768, maxWidth: 1024 });
-  const isDesktop = useMediaQuery({ minWidth: 1025 });
 
   /**
    * Fetches order data from the server and updates the state
@@ -191,13 +190,6 @@ const BuyerPage: React.FC = () => {
     fetchData();
   }, []);
 
-  /**
-   * Handles actions after a new order is added, such as refetching orders
-   */
-  const handleAddOrder = () => {
-    fetchOrders();
-  };
-
   return (
     <div>
       <NavigationBar />
@@ -224,7 +216,7 @@ const BuyerPage: React.FC = () => {
               className="px-4 py-2 text-lg font-bold border-2 border-black-500 text-black-500 hover:bg-blue-500 hover:text-white"
             >
               <FontAwesomeIcon icon={faShoppingCart} className="mr-2" />
-              {`Cart (${cart.reduce((total, item) => total + item.quantity, 0)})`}
+              {`購物車 (${cart.reduce((total, item) => total + item.quantity, 0)})`}
             </Button>
           </div>
 
@@ -260,7 +252,7 @@ const BuyerPage: React.FC = () => {
           {/* Display selected category */}
           {selectedCategory && (
             <div className="mt-5 text-2xl font-semibold text-center">
-              Category: {selectedCategory}
+              商品種類: {selectedCategory}
             </div>
           )}
 

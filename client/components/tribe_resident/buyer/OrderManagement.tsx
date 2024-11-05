@@ -1,12 +1,11 @@
 "use client";
 
-import React, { useState, useEffect, useCallback, useMemo } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetClose } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 import { format } from "date-fns";
-import { useMediaQuery } from "react-responsive";
 import BuyerOrderCard from "@/components/tribe_resident/buyer/BuyerOrderCard";
 import { Order } from "@/interfaces/order/Order";
 import UserService from "@/services/user/user";
@@ -28,8 +27,6 @@ const OrderManagement: React.FC<OrderManagementProps> = ({ isOpen, onClose, orde
   const [endDate, setEndDate] = useState<Date | null>(null);
   const [error, setError] = useState<string>("");
 
-  // Media query to determine if the user is on a mobile device
-  const isMobile = useMediaQuery({ maxWidth: 767 });
 
   // Filter orders based on the logged-in user's ID
   useEffect(() => {
@@ -47,7 +44,7 @@ const OrderManagement: React.FC<OrderManagementProps> = ({ isOpen, onClose, orde
       const orderDate = new Date(order.date);
       const matchesStatus = order.order_status === orderStatus;
       const matchesStartDate = startDate ? orderDate >= startDate : true;
-      const matchesEndDate = endDate ? orderDate <= endDate : true;
+      const matchesEndDate = endDate ? orderDate <= endDate  : true;
       return matchesStatus && matchesStartDate && matchesEndDate;
     });
   }, [filteredOrders, orderStatus, startDate, endDate]);

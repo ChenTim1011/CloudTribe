@@ -82,7 +82,7 @@ const ItemList: React.FC<ItemListProps> = ({ products, itemsPerPage, addToCart }
                 />
               </div>
               <div className="flex flex-col items-center">
-                {/* 加入購物車按鈕 */}
+                {/* Add to cart button */}
                 <Button
                   className="flex items-center justify-center  mb-2"
                   onClick={() => {
@@ -94,7 +94,7 @@ const ItemList: React.FC<ItemListProps> = ({ products, itemsPerPage, addToCart }
                   加入購物車
                 </Button>
 
-                {/* 商品連結按鈕 */}
+                {/* Product link to check the actual price */}
                 <a 
                   href={`https://online.carrefour.com.tw/zh/search/?q=${product.name.replace(/\(.*?\)|※.*$|因.*$/g, '').trim()}`}   
                   target="_blank"

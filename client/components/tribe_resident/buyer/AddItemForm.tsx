@@ -5,7 +5,6 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetFooter } from "@/components/ui/sheet";
 import { AddItemFormProps } from "@/interfaces/tribe_resident/buyer/AddItemFormProps";
-import { CartItem } from "@/interfaces/tribe_resident/buyer/CartItem";
 
 
 /**
