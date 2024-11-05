@@ -37,6 +37,10 @@ type SidebarProps = {
 // Define the categories and their subcategories.
 const categories = [
   {
+    name: "政大周邊商家",
+    subcategories: ["小木屋鬆餅", "金鰭", "原丼力"],
+  },
+  {
     name: "蔬菜水果．農特產",
     subcategories: ["各式蔬菜", "季節水果", "菇菌類"],
   },

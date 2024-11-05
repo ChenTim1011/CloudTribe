@@ -5,7 +5,7 @@ import logging
 from fastapi import FastAPI, Request, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
-from backend.routers import orders, drivers, forms, users, seller, consumer
+from backend.routers import orders, drivers, users, seller, consumer
 
 
 # Import Line Bot API
@@ -46,7 +46,6 @@ app = FastAPI()
 # Register routers
 app.include_router(orders.router, prefix="/api/orders", tags=["orders"])
 app.include_router(drivers.router, prefix="/api/drivers", tags=["drivers"])
-app.include_router(forms.router, prefix="/api/forms", tags=["forms"])
 app.include_router(users.router, prefix="/api/users", tags=["users"])
 app.include_router(seller.router, prefix="/api/seller", tags=["seller"])
 app.include_router(consumer.router, prefix="/api/consumer", tags=["consumer"])

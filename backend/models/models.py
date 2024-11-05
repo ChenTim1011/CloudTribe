@@ -16,6 +16,7 @@ class OrderItem(BaseModel):
     quantity: int
     img: str
     location: Optional[str] = '家樂福'
+    category: Optional[str] = '未分類'
 
 class Order(BaseModel):
     id: Optional[int] = None 

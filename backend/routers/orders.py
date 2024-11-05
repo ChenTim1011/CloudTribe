@@ -58,9 +58,9 @@ async def create_order(order: Order, conn: Connection = Depends(get_db)):
         order_id = cur.fetchone()[0]
         for item in order.items:
             cur.execute(
-                "INSERT INTO order_items (order_id, item_id, item_name, price, quantity, img, location) "
-                "VALUES (%s, %s, %s, %s, %s, %s, %s)",
-                (order_id, item.item_id, item.item_name, item.price, item.quantity, item.img, item.location)
+                "INSERT INTO order_items (order_id, item_id, item_name, price, quantity, img, location, category) "
+                "VALUES (%s, %s, %s, %s, %s, %s, %s, %s)",
+                (order_id, item.item_id, item.item_name, item.price, item.quantity, item.img, item.location, item.category)
             )
         conn.commit()
         order.id = order_id
@@ -83,7 +83,7 @@ async def get_orders(conn: Connection = Depends(get_db)):
     """
     cur = conn.cursor()
     try:
-        cur.execute("SELECT * FROM orders WHERE order_status = '未接單'")
+        cur.execute("SELECT * FROM orders")
         orders = cur.fetchall()
         order_list = []
         for order in orders:
@@ -111,7 +111,7 @@ async def get_orders(conn: Connection = Depends(get_db)):
                 "previous_driver_name": order[18],
                 "previous_driver_phone": order[19],
                 "items": [{"order_id": item[1], "item_id": item[2], "item_name": item[3], "price": float(item[4]), "quantity": int(item[5]), 
-                           "img": str(item[6]), "location": str(item[7])} for item in items]  
+                           "img": str(item[6]), "location": str(item[7]),"category":str(item[8])} for item in items]  
             })
         return order_list
     except Exception as e:
@@ -268,7 +268,7 @@ async def get_order(order_id: int, conn: Connection = Depends(get_db)):
             "previous_driver_name": order[18],
             "previous_driver_phone": order[19],
             "items": [{"order_id": item[1], "item_id": item[2], "item_name": item[3], "price": float(item[4]), "quantity": int(item[5]), 
-                       "img": str(item[6]),"location": str(item[7])} for item in items]
+                       "img": str(item[6]),"location": str(item[7]),"category":str(item[8])} for item in items]
         }
         return order_data
     except Exception as e:

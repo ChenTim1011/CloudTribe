@@ -338,7 +338,7 @@ async def get_driver_orders(driver_id: int, conn: Connection = Depends(get_db)):
                 "items": []
             }
             # Retrieve order items
-            cur.execute("SELECT item_id, item_name, price, quantity, img, location FROM order_items WHERE order_id = %s", (order[0],))
+            cur.execute("SELECT item_id, item_name, price, quantity, img, location, category FROM order_items WHERE order_id = %s", (order[0],))
             items = cur.fetchall()
             order_dict["items"] = [
                 {
@@ -347,7 +347,8 @@ async def get_driver_orders(driver_id: int, conn: Connection = Depends(get_db)):
                     "price": item[2],
                     "quantity": item[3],
                     "img": item[4],
-                    "location": item[5]
+                    "location": item[5],
+                    "category": item[6]
                 }
                 for item in items
             ]
