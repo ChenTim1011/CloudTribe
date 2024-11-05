@@ -111,7 +111,11 @@ const OrderCard: React.FC<{
                             <li key={item.item_id} className="text-sm text-gray-700 mb-2">
                                 <div className="flex items-center space-x-2">
                                     <img
-                                        src={`https://www.cloudtribe.online${item.img}`} 
+                                        src={
+                                            item.category === "小木屋鬆餅" || item.category === "金鰭" || item.category === "原丼力"
+                                            ? `/test/${encodeURIComponent(item.img)}` // Local image from the public folder
+                                            : `https://www.cloudtribe.online${item.img}` // Online image URL
+                                        }
                                         alt={item.item_name || '未命名'} 
                                         width={40} 
                                         height={40} 

@@ -2,12 +2,11 @@
 
 import React, { useState, useEffect } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faShoppingCart,faDollarSign, faSortAmountDown } from '@fortawesome/free-solid-svg-icons';
+import { faShoppingCart, faDollarSign, faSortAmountDown } from '@fortawesome/free-solid-svg-icons';
 import PaginationDemo from "@/components/tribe_resident/buyer/PaginationDemo";
 import { Button } from "@/components/ui/button";
 import { Product } from '@/interfaces/tribe_resident/buyer/Product';  
 import { ItemListProps } from '@/interfaces/tribe_resident/buyer/ItemListProps';
-
 
 /**
  * Renders a list of items with pagination and sorting functionality.
@@ -58,18 +57,26 @@ const ItemList: React.FC<ItemListProps> = ({ products, itemsPerPage, addToCart }
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         {currentData.map((product) => (
           <div key={product.id} className="card p-4 bg-white shadow-md rounded-lg">
+            {/* Conditional Image Rendering */}
             <img 
-	            src={`https://www.cloudtribe.online${product.img}`}
-              alt={product.name} 
-              width={250} 
-              height={250} 
+              src={
+                product.category === "小木屋鬆餅" || product.category === "金鰭" || product.category === "原丼力"
+                  ? `/test/${encodeURIComponent(product.img)}` // Local image from the public folder
+                  : `https://www.cloudtribe.online${product.img}` // Online image URL
+              }
+              alt={product.name}
+              width={250}
+              height={250}
               className="object-cover mx-auto"
               style={{ objectFit: 'contain' }}
             />
             <div className="p-4 text-center">
-              <h2 className="text-xl font-bold mb-2"
-              style={{ height: '3rem', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-              >{product.name}</h2>
+              <h2
+                className="text-xl font-bold mb-2"
+                style={{ height: '3rem', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+              >
+                {product.name}
+              </h2>
               <p className="text-2xl font-bold text-red-500 mb-4">參考價格: ${product.price}</p>
               <div className="flex justify-center items-center mb-4">
                 <label htmlFor={`quantity-${product.id}`} className="mr-2">購買數量:</label>
@@ -84,7 +91,7 @@ const ItemList: React.FC<ItemListProps> = ({ products, itemsPerPage, addToCart }
               <div className="flex flex-col items-center">
                 {/* Add to cart button */}
                 <Button
-                  className="flex items-center justify-center  mb-2"
+                  className="flex items-center justify-center mb-2"
                   onClick={() => {
                     const quantity = parseInt((document.getElementById(`quantity-${product.id}`) as HTMLInputElement)?.value || '1', 10);
                     addToCart(product, quantity);
