@@ -9,7 +9,6 @@ import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 import { format } from "date-fns";
-import { useMediaQuery } from 'react-responsive';
 
 /**
  * Represents the page component for displaying driver orders.
@@ -19,7 +18,6 @@ import { useMediaQuery } from 'react-responsive';
  */
 const DriverOrdersPage: React.FC<{ driverData: Driver }> = ({ driverData }) => {
     const [orders, setOrders] = useState<Order[]>([]);
-    const [filteredOrders, setFilteredOrders] = useState<Order[]>([]);
     const router = useRouter();
 
     // State variables for order status and date range filtering
@@ -28,10 +26,6 @@ const DriverOrdersPage: React.FC<{ driverData: Driver }> = ({ driverData }) => {
     const [endDate, setEndDate] = useState<Date | null>(null);
     const [error, setError] = useState<string>("");
 
-    // Media query to determine the device type
-    const isMobile = useMediaQuery({ maxWidth: 767 });
-    const isTablet = useMediaQuery({ minWidth: 768, maxWidth: 1024 });
-    const isDesktop = useMediaQuery({ minWidth: 1025 });
 
     /**
      * Fetches the orders assigned to the driver from the server.

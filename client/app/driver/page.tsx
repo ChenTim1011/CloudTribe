@@ -8,12 +8,14 @@ import DriverOrdersPage from "@/components/driver/DriverOrdersPage";
 import DriverAvailableTimes from "@/components/driver/DriverAvailableTimes"; 
 import { NavigationBar } from "@/components/NavigationBar";
 import { Button } from "@/components/ui/button";
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faArrowLeft } from '@fortawesome/free-solid-svg-icons';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetClose } from "@/components/ui/sheet";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
+import { format } from "date-fns";
 import { useRouter } from 'next/navigation';
 import UserService from '@/services/user/user'; 
-import { Driver } from '@/interfaces/driver/Driver'; // 引入 Driver 接口
+import { Driver } from '@/interfaces/driver/Driver'; 
+import { Order } from '@/interfaces/order/Order';
 
 const DriverPage: React.FC = () => {
     const [showRegisterForm, setShowRegisterForm] = useState(false);
@@ -25,6 +27,8 @@ const DriverPage: React.FC = () => {
     const router = useRouter();
     const [user, setUser] = useState(UserService.getLocalStorageUser());
     const [isClient, setIsClient] = useState(false); 
+    const [filterStartDate, setFilterStartDate] = useState<Date | null>(null);
+    const [filterEndDate, setFilterEndDate] = useState<Date | null>(null);
 
     // add state for showing unaccepted orders
     const [showUnacceptedOrders, setShowUnacceptedOrders] = useState(false);
@@ -87,12 +91,28 @@ const DriverPage: React.FC = () => {
      */
     const handleFetchUnacceptedOrders = async () => {
         try {
-            const response = await fetch(`/api/orders?status=未接單`);
+            const response = await fetch(`/api/orders`);
             if (!response.ok) {
                 throw new Error('Failed to fetch unaccepted orders');
             }
-            const data = await response.json();
-            console.log('Fetched unaccepted orders:', data); 
+            
+            let data: Order[] = await response.json();
+        
+            // define current time to filter future unaccepted orders
+            const now = new Date();
+
+            // condition: only show future unaccepted orders
+            data = data.filter((order) => {
+                const orderDateTime = new Date(`${order.date}T${order.time}`);
+                const isFuturePendingOrder = orderDateTime > now && order.order_status === "未接單";
+                
+                const matchesStartDate = filterStartDate ? new Date(order.date) >= filterStartDate : true;
+                const matchesEndDate = filterEndDate ? new Date(order.date) <= filterEndDate : true;
+        
+                return isFuturePendingOrder && matchesStartDate && matchesEndDate;
+            });
+
+            
             setUnacceptedOrders(data);
         } catch (error) {
             console.error('Error fetching unaccepted orders:', error);
@@ -293,7 +313,7 @@ const DriverPage: React.FC = () => {
                     </div>
                     <h1 className="mb-20 text-4xl font-bold text-white text-center" style={{ marginTop: '40px' }}>司機專區</h1>
                     <div className="flex flex-wrap space-x-4 justify-center">
-                        {/* 使用者不是司機 */}
+                        {/* If user is not a driver */}
                         {(isClient && !user?.is_driver)  && (
                             <Button 
                                 className="mb-10 px-6 py-3 text-lg font-bold border-2 border-black text-black bg-white hover:bg-blue-500 hover:text-white"
@@ -333,7 +353,55 @@ const DriverPage: React.FC = () => {
                         )}
                     </div>
 
-                    {/* 申請司機表單 */}
+                    {isClient && user?.is_driver && showUnacceptedOrders && (
+                    <div className="flex flex-col items-center mb-4">
+                        <div className="flex space-x-4">
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">起始日期</label>
+                                <Popover>
+                                    <PopoverTrigger asChild>
+                                        <Button variant="outline" className="w-full justify-start text-left font-bold  border-black hover:bg-blue-500 hover:text-white">
+                                            {filterStartDate ? format(filterStartDate, "PPP") : "選擇開始日期"}
+                                        </Button>
+                                    </PopoverTrigger>
+                                    <PopoverContent className="w-auto p-0">
+                                        <Calendar
+                                            mode="single"
+                                            selected={filterStartDate || undefined}
+                                            onSelect={(day) => setFilterStartDate(day || null)}
+                                            initialFocus
+                                        />
+                                    </PopoverContent>
+                                </Popover>
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">結束日期</label>
+                                <Popover>
+                                    <PopoverTrigger asChild>
+                                        <Button variant="outline" className="w-full justify-start text-left font-bold  border-black hover:bg-blue-500 hover:text-white">
+                                            {filterEndDate ? format(filterEndDate, "PPP") : "選擇結束日期"}
+                                        </Button>
+                                    </PopoverTrigger>
+                                    <PopoverContent className="w-auto p-0">
+                                        <Calendar
+                                            mode="single"
+                                            selected={filterEndDate || undefined}
+                                            onSelect={(day) => setFilterEndDate(day || null)}
+                                            initialFocus
+                                        />
+                                    </PopoverContent>
+                                </Popover>
+                            </div>
+                            <Button
+                                className="mt-6 px-4 py-2 bg-white text-black font-bold  border-black hover:bg-blue-500 hover:text-white "
+                                onClick={handleFetchUnacceptedOrders}
+                            >
+                                篩選訂單
+                            </Button>
+                        </div>
+                    </div>
+                )}
+                    {/* Apply for driver */}
                     <Sheet open={showRegisterForm} onOpenChange={setShowRegisterForm}>
                         <SheetContent className="w-full max-w-2xl" aria-describedby="register-form-description">
                             <SheetHeader>
@@ -344,7 +412,7 @@ const DriverPage: React.FC = () => {
                         </SheetContent>
                     </Sheet>
 
-                    {/* 查看表單 */}
+                    {/* Check the form */}
                     <Sheet open={showLoginForm} onOpenChange={setShowLoginForm}>
                         <SheetContent className="w-full max-w-2xl" aria-describedby="login-form-description">
                             <SheetHeader>
@@ -360,7 +428,7 @@ const DriverPage: React.FC = () => {
                         </SheetContent>
                     </Sheet>
 
-                    {/* 管理訂單頁面 */}
+                    {/* Order management page */}
                     <Sheet open={showDriverOrders} onOpenChange={setShowDriverOrders}> 
                         <SheetContent className="w-full max-w-2xl max-h-[calc(100vh-200px)] overflow-y-auto" aria-describedby="driver-orders-description">
                             <SheetHeader>
@@ -371,9 +439,9 @@ const DriverPage: React.FC = () => {
                         </SheetContent>
                     </Sheet>
 
-                    {/* 訂單列表 */}
+                    {/* OrderList */}
                     <div className="w-full mt-10">
-                        {/* 未接單訂單列表 */}
+                        {/* UnacceptedOrdersList */}
                         {showUnacceptedOrders && (
                             <div className="mb-10">
                                 <h2 className="text-center text-2xl font-bold mb-4 text-white">未接單訂單</h2>
@@ -383,7 +451,7 @@ const DriverPage: React.FC = () => {
                                     onTransfer={handleTransferOrder}
                                     onNavigate={handleNavigate}
                                     onComplete={handleCompleteOrder}
-                                    driverId={driverData?.id || 0} // 使用 driverData.id 作為 driverId
+                                    driverId={driverData?.id || 0}
                                 />
                             </div>
                         )}

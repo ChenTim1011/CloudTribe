@@ -6,9 +6,14 @@ as well as fetching orders assigned to a driver.
 
 Endpoints:
 - POST /: Create a new driver.
+- GET /user/{user_id}: Get driver information by user ID.
+- GET /{driver_id}: Get driver information by driver ID.
 - GET /{phone}: Get driver information by phone number.
 - PATCH /{phone}: Update driver information by phone number.
 - GET /{driver_id}/orders: Get orders assigned to a driver.
+- POST /time: Add a new available time slot for a driver.
+- GET /{driver_id}/times: Retrieve available time slots for a specific driver.
+- DELETE /time/{id}: Delete an available time slot for a driver.
 
 """
 
