@@ -43,7 +43,7 @@ export default function Page(){
           <OrderedProductTable products={purchasedItems.filter((item) => item.status != '已送達')}/>
         </TabsContent>
         <TabsContent value="arrived" className="justify-items-center text-center">
-          <ArrivedProductTable products={purchasedItems.filter((item) => item.status == '已送達')} user={user != undefined?user:{id:0, name:'empty', phone: 'empty', location:'empty'}}/>
+          <ArrivedProductTable products={purchasedItems.filter((item) => item.status == '已送達')} user={user != undefined?user:{id:0, name:'empty', phone: 'empty', location:'empty',is_driver:false}}/>
         </TabsContent>    
       </Tabs>
     </div>

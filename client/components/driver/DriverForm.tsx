@@ -174,11 +174,23 @@ const DriverForm: React.FC<{ onClose: () => void, onUpdateSuccess: (data: Driver
             )}
             <div className="mb-4">
                 <Label htmlFor="name" className="block text-sm font-medium text-gray-700">姓名</Label>
-                <Input id="name" value={name} onChange={(e) => setName(e.target.value)} placeholder="輸入您的姓名" />
+                <Input 
+                id="name" 
+                value={name} 
+                readOnly
+                className="bg-gray-100 text-gray-500 cursor-not-allowed" 
+                onChange={(e) => setName(e.target.value)} 
+                placeholder="輸入您的姓名" />
             </div>
             <div className="mb-4">
                 <Label htmlFor="phone" className="block text-sm font-medium text-gray-700">電話</Label>
-                <Input id="phone" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="輸入您的電話" disabled={!!initialData} />
+                <Input 
+                id="phone" 
+                value={phone} 
+                readOnly 
+                className="bg-gray-100 text-gray-500 cursor-not-allowed" 
+                onChange={(e) => setPhone(e.target.value)} 
+                placeholder="輸入您的電話" />
             </div>                                                      
             <div className="mb-4">
                 <Label htmlFor="available_date" className="block text-sm font-medium text-gray-700">方便運送的日期</Label>

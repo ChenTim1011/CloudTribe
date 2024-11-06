@@ -33,6 +33,30 @@ const DriverPage: React.FC = () => {
     // add state for showing unaccepted orders
     const [showUnacceptedOrders, setShowUnacceptedOrders] = useState(false);
 
+        /**
+     * Fetch driver data based on user_id.
+     * @param userId - The user's ID.
+     */
+        const fetchDriverData = async (userId: number) => {
+            try {
+                const response = await fetch(`/api/drivers/user/${userId}`);
+                if (!response.ok) {
+                    if (response.status === 404) {
+                        console.warn("使用者尚未成為司機");
+                    } else {
+                        throw new Error('Failed to fetch driver data');
+                    }
+                } else {
+                    const data: Driver = await response.json();
+                    console.log('Fetched driver data:', data);
+                    setDriverData(data);
+                    handleFetchDriverOrders(data.id);
+                }
+            } catch (error) {
+                console.error('Error fetching driver data:', error);
+            }
+        };
+
     useEffect(() => {
         setIsClient(true);
         const handleUserDataChanged = () => {
@@ -62,29 +86,7 @@ const DriverPage: React.FC = () => {
         }
     }, [isClient, user]);
 
-    /**
-     * Fetch driver data based on user_id.
-     * @param userId - The user's ID.
-     */
-    const fetchDriverData = async (userId: number) => {
-        try {
-            const response = await fetch(`/api/drivers/user/${userId}`);
-            if (!response.ok) {
-                if (response.status === 404) {
-                    console.warn("使用者尚未成為司機");
-                } else {
-                    throw new Error('Failed to fetch driver data');
-                }
-            } else {
-                const data: Driver = await response.json();
-                console.log('Fetched driver data:', data);
-                setDriverData(data);
-                handleFetchDriverOrders(data.id);
-            }
-        } catch (error) {
-            console.error('Error fetching driver data:', error);
-        }
-    };
+
 
     /**
      * Fetch unaccepted orders.
@@ -409,22 +411,6 @@ const DriverPage: React.FC = () => {
                                 <SheetClose />
                             </SheetHeader>
                             <DriverForm onClose={() => setShowRegisterForm(false)} onUpdateSuccess={handleUpdateSuccess} />
-                        </SheetContent>
-                    </Sheet>
-
-                    {/* Check the form */}
-                    <Sheet open={showLoginForm} onOpenChange={setShowLoginForm}>
-                        <SheetContent className="w-full max-w-2xl" aria-describedby="login-form-description">
-                            <SheetHeader>
-                                <SheetTitle>查看表單</SheetTitle>
-                                <SheetClose />
-                            </SheetHeader>
-                            <LoginForm
-                                onClose={() => setShowLoginForm(false)}
-                                onFetchOrders={handleFetchUnacceptedOrders}
-                                onFetchDriverData={(data: Driver) => setDriverData(data)}
-                                onFilteredOrders={(accepted: any[]) => setAcceptedOrders(accepted)}
-                            />
                         </SheetContent>
                     </Sheet>
 
