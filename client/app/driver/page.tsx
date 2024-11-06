@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect } from 'react';
 import DriverForm from "@/components/driver/DriverForm";
-import LoginForm from "@/components/driver/LoginForm";
 import OrderListWithPagination from "@/components/driver/OrderListWithPagination";
 import DriverOrdersPage from "@/components/driver/DriverOrdersPage";
 import DriverAvailableTimes from "@/components/driver/DriverAvailableTimes"; 
@@ -435,7 +434,7 @@ const DriverPage: React.FC = () => {
                                     orders={unacceptedOrders}
                                     onAccept={handleAcceptOrder}
                                     onTransfer={handleTransferOrder}
-                                    onNavigate={handleNavigate}
+                                    onNavigate={(orderId: string) => handleNavigate(orderId, driverData?.id || 0)}
                                     onComplete={handleCompleteOrder}
                                     driverId={driverData?.id || 0}
                                 />

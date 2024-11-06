@@ -6,7 +6,7 @@ interface OrderListWithPaginationProps {
     orders: any[];
     onAccept: (orderId: string) => Promise<void>;
     onTransfer: (orderId: string, newDriverPhone: string) => Promise<void>;
-    onNavigate: (orderId: string, driverId: number) => void;
+    onNavigate: (orderId: string) => void;
     onComplete: (orderId: string) => Promise<void>;
     driverId: number;
 }
