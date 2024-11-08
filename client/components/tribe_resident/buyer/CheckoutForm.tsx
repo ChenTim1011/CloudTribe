@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Calendar as CalendarIcon } from "lucide-react";
@@ -13,6 +13,16 @@ import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import UserService from '@/services/user/user';  
 import { CheckoutFormProps } from '@/interfaces/tribe_resident/buyer/CheckoutFormProps';
+import { Autocomplete, useJsApiLoader, LoadScriptProps } from "@react-google-maps/api";
+
+// Define the required libraries
+const libraries = ["places"] as const;
+
+// Define the container style for Google Maps (if you don't need to display the map, set width and height to 0)
+const containerStyle = {
+  width: "0px",
+  height: "0px",
+};
 
 /**
  * CheckoutForm component for submitting an order.
@@ -31,6 +41,16 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onClose, clearCart, cartIte
   const [note, setNote] = useState<string>("");  // Note field
   const [showAlert, setShowAlert] = useState(false);
   const [error, setError] = useState("");
+  const [isCustomLocation, setIsCustomLocation] = useState(false);
+  const autocompleteRef = useRef<google.maps.places.Autocomplete | null>(null);
+  const libraries: LoadScriptProps['libraries'] = ["places"];
+  
+  // Load Google Maps API
+  const { isLoaded, loadError } = useJsApiLoader({
+    googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY as string,
+    libraries,
+    language: 'zh-TW',
+  });
 
   useEffect(() => {
     // Get user information from local storage and pre-fill it into the form
@@ -41,6 +61,35 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onClose, clearCart, cartIte
     }
   }, []);
 
+  /**
+   * Handle location changes, especially when selecting "Custom"
+   */
+  const handleLocationChange = (value: string) => {
+    if (value === "custom") {
+      setIsCustomLocation(true);
+      setLocation("");
+    } else {
+      setIsCustomLocation(false);
+      setLocation(value);
+    }
+  };
+
+  /**
+   * Handle location selection from Google Maps Autocomplete
+   */
+  const onPlaceChanged = () => {
+    if (autocompleteRef.current !== null) {
+      const place = autocompleteRef.current.getPlace();
+      if (place && place.formatted_address) {
+        setLocation(place.formatted_address);
+        setError("");
+      } else {
+        setError("請選擇有效的地點");
+      }
+    } else {
+      setError("Autocomplete 尚未加載完成！");
+    }
+  };
 
   /**
    * Handles the form submission.
@@ -62,7 +111,7 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onClose, clearCart, cartIte
     }
 
     // Validate the date
-    if (!date ||!time) {
+    if (!date || !time) {
       setError("未選擇日期和時間");
       return;
     }
@@ -70,7 +119,7 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onClose, clearCart, cartIte
     // Get the current date and time
     const now = new Date();
 
-    // conbine date and time to a single datetime object
+    // Combine date and time to a single datetime object
     const [hours, minutes] = time.split(":").map(Number);
     const combinedDateTime = new Date(date);
     combinedDateTime.setHours(hours, minutes, 0, 0);
@@ -140,8 +189,8 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onClose, clearCart, cartIte
       order_type: "購買類",
       order_status: "未接單",
       note: note,
-      shipment_count: 1,         //TODO: seller function
-      required_orders_count: 1,  //TODO: seller function
+      shipment_count: 1,         // TODO: seller function
+      required_orders_count: 1,  // TODO: seller function
       previous_driver_id: null,
       previous_driver_name: null,
       previous_driver_phone: null,
@@ -187,6 +236,14 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onClose, clearCart, cartIte
     }
   };
 
+  if (loadError) {
+    return <div>Error loading Google Maps</div>;
+  }
+
+  if (!isLoaded) {
+    return <div>Loading...</div>;
+  }
+
   return (
     <>
       <Sheet open={true} onOpenChange={onClose}>
@@ -210,20 +267,24 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onClose, clearCart, cartIte
             <div className="mb-4">
               <Label htmlFor="name" className="block text-sm font-medium text-gray-700">姓名</Label>
               <Input 
-              id="name" 
-              value={name} 
-              readOnly  
-              className="bg-gray-100 text-gray-500 cursor-not-allowed"  
-              onChange={(e) => setName(e.target.value)} placeholder="輸入您的姓名" />
+                id="name" 
+                value={name} 
+                readOnly  
+                className="bg-gray-100 text-gray-500 cursor-not-allowed"  
+                onChange={(e) => setName(e.target.value)} 
+                placeholder="輸入您的姓名" 
+              />
             </div>
             <div className="mb-4">
               <Label htmlFor="phone" className="block text-sm font-medium text-gray-700">電話</Label>
               <Input 
-              id="phone" 
-              value={phone} 
-              readOnly  
-              className="bg-gray-100 text-gray-500 cursor-not-allowed"  
-              onChange={(e) => setPhone(e.target.value)} placeholder="輸入您的電話" />
+                id="phone" 
+                value={phone} 
+                readOnly  
+                className="bg-gray-100 text-gray-500 cursor-not-allowed"  
+                onChange={(e) => setPhone(e.target.value)} 
+                placeholder="輸入您的電話" 
+              />
             </div>
             <div className="mb-4">
               <Label htmlFor="date" className="block text-sm font-medium text-gray-700">可以接受司機接單的最後日期(超過時間沒有司機接單就放棄)</Label>
@@ -262,16 +323,36 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onClose, clearCart, cartIte
             </div>
             <div className="mb-4">
               <Label htmlFor="location" className="block text-sm font-medium text-gray-700">領貨的地點</Label>
-              <Select onValueChange={setLocation}>
+              <Select onValueChange={handleLocationChange}>
                 <SelectTrigger className="w-full">
                   <SelectValue placeholder="選擇地點" />
                 </SelectTrigger>
                 <SelectContent>
-                  {["飛鼠不渴露營農場", "樹不老休閒莊園", "戀戀雅渡農場","政治大學大門"].map(location => (
-                    <SelectItem key={location} value={location}>{location}</SelectItem>
+                  {["飛鼠不渴露營農場", "樹不老休閒莊園", "戀戀雅渡農場", "政治大學大門", "自定義"].map(locationOption => (
+                    <SelectItem key={locationOption} value={locationOption === "自定義" ? "custom" : locationOption}>
+                      {locationOption}
+                    </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
+              {isCustomLocation && (
+                <div className="mt-4">
+                  <Autocomplete
+                    onLoad={(autocomplete) => {
+                      autocompleteRef.current = autocomplete;
+                    }}
+                    onPlaceChanged={onPlaceChanged}
+                  >
+                    <Input
+                      type="text"
+                      placeholder="搜尋或輸入地點"
+                      className="w-full"
+                      value={location}
+                      onChange={(e) => setLocation(e.target.value)}
+                    />
+                  </Autocomplete>
+                </div>
+              )}
             </div>
             <div className="mb-4">
               <Label htmlFor="urgent" className="block text-sm font-medium text-gray-700">是否緊急</Label>
@@ -279,7 +360,12 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onClose, clearCart, cartIte
             </div>
             <div className="mb-4">
               <Label htmlFor="note" className="block text-sm font-medium text-gray-700">備註</Label>
-              <Input id="note" value={note} onChange={(e) => setNote(e.target.value)} placeholder="輸入備註 (選填)" />
+              <Input 
+                id="note" 
+                value={note} 
+                onChange={(e) => setNote(e.target.value)} 
+                placeholder="輸入備註 (選填)" 
+              />
             </div>
           </div>
           <SheetFooter>

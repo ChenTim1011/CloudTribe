@@ -27,15 +27,13 @@ export default async (phase) => {
       NEXT_PUBLIC_MAP_ID: process.env.NEXT_PUBLIC_MAP_ID,
     },
 
-
     images: {
-
       remotePatterns: [
         {
-          protocol: 'https', 
-          hostname: 'online.carrefour.com.tw', 
-          port: '', // option ， if there is specific port number ( usually ' ')
-          pathname: '/**', // Path comparison. use ** to compare all  
+          protocol: "https",
+          hostname: "online.carrefour.com.tw",
+          port: "", // option ， if there is specific port number ( usually ' ')
+          pathname: "/**", // Path comparison. use ** to compare all
         },
       ],
     },
@@ -46,7 +44,7 @@ export default async (phase) => {
         {
           source: "/api/:path*",
           destination: isDev
-            ? "http://localhost:8001/api/:path*" // dev API
+            ? "http://localhost:8000/api/:path*" // dev API
             : "https://www.cloudtribe.online/api/:path*", // production API
         },
       ];
