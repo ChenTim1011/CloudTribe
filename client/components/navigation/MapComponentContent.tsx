@@ -191,7 +191,7 @@ const MapComponentContent: React.FC = () => {
     }
   };
 
-// 使用目前位置到訂單地點的導航連結
+// current location to order location
 const handleGenerateNavigationLinkFromCurrentLocation = () => {
   if (!currentLocation) {
     setError("無法生成導航連結，目前位置無法取得，請手動輸入起點終點");
@@ -214,7 +214,7 @@ const handleGenerateNavigationLinkFromCurrentLocation = () => {
   setError(null);
 };
 
-// 使用手動輸入的起點和終點生成導航連結
+// to generate navigation link from input
 const handleGenerateNavigationLinkFromInput = () => {
   if (!origin || !destination) {
     setError("請輸入有效的起點和終點");
@@ -339,7 +339,7 @@ const handleGenerateNavigationLinkFromInput = () => {
 
               <Button
                 onClick={() => {
-                  const url = handleGenerateNavigationLinkFromInput();  // 生成導航連結
+                  const url = handleGenerateNavigationLinkFromInput();  // generate navigation link
                   if (url){
                     window.open(url,'_blank');
                   }

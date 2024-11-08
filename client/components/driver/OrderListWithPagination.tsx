@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import OrderCard from './OrderCard';
 import PaginationDemo from './PaginationDemo';
+import { Order } from '@/interfaces/order/Order';
 
 interface OrderListWithPaginationProps {
-    orders: any[];
+    orders: Order[];
     onAccept: (orderId: string) => Promise<void>;
     onTransfer: (orderId: string, newDriverPhone: string) => Promise<void>;
     onNavigate: (orderId: string) => void;

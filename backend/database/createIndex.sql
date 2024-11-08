@@ -9,7 +9,7 @@ CREATE INDEX idx_users_location ON users (location);
 -- Indexes for drivers table
 -- ====================================
 CREATE INDEX idx_drivers_user_id ON drivers (user_id);
-CREATE INDEX idx_drivers_available_date ON drivers (available_date);
+
 
 -- ====================================
 -- Indexes for driver_time table

@@ -104,11 +104,11 @@ const OrderManagement: React.FC<OrderManagementProps> = ({ isOpen, onClose, orde
             {/* Date range selectors */}
             <div className="flex justify-center space-x-4 mt-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Start Date</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">開始時間</label>
                 <Popover>
                   <PopoverTrigger asChild>
                     <Button variant="outline" className="w-full justify-start text-left font-normal">
-                      {startDate ? format(startDate, "PPP") : "Select Start Date"}
+                      {startDate ? format(startDate, "PPP") : "選擇開始時間"}
                     </Button>
                   </PopoverTrigger>
                   <PopoverContent className="w-auto p-0">
@@ -122,11 +122,11 @@ const OrderManagement: React.FC<OrderManagementProps> = ({ isOpen, onClose, orde
                 </Popover>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">End Date</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">結束時間</label>
                 <Popover>
                   <PopoverTrigger asChild>
                     <Button variant="outline" className="w-full justify-start text-left font-normal">
-                      {endDate ? format(endDate, "PPP") : "Select End Date"}
+                      {endDate ? format(endDate, "PPP") : "選擇結束時間"}
                     </Button>
                   </PopoverTrigger>
                   <PopoverContent className="w-auto p-0">

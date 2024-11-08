@@ -240,7 +240,7 @@ const Sidebar: React.FC<SidebarProps> = ({ filterCategory, className }) => {
             </div>
             <SheetFooter>
               <SheetClose asChild>
-                <Button type="button">Close</Button>
+                <Button type="button">關閉</Button>
               </SheetClose>
             </SheetFooter>
           </SheetContent>

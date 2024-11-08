@@ -121,22 +121,9 @@ We aim to scale up this model, allowing residents to earn money by helping more 
          npm run dev
    
 
-## If you want to deploy to Render
+## deploy TBD 
 
-1. Push the above files to your GitHub repository.
-2. Go to [Render](https://render.com/), create a new Web Service, and connect it to your GitHub repository. Render will automatically detect the `.render.yaml` file and deploy according to its settings.
-3. In Render's environment variables settings page, manually add the following environment variables:
-   - `LINE_BOT_TOKEN`
-   - `LINE_BOT_SECRET`
-   - `DATABASE_URL`
-   - `DB_NAME`
-   - `DB_PASSWORD`
-   - `DB_USER`
-   - `DB_HOST`
-
-4. render postgresql setting, you can see the tutorial.
-
-         https://docs.render.com/databases
+Now we use AWS EC2 to deploy our project.
 
 
 ### Set the LINE Webhook URL

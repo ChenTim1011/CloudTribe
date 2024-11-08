@@ -65,7 +65,7 @@ CREATE TABLE order_items (
     price FLOAT,
     quantity INT,
     img VARCHAR(255),
-    location VARCHAR(255) -- new: add location column to order_items table
+    location VARCHAR(255), -- new: add location column to order_items table
     category VARCHAR(50) -- new: add category column to order_items table
 );
 

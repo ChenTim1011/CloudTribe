@@ -6,6 +6,6 @@ export interface OrderItem {
     price: number;
     quantity: number;
     img: string;
-    location?: string; // 預設值為 '家樂福'
-    category?: string; // 預設值為 '未分類'
+    location?: string; 
+    category?: string;
 }

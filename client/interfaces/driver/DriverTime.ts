@@ -2,7 +2,7 @@
 
 export interface DriverTime {
     driver_id: number;
-    date: string; // ISO 格式日期，例如 '2024-05-01'
-    start_time: string; // ISO 格式時間，例如 '09:00'
+    date: string; // ISO format date, e.g. '2024-05-01'
+    start_time: string; // ISO formate time, e.g. '09:00'
     locations: string;
 }

@@ -6,7 +6,7 @@ export interface Driver {
     driver_name: string;
     driver_phone: string;
     direction?: string;
-    available_date?: string; // ISO 格式日期，例如 '2024-05-01'
-    start_time?: string; // ISO 格式時間，例如 '09:00'
-    end_time?: string; // ISO 格式時間，例如 '18:00'
+    available_date?: string; // ISO format date, e.g. '2024-05-01'
+    start_time?: string; // ISO format time, e.g. '09:00'
+    end_time?: string; // ISO format time, e.g. '09:00'
 }
