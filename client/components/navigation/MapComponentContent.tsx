@@ -134,7 +134,8 @@ const MapComponentContent: React.FC = () => {
         (position) => {
           const { latitude, longitude } = position.coords;
           setCenter({ lat: latitude, lng: longitude });
-          setOrigin(`${latitude},${longitude}`);
+          setCurrentLocation({ lat: latitude, lng: longitude });
+	  setOrigin(`${latitude},${longitude}`);
           setOriginName("目前位置");
           setError(null);
         },
@@ -191,7 +192,7 @@ const MapComponentContent: React.FC = () => {
     }
   };
 
-// current location to order location
+// Current location to order location
 const handleGenerateNavigationLinkFromCurrentLocation = () => {
   if (!currentLocation) {
     setError("無法生成導航連結，目前位置無法取得，請手動輸入起點終點");
@@ -210,11 +211,11 @@ const handleGenerateNavigationLinkFromCurrentLocation = () => {
   
   setNavigationUrl(url);
   setOriginName("目前位置");
-  setDestinationName(orderData.location); // 假設 orderData.location 是可以顯示的地點名稱
+  setDestinationName(orderData.location); 
   setError(null);
 };
 
-// to generate navigation link from input
+// To generate navigation link from input
 const handleGenerateNavigationLinkFromInput = () => {
   if (!origin || !destination) {
     setError("請輸入有效的起點和終點");
@@ -339,7 +340,7 @@ const handleGenerateNavigationLinkFromInput = () => {
 
               <Button
                 onClick={() => {
-                  const url = handleGenerateNavigationLinkFromInput();  // generate navigation link
+                  const url = handleGenerateNavigationLinkFromInput();  
                   if (url){
                     window.open(url,'_blank');
                   }

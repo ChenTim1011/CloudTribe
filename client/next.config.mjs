@@ -20,7 +20,7 @@ export default async (phase) => {
   return {
     reactStrictMode: true,
     trailingSlash: false,
-    // 設置 Google Map API 環境變量
+    // Setting Google Map API environmental variables
     env: {
       NEXT_PUBLIC_GOOGLE_MAPS_API_KEY:
         process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY,
@@ -32,22 +32,22 @@ export default async (phase) => {
 
       remotePatterns: [
         {
-          protocol: 'https', // 協議，例如 http 或 https
-          hostname: 'online.carrefour.com.tw', // 主機名
-          port: '', // 可選，若有特定的端口號（通常為空）
-          pathname: '/**', // 路徑匹配，可以使用 ** 通配符來匹配所有路徑
+          protocol: 'https', 
+          hostname: 'online.carrefour.com.tw', 
+          port: '', // option ， if there is specific port number ( usually ' ')
+          pathname: '/**', // Path comparison. use ** to compare all  
         },
       ],
     },
 
-    // API 路徑重寫
+    // API path rewrite
     async rewrites() {
       return [
         {
           source: "/api/:path*",
           destination: isDev
-            ? "http://localhost:8000/api/:path*" // 開發環境 API
-            : "https://www.cloudtribe.online/api/:path*", // 生產環境 API
+            ? "http://localhost:8001/api/:path*" // dev API
+            : "https://www.cloudtribe.online/api/:path*", // production API
         },
       ];
     },

@@ -1,9 +1,10 @@
 "use client";
-import { Suspense } from "react";
 import { NavigationBar } from "@/components/NavigationBar";
 import MapComponent from "@/components/navigation/MapComponent";
+import { Suspense } from "react";
 
-const Navigation: React.FC = () => {
+const NavigationPage: React.FC = () => {
+
   return (
     <div>
       <NavigationBar />
@@ -14,4 +15,4 @@ const Navigation: React.FC = () => {
   );
 };
 
-export default Navigation;
+export default NavigationPage;
