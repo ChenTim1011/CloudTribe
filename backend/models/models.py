@@ -77,6 +77,7 @@ class DriverOrder(BaseModel):
     previous_driver_id: Optional[int] = None
     previous_driver_name: Optional[str] = None
     previous_driver_phone: Optional[str] = None
+    service: str
 
 class TransferOrderRequest(BaseModel):
     """

@@ -148,8 +148,8 @@ async def accept_order(order_id: int, driver_order: DriverOrder, conn: Connectio
 
         cur.execute("UPDATE orders SET order_status = %s WHERE id = %s", ('接單', order_id))
         cur.execute(
-            "INSERT INTO driver_orders (driver_id, order_id, action, timestamp, previous_driver_id, previous_driver_name, previous_driver_phone) VALUES (%s, %s, %s, %s, %s, %s, %s)",
-            (driver_order.driver_id, order_id, '接單', driver_order.timestamp, driver_order.previous_driver_id, driver_order.previous_driver_name, driver_order.previous_driver_phone)
+            "INSERT INTO driver_orders (driver_id, order_id, action, timestamp, previous_driver_id, previous_driver_name, previous_driver_phone, service) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)",
+            (driver_order.driver_id, order_id, '接單', driver_order.timestamp, driver_order.previous_driver_id, driver_order.previous_driver_name, driver_order.previous_driver_phone, driver_order.service)
         )
         conn.commit()
         logging.info("Order %s successfully accepted by driver %s", order_id, driver_order.driver_id)
