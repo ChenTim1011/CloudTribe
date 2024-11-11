@@ -420,7 +420,14 @@ const DriverPage: React.FC = () => {
                                 <SheetTitle>我的訂單</SheetTitle>
                                 <SheetClose />
                             </SheetHeader>
-                            {driverData && <DriverOrdersPage driverData={driverData} />}
+                            {driverData && <DriverOrdersPage 
+                                            driverData={driverData} 
+                                            onAccept={handleAcceptOrder}
+                                            onTransfer={handleTransferOrder}
+                                            onNavigate={(orderId: string) => handleNavigate(orderId, driverData?.id || 0)}
+                                            onComplete={handleCompleteOrder}
+                                            
+                                            />}
                         </SheetContent>
                     </Sheet>
 

@@ -9,6 +9,15 @@ import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 import { format } from "date-fns";
+import { on } from 'events';
+
+interface DriverOrdersPageProps {
+    driverData: Driver;
+    onAccept: (orderId: string) => Promise<void>;
+    onTransfer: (orderId: string, newDriverPhone: string) => Promise<void>;
+    onNavigate: (orderId: string) => void;
+    onComplete: (orderId: string) => Promise<void>;
+}
 
 /**
  * Represents the page component for displaying driver orders.
@@ -16,7 +25,7 @@ import { format } from "date-fns";
  * @param {Driver} props.driverData - The driver data.
  * @returns {JSX.Element} - The driver orders page component.
  */
-const DriverOrdersPage: React.FC<{ driverData: Driver }> = ({ driverData }) => {
+const DriverOrdersPage: React.FC<DriverOrdersPageProps> = ({ driverData, onAccept, onTransfer, onNavigate, onComplete }) => {
     const [orders, setOrders] = useState<Order[]>([]);
     const router = useRouter();
 
@@ -74,91 +83,6 @@ const DriverOrdersPage: React.FC<{ driverData: Driver }> = ({ driverData }) => {
      */
     const totalPrice = finalFilteredOrders.reduce((total, order) => total + order.total_price, 0);
 
-    /**
-     * Handles the acceptance of an order for drivers.
-     * @param {string} orderId - The ID of the order to accept.
-     */
-    const handleAcceptOrder = async (orderId: string) => {
-        try {
-            const response = await fetch(`/api/orders/${orderId}/accept`, {
-                method: 'POST',
-            });
-
-            if (!response.ok) {
-                throw new Error('接單失敗');
-            }
-
-            alert('訂單已被接單');
-            // Re-fetch the orders list after accepting
-            fetchDriverOrders();
-        } catch (error) {
-            console.error('Error accepting order:', error);
-            alert('接單失敗');
-        }
-    };
-
-    /**
-     * Handles the transfer of an order to another driver.
-     * @param {string} orderId - The ID of the order to transfer.
-     * @param {string} newDriverPhone - The phone number of the new driver.
-     */
-    const handleTransferOrder = async (orderId: string, newDriverPhone: string) => {
-        try {
-            const response = await fetch(`/api/orders/${orderId}/transfer`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ current_driver_id: driverData.id, new_driver_phone: newDriverPhone }),
-            });
-
-            if (!response.ok) {
-                const errorText = await response.text();
-                throw new Error(`轉單失敗: ${errorText}`);
-            }
-
-            // Update the local orders state
-            setOrders(prevOrders => prevOrders.filter(order => order.id !== Number(orderId)));
-            alert('轉單成功');
-        } catch (error) {
-            console.error('轉單失敗:', error);
-            alert(`${(error as Error).message}`);
-        }
-    };
-
-    /**
-     * Handles the navigation to an order's location.
-     * @param {string} orderId - The ID of the order to navigate to.
-     */
-    const handleNavigateOrder = (orderId: string) => {
-        router.push(`/navigation?orderId=${orderId}&driverId=${driverData.id}`);
-    };
-
-    /**
-     * Handles the completion of an order.
-     * @param {string} orderId - The ID of the order to complete.
-     */
-    const handleCompleteOrder = async (orderId: string) => {
-        try {
-            const response = await fetch(`/api/orders/${orderId}/complete`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-            });
-
-            if (!response.ok) {
-                throw new Error('Failed to complete order');
-            }
-
-            setOrders(prevOrders => prevOrders.filter(order => order.id !== Number(orderId)));
-            fetchDriverOrders(); // Refresh the orders list
-            alert('訂單已完成');
-        } catch (error) {
-            console.error('Error completing order:', error);
-            alert('完成訂單失敗');
-        }
-    };
 
     return (
         <div className="p-4">
@@ -243,11 +167,11 @@ const DriverOrdersPage: React.FC<{ driverData: Driver }> = ({ driverData }) => {
                             driverId={driverData.id}
                             onAccept={async (orderId: string) => {
                                 console.log(`Order ${orderId} accepted`);
-                                await handleAcceptOrder(orderId);
+                                await onAccept(orderId);
                             }}
-                            onTransfer={handleTransferOrder}
-                            onNavigate={handleNavigateOrder}
-                            onComplete={handleCompleteOrder}
+                            onTransfer={onTransfer}
+                            onNavigate={onNavigate}
+                            onComplete={onComplete}
                         />
                     ))
                 ) : (
