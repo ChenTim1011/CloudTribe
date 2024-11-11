@@ -1,21 +1,25 @@
+// components/navigation/Directions.tsx
+
 "use client";
 import React, { useState, useEffect } from "react";
-import { DirectionsRenderer, DirectionsService } from "@react-google-maps/api";
+import { DirectionsRenderer } from "@react-google-maps/api";
 import { DirectionsProps } from "@/interfaces/navigation/DirectionsProps";
 import { Route } from "@/interfaces/navigation/Route";
 
 /**
  * Renders the directions component.
  * 
+ * @param map - The Google Maps instance.
  * @param origin - The origin location.
  * @param destination - The destination location.
  * @param routes - The available routes.
  * @param setRoutes - The function to set the routes.
  * @param setTotalDistance - The function to set the total distance.
  * @param setTotalTime - The function to set the total time.
- * @returns null
+ * @returns JSX.Element
  */
 const Directions: React.FC<DirectionsProps> = ({
+  map,
   origin,
   destination,
   routes,
@@ -23,41 +27,60 @@ const Directions: React.FC<DirectionsProps> = ({
   setTotalDistance,
   setTotalTime,
 }) => {
-  const [directionsService, setDirectionsService] = useState<google.maps.DirectionsService | null>(null);
-  const [directionsRenderer, setDirectionsRenderer] = useState<google.maps.DirectionsRenderer | null>(null);
+  const [directions, setDirections] = useState<google.maps.DirectionsResult | null>(null);
+  const [directionsError, setDirectionsError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (typeof window !== 'undefined' && window.google) {
-      setDirectionsService(new window.google.maps.DirectionsService());
-      setDirectionsRenderer(new window.google.maps.DirectionsRenderer());
+    if (!origin || !destination) {
+      console.log("Origin or destination is missing");
+      return;
     }
-  }, []);
 
-  useEffect(() => {
-    if (!directionsService || !directionsRenderer) return;
+    console.log("Requesting directions:");
+    console.log("Origin:", origin);
+    console.log("Destination:", destination);
 
-    directionsService.route({
-      origin,
-      destination,
-      travelMode: google.maps.TravelMode.DRIVING,
-      provideRouteAlternatives: true,
-    }).then((response) => {
-      directionsRenderer.setDirections(response);
-      setRoutes(response.routes as Route[]);
+    const directionsService = new google.maps.DirectionsService();
 
-      const firstLeg = response.routes[0].legs[0];
-      if (firstLeg.distance) {
-        setTotalDistance(firstLeg.distance.text);
+    directionsService.route(
+      {
+        origin,
+        destination,
+        travelMode: google.maps.TravelMode.DRIVING,
+        provideRouteAlternatives: true,
+      },
+      (result, status) => {
+        if (status === google.maps.DirectionsStatus.OK && result) {
+          console.log("DirectionsService Response:", result);
+          setDirections(result);
+          setRoutes(result.routes as Route[]);
+
+          const firstLeg = result.routes[0].legs[0];
+          if (firstLeg.distance) {
+            setTotalDistance(firstLeg.distance.text);
+          }
+          if (firstLeg.duration) {
+            setTotalTime(firstLeg.duration.text);
+          }
+          setDirectionsError(null);
+        } else {
+          console.error("DirectionsService Error:", status);
+          setDirectionsError("無法獲取路線，請檢查起點和終點是否正確。");
+        }
       }
-      if (firstLeg.duration) {
-        setTotalTime(firstLeg.duration.text);
-      }
-    });
+    );
+  }, [origin, destination, setRoutes, setTotalDistance, setTotalTime]);
 
-    return () => directionsRenderer.setMap(null);
-  }, [directionsService, directionsRenderer, origin, destination, setRoutes, setTotalDistance, setTotalTime]);
-
-  return null;
+  return (
+    <>
+      {directions && <DirectionsRenderer directions={directions} />}
+      {directionsError && (
+        <div className="error">
+          {directionsError}
+        </div>
+      )}
+    </>
+  );
 };
 
 export default Directions;

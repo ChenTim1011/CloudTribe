@@ -3,6 +3,7 @@
 import { Route } from "./Route";
 
 export interface DirectionsProps {
+  map: google.maps.Map | null;
   origin: string;
   destination: string;
   routes: Route[];

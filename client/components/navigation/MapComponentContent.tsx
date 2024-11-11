@@ -1,3 +1,5 @@
+// components/navigation/MapComponentContent.tsx
+
 "use client";
 import React, { useState, useEffect, useRef, Suspense } from "react";
 import { Button } from "@/components/ui/button";
@@ -15,7 +17,7 @@ import { LatLng } from "@/interfaces/navigation/LatLng";
 import { Route } from "@/interfaces/navigation/Route";
 import { Driver } from "@/interfaces/driver/Driver";
 
-// define the libraries to load
+// Define the libraries to load
 const libraries: LoadScriptProps['libraries'] = ["places"];
 
 const fetchCoordinates = async (placeName: string) => {
@@ -35,7 +37,6 @@ const fetchCoordinates = async (placeName: string) => {
   }
   return null;
 };
-
 
 const handlePlaceChanged = async (
   autocompleteRef: React.RefObject<google.maps.places.Autocomplete>,
@@ -72,7 +73,7 @@ const MapComponentContent: React.FC = () => {
   const driverId = searchParams.get('driverId');
   const orderId = searchParams.get('orderId');
 
-  // define state
+  // Define state
   const [origin, setOrigin] = useState<string>("");
   const [destination, setDestination] = useState<string>("");
   const [originName, setOriginName] = useState<string>("");
@@ -89,9 +90,12 @@ const MapComponentContent: React.FC = () => {
   const [showDriverOrders, setShowDriverOrders] = useState(false);
   const [driverData, setDriverData] = useState<Driver | null>(null);
 
-  // autocomplete refs
+  // Autocomplete refs
   const autocompleteOriginRef = useRef<google.maps.places.Autocomplete | null>(null);
   const autocompleteDestinationRef = useRef<google.maps.places.Autocomplete | null>(null);
+
+  // Map ref
+  const mapRef = useRef<google.maps.Map | null>(null);
 
   // Google Maps API
   const { isLoaded, loadError } = useJsApiLoader({
@@ -107,7 +111,16 @@ const MapComponentContent: React.FC = () => {
         throw new Error('Failed to fetch order data');
       }
       const data = await response.json();
+      console.log("Fetched Order Data:", data); // 添加日誌
       setOrderData(data);
+      // If location is an object with lat and lng, set destination to "lat,lng"
+      if (data.location && typeof data.location === 'object' && 'lat' in data.location && 'lng' in data.location) {
+        setDestination(`${data.location.lat},${data.location.lng}`);
+        setDestinationName("送貨地點");
+      } else if (data.location && typeof data.location === 'string') {
+        setDestination(data.location);
+        setDestinationName(data.location);
+      }
     } catch (error) {
       console.error('Error fetching order data:', error);
       setError('無法獲取訂單資料');
@@ -121,6 +134,7 @@ const MapComponentContent: React.FC = () => {
         throw new Error('Failed to fetch driver data');
       }
       const data = await response.json();
+      console.log("Fetched Driver Data:", data); // 添加日誌
       setDriverData(data);
     } catch (error) {
       console.error('Error fetching driver data:', error);
@@ -128,34 +142,51 @@ const MapComponentContent: React.FC = () => {
     }
   };
 
+  // Get current location
   useEffect(() => {
     if (typeof navigator !== 'undefined' && navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (position) => {
           const { latitude, longitude } = position.coords;
-          setCenter({ lat: latitude, lng: longitude });
-          setCurrentLocation({ lat: latitude, lng: longitude });
-	  setOrigin(`${latitude},${longitude}`);
+          const loc: LatLng = { lat: latitude, lng: longitude };
+          setCenter(loc);
+          setCurrentLocation(loc);
+          setOrigin(`${latitude},${longitude}`);
           setOriginName("目前位置");
           setError(null);
         },
         (error) => {
           console.error("Error getting location: ", error);
-          setError("無法獲取當前位置，請確保瀏覽器允許位置存取");
+          switch(error.code) {
+            case error.PERMISSION_DENIED:
+              setError("使用者拒絕提供位置資訊。");
+              break;
+            case error.POSITION_UNAVAILABLE:
+              setError("位置資訊不可用。");
+              break;
+            case error.TIMEOUT:
+              setError("取得位置資訊超時。");
+              break;
+            default:
+              setError("無法獲取當前位置，請確保瀏覽器允許位置存取。");
+              break;
+          }
         }
       );
     } else {
       console.error("Geolocation is not supported by this browser.");
       setError("瀏覽器不支援地理位置功能");
     }
-  },[]);
+  }, []);
 
+  // Fetch order data
   useEffect(() => {
     if (orderId) {
       fetchOrderData(orderId);
     }
   }, [orderId]);
 
+  // Fetch driver data
   useEffect(() => {
     if (driverId) {
       fetchDriverData(driverId);
@@ -165,13 +196,13 @@ const MapComponentContent: React.FC = () => {
   if (loadError) return <div>地圖加載失敗</div>;
   if (!isLoaded) return <div>正在加載地圖...</div>;
 
-
   const handleMoveMapToOrigin = () => {
     if (autocompleteOriginRef.current) {
       const place = autocompleteOriginRef.current.getPlace();
       if (place.geometry && place.geometry.location) {
         const location = place.geometry.location;
-        setCenter({ lat: location.lat(), lng: location.lng() });
+        const loc: LatLng = { lat: location.lat(), lng: location.lng() };
+        setCenter(loc);
         setError(null);
       } else {
         setError("起點無效，請重新輸入");
@@ -184,7 +215,8 @@ const MapComponentContent: React.FC = () => {
       const place = autocompleteDestinationRef.current.getPlace();
       if (place.geometry && place.geometry.location) {
         const location = place.geometry.location;
-        setCenter({ lat: location.lat(), lng: location.lng() });
+        const loc: LatLng = { lat: location.lat(), lng: location.lng() };
+        setCenter(loc);
         setError(null);
       } else {
         setError("終點無效，請重新輸入");
@@ -192,59 +224,70 @@ const MapComponentContent: React.FC = () => {
     }
   };
 
-// Current location to order location
-const handleGenerateNavigationLinkFromCurrentLocation = () => {
-  if (!currentLocation) {
-    setError("無法生成導航連結，目前位置無法取得，請手動輸入起點終點");
-    return;
-  }
+  // Generate navigation link from current location to order location
+  const handleGenerateNavigationLinkFromCurrentLocation = () => {
+    if (!currentLocation) {
+      setError("無法生成導航連結，目前位置無法取得，請手動輸入起點終點");
+      console.log("Current location is null");
+      return;
+    }
 
-  if (!orderData || !orderData.location) {
-    setError("無法生成導航連結，請確認訂單地點是否有效");
-    return;
-  }
+    if (!orderData || !orderData.location) {
+      setError("無法生成導航連結，請確認訂單地點是否有效");
+      console.log("Order data or location is invalid");
+      return;
+    }
 
-  const baseURL = 'https://www.google.com/maps/dir/';
-  const origin = `${currentLocation.lat},${currentLocation.lng}`;
-  const destination = orderData.location;
-  const url = `${baseURL}${encodeURIComponent(origin)}/${encodeURIComponent(destination)}`;
-  
-  setNavigationUrl(url);
-  setOriginName("目前位置");
-  setDestinationName(orderData.location); 
-  setError(null);
-};
+    let destination = orderData.location;
+    // 如果 location 是對象，轉換為 "lat,lng" 字符串
+    if (typeof orderData.location === 'object' && 'lat' in orderData.location && 'lng' in orderData.location) {
+      destination = `${orderData.location.lat},${orderData.location.lng}`;
+    }
 
-// To generate navigation link from input
-const handleGenerateNavigationLinkFromInput = () => {
-  if (!origin || !destination) {
-    setError("請輸入有效的起點和終點");
-    return null;
-  }
+    console.log("Origin:", `${currentLocation.lat},${currentLocation.lng}`);
+    console.log("Destination:", destination);
 
-  const baseURL = 'https://www.google.com/maps/dir/';
-  const url = `${baseURL}${encodeURIComponent(origin)}/${encodeURIComponent(destination)}`;
-  
-  setNavigationUrl(url);
-  setError(null);
-  return url;
-};
+    const baseURL = 'https://www.google.com/maps/dir/';
+    const url = `${baseURL}${encodeURIComponent(`${currentLocation.lat},${currentLocation.lng}`)}/${encodeURIComponent(destination)}`;
+    
+    setNavigationUrl(url);
+    setOriginName("目前位置");
+    setDestinationName(destination); 
+    setError(null);
+  };
+
+  // From user input origin and destination, generate navigation link
+  const handleGenerateNavigationLinkFromInput = () => {
+    if (!origin || !destination) {
+      setError("請輸入有效的起點和終點");
+      console.log("Origin or destination is missing");
+      return null;
+    }
+
+    console.log("Generating navigation link with Origin:", origin, "Destination:", destination);
+
+    const baseURL = 'https://www.google.com/maps/dir/';
+    const url = `${baseURL}${encodeURIComponent(origin)}/${encodeURIComponent(destination)}`;
+    
+    setNavigationUrl(url);
+    setError(null);
+    return url;
+  };
 
   const handleViewOrder = () => {
     setShowDriverOrders(true);
     setIsSheetOpen(true);
   };
 
+  const handleClearOrigin = () => {
+    setOrigin("");
+    setOriginName("");
+  };
 
-    const handleClearOrigin = () => {
-      setOrigin("");
-      setOriginName("");
-    };
-  
-    const handleClearDestination = () => {
-      setDestination("");
-      setDestinationName("");
-    };
+  const handleClearDestination = () => {
+    setDestination("");
+    setDestinationName("");
+  };
 
   return (
     <Suspense fallback={<div>Loading map...</div>}>
@@ -258,12 +301,23 @@ const handleGenerateNavigationLinkFromInput = () => {
 
         <div id="map" className="mb-6" style={{ height: "60vh", width: "100%" }}>
           <GoogleMap
+            onLoad={(map) => { mapRef.current = map; }}
             center={center!}
             zoom={14}
             mapContainerStyle={{ width: "100%", height: "100%" }}
           >
             {currentLocation && <Marker position={currentLocation} />}
+            {destination && (
+              <Marker
+                position={{
+                  lat: parseFloat(destination.split(",")[0]),
+                  lng: parseFloat(destination.split(",")[1]),
+                }}
+                label="終點"
+              />
+            )}
             <Directions
+              map={mapRef.current} 
               routes={routes}
               setRoutes={setRoutes}
               origin={origin}
@@ -289,11 +343,11 @@ const handleGenerateNavigationLinkFromInput = () => {
               </Button>
             )}
             {error && (
-                <Alert variant="destructive">
-                  <AlertTitle>錯誤</AlertTitle>
-                  <AlertDescription>{error}</AlertDescription>
-                </Alert>
-              )}
+              <Alert variant="destructive">
+                <AlertTitle>錯誤</AlertTitle>
+                <AlertDescription>{error}</AlertDescription>
+              </Alert>
+            )}
             <div className="flex flex-col space-y-4">
               <h2 className="my-5 text-lg font-bold">起點(必須選擇選項)</h2>
               <div className="flex mb-4 w-full">
@@ -314,8 +368,8 @@ const handleGenerateNavigationLinkFromInput = () => {
                   />
                 </Autocomplete>
                 <Button onClick={handleClearOrigin} className="ml-2">
-                    清空
-                  </Button>
+                  清空
+                </Button>
               </div>
               <Button onClick={handleMoveMapToOrigin}>移動地圖到起點</Button>
               <h2 className="text-lg font-bold">終點(必須選擇選項)</h2>
@@ -324,13 +378,13 @@ const handleGenerateNavigationLinkFromInput = () => {
                   onLoad={(autocomplete) => { autocompleteDestinationRef.current = autocomplete; }}
                   onPlaceChanged={() => handlePlaceChanged(autocompleteDestinationRef, setDestination, setDestinationName, setError)}
                 >
-                <Input
-                  type="text"
-                  placeholder="搜尋終點"
-                  className="w-full"
-                  value={destinationName}
-                  onChange={(e) => setDestinationName(e.target.value)}
-                />
+                  <Input
+                    type="text"
+                    placeholder="搜尋終點"
+                    className="w-full"
+                    value={destinationName}
+                    onChange={(e) => setDestinationName(e.target.value)}
+                  />
                 </Autocomplete>
                 <Button onClick={handleClearDestination} className="ml-2">
                   清空
@@ -371,24 +425,23 @@ const handleGenerateNavigationLinkFromInput = () => {
               <SheetClose />
             </SheetHeader>
             {showDriverOrders ? (
-                driverData ? (
-                  <DriverOrdersPage driverData={driverData} />
-                ) : (
-                  <div className="p-4">
-                    <p>正在加載司機資料...</p>
-                  </div>
-                )
+              driverData ? (
+                <DriverOrdersPage driverData={driverData} />
               ) : (
                 <div className="p-4">
-                  <p>正在加載訂單資料...</p>
+                  <p>正在加載司機資料...</p>
                 </div>
-              )}
+              )
+            ) : (
+              <div className="p-4">
+                <p>正在加載訂單資料...</p>
+              </div>
+            )}
           </SheetContent>
         </Sheet>
       </div>
     </Suspense>
   );
-  
 };
 
 export default MapComponentContent;
