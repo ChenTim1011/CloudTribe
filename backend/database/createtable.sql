@@ -44,7 +44,7 @@ CREATE TABLE orders (
     date DATE NOT NULL,
     time TIME NOT NULL,
     location VARCHAR(255) NOT NULL,
-    is_urgent BOOLEAN NOT NULL,
+    is_urgent BOOLEAN NOT NULL DEFAULT FALSE,
     total_price FLOAT NOT NULL,
     order_type VARCHAR(50) DEFAULT '購買類',
     order_status VARCHAR(50) DEFAULT '未接單',
@@ -75,12 +75,12 @@ CREATE TABLE driver_orders (
     driver_id INT REFERENCES drivers(id), --drivers(user_id)
     --order_id INT REFERENCES orders(id) ON DELETE CASCADE, -- from product_order and orders
     order_id INT,
-    action VARCHAR(50),
+    action VARCHAR(50), 
     timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     previous_driver_id INT REFERENCES drivers(id), --drivers(user_id)
     previous_driver_name VARCHAR(255),
-    previous_driver_phone VARCHAR(20)
-    -- service(agricultural produce, necessities, pick up)
+    previous_driver_phone VARCHAR(20),
+    service VARCHAR(20) --農產品、生活用品、載人
 );
 
 --add
@@ -129,5 +129,6 @@ CREATE TABLE driver_order (
     service VARCHAR(20) NOT NULL --kind: 1.pick up people, 2.carry products
 );
 '''
+
 
 
