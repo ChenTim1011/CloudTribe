@@ -25,10 +25,9 @@ export default function Page(){
       <NavigationBar/>
       <div className="items-center border-y-2 border-black">
         <div className="flex flex-row justify-center items-center lg:space-x-5 space-x-3 bg-[#E0EBAF] lg:p-8 p-4">
-          <Image 
+          <img
             src={productInfo?.img_link || '/default-image.png'} 
             alt={productInfo?.name || 'Product Image'} 
-            layout="responsive" 
             width={200} 
             height={200} 
             className="lg:w-2/12 w-1/2"

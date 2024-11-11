@@ -324,19 +324,19 @@ async def get_driver_orders(driver_id: int, conn: Connection = Depends(get_db)):
                 "buyer_id": order[1],
                 "buyer_name": order[2],
                 "buyer_phone": order[3],
-                "seller_id": order[4],
-                "seller_name": order[5],
-                "seller_phone": order[6],
-                "date": order[7].isoformat(),
-                "time": order[8].isoformat(),
+                "seller_id": order[4], # no
+                "seller_name": order[5], # no
+                "seller_phone": order[6], # no
+                "date": order[7].isoformat(), # no
+                "time": order[8].isoformat(), # no
                 "location": order[9],
-                "is_urgent": order[10],
+                "is_urgent": order[10], # optional(or default false) 
                 "total_price": order[11],
                 "order_type": order[12],
                 "order_status": order[13],
                 "note": order[14],
-                "shipment_count": order[15],
-                "required_orders_count": order[16],
+                "shipment_count": order[15], # no
+                "required_orders_count": order[16], # no
                 "previous_driver_id": order[17],
                 "previous_driver_name": order[18],
                 "previous_driver_phone": order[19],

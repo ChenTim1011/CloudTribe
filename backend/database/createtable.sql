@@ -73,12 +73,14 @@ CREATE TABLE order_items (
 CREATE TABLE driver_orders (
     id SERIAL PRIMARY KEY,
     driver_id INT REFERENCES drivers(id), --drivers(user_id)
-    order_id INT REFERENCES orders(id) ON DELETE CASCADE,
+    --order_id INT REFERENCES orders(id) ON DELETE CASCADE, -- from product_order and orders
+    order_id INT,
     action VARCHAR(50),
     timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     previous_driver_id INT REFERENCES drivers(id), --drivers(user_id)
     previous_driver_name VARCHAR(255),
     previous_driver_phone VARCHAR(20)
+    -- service(agricultural produce, necessities, pick up)
 );
 
 --add
@@ -117,7 +119,7 @@ CREATE TABLE product_order(
     timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP, --TIMESTAMP WITHOUT TIME ZONE
     status VARCHAR(5) DEFAULT '未接單' --未接單 or 已接單 or 已送達
 );
-
+'''
 CREATE TABLE driver_order (
     id SERIAL PRIMARY KEY,
     driver_id INTEGER NOT NULL,
@@ -126,6 +128,6 @@ CREATE TABLE driver_order (
     end_point VARCHAR(25) NOT NULL,
     service VARCHAR(20) NOT NULL --kind: 1.pick up people, 2.carry products
 );
-
+'''
 
 

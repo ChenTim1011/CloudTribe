@@ -143,10 +143,9 @@ export default function ShoppingCart(){
                 onClick={handleCheckBox}/>
             </div>
             <div className="w-3/12">
-              <Image 
+              <img
                 src={item.img_url} 
                 alt={item.name} 
-                layout="responsive" 
                 width={150} 
                 height={100} 
                 className="w-full py-2"
