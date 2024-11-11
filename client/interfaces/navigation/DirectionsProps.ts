@@ -5,7 +5,7 @@ import { Route } from "./Route";
 export interface DirectionsProps {
   map: google.maps.Map | null;
   origin: string;
-  destination: string;
+  destinations: { name: string; location: string }[];
   routes: Route[];
   setRoutes: React.Dispatch<React.SetStateAction<Route[]>>;
   setTotalDistance: React.Dispatch<React.SetStateAction<string | null>>;

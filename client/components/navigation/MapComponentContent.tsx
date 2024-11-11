@@ -4,22 +4,42 @@
 import React, { useState, useEffect, useRef, Suspense } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetClose } from "@/components/ui/sheet";
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faArrowLeft } from '@fortawesome/free-solid-svg-icons';
-import { GoogleMap, Autocomplete, Marker, useJsApiLoader, LoadScriptProps } from "@react-google-maps/api";
-import { useSearchParams } from 'next/navigation';
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetClose,
+} from "@/components/ui/sheet";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faArrowLeft, faArrowUp, faArrowDown, faTrash } from "@fortawesome/free-solid-svg-icons";
+import {
+  GoogleMap,
+  Autocomplete,
+  Marker,
+  useJsApiLoader,
+  LoadScriptProps,
+} from "@react-google-maps/api";
+import { useSearchParams } from "next/navigation";
 import Directions from "@/components/navigation/Directions";
 import DriverOrdersPage from "@/components/driver/DriverOrdersPage";
 import { LatLng } from "@/interfaces/navigation/LatLng";
 import { Route } from "@/interfaces/navigation/Route";
 import { Driver } from "@/interfaces/driver/Driver";
+import { Order } from "@/interfaces/order/Order";
 
-// Define the libraries to load
-const libraries: LoadScriptProps['libraries'] = ["places"];
+const libraries: LoadScriptProps["libraries"] = ["places"];
 
+// Function to fetch coordinates based on place name
 const fetchCoordinates = async (placeName: string) => {
   try {
     const response = await fetch(
@@ -38,46 +58,14 @@ const fetchCoordinates = async (placeName: string) => {
   return null;
 };
 
-const handlePlaceChanged = async (
-  autocompleteRef: React.RefObject<google.maps.places.Autocomplete>,
-  setFn: React.Dispatch<React.SetStateAction<string>>,
-  setNameFn: React.Dispatch<React.SetStateAction<string>>,
-  setError: React.Dispatch<React.SetStateAction<string | null>>
-) => {
-  let error = null;
-  if (autocompleteRef.current) {
-    const place = autocompleteRef.current.getPlace();
-    if (place.geometry && place.geometry.location) {
-      const location = place.geometry.location;
-      setFn(`${location.lat()},${location.lng()}`);
-      const name = place.name || "未知地點";
-      setNameFn(name);
-    } else if (place.name) {
-      const location = await fetchCoordinates(place.name);
-      if (location) {
-        setFn(`${location.lat},${location.lng}`);
-        setNameFn(place.name);
-      } else {
-        error = "無法找到該地點，請重新輸入或選取有效的地點名稱";
-      }
-    } else {
-      error = "請用選取的方式找到目標位置，或是輸入有效的地址或地標名稱";
-    }
-  }
-  setError(error);
-};
-
 const MapComponentContent: React.FC = () => {
-
   const searchParams = useSearchParams();
-  const driverId = searchParams.get('driverId');
-  const orderId = searchParams.get('orderId');
+  const driverId = searchParams.get("driverId");
+  const orderId = searchParams.get("orderId");
 
   // Define state
   const [origin, setOrigin] = useState<string>("");
-  const [destination, setDestination] = useState<string>("");
   const [originName, setOriginName] = useState<string>("");
-  const [destinationName, setDestinationName] = useState<string>("");
   const [totalDistance, setTotalDistance] = useState<string | null>(null);
   const [totalTime, setTotalTime] = useState<string | null>(null);
   const [routes, setRoutes] = useState<Route[]>([]);
@@ -85,14 +73,17 @@ const MapComponentContent: React.FC = () => {
   const [center, setCenter] = useState<LatLng | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [navigationUrl, setNavigationUrl] = useState<string | null>(null);
-  const [orderData, setOrderData] = useState<any>(null);
+  const [orderData, setOrderData] = useState<Order | null>(null);
   const [isSheetOpen, setIsSheetOpen] = useState(false);
   const [showDriverOrders, setShowDriverOrders] = useState(false);
   const [driverData, setDriverData] = useState<Driver | null>(null);
+  const [destinations, setDestinations] = useState<{ name: string; location: string }[]>([]);
+  const [newDestinationName, setNewDestinationName] = useState<string>("");
+  const [newDestinationLocation, setNewDestinationLocation] = useState<string>("");
 
   // Autocomplete refs
   const autocompleteOriginRef = useRef<google.maps.places.Autocomplete | null>(null);
-  const autocompleteDestinationRef = useRef<google.maps.places.Autocomplete | null>(null);
+  const autocompleteNewDestinationRef = useRef<google.maps.places.Autocomplete | null>(null);
 
   // Map ref
   const mapRef = useRef<google.maps.Map | null>(null);
@@ -101,50 +92,62 @@ const MapComponentContent: React.FC = () => {
   const { isLoaded, loadError } = useJsApiLoader({
     googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY as string,
     libraries,
-    language: 'zh-TW',
+    language: "zh-TW",
   });
 
+  // Function to fetch order data
   const fetchOrderData = async (orderId: string) => {
     try {
       const response = await fetch(`/api/orders/${orderId}`);
       if (!response.ok) {
-        throw new Error('Failed to fetch order data');
+        throw new Error("Failed to fetch order data");
       }
-      const data = await response.json();
-      console.log("Fetched Order Data:", data); // 添加日誌
+      const data: Order = await response.json();
+      console.log("Fetched Order Data:", data);
       setOrderData(data);
-      // If location is an object with lat and lng, set destination to "lat,lng"
-      if (data.location && typeof data.location === 'object' && 'lat' in data.location && 'lng' in data.location) {
-        setDestination(`${data.location.lat},${data.location.lng}`);
-        setDestinationName("送貨地點");
-      } else if (data.location && typeof data.location === 'string') {
-        setDestination(data.location);
-        setDestinationName(data.location);
-      }
+
+      // Extract destinations from order items and filter out empty locations
+      const extractedDestinations = data.items
+        .map((item) => item.location)
+        .filter((loc): loc is string => loc !== undefined && loc.trim() !== "")
+        .map((loc) => ({ name: loc, location: loc })); 
+
+      // Remove duplicate destinations
+      const uniqueDestinationsMap = new Map<string, { name: string; location: string }>();
+      extractedDestinations.forEach((dest) => {
+        const locKey = dest.location.toLowerCase();
+        if (!uniqueDestinationsMap.has(locKey)) {
+          uniqueDestinationsMap.set(locKey, dest);
+        }
+      });
+      const uniqueDestinations = Array.from(uniqueDestinationsMap.values());
+
+      setDestinations(uniqueDestinations);
     } catch (error) {
-      console.error('Error fetching order data:', error);
-      setError('無法獲取訂單資料');
+      console.error("Error fetching order data:", error);
+      setError("無法獲取訂單資料");
     }
   };
 
+  // Function to fetch driver data
   const fetchDriverData = async (driverId: string) => {
     try {
       const response = await fetch(`/api/drivers/${driverId}`);
       if (!response.ok) {
-        throw new Error('Failed to fetch driver data');
+        throw new Error("Failed to fetch driver data");
       }
       const data = await response.json();
-      console.log("Fetched Driver Data:", data); // 添加日誌
+      console.log("Fetched Driver Data:", data);
       setDriverData(data);
     } catch (error) {
-      console.error('Error fetching driver data:', error);
-      setError('無法獲取司機資料');
+      console.error("Error fetching driver data:", error);
+      setError("無法獲取司機資料");
     }
   };
 
   // Get current location
   useEffect(() => {
-    if (typeof navigator !== 'undefined' && navigator.geolocation) {
+    if (typeof navigator !== "undefined" && navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (position) => {
           const { latitude, longitude } = position.coords;
@@ -157,7 +160,7 @@ const MapComponentContent: React.FC = () => {
         },
         (error) => {
           console.error("Error getting location: ", error);
-          switch(error.code) {
+          switch (error.code) {
             case error.PERMISSION_DENIED:
               setError("使用者拒絕提供位置資訊。");
               break;
@@ -196,6 +199,49 @@ const MapComponentContent: React.FC = () => {
   if (loadError) return <div>地圖加載失敗</div>;
   if (!isLoaded) return <div>正在加載地圖...</div>;
 
+  // Function to handle place changes in Autocomplete
+  const handlePlaceChanged = async (
+    autocompleteRef: React.RefObject<google.maps.places.Autocomplete>,
+    setFn: React.Dispatch<React.SetStateAction<string>>,
+    setNameFn: React.Dispatch<React.SetStateAction<string>>,
+    setError: React.Dispatch<React.SetStateAction<string | null>>,
+    setNewDestinationFn?: React.Dispatch<React.SetStateAction<string>>,
+    setNewDestinationNameFn?: React.Dispatch<React.SetStateAction<string>>
+  ) => {
+    let errorMsg = null;
+    if (autocompleteRef.current) {
+      const place = autocompleteRef.current.getPlace();
+      if (place.geometry && place.geometry.location) {
+        const location = place.geometry.location;
+        const loc = `${location.lat()},${location.lng()}`;
+        setFn(loc);
+        const name = place.name || "未知地點";
+        setNameFn(name);
+        if (setNewDestinationFn && setNewDestinationNameFn) {
+          setNewDestinationFn(loc);
+          setNewDestinationNameFn(name);
+        }
+      } else if (place.name) {
+        const location = await fetchCoordinates(place.name);
+        if (location) {
+          const loc = `${location.lat},${location.lng}`;
+          setFn(loc);
+          setNameFn(place.name);
+          if (setNewDestinationFn && setNewDestinationNameFn) {
+            setNewDestinationFn(loc);
+            setNewDestinationNameFn(place.name);
+          }
+        } else {
+          errorMsg = "無法找到該地點，請重新輸入或選取有效的地點名稱";
+        }
+      } else {
+        errorMsg = "請用選取的方式找到目標位置，或是輸入有效的地址或地標名稱";
+      }
+    }
+    setError(errorMsg);
+  };
+
+  // Function to move the map to the origin
   const handleMoveMapToOrigin = () => {
     if (autocompleteOriginRef.current) {
       const place = autocompleteOriginRef.current.getPlace();
@@ -210,88 +256,114 @@ const MapComponentContent: React.FC = () => {
     }
   };
 
-  const handleMoveMapToDestination = () => {
-    if (autocompleteDestinationRef.current) {
-      const place = autocompleteDestinationRef.current.getPlace();
-      if (place.geometry && place.geometry.location) {
-        const location = place.geometry.location;
-        const loc: LatLng = { lat: location.lat(), lng: location.lng() };
-        setCenter(loc);
-        setError(null);
-      } else {
-        setError("終點無效，請重新輸入");
-      }
-    }
-  };
-
-  // Generate navigation link from current location to order location
+  // Function to generate navigation link from current location to the last destination
   const handleGenerateNavigationLinkFromCurrentLocation = () => {
     if (!currentLocation) {
       setError("無法生成導航連結，目前位置無法取得，請手動輸入起點終點");
-      console.log("Current location is null");
       return;
     }
 
-    if (!orderData || !orderData.location) {
-      setError("無法生成導航連結，請確認訂單地點是否有效");
-      console.log("Order data or location is invalid");
+    if (destinations.length === 0) {
+      setError("請至少添加一個目的地");
       return;
     }
 
-    let destination = orderData.location;
-    // 如果 location 是對象，轉換為 "lat,lng" 字符串
-    if (typeof orderData.location === 'object' && 'lat' in orderData.location && 'lng' in orderData.location) {
-      destination = `${orderData.location.lat},${orderData.location.lng}`;
+    const origin = `${currentLocation.lat},${currentLocation.lng}`;
+    const destination = destinations[destinations.length - 1].location;
+
+    // Extract waypoints and remove duplicates
+    const waypointsArray = destinations.slice(0, -1).map(dest => dest.location);
+    const uniqueWaypointsSet = new Set<string>(waypointsArray.map(loc => loc.toLowerCase()));
+
+    // Ensure destination is not included in waypoints
+    uniqueWaypointsSet.delete(destination.toLowerCase());
+
+    // retrieve unique waypoints
+    const uniqueWaypoints = Array.from(uniqueWaypointsSet)
+      .map(loc => destinations.find(dest => dest.location.toLowerCase() === loc)?.location || loc) // 保留原始格式
+      .join('|');
+
+    // Generate navigation URL
+    let url = `https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent(
+      origin
+    )}&destination=${encodeURIComponent(destination)}`;
+
+    if (uniqueWaypoints) {
+      url += `&waypoints=${encodeURIComponent(uniqueWaypoints)}`;
     }
 
-    console.log("Origin:", `${currentLocation.lat},${currentLocation.lng}`);
-    console.log("Destination:", destination);
-
-    const baseURL = 'https://www.google.com/maps/dir/';
-    const url = `${baseURL}${encodeURIComponent(`${currentLocation.lat},${currentLocation.lng}`)}/${encodeURIComponent(destination)}`;
-    
-    setNavigationUrl(url);
-    setOriginName("目前位置");
-    setDestinationName(destination); 
-    setError(null);
-  };
-
-  // From user input origin and destination, generate navigation link
-  const handleGenerateNavigationLinkFromInput = () => {
-    if (!origin || !destination) {
-      setError("請輸入有效的起點和終點");
-      console.log("Origin or destination is missing");
-      return null;
-    }
-
-    console.log("Generating navigation link with Origin:", origin, "Destination:", destination);
-
-    const baseURL = 'https://www.google.com/maps/dir/';
-    const url = `${baseURL}${encodeURIComponent(origin)}/${encodeURIComponent(destination)}`;
-    
     setNavigationUrl(url);
     setError(null);
-    return url;
+
+    window.open(url, "_blank");
   };
 
+  // Function to handle moving a destination up
+  const handleMoveUp = (index: number) => {
+    if (index === 0) return; 
+    const newDestinations = Array.from(destinations);
+    [newDestinations[index - 1], newDestinations[index]] = [newDestinations[index], newDestinations[index - 1]];
+    setDestinations(newDestinations);
+  };
+
+  // Function to handle moving a destination down
+  const handleMoveDown = (index: number) => {
+    if (index === destinations.length - 1) return; 
+    const newDestinations = Array.from(destinations);
+    [newDestinations[index + 1], newDestinations[index]] = [newDestinations[index], newDestinations[index + 1]];
+    setDestinations(newDestinations);
+  };
+
+  // Function to view order details
   const handleViewOrder = () => {
     setShowDriverOrders(true);
     setIsSheetOpen(true);
   };
 
+  // Function to clear origin
   const handleClearOrigin = () => {
     setOrigin("");
     setOriginName("");
   };
 
-  const handleClearDestination = () => {
-    setDestination("");
-    setDestinationName("");
+
+  // Function to remove a specific destination
+  const handleRemoveDestination = (index: number) => {
+    const updated = Array.from(destinations);
+    updated.splice(index, 1);
+    setDestinations(updated);
+  };
+
+  // Function to add a new destination
+  const handleAddDestination = () => {
+    if (!newDestinationName || !newDestinationLocation) {
+      setError("請輸入有效的地點名稱");
+      return;
+    }
+
+    // Check for duplicate destinations
+    const isDuplicate = destinations.some(
+      (dest) => dest.location.toLowerCase() === newDestinationLocation.toLowerCase()
+    );
+
+    if (isDuplicate) {
+      setError("該地點已經存在，請選擇另一個地點。");
+      return;
+    }
+
+    setDestinations([
+      ...destinations,
+      { name: newDestinationName, location: newDestinationLocation },
+    ]);
+    setNewDestinationName("");
+    setNewDestinationLocation("");
+    setError(null);
   };
 
   return (
     <Suspense fallback={<div>Loading map...</div>}>
       <div className="max-w-full mx-auto space-y-6">
+        {/* Back Button */}
         <div className="w-full flex justify-start p-4">
           <Button variant="outline" onClick={() => window.history.back()}>
             <FontAwesomeIcon icon={faArrowLeft} className="mr-2" />
@@ -299,35 +371,45 @@ const MapComponentContent: React.FC = () => {
           </Button>
         </div>
 
+        {/* Google Map */}
         <div id="map" className="mb-6" style={{ height: "60vh", width: "100%" }}>
           <GoogleMap
-            onLoad={(map) => { mapRef.current = map; }}
+            onLoad={(map) => {
+              mapRef.current = map;
+            }}
             center={center!}
             zoom={14}
             mapContainerStyle={{ width: "100%", height: "100%" }}
           >
-            {currentLocation && <Marker position={currentLocation} />}
-            {destination && (
+            {/* Current Location Marker */}
+            {currentLocation && <Marker position={currentLocation} label="起點" />}
+
+            {/* Destination Markers */}
+            {destinations.map((dest, index) => (
               <Marker
+                key={`dest-${index}`} 
                 position={{
-                  lat: parseFloat(destination.split(",")[0]),
-                  lng: parseFloat(destination.split(",")[1]),
+                  lat: parseFloat(dest.location.split(",")[0]),
+                  lng: parseFloat(dest.location.split(",")[1]),
                 }}
-                label="終點"
+                label={`終點${index + 1}`}
               />
-            )}
+            ))}
+
+            {/* Directions Renderer */}
             <Directions
-              map={mapRef.current} 
+              map={mapRef.current}
+              origin={origin}
+              destinations={destinations}
               routes={routes}
               setRoutes={setRoutes}
-              origin={origin}
-              destination={destination}
               setTotalDistance={setTotalDistance}
               setTotalTime={setTotalTime}
             />
           </GoogleMap>
         </div>
 
+        {/* Navigation Card */}
         <Card className="my-10 shadow-lg mb-6">
           <CardHeader className="bg-black text-white p-4 rounded-t-md flex justify-between">
             <div>
@@ -336,88 +418,118 @@ const MapComponentContent: React.FC = () => {
             </div>
           </CardHeader>
           <CardContent className="p-4">
-            <Button onClick={handleViewOrder} className="my-5 bg-black text-white max-w-xs w-1/2 mx-auto block">查看表單</Button>
-            {orderData && orderData.location && (
-              <Button className="my-5 bg-black text-white max-w-xs w-1/2 mx-auto block" onClick={handleGenerateNavigationLinkFromCurrentLocation}>
-                目前位置到送貨地點的導覽連結
-              </Button>
+            {/* View Order Button */}
+            <Button
+              onClick={handleViewOrder}
+              className="my-5 bg-black text-white max-w-xs w-1/2 mx-auto block"
+            >
+              查看表單
+            </Button>
+
+            {/* Total Distance and Time */}
+            {totalDistance && totalTime && (
+              <Card className="shadow-lg mb-6">
+                <CardFooter className="p-4 flex flex-col space-y-4">
+                  <div className="space-y-2">
+                    <p className="text-lg">總距離: {totalDistance}</p>
+                    <p className="text-lg">總時間: {totalTime}</p>
+                  </div>
+                </CardFooter>
+              </Card>
             )}
+
+            {/* Destinations List with Move Buttons */}
+            <div className="my-5">
+              <h2 className="text-lg font-bold mb-2">訂單地點</h2>
+              <ul className="space-y-2">
+                {destinations.map((dest, index) => (
+                  <li
+                    key={`dest-${index}`} 
+                    className="p-2 border rounded-md bg-gray-100 flex justify-between items-center"
+                  >
+                    <span>{dest.name}</span>
+                    <div className="flex space-x-2">
+                      <Button
+                        onClick={() => handleMoveUp(index)}
+                        disabled={index === 0}
+                        variant="ghost"
+                        className="p-1"
+                        title="上移"
+                      >
+                        <FontAwesomeIcon icon={faArrowUp} />
+                      </Button>
+                      <Button
+                        onClick={() => handleMoveDown(index)}
+                        disabled={index === destinations.length - 1}
+                        variant="ghost"
+                        className="p-1"
+                        title="下移"
+                      >
+                        <FontAwesomeIcon icon={faArrowDown} />
+                      </Button>
+                      <Button
+                        onClick={() => handleRemoveDestination(index)}
+                        variant="ghost"
+                        className="p-1 text-red-500"
+                        title="移除"
+                      >
+                        <FontAwesomeIcon icon={faTrash} />
+                      </Button>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            {/* Add New Destination */}
+            <div className="flex items-center space-x-2 justify-center">
+              <Autocomplete
+                onLoad={(autocomplete) => {
+                  autocompleteNewDestinationRef.current = autocomplete;
+                }}
+                onPlaceChanged={() =>
+                  handlePlaceChanged(
+                    autocompleteNewDestinationRef,
+                    setNewDestinationLocation,
+                    setNewDestinationName,
+                    setError,
+                    setNewDestinationLocation,
+                    setNewDestinationName
+                  )
+                }
+              >
+                <Input
+                  type="text"
+                  placeholder="新增目的地"
+                  className="w-full"
+                  value={newDestinationName}
+                  onChange={(e) => setNewDestinationName(e.target.value)}
+                />
+              </Autocomplete>
+              <Button onClick={handleAddDestination}>新增</Button>
+            </div>
+
+            {/* Generate Navigation Link Button */}
+            <Button
+              onClick={handleGenerateNavigationLinkFromCurrentLocation}
+              className="my-5 bg-black text-white max-w-xs w-1/2 mx-auto block"
+            >
+              生成導航連結
+            </Button>
+
+            {/* Error Alert */}
             {error && (
               <Alert variant="destructive">
                 <AlertTitle>錯誤</AlertTitle>
                 <AlertDescription>{error}</AlertDescription>
               </Alert>
             )}
-            <div className="flex flex-col space-y-4">
-              <h2 className="my-5 text-lg font-bold">起點(必須選擇選項)</h2>
-              <div className="flex mb-4 w-full">
-                <Autocomplete
-                  onLoad={(autocomplete) => { autocompleteOriginRef.current = autocomplete; }}
-                  onPlaceChanged={() => handlePlaceChanged(autocompleteOriginRef, setOrigin, setOriginName, setError)}
-                  options={{
-                    types: ['establishment'], // request only business locations
-                    fields: ['name', 'geometry'], // return only name and geometry
-                  }}
-                >
-                  <Input
-                    type="text"
-                    placeholder="搜尋起點"
-                    className="w-full"
-                    value={originName}
-                    onChange={(e) => setOriginName(e.target.value)}
-                  />
-                </Autocomplete>
-                <Button onClick={handleClearOrigin} className="ml-2">
-                  清空
-                </Button>
-              </div>
-              <Button onClick={handleMoveMapToOrigin}>移動地圖到起點</Button>
-              <h2 className="text-lg font-bold">終點(必須選擇選項)</h2>
-              <div className="flex items-center w-full">
-                <Autocomplete
-                  onLoad={(autocomplete) => { autocompleteDestinationRef.current = autocomplete; }}
-                  onPlaceChanged={() => handlePlaceChanged(autocompleteDestinationRef, setDestination, setDestinationName, setError)}
-                >
-                  <Input
-                    type="text"
-                    placeholder="搜尋終點"
-                    className="w-full"
-                    value={destinationName}
-                    onChange={(e) => setDestinationName(e.target.value)}
-                  />
-                </Autocomplete>
-                <Button onClick={handleClearDestination} className="ml-2">
-                  清空
-                </Button>
-              </div>
-              <Button onClick={handleMoveMapToDestination}>移動地圖到終點</Button>
-
-              <Button
-                onClick={() => {
-                  const url = handleGenerateNavigationLinkFromInput();  
-                  if (url){
-                    window.open(url,'_blank');
-                  }
-                }}
-                className="mt-2"
-              >
-                生成自訂起點和終點的導航連結
-              </Button>
-            </div>
           </CardContent>
         </Card>
 
-        {totalDistance && totalTime && (
-          <Card className="shadow-lg mb-6">
-            <CardFooter className="p-4 flex flex-col space-y-4">
-              <div className="space-y-2">
-                <p className="text-lg">總距離: {totalDistance}</p>
-                <p className="text-lg">總時間: {totalTime}</p>
-              </div>
-            </CardFooter>
-          </Card>
-        )}
 
+
+        {/* Sheet for Order Details */}
         <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
           <SheetContent className="w-full max-w-2xl max-h-[calc(100vh-200px)] overflow-y-auto">
             <SheetHeader>

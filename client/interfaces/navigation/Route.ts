@@ -1,8 +1,9 @@
 // interfaces/navigation/Route.ts
 
 export interface Route {
+  
     summary: string;
-    legs: Leg[];
+    legs: google.maps.DirectionsLeg[];
   }
   
   export interface Leg {
