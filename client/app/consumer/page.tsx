@@ -22,7 +22,6 @@ import {
 import { NavigationBar } from "@/components/NavigationBar";
 import PaginationDemo from "@/components/tribe_resident/buyer/PaginationDemo";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import Image from 'next/image';
 
 export default function Page() {
   const ITEM_PER_PAGE = 16

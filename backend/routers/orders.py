@@ -5,7 +5,7 @@ transferring orders, retrieving specific orders, and completing orders.
 Endpoints:
 - POST /: Create a new order.
 - GET /: Get all unaccepted orders.
-- POST /{order_id}/accept: Accept an order.
+- POST /accept: Accept an order.
 - POST /{order_id}/transfer: Transfer an order to a new driver.
 - GET /{order_id}: Retrieve a specific order by ID.
 - POST /{order_id}/complete: Complete an order.
@@ -119,7 +119,7 @@ async def get_orders(conn: Connection = Depends(get_db)):
     finally:
         cur.close()
 
-@router.post("/{order_id}/accept")
+@router.post("/accept")
 async def accept_order(order_id: int, driver_order: DriverOrder, conn: Connection = Depends(get_db)):
     """
     Accept an order.

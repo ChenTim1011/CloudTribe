@@ -80,7 +80,7 @@ const DriverOrdersPage: React.FC<{ driverData: Driver }> = ({ driverData }) => {
      */
     const handleAcceptOrder = async (orderId: string) => {
         try {
-            const response = await fetch(`/api/orders/${orderId}/accept`, {
+            const response = await fetch(`/api/orders/accept`, {
                 method: 'POST',
             });
 
