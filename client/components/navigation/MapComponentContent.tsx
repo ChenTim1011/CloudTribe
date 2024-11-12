@@ -1,3 +1,5 @@
+// MapComponentContent.tsx
+
 "use client";
 
 import React, { useState, useEffect, useRef, useMemo, Suspense } from "react";
@@ -37,7 +39,8 @@ import { useSearchParams, useRouter } from "next/navigation";
 import Directions from "@/components/navigation/Directions";
 import DriverOrdersPage from "@/components/driver/DriverOrdersPage";
 import { LatLng } from "@/interfaces/navigation/LatLng";
-import { Route } from "@/interfaces/navigation/Route";
+import { Route } from "@/interfaces/navigation/Route"; 
+import { Leg } from "@/interfaces/navigation/Leg";
 import { Driver } from "@/interfaces/driver/Driver";
 import { Order } from "@/interfaces/order/Order";
 
@@ -91,8 +94,7 @@ const fetchCoordinates = async (placeName: string) => {
   return null;
 };
 
-// 暫時移除 React.memo
-// const MemoizedDirections = React.memo(Directions);
+
 const MemoizedDirections = Directions;
 
 const MapComponentContent: React.FC = () => {
@@ -107,6 +109,7 @@ const MapComponentContent: React.FC = () => {
   const [totalDistance, setTotalDistance] = useState<string | null>(null);
   const [totalTime, setTotalTime] = useState<string | null>(null);
   const [routes, setRoutes] = useState<Route[]>([]);
+  const [legs, setLegs] = useState<Leg[]>([]); // 新增狀態來存儲路段
   const [currentLocation, setCurrentLocation] = useState<LatLng | null>(null);
   const [center, setCenter] = useState<LatLng | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -186,6 +189,7 @@ const MapComponentContent: React.FC = () => {
         uniqueDestinations.push({ name: data.location, location: data.location });
       }
 
+      // Geocode the destinations
       const destinationsWithCoords = await Promise.all(
         uniqueDestinations.map(async (dest) => {
           const coords = await fetchCoordinates(dest.location);
@@ -196,6 +200,7 @@ const MapComponentContent: React.FC = () => {
         })
       );
 
+      // Filter out null destinations
       const validDestinations = destinationsWithCoords.filter(
         (dest): dest is { name: string; location: LatLng } => dest !== null
       );
@@ -232,6 +237,13 @@ const MapComponentContent: React.FC = () => {
     }));
   }, [destinations]);
 
+  // Set map center when currentLocation updates
+  useEffect(() => {
+    if (currentLocation) {
+      setCenter(currentLocation);
+    }
+  }, [currentLocation]);
+
   // Get current location and watch for changes
   useEffect(() => {
     console.log("useEffect: watchPosition");
@@ -259,7 +271,7 @@ const MapComponentContent: React.FC = () => {
             isThrottledRef.current = true;
             setTimeout(() => {
               isThrottledRef.current = false;
-            }, 5000); // 5 秒節流
+            }, 5000); 
           }
         },
         (error) => {
@@ -282,7 +294,6 @@ const MapComponentContent: React.FC = () => {
         { enableHighAccuracy: true }
       );
 
-      // 清除監聽器
       return () => {
         navigator.geolocation.clearWatch(watchId);
       };
@@ -308,11 +319,14 @@ const MapComponentContent: React.FC = () => {
     }
   }, [driverIdParam]);
 
+  // Extract legs from routes
   useEffect(() => {
-      if (currentLocation) {
-        setCenter(currentLocation);
+    if (routes.length > 0 && routes[0].legs) {
+      setLegs(routes[0].legs);
+    } else {
+      setLegs([]);
     }
-    }, [currentLocation]);
+  }, [routes]);
 
   // Now handle early returns based on loading state
   if (loadError) {
@@ -389,16 +403,15 @@ const MapComponentContent: React.FC = () => {
 
     // Retrieve unique waypoints
     const uniqueWaypoints = Array.from(uniqueWaypointsSet)
-        .map(
+      .map(
         (loc) =>
           waypointsArray.find(
-              (dest) => `${dest.lat},${dest.lng}`.toLowerCase() === loc
-            )
-        )
-        .filter((loc): loc is LatLng => loc !== undefined)
-        .map((loc) => `${loc.lat},${loc.lng}`)
-        .join("|");
-        
+            (dest) => `${dest.lat},${dest.lng}`.toLowerCase() === loc
+          )
+      )
+      .filter((loc): loc is LatLng => loc !== undefined)
+      .map((loc) => `${loc.lat},${loc.lng}`)
+      .join("|");
 
     // Generate navigation URL
     let url = `https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent(
@@ -463,19 +476,19 @@ const MapComponentContent: React.FC = () => {
     }
 
     // Check for duplicate destinations
-      const isDuplicate = destinations.some(
-        (dest) =>
-          dest.location.lat === parseFloat(newDestinationLocation.split(",")[0]) &&
-          dest.location.lng === parseFloat(newDestinationLocation.split(",")[1])
-        );
+    const [lat, lng] = newDestinationLocation.split(",").map(Number);
+    const newLatLng: LatLng = { lat, lng };
+
+    const isDuplicate = destinations.some(
+      (dest) =>
+        dest.location.lat === newLatLng.lat &&
+        dest.location.lng === newLatLng.lng
+    );
 
     if (isDuplicate) {
       setError("該地點已經存在，請選擇另一個地點。");
       return;
     }
-
-    const [lat, lng] = newDestinationLocation.split(",").map(Number);
-    const newLatLng: LatLng = { lat, lng };
 
     const updatedDestinations = [...destinations];
     if (updatedDestinations.length > 0) {
@@ -585,10 +598,10 @@ const MapComponentContent: React.FC = () => {
             {/* Current Location Marker */}
             {currentLocation && <Marker position={currentLocation} label="目前位置" />}
 
-            {/* Destination Markers */}
+            {/* Intermediate */}
             {destinations.slice(0, -1).map((dest, index) => (
               <Marker
-                key={`dest-${index}`}
+                key={`intermediate-${index}`}
                 position={{
                   lat: dest.location.lat,
                   lng: dest.location.lng,
@@ -597,6 +610,7 @@ const MapComponentContent: React.FC = () => {
               />
             ))}
 
+            {/* Terminal */}
             {destinations.length > 0 && (
               <Marker
                 position={{
@@ -614,9 +628,9 @@ const MapComponentContent: React.FC = () => {
               waypoints={memoizedWaypoints}
               destination={
                 destinations.length > 0
-                ? `${destinations[destinations.length - 1].location.lat},${destinations[destinations.length - 1].location.lng}`
-                : null
-                }
+                  ? `${destinations[destinations.length - 1].location.lat},${destinations[destinations.length - 1].location.lng}`
+                  : null
+              }
               routes={routes}
               setRoutes={setRoutes}
               setTotalDistance={setTotalDistance}
@@ -656,17 +670,27 @@ const MapComponentContent: React.FC = () => {
               </Card>
             )}
 
-            {/* Destinations List with Move Buttons */}
+            {/* Destinations List with Move Buttons and Distance/Time */}
             <div className="my-5">
               <h2 className="text-lg font-bold mb-2">訂單地點</h2>
               <ul className="space-y-2">
                 {destinations.slice(0, -1).map((dest, index) => (
                   <li
                     key={`dest-${index}`}
-                    className="p-2 border rounded-md bg-gray-100 flex justify-between items-center"
+                    className="p-2 border rounded-md bg-gray-100 flex flex-col sm:flex-row justify-between items-start sm:items-center"
                   >
-                    <span>{dest.name}</span>
-                    <div className="flex space-x-2">
+                    <div className="flex items-center space-x-2">
+                      <span>{dest.name}</span>
+                      {/* Show direction and time  */}
+                      {legs[index] ? (
+                        <span className="text-sm text-black-600">
+                          距離: {legs[index].distance.text}, 時間: {legs[index].duration.text}
+                        </span>
+                      ) : (
+                        <span className="text-sm text-gray-600">距離和時間正在載入...</span>
+                      )}
+                    </div>
+                    <div className="flex space-x-2 mt-2 sm:mt-0">
                       <Button
                         onClick={() => handleMoveUp(index)}
                         disabled={index === 0}
@@ -702,10 +726,17 @@ const MapComponentContent: React.FC = () => {
             {/* Show the terminal */}
             {destinations.length > 0 && (
               <div className="my-5">
-                <h2 className="text-lg font-bold mb-2">終點站</h2>
-                <div className="p-2 border rounded-md bg-gray-200 flex justify-between items-center">
+                <h2 className="text-lg font-bold mb-2">終點</h2>
+                <div className="p-2 border rounded-md bg-gray-200 flex flex-col sm:flex-row justify-between items-start sm:items-center">
                   <span>{destinations[destinations.length - 1].name}</span>
-                  {/* We cannot move the terminal */}
+                  {/* Show the distance and time about Terminal */}
+                  {legs[legs.length - 1] ? (
+                    <span className=" text-sm text-black-600">
+                      距離: {legs[legs.length - 1].distance.text}, 時間: {legs[legs.length - 1].duration.text}
+                    </span>
+                  ) : (
+                    <span className="text-sm text-gray-600">距離和時間正在載入...</span>
+                  )}
                 </div>
               </div>
             )}

@@ -1,20 +1,8 @@
 // interfaces/navigation/Route.ts
+import { Step } from "./Step";
+import { Leg } from "./Leg";
 
 export interface Route {
-  summary: string;
   legs: Leg[];
-}
-
-export interface Leg {
-  start_address: string;
-  end_address: string;
-  distance: string;
-  duration: string;
-  steps?: Step[];
-}
-
-export interface Step {
-  instructions: string;
-  distance: string;
-  duration: string;
+  summary: string;
 }
