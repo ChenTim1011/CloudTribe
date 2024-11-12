@@ -20,8 +20,8 @@ export interface Order {
     note?: string;
     //shipment_count?: number; // default value is 1
     //required_orders_count?: number; // default value is 1
-    previous_driver_id?: number;
-    previous_driver_name?: string;
-    previous_driver_phone?: string;
+    //previous_driver_id?: number;
+    //previous_driver_name?: string;
+    //previous_driver_phone?: string;
     items: OrderItem[];
 }
