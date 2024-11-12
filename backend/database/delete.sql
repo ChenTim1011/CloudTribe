@@ -6,5 +6,5 @@ DROP TABLE IF EXISTS orders CASCADE;
 DROP TABLE IF EXISTS users CASCADE;
 DROP TABLE IF EXISTS agricultural_produce CASCADE;
 DROP TABLE IF EXISTS agricultural_shopping_cart CASCADE;
-DROP TABLE IF EXISTS product_order CASCADE;
+DROP TABLE IF EXISTS agricultural_product_order CASCADE;
 DROP TABLE IF EXISTS driver_order CASCADE;

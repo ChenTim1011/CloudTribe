@@ -31,10 +31,9 @@ export const ProductDetailDialog:React.FC<DetailDialogProp> = (prop) => {
           <DialogTitle className="lg:text-2xl text-lg">其他資訊</DialogTitle>
         </DialogHeader>
         <div className="grid gap-4 py-4">
-          <Image 
+          <img
             src={item?.img_url || '/default-image.png'} 
             alt={item?.product_name || 'Product Image'} 
-            layout="responsive" 
             width={150} 
             height={150} 
           />

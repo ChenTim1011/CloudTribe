@@ -1,7 +1,6 @@
 import React, { useState } from "react"
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import Image from 'next/image';
 
 interface middleProps {
   handleSendImg: (img: string) => void
@@ -53,7 +52,7 @@ export const UploadRegion: React.FC<middleProps> = (prop) => {
       </div>
       {img && (
         <div className="col-span-4 flex justify-center">
-          <Image 
+          <img
             src={img} 
             alt="uploaded" 
             width={350} 

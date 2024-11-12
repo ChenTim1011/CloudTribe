@@ -77,6 +77,18 @@ export interface ProductOrderInfo {
   status: string
   timestamp: string
 }
+
+export interface DriverOrder {
+  driver_id: Number
+  order_id: Number
+  action: string
+  timestamp: string | null
+  previous_driver_id: Number | null
+  previous_driver_name: string | null
+  previous_driver_phone: string |null
+  service: string
+}
+
     
  
     

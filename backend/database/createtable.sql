@@ -44,7 +44,7 @@ CREATE TABLE orders (
     date DATE NOT NULL,
     time TIME NOT NULL,
     location VARCHAR(255) NOT NULL,
-    is_urgent BOOLEAN NOT NULL,
+    is_urgent BOOLEAN NOT NULL DEFAULT FALSE,
     total_price FLOAT NOT NULL,
     order_type VARCHAR(50) DEFAULT '購買類',
     order_status VARCHAR(50) DEFAULT '未接單',
@@ -73,12 +73,14 @@ CREATE TABLE order_items (
 CREATE TABLE driver_orders (
     id SERIAL PRIMARY KEY,
     driver_id INT REFERENCES drivers(id), --drivers(user_id)
-    order_id INT REFERENCES orders(id) ON DELETE CASCADE,
-    action VARCHAR(50),
+    --order_id INT REFERENCES orders(id) ON DELETE CASCADE, -- from product_order and orders
+    order_id INT,
+    action VARCHAR(50), 
     timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     previous_driver_id INT REFERENCES drivers(id), --drivers(user_id)
     previous_driver_name VARCHAR(255),
-    previous_driver_phone VARCHAR(20)
+    previous_driver_phone VARCHAR(20),
+    service VARCHAR(20) --農產品、生活用品、載人
 );
 
 --add
@@ -104,7 +106,7 @@ CREATE TABLE agricultural_shopping_cart (
     status VARCHAR(5) NOT NULL DEFAULT '未送單'--status:已送單/未送單
 );
 --order of agricultural products and necessities
-CREATE TABLE product_order(
+CREATE TABLE agricultural_product_order(
     id SERIAL PRIMARY KEY,
     seller_id INTEGER, --if products are necessities, be null
     buyer_id INTEGER NOT NULL,
@@ -113,11 +115,11 @@ CREATE TABLE product_order(
     quantity INTEGER NOT NULL,
     starting_point VARCHAR(25) NOT NULL,
     end_point VARCHAR(25) NOT NULL,
-    category VARCHAR(15) NOT NULL,--agriculture or necessity
     timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP, --TIMESTAMP WITHOUT TIME ZONE
-    status VARCHAR(5) DEFAULT '未接單' --未接單 or 已接單 or 已送達
+    status VARCHAR(5) DEFAULT '未接單', --未接單 or 已接單 or 已送達
+    note VARCHAR(255)
 );
-
+'''
 CREATE TABLE driver_order (
     id SERIAL PRIMARY KEY,
     driver_id INTEGER NOT NULL,
@@ -126,6 +128,7 @@ CREATE TABLE driver_order (
     end_point VARCHAR(25) NOT NULL,
     service VARCHAR(20) NOT NULL --kind: 1.pick up people, 2.carry products
 );
+'''
 
 
 

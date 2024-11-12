@@ -314,8 +314,8 @@ async def get_driver_orders(driver_id: int, conn: Connection = Depends(get_db)):
             SELECT orders.*, driver_orders.previous_driver_name, driver_orders.previous_driver_phone
             FROM orders 
             JOIN driver_orders ON orders.id = driver_orders.order_id 
-            WHERE driver_orders.driver_id = %s  
-        """, (driver_id,))
+            WHERE driver_orders.driver_id = %s and driver_orders.service = %s 
+        """, (driver_id, '生活用品'))
         orders = cur.fetchall()
         order_list = []
         for order in orders:
@@ -323,20 +323,20 @@ async def get_driver_orders(driver_id: int, conn: Connection = Depends(get_db)):
                 "id": order[0],
                 "buyer_id": order[1],
                 "buyer_name": order[2],
-                "buyer_phone": order[3],
-                "seller_id": order[4],
-                "seller_name": order[5],
-                "seller_phone": order[6],
-                "date": order[7].isoformat(),
-                "time": order[8].isoformat(),
+                #"buyer_phone": order[3],
+                #"seller_id": order[4], # no
+                #"seller_name": order[5], # no
+                #"seller_phone": order[6], # no
+                #"date": order[7].isoformat(), # no
+                #"time": order[8].isoformat(), # no
                 "location": order[9],
-                "is_urgent": order[10],
+                "is_urgent": order[10], # optional(or default false) 
                 "total_price": order[11],
                 "order_type": order[12],
                 "order_status": order[13],
                 "note": order[14],
-                "shipment_count": order[15],
-                "required_orders_count": order[16],
+                #"shipment_count": order[15], # no
+                #"required_orders_count": order[16], # no
                 "previous_driver_id": order[17],
                 "previous_driver_name": order[18],
                 "previous_driver_phone": order[19],
@@ -358,7 +358,45 @@ async def get_driver_orders(driver_id: int, conn: Connection = Depends(get_db)):
                 for item in items
             ]
             order_list.append(order_dict)
-        
+
+        #add
+        cur.execute("""
+            SELECT agri_p_o.id, agri_p_o.buyer_id, agri_p_o.buyer_name, agri_p_o.end_point, agri_p_o.status, agri_p_o.note, 
+                    driver_o.previous_driver_id, driver_o.previous_driver_name, driver_o.previous_driver_phone, 
+                    agri_p.id, agri_p.name, agri_p.price, agri_p_o.quantity, agri_p.img_link, agri_p_o.starting_point, agri_p.category
+            FROM agricultural_product_order as agri_p_o
+            JOIN driver_orders as driver_o ON agri_p_o.id = driver_o.order_id
+            JOIN agricultural_produce as agri_p on agri_p.id = agri_p_o.produce_id
+            WHERE driver_o.driver_id = %s and driver_o.service = %s 
+        """, (driver_id, '農產品'))
+        agri_orders = cur.fetchall()
+        for agri_order in agri_orders:
+            total_price = agri_order[11] * agri_order[12] #price*quantity
+            agri_order_dict = {
+                "id": agri_order[0],
+                "buyer_id": agri_order[1],
+                "buyer_name": agri_order[2],
+                "location":agri_order[3], #商品要送達的目的地
+                "is_urgent": False, # optional(or default false) 
+                "total_price": total_price,
+                "order_type": '購買類',
+                "order_status": agri_order[4], #未接單、已接單、已送達
+                "note": agri_order[5],
+                "previous_driver_id": agri_order[6],
+                "previous_driver_name": agri_order[7],
+                "previous_driver_phone": agri_order[8],
+                "items": [{
+                    "item_id": agri_order[9],
+                    "item_name": agri_order[10],
+                    "price": agri_order[11],
+                    "quantity": agri_order[12],
+                    "img": agri_order[13],
+                    "location": agri_order[14], #司機拿取農產品的地方
+                    "category": agri_order[15]
+
+                }]
+            }
+            order_list.append(agri_order_dict)
         return order_list
     except HTTPException as he:
         raise he

@@ -15,6 +15,8 @@ import { useRouter } from 'next/navigation';
 import UserService from '@/services/user/user'; 
 import { Driver } from '@/interfaces/driver/Driver'; 
 import { Order } from '@/interfaces/order/Order';
+import { DriverOrder } from '@/services/interface'
+import DriverService from '@/services/driver/driver'
 
 const DriverPage: React.FC = () => {
     const [showRegisterForm, setShowRegisterForm] = useState(false);
@@ -142,6 +144,7 @@ const DriverPage: React.FC = () => {
      * Handle accepting an order.
      * @param orderId - The ID of the order to accept.
      */
+    
     const handleAcceptOrder = async (orderId: string) => {
         try {
             console.log("handleAcceptOrder called with driverId:", driverData?.id);
@@ -160,12 +163,13 @@ const DriverPage: React.FC = () => {
                 },
                 body: JSON.stringify({ 
                     driver_id: driverData.id,
-                    order_id: orderId,  
+                    order_id: parseInt(orderId),  
                     action: "接單",
                     timestamp: timestamp,
                     previous_driver_id: null,
                     previous_driver_name: null,
-                    previous_driver_phone: null
+                    previous_driver_phone: null,
+                    service:'生活用品'
                 }),
             });
         
@@ -184,6 +188,39 @@ const DriverPage: React.FC = () => {
             alert('接單失敗');
         }
     };
+
+    //change version below
+    /*
+    const handleAcceptOrder = async (orderId: string) => {
+        console.log("handleAcceptOrder called with driverId:", driverData?.id);
+        console.log("Accepting order with orderId:", orderId);
+        if (!driverData || !driverData.id) {
+            console.error("Driver data is missing or incomplete");
+            return;
+        }
+        try {
+            const timestamp = new Date().toISOString();
+            const accept_order: DriverOrder = {
+                driver_id: driverData.id,
+                order_id: parseInt(orderId),  
+                action: "接單",
+                timestamp: timestamp,
+                previous_driver_id: null,
+                previous_driver_name: null,
+                previous_driver_phone: null,
+                service:'生活用品'
+            }
+            const response = await DriverService.handle_accept_order(driverData.id, accept_order)
+            alert('接單成功');
+            if (driverData) {
+                handleFetchDriverOrders(driverData.id); 
+            }
+            handleFetchUnacceptedOrders(); 
+        } catch (error) {
+            console.error('Error accepting order:', error);
+            alert('接單失敗');
+        }
+    };*/
 
     /**
      * Handle transferring an order.
