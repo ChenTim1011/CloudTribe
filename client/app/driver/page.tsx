@@ -105,6 +105,7 @@ const DriverPage: React.FC = () => {
             const now = new Date();
 
             // condition: only show future unaccepted orders
+            /*
             data = data.filter((order) => {
                 const orderDateTime = new Date(`${order.date}T${order.time}`);
                 const isFuturePendingOrder = orderDateTime > now && order.order_status === "未接單";
@@ -113,9 +114,12 @@ const DriverPage: React.FC = () => {
                 const matchesEndDate = filterEndDate ? new Date(order.date) <= filterEndDate : true;
         
                 return isFuturePendingOrder && matchesStartDate && matchesEndDate;
-            });
-
-            
+            });*/
+            // no filter date version
+            data = data.filter((order) => {
+                const availableOrder = order.order_status === "未接單";
+                return availableOrder
+            }); 
             setUnacceptedOrders(data);
         } catch (error) {
             console.error('Error fetching unaccepted orders:', error);
