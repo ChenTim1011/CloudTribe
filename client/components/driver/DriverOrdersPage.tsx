@@ -13,7 +13,7 @@ import { on } from 'events';
 
 interface DriverOrdersPageProps {
     driverData: Driver;
-    onAccept: (orderId: string) => Promise<void>;
+    onAccept: (orderId: string, service: string) => Promise<void>;
     onTransfer: (orderId: string, newDriverPhone: string) => Promise<void>;
     onNavigate: (orderId: string) => void;
     onComplete: (orderId: string) => Promise<void>;
@@ -167,7 +167,7 @@ const DriverOrdersPage: React.FC<DriverOrdersPageProps> = ({ driverData, onAccep
                             driverId={driverData.id}
                             onAccept={async (orderId: string) => {
                                 console.log(`Order ${orderId} accepted`);
-                                await onAccept(orderId);
+                                await onAccept(orderId, order.service);
                             }}
                             onTransfer={onTransfer}
                             onNavigate={onNavigate}

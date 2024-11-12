@@ -23,5 +23,6 @@ export interface Order {
     //previous_driver_id?: number;
     //previous_driver_name?: string;
     //previous_driver_phone?: string;
+    service: string;
     items: OrderItem[];
 }

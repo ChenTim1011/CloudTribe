@@ -19,7 +19,7 @@ import { Order } from '@/interfaces/order/Order';
 const OrderCard: React.FC<{
     order: Order;
     driverId: number;
-    onAccept: (orderId: string) => Promise<void>;
+    onAccept: (orderId: string, service: string) => Promise<void>;
     onTransfer: (orderId: string, newDriverPhone: string) => Promise<void>;
     onNavigate: (orderId: string) => void;
     onComplete: (orderId: string) => Promise<void>;
@@ -41,7 +41,7 @@ const OrderCard: React.FC<{
     const handleAccept = async () => {
         try {
             if (order.id) {
-                await onAccept(order.id.toString());
+                await onAccept(order.id.toString(), order.service);
                 setAcceptError(""); // Clear any previous errors
             } else {
                 setAcceptError("order ID not exist");

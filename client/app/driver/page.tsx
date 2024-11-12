@@ -195,7 +195,7 @@ const DriverPage: React.FC = () => {
 
     //change version below
     
-    const handleAcceptOrder = async (orderId: string) => {
+    const handleAcceptOrder = async (orderId: string, service: string) => {
         console.log("handleAcceptOrder called with driverId:", driverData?.id);
         console.log("Accepting order with orderId:", orderId);
         if (!driverData || !driverData.id) {
@@ -212,9 +212,9 @@ const DriverPage: React.FC = () => {
                 previous_driver_id: null,
                 previous_driver_name: null,
                 previous_driver_phone: null,
-                service:'生活用品'
+                service: service
             }
-            const response = await DriverService.handle_accept_order(parseInt(orderId), accept_order)
+            const response = await DriverService.handle_accept_order(service, parseInt(orderId), accept_order)
             alert('接單成功');
             if (driverData) {
                 handleFetchDriverOrders(driverData.id); 

@@ -5,7 +5,7 @@ transferring orders, retrieving specific orders, and completing orders.
 Endpoints:
 - POST /: Create a new order.
 - GET /: Get all unaccepted orders.
-- POST /{order_id}/accept: Accept an order.
+- POST /{service}/{order_id}/accept: Accept an order.
 - POST /{order_id}/transfer: Transfer an order to a new driver.
 - GET /{order_id}: Retrieve a specific order by ID.
 - POST /{order_id}/complete: Complete an order.
@@ -16,7 +16,7 @@ import logging
 
 from psycopg2.extensions import connection as Connection
 from fastapi import APIRouter, HTTPException, Depends
-from backend.models.models import Order, DriverOrder, TransferOrderRequest
+from backend.models.models import Order, DriverOrder, TransferOrderRequest, DetailedOrder
 from backend.database import get_db_connection
 
 logging.basicConfig(level=logging.DEBUG)
@@ -35,7 +35,7 @@ def get_db():
         conn.close()
 
 @router.post("/", response_model=Order)
-async def create_order(order: Order, conn: Connection = Depends(get_db)):
+async def create_order(order: DetailedOrder, conn: Connection = Depends(get_db)):
     """
     Create a new order.
     Args:
@@ -109,6 +109,7 @@ async def get_orders(conn: Connection = Depends(get_db)):
                 #"previous_driver_id": order[17],
                 #"previous_driver_name": order[18],
                 #"previous_driver_phone": order[19],
+                "service":'necessities',
                 "items": [{
                     #"order_id": item[1], 
                     "item_id": item[2], 
@@ -139,6 +140,7 @@ async def get_orders(conn: Connection = Depends(get_db)):
                 "order_type": '購買類',
                 "order_status": agri_order[4], #未接單、已接單、已送達
                 "note": agri_order[5],
+                "service":'agriculture',
                 "items": [{
                     "item_id": str(agri_order[6]),
                     "item_name": agri_order[7],
@@ -157,8 +159,8 @@ async def get_orders(conn: Connection = Depends(get_db)):
     finally:
         cur.close()
 
-@router.post("/{order_id}/accept")
-async def accept_order(order_id: int, driver_order: DriverOrder, conn: Connection = Depends(get_db)):
+@router.post("/{service}/{order_id}/accept")
+async def accept_order(service: str, order_id: int, driver_order: DriverOrder, conn: Connection = Depends(get_db)):
     """
     Accept an order.
     Args:
@@ -171,8 +173,11 @@ async def accept_order(order_id: int, driver_order: DriverOrder, conn: Connectio
     logging.info("Received driver_order: %s", driver_order.model_dump_json())
     cur = conn.cursor()
     try:
-        logging.info("Driver %s attempting to accept order %s", driver_order.driver_id, order_id)
-        cur.execute("SELECT order_status FROM orders WHERE id = %s FOR UPDATE", (order_id,))
+        logging.info("Driver %s attempting to accept order %s in %s", driver_order.driver_id, order_id, service)
+        if service == 'necessities':
+            cur.execute("SELECT order_status FROM orders WHERE id = %s FOR UPDATE", (order_id,))
+        if service == 'agriculture':
+            cur.execute("SELECT status FROM agricultural_product_order WHERE id = %s FOR UPDATE", (order_id,))
         order = cur.fetchone()
 
         logging.info("Fetched order: %s", order)
@@ -183,8 +188,10 @@ async def accept_order(order_id: int, driver_order: DriverOrder, conn: Connectio
         order_status = order[0]
         if order_status != '未接單':
             raise HTTPException(status_code=400, detail="訂單已被接")
-
-        cur.execute("UPDATE orders SET order_status = %s WHERE id = %s", ('接單', order_id))
+        if service == 'necessities':
+            cur.execute("UPDATE orders SET order_status = %s WHERE id = %s", ('接單', order_id))
+        if service == 'agriculture':
+            cur.execute("UPDATE agricultural_product_order SET status = %s WHERE id = %s", ('接單', order_id))
         cur.execute(
             "INSERT INTO driver_orders (driver_id, order_id, action, timestamp, previous_driver_id, previous_driver_name, previous_driver_phone, service) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)",
             (driver_order.driver_id, order_id, '接單', driver_order.timestamp, driver_order.previous_driver_id, driver_order.previous_driver_name, driver_order.previous_driver_phone, driver_order.service)
