@@ -144,7 +144,7 @@ const DriverPage: React.FC = () => {
      * Handle accepting an order.
      * @param orderId - The ID of the order to accept.
      */
-    
+    /*
     const handleAcceptOrder = async (orderId: string) => {
         try {
             console.log("handleAcceptOrder called with driverId:", driverData?.id);
@@ -187,10 +187,10 @@ const DriverPage: React.FC = () => {
             console.error('Error accepting order:', error);
             alert('接單失敗');
         }
-    };
+    };*/
 
     //change version below
-    /*
+    
     const handleAcceptOrder = async (orderId: string) => {
         console.log("handleAcceptOrder called with driverId:", driverData?.id);
         console.log("Accepting order with orderId:", orderId);
@@ -210,7 +210,7 @@ const DriverPage: React.FC = () => {
                 previous_driver_phone: null,
                 service:'生活用品'
             }
-            const response = await DriverService.handle_accept_order(driverData.id, accept_order)
+            const response = await DriverService.handle_accept_order(parseInt(orderId), accept_order)
             alert('接單成功');
             if (driverData) {
                 handleFetchDriverOrders(driverData.id); 
@@ -220,7 +220,7 @@ const DriverPage: React.FC = () => {
             console.error('Error accepting order:', error);
             alert('接單失敗');
         }
-    };*/
+    };
 
     /**
      * Handle transferring an order.
