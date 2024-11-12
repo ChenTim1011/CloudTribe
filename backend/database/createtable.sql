@@ -106,7 +106,7 @@ CREATE TABLE agricultural_shopping_cart (
     status VARCHAR(5) NOT NULL DEFAULT '未送單'--status:已送單/未送單
 );
 --order of agricultural products and necessities
-CREATE TABLE product_order(
+CREATE TABLE agricultural_product_order(
     id SERIAL PRIMARY KEY,
     seller_id INTEGER, --if products are necessities, be null
     buyer_id INTEGER NOT NULL,
@@ -115,9 +115,9 @@ CREATE TABLE product_order(
     quantity INTEGER NOT NULL,
     starting_point VARCHAR(25) NOT NULL,
     end_point VARCHAR(25) NOT NULL,
-    category VARCHAR(15) NOT NULL,--agriculture or necessity
     timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP, --TIMESTAMP WITHOUT TIME ZONE
-    status VARCHAR(5) DEFAULT '未接單' --未接單 or 已接單 or 已送達
+    status VARCHAR(5) DEFAULT '未接單', --未接單 or 已接單 or 已送達
+    note VARCHAR(255)
 );
 '''
 CREATE TABLE driver_order (

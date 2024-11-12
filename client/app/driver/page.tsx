@@ -208,7 +208,7 @@ const DriverPage: React.FC = () => {
                 previous_driver_phone: null,
                 service:'生活用品'
             }
-            const response = await DriverService.handle_accept_order(accept_order)
+            const response = await DriverService.handle_accept_order(driverData.id, accept_order)
             alert('接單成功');
             if (driverData) {
                 handleFetchDriverOrders(driverData.id); 
