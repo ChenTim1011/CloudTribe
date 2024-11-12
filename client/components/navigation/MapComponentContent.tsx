@@ -52,6 +52,26 @@ import {
 // Define libraries for Google Maps
 const libraries: LoadScriptProps["libraries"] = ["places"];
 
+// Helper function to calculate distance between two LatLng points in meters
+const getDistanceInMeters = (loc1: LatLng, loc2: LatLng): number => {
+  const toRadians = (degrees: number) => (degrees * Math.PI) / 180;
+
+  const R = 6371e3; // Earth's radius in meters
+  const φ1 = toRadians(loc1.lat);
+  const φ2 = toRadians(loc2.lat);
+  const Δφ = toRadians(loc2.lat - loc1.lat);
+  const Δλ = toRadians(loc2.lng - loc1.lng);
+
+  const a =
+    Math.sin(Δφ / 2) * Math.sin(Δφ / 2) +
+    Math.cos(φ1) * Math.cos(φ2) *
+    Math.sin(Δλ / 2) * Math.sin(Δλ / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+  const distance = R * c; // in meters
+  return distance;
+};
+
 // Function to fetch coordinates based on place name
 const fetchCoordinates = async (placeName: string) => {
   try {
@@ -71,7 +91,13 @@ const fetchCoordinates = async (placeName: string) => {
   return null;
 };
 
+// 暫時移除 React.memo
+// const MemoizedDirections = React.memo(Directions);
+const MemoizedDirections = Directions;
+
 const MapComponentContent: React.FC = () => {
+  console.log("MapComponentContent render");
+
   const searchParams = useSearchParams();
   const driverIdParam = searchParams.get("driverId");
   const orderId = searchParams.get("orderId");
@@ -91,7 +117,7 @@ const MapComponentContent: React.FC = () => {
   const [driverData, setDriverData] = useState<Driver | null>(null);
 
   const [destinations, setDestinations] = useState<
-    { name: string; location: string }[]
+    { name: string; location: LatLng }[]
   >([]);
   const [newDestinationName, setNewDestinationName] = useState<string>("");
   const [newDestinationLocation, setNewDestinationLocation] =
@@ -101,12 +127,6 @@ const MapComponentContent: React.FC = () => {
   const autocompleteNewDestinationRef = useRef<
     google.maps.places.Autocomplete | null
   >(null);
-
-  const originMemo = useMemo(() => origin, [origin]);
-  const destinationMemo = useMemo(
-    () => destinations[destinations.length - 1]?.location || null,
-    [destinations]
-  );
 
   // Map ref
   const mapRef = useRef<google.maps.Map | null>(null);
@@ -119,6 +139,17 @@ const MapComponentContent: React.FC = () => {
   });
 
   const router = useRouter(); // Initialize router
+
+  // Ref to store the last position
+  const lastPositionRef = useRef<LatLng | null>(null);
+
+  // Ref for throttling updates
+  const isThrottledRef = useRef(false);
+
+  // Format location to fixed decimal places
+  const formatLocation = (lat: number, lng: number) => {
+    return `${lat.toFixed(6)},${lng.toFixed(6)}`;
+  };
 
   // Function to fetch order data
   const fetchOrderData = async (orderId: string) => {
@@ -155,7 +186,21 @@ const MapComponentContent: React.FC = () => {
         uniqueDestinations.push({ name: data.location, location: data.location });
       }
 
-      setDestinations(uniqueDestinations);
+      const destinationsWithCoords = await Promise.all(
+        uniqueDestinations.map(async (dest) => {
+          const coords = await fetchCoordinates(dest.location);
+          if (coords) {
+            return { name: dest.name, location: coords };
+          }
+          return null;
+        })
+      );
+
+      const validDestinations = destinationsWithCoords.filter(
+        (dest): dest is { name: string; location: LatLng } => dest !== null
+      );
+
+      setDestinations(validDestinations);
     } catch (error) {
       console.error("Error fetching order data:", error);
       setError("無法獲取訂單資料");
@@ -178,17 +223,44 @@ const MapComponentContent: React.FC = () => {
     }
   };
 
+  // Move useMemo here to ensure it's always called
+  const memoizedWaypoints = useMemo(() => {
+    console.log("useMemo: memoizedWaypoints");
+    return destinations.slice(0, -1).map(dest => ({
+      location: dest.location,
+      stopover: true,
+    }));
+  }, [destinations]);
+
   // Get current location and watch for changes
   useEffect(() => {
+    console.log("useEffect: watchPosition");
     if (typeof navigator !== "undefined" && navigator.geolocation) {
       const watchId = navigator.geolocation.watchPosition(
         (position) => {
+          if (isThrottledRef.current) return;
+
           const { latitude, longitude } = position.coords;
-          const loc: LatLng = { lat: latitude, lng: longitude };
-          setCenter(loc);
-          setCurrentLocation(loc);
-          setOrigin(`${latitude},${longitude}`);
-          setError(null);
+          const newLoc: LatLng = { lat: latitude, lng: longitude };
+
+          // Calculate distance from last position
+          if (
+            !lastPositionRef.current ||
+            getDistanceInMeters(newLoc, lastPositionRef.current) > 100 
+          ) {
+            setCurrentLocation(newLoc);
+            setOrigin(formatLocation(newLoc.lat, newLoc.lng));
+            setError(null);
+
+            // Update last position
+            lastPositionRef.current = newLoc;
+
+            // Throttle updates
+            isThrottledRef.current = true;
+            setTimeout(() => {
+              isThrottledRef.current = false;
+            }, 5000); // 5 秒節流
+          }
         },
         (error) => {
           console.error("Error getting location: ", error);
@@ -203,9 +275,7 @@ const MapComponentContent: React.FC = () => {
               setError("取得位置資訊超時。");
               break;
             default:
-              setError(
-                "無法獲取當前位置，請確保瀏覽器允許位置存取。"
-              );
+              setError("無法獲取當前位置，請確保瀏覽器允許位置存取。");
               break;
           }
         },
@@ -224,6 +294,7 @@ const MapComponentContent: React.FC = () => {
 
   // Fetch order data
   useEffect(() => {
+    console.log("useEffect: fetchOrderData");
     if (orderId) {
       fetchOrderData(orderId);
     }
@@ -231,13 +302,26 @@ const MapComponentContent: React.FC = () => {
 
   // Fetch driver data
   useEffect(() => {
+    console.log("useEffect: fetchDriverData");
     if (driverIdParam) {
       fetchDriverData(driverIdParam);
     }
   }, [driverIdParam]);
 
-  if (loadError) return <div>地圖加載失敗</div>;
-  if (!isLoaded) return <div>正在加載地圖...</div>;
+  useEffect(() => {
+      if (currentLocation) {
+        setCenter(currentLocation);
+    }
+    }, [currentLocation]);
+
+  // Now handle early returns based on loading state
+  if (loadError) {
+    return <div>地圖加載失敗</div>;
+  }
+
+  if (!isLoaded) {
+    return <div>正在加載地圖...</div>;
+  }
 
   // Function to handle place changes in Autocomplete
   const handlePlaceChanged = async (
@@ -300,24 +384,26 @@ const MapComponentContent: React.FC = () => {
     // Extract waypoints and remove duplicates
     const waypointsArray = destinations.slice(0, -1).map((dest) => dest.location);
     const uniqueWaypointsSet = new Set<string>(
-      waypointsArray.map((loc) => loc.toLowerCase())
+      waypointsArray.map((loc) => `${loc.lat},${loc.lng}`.toLowerCase())
     );
 
-    // retrieve unique waypoints
+    // Retrieve unique waypoints
     const uniqueWaypoints = Array.from(uniqueWaypointsSet)
-      .map(
+        .map(
         (loc) =>
-          destinations
-            .slice(0, -1)
-            .find((dest) => dest.location.toLowerCase() === loc)
-            ?.location || loc
-      )
-      .join("|");
+          waypointsArray.find(
+              (dest) => `${dest.lat},${dest.lng}`.toLowerCase() === loc
+            )
+        )
+        .filter((loc): loc is LatLng => loc !== undefined)
+        .map((loc) => `${loc.lat},${loc.lng}`)
+        .join("|");
+        
 
     // Generate navigation URL
     let url = `https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent(
       origin
-    )}&destination=${encodeURIComponent(finalDestination)}`;
+    )}&destination=${encodeURIComponent(`${finalDestination.lat},${finalDestination.lng}`)}`;
 
     if (uniqueWaypoints) {
       url += `&waypoints=${encodeURIComponent(uniqueWaypoints)}`;
@@ -377,23 +463,28 @@ const MapComponentContent: React.FC = () => {
     }
 
     // Check for duplicate destinations
-    const isDuplicate = destinations.some(
-      (dest) => dest.location.toLowerCase() === newDestinationLocation.toLowerCase()
-    );
+      const isDuplicate = destinations.some(
+        (dest) =>
+          dest.location.lat === parseFloat(newDestinationLocation.split(",")[0]) &&
+          dest.location.lng === parseFloat(newDestinationLocation.split(",")[1])
+        );
 
     if (isDuplicate) {
       setError("該地點已經存在，請選擇另一個地點。");
       return;
     }
 
+    const [lat, lng] = newDestinationLocation.split(",").map(Number);
+    const newLatLng: LatLng = { lat, lng };
+
     const updatedDestinations = [...destinations];
     if (updatedDestinations.length > 0) {
       updatedDestinations.splice(updatedDestinations.length - 1, 0, {
         name: newDestinationName,
-        location: newDestinationLocation,
+        location: newLatLng,
       });
     } else {
-      updatedDestinations.push({ name: newDestinationName, location: newDestinationLocation });
+      updatedDestinations.push({ name: newDestinationName, location: newLatLng });
     }
 
     setDestinations(updatedDestinations);
@@ -499,29 +590,33 @@ const MapComponentContent: React.FC = () => {
               <Marker
                 key={`dest-${index}`}
                 position={{
-                  lat: parseFloat(dest.location.split(",")[0]),
-                  lng: parseFloat(dest.location.split(",")[1]),
+                  lat: dest.location.lat,
+                  lng: dest.location.lng,
                 }}
-                label={`目的地${index + 1}`}
+                label={`中間點${index + 1}`}
               />
             ))}
 
             {destinations.length > 0 && (
               <Marker
                 position={{
-                  lat: parseFloat(destinations[destinations.length - 1].location.split(",")[0]),
-                  lng: parseFloat(destinations[destinations.length - 1].location.split(",")[1]),
+                  lat: destinations[destinations.length - 1].location.lat,
+                  lng: destinations[destinations.length - 1].location.lng,
                 }}
                 label="終點"
               />
             )}
 
             {/* Directions Renderer */}
-            <Directions
+            <MemoizedDirections
               map={mapRef.current}
               origin={origin}
-              waypoints={destinations.slice(0, -1)} 
-              destination={destinations[destinations.length - 1]?.location || null} 
+              waypoints={memoizedWaypoints}
+              destination={
+                destinations.length > 0
+                ? `${destinations[destinations.length - 1].location.lat},${destinations[destinations.length - 1].location.lng}`
+                : null
+                }
               routes={routes}
               setRoutes={setRoutes}
               setTotalDistance={setTotalDistance}
@@ -610,7 +705,7 @@ const MapComponentContent: React.FC = () => {
                 <h2 className="text-lg font-bold mb-2">終點站</h2>
                 <div className="p-2 border rounded-md bg-gray-200 flex justify-between items-center">
                   <span>{destinations[destinations.length - 1].name}</span>
-                  {/* We can not move the terminal */}
+                  {/* We cannot move the terminal */}
                 </div>
               </div>
             )}

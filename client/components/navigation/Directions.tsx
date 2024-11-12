@@ -19,7 +19,7 @@ const Directions: React.FC<DirectionsProps> = ({
     const directionsService = new google.maps.DirectionsService();
     const directionsRenderer = new google.maps.DirectionsRenderer({
       map: map,
-      suppressMarkers: true, // 我們已經手動添加了標記
+      suppressMarkers: true, 
     });
 
     const request: google.maps.DirectionsRequest = {
