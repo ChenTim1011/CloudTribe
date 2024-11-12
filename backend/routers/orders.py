@@ -124,13 +124,11 @@ async def get_orders(conn: Connection = Depends(get_db)):
             SELECT agri_p_o.id, agri_p_o.buyer_id, agri_p_o.buyer_name, agri_p_o.end_point, agri_p_o.status, agri_p_o.note, 
                     agri_p.id, agri_p.name, agri_p.price, agri_p_o.quantity, agri_p.img_link, agri_p_o.starting_point, agri_p.category
             FROM agricultural_product_order as agri_p_o
-            JOIN driver_orders as driver_o ON agri_p_o.id = driver_o.order_id
             JOIN agricultural_produce as agri_p ON agri_p.id = agri_p_o.produce_id
-            WHERE driver_o.service = %s 
-        """, ('農產品',))
+        """)
         agri_orders = cur.fetchall()
         for agri_order in agri_orders:
-            total_price = agri_order[11] * agri_order[12] #price*quantity
+            total_price = agri_order[8] * agri_order[9] #price*quantity
             agri_order_dict = {
                 "id": agri_order[0],
                 "buyer_id": agri_order[1],
@@ -142,7 +140,7 @@ async def get_orders(conn: Connection = Depends(get_db)):
                 "order_status": agri_order[4], #未接單、已接單、已送達
                 "note": agri_order[5],
                 "items": [{
-                    "item_id": agri_order[6],
+                    "item_id": str(agri_order[6]),
                     "item_name": agri_order[7],
                     "price": agri_order[8],
                     "quantity": agri_order[9],
