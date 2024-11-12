@@ -140,7 +140,7 @@ async def get_orders(conn: Connection = Depends(get_db)):
                 "order_type": '購買類',
                 "order_status": agri_order[4], #未接單、已接單、已送達
                 "note": agri_order[5],
-                "service":'agriculture',
+                "service":'agricultural product',
                 "items": [{
                     "item_id": str(agri_order[6]),
                     "item_name": agri_order[7],
@@ -176,7 +176,7 @@ async def accept_order(service: str, order_id: int, driver_order: DriverOrder, c
         logging.info("Driver %s attempting to accept order %s in %s", driver_order.driver_id, order_id, service)
         if service == 'necessities':
             cur.execute("SELECT order_status FROM orders WHERE id = %s FOR UPDATE", (order_id,))
-        if service == 'agriculture':
+        if service == 'agricultural product':
             cur.execute("SELECT status FROM agricultural_product_order WHERE id = %s FOR UPDATE", (order_id,))
         order = cur.fetchone()
 
@@ -190,7 +190,7 @@ async def accept_order(service: str, order_id: int, driver_order: DriverOrder, c
             raise HTTPException(status_code=400, detail="訂單已被接")
         if service == 'necessities':
             cur.execute("UPDATE orders SET order_status = %s WHERE id = %s", ('接單', order_id))
-        if service == 'agriculture':
+        if service == 'agricultural product':
             cur.execute("UPDATE agricultural_product_order SET status = %s WHERE id = %s", ('接單', order_id))
         cur.execute(
             "INSERT INTO driver_orders (driver_id, order_id, action, timestamp, previous_driver_id, previous_driver_name, previous_driver_phone, service) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)",

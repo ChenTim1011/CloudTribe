@@ -315,7 +315,7 @@ async def get_driver_orders(driver_id: int, conn: Connection = Depends(get_db)):
             FROM orders 
             JOIN driver_orders ON orders.id = driver_orders.order_id 
             WHERE driver_orders.driver_id = %s and driver_orders.service = %s 
-        """, (driver_id, '生活用品'))
+        """, (driver_id, 'necessities'))
         orders = cur.fetchall()
         order_list = []
         for order in orders:
@@ -368,7 +368,7 @@ async def get_driver_orders(driver_id: int, conn: Connection = Depends(get_db)):
             JOIN driver_orders as driver_o ON agri_p_o.id = driver_o.order_id
             JOIN agricultural_produce as agri_p on agri_p.id = agri_p_o.produce_id
             WHERE driver_o.driver_id = %s and driver_o.service = %s 
-        """, (driver_id, '農產品'))
+        """, (driver_id, 'agricultural product'))
         agri_orders = cur.fetchall()
         for agri_order in agri_orders:
             total_price = agri_order[11] * agri_order[12] #price*quantity
