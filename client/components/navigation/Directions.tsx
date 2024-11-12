@@ -1,94 +1,84 @@
 // components/navigation/Directions.tsx
 
-"use client";
-import React, { useState, useEffect } from "react";
-import { DirectionsRenderer } from "@react-google-maps/api";
-import { DirectionsProps } from "@/interfaces/navigation/DirectionsProps";
-import { Route } from "@/interfaces/navigation/Route";
+import React, { useEffect } from "react";
+import { DirectionsProps } from "@/interfaces/navigation/DirectionsProps"; // 假設您有這個接口
 
-/**
- * Renders the directions component.
- * 
- * @param map - The Google Maps instance.
- * @param origin - The origin location.
- * @param destinations - The array of destination locations.
- * @param routes - The available routes.
- * @param setRoutes - The function to set the routes.
- * @param setTotalDistance - The function to set the total distance.
- * @param setTotalTime - The function to set the total time.
- * @returns JSX.Element
- */
 const Directions: React.FC<DirectionsProps> = ({
   map,
   origin,
-  destinations,
+  waypoints,
+  destination,
   routes,
   setRoutes,
   setTotalDistance,
   setTotalTime,
 }) => {
-  const [directions, setDirections] = useState<google.maps.DirectionsResult | null>(null);
-  const [directionsError, setDirectionsError] = useState<string | null>(null);
-
   useEffect(() => {
-    if (!origin || destinations.length === 0) {
-      console.log("Origin or destinations are missing");
-      return;
-    }
-
-    console.log("Requesting directions:");
-    console.log("Origin:", origin);
-    console.log("Destinations:", destinations);
+    if (!map || !origin || !destination) return;
 
     const directionsService = new google.maps.DirectionsService();
+    const directionsRenderer = new google.maps.DirectionsRenderer({
+      map: map,
+      suppressMarkers: true, // 我們已經手動添加了標記
+    });
 
-    // Depart destination and waypoints
-    const destination = destinations[destinations.length - 1].location;
-    const waypoints = destinations.slice(0, -1).map(dest => ({
-      location: dest.location,
-      stopover: true,
-    }));
+    const request: google.maps.DirectionsRequest = {
+      origin: origin,
+      destination: destination,
+      travelMode: google.maps.TravelMode.DRIVING,
+      waypoints: waypoints.map((wp) => ({
+        location: wp.location,
+        stopover: true,
+      })),
+      optimizeWaypoints: false, // 如果需要優化路徑，可以設置為 true
+    };
 
-    directionsService.route(
-      {
-        origin,
-        destination,
-        waypoints,
-        travelMode: google.maps.TravelMode.DRIVING,
-        provideRouteAlternatives: true,
-        optimizeWaypoints: true, 
-      },
-      (result, status) => {
-        if (status === google.maps.DirectionsStatus.OK && result) {
-          console.log("DirectionsService Response:", result);
-          setDirections(result);
-          setRoutes(result.routes as Route[]);
+    directionsService.route(request, (result, status) => {
+      if (status === google.maps.DirectionsStatus.OK && result) {
+        directionsRenderer.setDirections(result);
+        const route = result.routes[0];
+        setRoutes(
+          route.legs.map((leg) => ({
+            distance: leg.distance?.text || "",
+            duration: leg.duration?.text || "",
+            summary: route.summary || "",
+            legs: route.legs.map((leg) => ({
+              distance: leg.distance?.text || "",
+              duration: leg.duration?.text || "",
+              start_address: leg.start_address || "",
+              end_address: leg.end_address || "",
+              steps: leg.steps?.map((step) => ({
+                instructions: step.instructions || "",
+                distance: step.distance?.text || "",
+                duration: step.duration?.text || "",
+              })) || [],
+            })),
+          }))
+        );
 
-          // calculate total distance and time
-          const totalDistance = result.routes[0].legs.reduce((acc, leg) => acc + (leg.distance?.value ?? 0), 0) / 1000; // 公里
-          const totalTime = result.routes[0].legs.reduce((acc, leg) => acc + (leg.duration?.value ?? 0), 0) / 60; // 分鐘
+        const totalDistance = route.legs.reduce(
+          (acc, leg) => acc + (leg.distance?.value || 0),
+          0
+        );
+        const totalTime = route.legs.reduce(
+          (acc, leg) => acc + (leg.duration?.value || 0),
+          0
+        );
 
-          setTotalDistance(`${totalDistance.toFixed(2)} 公里`);
-          setTotalTime(`${Math.ceil(totalTime)} 分鐘`);
-          setDirectionsError(null);
-        } else {
-          console.error("DirectionsService Error:", status);
-          setDirectionsError("無法獲取路線，請檢查起點和終點是否正確。");
-        }
+        setTotalDistance(`${(totalDistance / 1000).toFixed(2)} km`);
+        setTotalTime(`${Math.floor(totalTime / 60)} 分鐘`);
+      } else {
+        console.error("Directions request failed due to " + status);
       }
-    );
-  }, [origin, destinations, setRoutes, setTotalDistance, setTotalTime]);
+    });
 
-  return (
-    <>
-      {directions && <DirectionsRenderer directions={directions} />}
-      {directionsError && (
-        <div className="error">
-          {directionsError}
-        </div>
-      )}
-    </>
-  );
+    // 清除 DirectionsRenderer 當組件卸載或依賴變更時
+    return () => {
+      directionsRenderer.setMap(null);
+    };
+  }, [map, origin, waypoints, destination, setRoutes, setTotalDistance, setTotalTime]);
+
+  return null; // 此組件不需要渲染任何內容
 };
 
 export default Directions;

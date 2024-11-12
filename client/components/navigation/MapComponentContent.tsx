@@ -1,7 +1,6 @@
-// components/navigation/MapComponentContent.tsx
-
 "use client";
-import React, { useState, useEffect, useRef, Suspense } from "react";
+
+import React, { useState, useEffect, useRef, useMemo, Suspense } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -21,7 +20,12 @@ import {
   SheetClose,
 } from "@/components/ui/sheet";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faArrowLeft, faArrowUp, faArrowDown, faTrash } from "@fortawesome/free-solid-svg-icons";
+import {
+  faArrowLeft,
+  faArrowUp,
+  faArrowDown,
+  faTrash,
+} from "@fortawesome/free-solid-svg-icons";
 import {
   GoogleMap,
   Autocomplete,
@@ -29,7 +33,7 @@ import {
   useJsApiLoader,
   LoadScriptProps,
 } from "@react-google-maps/api";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import Directions from "@/components/navigation/Directions";
 import DriverOrdersPage from "@/components/driver/DriverOrdersPage";
 import { LatLng } from "@/interfaces/navigation/LatLng";
@@ -37,6 +41,15 @@ import { Route } from "@/interfaces/navigation/Route";
 import { Driver } from "@/interfaces/driver/Driver";
 import { Order } from "@/interfaces/order/Order";
 
+// Import the necessary service functions
+import {
+  fetchDriverOrders,
+  acceptOrder,
+  transferOrder,
+  completeOrder,
+} from "@/services/driver/driver";
+
+// Define libraries for Google Maps
 const libraries: LoadScriptProps["libraries"] = ["places"];
 
 // Function to fetch coordinates based on place name
@@ -60,12 +73,11 @@ const fetchCoordinates = async (placeName: string) => {
 
 const MapComponentContent: React.FC = () => {
   const searchParams = useSearchParams();
-  const driverId = searchParams.get("driverId");
+  const driverIdParam = searchParams.get("driverId");
   const orderId = searchParams.get("orderId");
 
   // Define state
   const [origin, setOrigin] = useState<string>("");
-  const [originName, setOriginName] = useState<string>("");
   const [totalDistance, setTotalDistance] = useState<string | null>(null);
   const [totalTime, setTotalTime] = useState<string | null>(null);
   const [routes, setRoutes] = useState<Route[]>([]);
@@ -77,13 +89,24 @@ const MapComponentContent: React.FC = () => {
   const [isSheetOpen, setIsSheetOpen] = useState(false);
   const [showDriverOrders, setShowDriverOrders] = useState(false);
   const [driverData, setDriverData] = useState<Driver | null>(null);
-  const [destinations, setDestinations] = useState<{ name: string; location: string }[]>([]);
+
+  const [destinations, setDestinations] = useState<
+    { name: string; location: string }[]
+  >([]);
   const [newDestinationName, setNewDestinationName] = useState<string>("");
-  const [newDestinationLocation, setNewDestinationLocation] = useState<string>("");
+  const [newDestinationLocation, setNewDestinationLocation] =
+    useState<string>("");
 
   // Autocomplete refs
-  const autocompleteOriginRef = useRef<google.maps.places.Autocomplete | null>(null);
-  const autocompleteNewDestinationRef = useRef<google.maps.places.Autocomplete | null>(null);
+  const autocompleteNewDestinationRef = useRef<
+    google.maps.places.Autocomplete | null
+  >(null);
+
+  const originMemo = useMemo(() => origin, [origin]);
+  const destinationMemo = useMemo(
+    () => destinations[destinations.length - 1]?.location || null,
+    [destinations]
+  );
 
   // Map ref
   const mapRef = useRef<google.maps.Map | null>(null);
@@ -94,6 +117,8 @@ const MapComponentContent: React.FC = () => {
     libraries,
     language: "zh-TW",
   });
+
+  const router = useRouter(); // Initialize router
 
   // Function to fetch order data
   const fetchOrderData = async (orderId: string) => {
@@ -110,10 +135,13 @@ const MapComponentContent: React.FC = () => {
       const extractedDestinations = data.items
         .map((item) => item.location)
         .filter((loc): loc is string => loc !== undefined && loc.trim() !== "")
-        .map((loc) => ({ name: loc, location: loc })); 
+        .map((loc) => ({ name: loc, location: loc }));
 
       // Remove duplicate destinations
-      const uniqueDestinationsMap = new Map<string, { name: string; location: string }>();
+      const uniqueDestinationsMap = new Map<
+        string,
+        { name: string; location: string }
+      >();
       extractedDestinations.forEach((dest) => {
         const locKey = dest.location.toLowerCase();
         if (!uniqueDestinationsMap.has(locKey)) {
@@ -121,6 +149,11 @@ const MapComponentContent: React.FC = () => {
         }
       });
       const uniqueDestinations = Array.from(uniqueDestinationsMap.values());
+
+      // Add the order terminal location if it is not empty
+      if (data.location && data.location.trim() !== "") {
+        uniqueDestinations.push({ name: data.location, location: data.location });
+      }
 
       setDestinations(uniqueDestinations);
     } catch (error) {
@@ -136,7 +169,7 @@ const MapComponentContent: React.FC = () => {
       if (!response.ok) {
         throw new Error("Failed to fetch driver data");
       }
-      const data = await response.json();
+      const data: Driver = await response.json();
       console.log("Fetched Driver Data:", data);
       setDriverData(data);
     } catch (error) {
@@ -145,17 +178,16 @@ const MapComponentContent: React.FC = () => {
     }
   };
 
-  // Get current location
+  // Get current location and watch for changes
   useEffect(() => {
     if (typeof navigator !== "undefined" && navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
+      const watchId = navigator.geolocation.watchPosition(
         (position) => {
           const { latitude, longitude } = position.coords;
           const loc: LatLng = { lat: latitude, lng: longitude };
           setCenter(loc);
           setCurrentLocation(loc);
           setOrigin(`${latitude},${longitude}`);
-          setOriginName("目前位置");
           setError(null);
         },
         (error) => {
@@ -171,11 +203,19 @@ const MapComponentContent: React.FC = () => {
               setError("取得位置資訊超時。");
               break;
             default:
-              setError("無法獲取當前位置，請確保瀏覽器允許位置存取。");
+              setError(
+                "無法獲取當前位置，請確保瀏覽器允許位置存取。"
+              );
               break;
           }
-        }
+        },
+        { enableHighAccuracy: true }
       );
+
+      // 清除監聽器
+      return () => {
+        navigator.geolocation.clearWatch(watchId);
+      };
     } else {
       console.error("Geolocation is not supported by this browser.");
       setError("瀏覽器不支援地理位置功能");
@@ -191,10 +231,10 @@ const MapComponentContent: React.FC = () => {
 
   // Fetch driver data
   useEffect(() => {
-    if (driverId) {
-      fetchDriverData(driverId);
+    if (driverIdParam) {
+      fetchDriverData(driverIdParam);
     }
-  }, [driverId]);
+  }, [driverIdParam]);
 
   if (loadError) return <div>地圖加載失敗</div>;
   if (!isLoaded) return <div>正在加載地圖...</div>;
@@ -235,25 +275,11 @@ const MapComponentContent: React.FC = () => {
           errorMsg = "無法找到該地點，請重新輸入或選取有效的地點名稱";
         }
       } else {
-        errorMsg = "請用選取的方式找到目標位置，或是輸入有效的地址或地標名稱";
+        errorMsg =
+          "請用選取的方式找到目標位置，或是輸入有效的地址或地標名稱";
       }
     }
     setError(errorMsg);
-  };
-
-  // Function to move the map to the origin
-  const handleMoveMapToOrigin = () => {
-    if (autocompleteOriginRef.current) {
-      const place = autocompleteOriginRef.current.getPlace();
-      if (place.geometry && place.geometry.location) {
-        const location = place.geometry.location;
-        const loc: LatLng = { lat: location.lat(), lng: location.lng() };
-        setCenter(loc);
-        setError(null);
-      } else {
-        setError("起點無效，請重新輸入");
-      }
-    }
   };
 
   // Function to generate navigation link from current location to the last destination
@@ -269,24 +295,29 @@ const MapComponentContent: React.FC = () => {
     }
 
     const origin = `${currentLocation.lat},${currentLocation.lng}`;
-    const destination = destinations[destinations.length - 1].location;
+    const finalDestination = destinations[destinations.length - 1].location;
 
     // Extract waypoints and remove duplicates
-    const waypointsArray = destinations.slice(0, -1).map(dest => dest.location);
-    const uniqueWaypointsSet = new Set<string>(waypointsArray.map(loc => loc.toLowerCase()));
-
-    // Ensure destination is not included in waypoints
-    uniqueWaypointsSet.delete(destination.toLowerCase());
+    const waypointsArray = destinations.slice(0, -1).map((dest) => dest.location);
+    const uniqueWaypointsSet = new Set<string>(
+      waypointsArray.map((loc) => loc.toLowerCase())
+    );
 
     // retrieve unique waypoints
     const uniqueWaypoints = Array.from(uniqueWaypointsSet)
-      .map(loc => destinations.find(dest => dest.location.toLowerCase() === loc)?.location || loc) // 保留原始格式
-      .join('|');
+      .map(
+        (loc) =>
+          destinations
+            .slice(0, -1)
+            .find((dest) => dest.location.toLowerCase() === loc)
+            ?.location || loc
+      )
+      .join("|");
 
     // Generate navigation URL
     let url = `https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent(
       origin
-    )}&destination=${encodeURIComponent(destination)}`;
+    )}&destination=${encodeURIComponent(finalDestination)}`;
 
     if (uniqueWaypoints) {
       url += `&waypoints=${encodeURIComponent(uniqueWaypoints)}`;
@@ -300,17 +331,23 @@ const MapComponentContent: React.FC = () => {
 
   // Function to handle moving a destination up
   const handleMoveUp = (index: number) => {
-    if (index === 0) return; 
+    if (index === 0 || index === destinations.length - 1) return;
     const newDestinations = Array.from(destinations);
-    [newDestinations[index - 1], newDestinations[index]] = [newDestinations[index], newDestinations[index - 1]];
+    [newDestinations[index - 1], newDestinations[index]] = [
+      newDestinations[index],
+      newDestinations[index - 1],
+    ];
     setDestinations(newDestinations);
   };
 
   // Function to handle moving a destination down
   const handleMoveDown = (index: number) => {
-    if (index === destinations.length - 1) return; 
+    if (index >= destinations.length - 2) return;
     const newDestinations = Array.from(destinations);
-    [newDestinations[index + 1], newDestinations[index]] = [newDestinations[index], newDestinations[index + 1]];
+    [newDestinations[index + 1], newDestinations[index]] = [
+      newDestinations[index],
+      newDestinations[index + 1],
+    ];
     setDestinations(newDestinations);
   };
 
@@ -320,15 +357,13 @@ const MapComponentContent: React.FC = () => {
     setIsSheetOpen(true);
   };
 
-  // Function to clear origin
-  const handleClearOrigin = () => {
-    setOrigin("");
-    setOriginName("");
-  };
-
-
   // Function to remove a specific destination
   const handleRemoveDestination = (index: number) => {
+    if (index === destinations.length - 1) {
+      setError("無法移除終點站");
+      return;
+    }
+
     const updated = Array.from(destinations);
     updated.splice(index, 1);
     setDestinations(updated);
@@ -351,13 +386,88 @@ const MapComponentContent: React.FC = () => {
       return;
     }
 
-    setDestinations([
-      ...destinations,
-      { name: newDestinationName, location: newDestinationLocation },
-    ]);
+    const updatedDestinations = [...destinations];
+    if (updatedDestinations.length > 0) {
+      updatedDestinations.splice(updatedDestinations.length - 1, 0, {
+        name: newDestinationName,
+        location: newDestinationLocation,
+      });
+    } else {
+      updatedDestinations.push({ name: newDestinationName, location: newDestinationLocation });
+    }
+
+    setDestinations(updatedDestinations);
     setNewDestinationName("");
     setNewDestinationLocation("");
     setError(null);
+  };
+
+  // Define handler functions for DriverOrdersPage
+
+  /**
+   * Handle accepting an order.
+   * @param orderId - The ID of the order to accept.
+   */
+  const onAccept = async (orderId: string) => {
+    if (!driverData?.id) {
+      alert("Driver data is missing or incomplete");
+      return;
+    }
+    try {
+      await acceptOrder(orderId, driverData.id);
+      // Optionally, refresh the order data or handle state updates here
+      if (Number(orderId) === orderData?.id) {
+        fetchOrderData(orderId);
+      }
+    } catch (error) {
+      // Error handling is already done in the service
+    }
+  };
+
+  /**
+   * Handle transferring an order.
+   * @param orderId - The ID of the order to transfer.
+   * @param newDriverPhone - The phone number of the new driver.
+   */
+  const onTransfer = async (orderId: string, newDriverPhone: string) => {
+    if (!driverData?.id) {
+      alert("Driver data is missing or incomplete");
+      return;
+    }
+    try {
+      await transferOrder(orderId, driverData.id, newDriverPhone);
+      // Optionally, refresh the order data or handle state updates here
+      if (Number(orderId) === orderData?.id) {
+        fetchOrderData(orderId);
+      }
+    } catch (error) {
+      // Error handling is already done in the service
+    }
+  };
+
+  /**
+   * Handle navigating to order details.
+   * @param orderId - The ID of the order to navigate to.
+   * @param driverId - The driver's ID.
+   */
+  const onNavigate = (orderId: string, driverId: number) => {
+    router.push(`/navigation?orderId=${orderId}&driverId=${driverId}`);
+  };
+
+  /**
+   * Handle completing an order.
+   * @param orderId - The ID of the order to complete.
+   */
+  const onComplete = async (orderId: string) => {
+    try {
+      await completeOrder(orderId);
+      // Optionally, refresh the order data or handle state updates here
+      if (Number(orderId) === orderData?.id) {
+        fetchOrderData(orderId);
+      }
+    } catch (error) {
+      // Error handling is already done in the service
+    }
   };
 
   return (
@@ -382,25 +492,36 @@ const MapComponentContent: React.FC = () => {
             mapContainerStyle={{ width: "100%", height: "100%" }}
           >
             {/* Current Location Marker */}
-            {currentLocation && <Marker position={currentLocation} label="起點" />}
+            {currentLocation && <Marker position={currentLocation} label="目前位置" />}
 
             {/* Destination Markers */}
-            {destinations.map((dest, index) => (
+            {destinations.slice(0, -1).map((dest, index) => (
               <Marker
-                key={`dest-${index}`} 
+                key={`dest-${index}`}
                 position={{
                   lat: parseFloat(dest.location.split(",")[0]),
                   lng: parseFloat(dest.location.split(",")[1]),
                 }}
-                label={`終點${index + 1}`}
+                label={`目的地${index + 1}`}
               />
             ))}
+
+            {destinations.length > 0 && (
+              <Marker
+                position={{
+                  lat: parseFloat(destinations[destinations.length - 1].location.split(",")[0]),
+                  lng: parseFloat(destinations[destinations.length - 1].location.split(",")[1]),
+                }}
+                label="終點"
+              />
+            )}
 
             {/* Directions Renderer */}
             <Directions
               map={mapRef.current}
               origin={origin}
-              destinations={destinations}
+              waypoints={destinations.slice(0, -1)} 
+              destination={destinations[destinations.length - 1]?.location || null} 
               routes={routes}
               setRoutes={setRoutes}
               setTotalDistance={setTotalDistance}
@@ -414,7 +535,9 @@ const MapComponentContent: React.FC = () => {
           <CardHeader className="bg-black text-white p-4 rounded-t-md flex justify-between">
             <div>
               <CardTitle className="my-3 text-lg font-bold">導航地圖</CardTitle>
-              <CardDescription className="my-3 text-white text-sm">顯示路線與地圖</CardDescription>
+              <CardDescription className="my-3 text-white text-sm">
+                顯示路線與地圖
+              </CardDescription>
             </div>
           </CardHeader>
           <CardContent className="p-4">
@@ -442,9 +565,9 @@ const MapComponentContent: React.FC = () => {
             <div className="my-5">
               <h2 className="text-lg font-bold mb-2">訂單地點</h2>
               <ul className="space-y-2">
-                {destinations.map((dest, index) => (
+                {destinations.slice(0, -1).map((dest, index) => (
                   <li
-                    key={`dest-${index}`} 
+                    key={`dest-${index}`}
                     className="p-2 border rounded-md bg-gray-100 flex justify-between items-center"
                   >
                     <span>{dest.name}</span>
@@ -460,7 +583,7 @@ const MapComponentContent: React.FC = () => {
                       </Button>
                       <Button
                         onClick={() => handleMoveDown(index)}
-                        disabled={index === destinations.length - 1}
+                        disabled={index >= destinations.length - 2}
                         variant="ghost"
                         className="p-1"
                         title="下移"
@@ -470,7 +593,7 @@ const MapComponentContent: React.FC = () => {
                       <Button
                         onClick={() => handleRemoveDestination(index)}
                         variant="ghost"
-                        className="p-1 text-red-500"
+                        className="p-1 text-black-500"
                         title="移除"
                       >
                         <FontAwesomeIcon icon={faTrash} />
@@ -480,6 +603,17 @@ const MapComponentContent: React.FC = () => {
                 ))}
               </ul>
             </div>
+
+            {/* Show the terminal */}
+            {destinations.length > 0 && (
+              <div className="my-5">
+                <h2 className="text-lg font-bold mb-2">終點站</h2>
+                <div className="p-2 border rounded-md bg-gray-200 flex justify-between items-center">
+                  <span>{destinations[destinations.length - 1].name}</span>
+                  {/* We can not move the terminal */}
+                </div>
+              </div>
+            )}
 
             {/* Add New Destination */}
             <div className="flex items-center space-x-2 justify-center">
@@ -527,8 +661,6 @@ const MapComponentContent: React.FC = () => {
           </CardContent>
         </Card>
 
-
-
         {/* Sheet for Order Details */}
         <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
           <SheetContent className="w-full max-w-2xl max-h-[calc(100vh-200px)] overflow-y-auto">
@@ -538,7 +670,15 @@ const MapComponentContent: React.FC = () => {
             </SheetHeader>
             {showDriverOrders ? (
               driverData ? (
-                <DriverOrdersPage driverData={driverData} />
+                <DriverOrdersPage
+                  driverData={driverData}
+                  onAccept={onAccept}
+                  onTransfer={onTransfer}
+                  onNavigate={(orderId: string) =>
+                    onNavigate(orderId, driverData.id || 0)
+                  }
+                  onComplete={onComplete}
+                />
               ) : (
                 <div className="p-4">
                   <p>正在加載司機資料...</p>

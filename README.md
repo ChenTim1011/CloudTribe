@@ -14,13 +14,6 @@ We aim to scale up this model, allowing residents to earn money by helping more 
 3. Route Planning: Integrates Google Maps API for route display and time estimation.
 4. Order Query: Allows users to track their order history and current order status.
 
-### TBD
-
-5. User Authentication: Implements login and registration with JWT-based authentication.
-6. Real-Time Notifications: Uses WebSocket for instant notifications and updates.
-7. Messaging: Provides a message center for real-time communication.
-
-
 
 
 
@@ -121,13 +114,13 @@ We aim to scale up this model, allowing residents to earn money by helping more 
          npm run dev
    
 
-## deploy TBD 
+## Deploy TBD 
 
 Now we use AWS EC2 to deploy our project.
 
 
-### Set the LINE Webhook URL
+## Set the LINE Webhook URL
 
 After the deployment on Render is complete, you will get a URL. Go to your LINE Developer Console and set the Webhook URL to 
 
-      https://your-render-url/callback
+      https://{your-website-url}/callback

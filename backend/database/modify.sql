@@ -20,3 +20,6 @@ ADD COLUMN user_id INT UNIQUE REFERENCES users(id) ON DELETE CASCADE;
 -- update orders item table
 ALTER TABLE order_items
 ADD COLUMN category VARCHAR(50);
+
+ALTER TABLE driver_orders
+ADD COLUMN service VARCHAR(20);
