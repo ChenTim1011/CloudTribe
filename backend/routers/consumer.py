@@ -223,12 +223,12 @@ async def purchase_product(req: PurchaseProductRequest, conn: Connection = Depen
     """
     cur = conn.cursor()
     try:
-        logging.info("Inserting product order")
+        logging.info("Inserting agricultural product order")
         cur.execute(
-            """INSERT INTO product_order 
-            (seller_id, buyer_id, buyer_name, produce_id, quantity, starting_point, end_point, category) 
+            """INSERT INTO agricultural_product_order 
+            (seller_id, buyer_id, buyer_name, produce_id, quantity, starting_point, end_point, status) 
             VALUES (%s, %s, %s, %s, %s, %s, %s, %s) RETURNING id""",
-            (req.seller_id, req.buyer_id, req.buyer_name, req.produce_id, req.quantity, req.starting_point, req.end_point, 'agriculture')
+            (req.seller_id, req.buyer_id, req.buyer_name, req.produce_id, req.quantity, req.starting_point, req.end_point, '未接單')
         )
         order_id = cur.fetchone()[0]
         conn.commit()
@@ -287,9 +287,9 @@ async def get_purchase_item(userId: int, conn: Connection=Depends(get_db)):
         logging.info("Get purchased items of user whose id is %s.", userId)
         cur.execute(
             """SELECT o.id, o.quantity, o.timestamp, produce.name, produce.price, produce.img_link, o.status
-            FROM product_order as o
+            FROM agricultural_product_order as o
             JOIN agricultural_produce as produce ON o.produce_id=produce.id
-            WHERE buyer_id = %s  AND o.category = %s""", (userId, 'agriculture'))
+            WHERE buyer_id = %s  """, (userId,))
 
         items = cur.fetchall()
         logging.info('start create purchased product list')
