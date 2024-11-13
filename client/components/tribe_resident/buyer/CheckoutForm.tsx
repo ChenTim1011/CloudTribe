@@ -16,7 +16,7 @@ import { CheckoutFormProps } from '@/interfaces/tribe_resident/buyer/CheckoutFor
 import { Autocomplete, useJsApiLoader, LoadScriptProps } from "@react-google-maps/api";
 
 // Define the required libraries
-const libraries = ["places"] as const;
+const libraries: LoadScriptProps['libraries'] = ["places"] as const;
 
 // Define the container style for Google Maps (if you don't need to display the map, set width and height to 0)
 const containerStyle = {
@@ -37,14 +37,14 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onClose, clearCart, cartIte
   const [date, setDate] = useState<Date>();
   const [time, setTime] = useState<string | undefined>(undefined);
   const [location, setLocation] = useState<string | undefined>(undefined);
+  const [inputValue, setInputValue] = useState<string>(""); // 新增 inputValue 狀態
   const [is_urgent, setIsUrgent] = useState(false);
   const [note, setNote] = useState<string>("");  // Note field
   const [showAlert, setShowAlert] = useState(false);
   const [error, setError] = useState("");
   const [isCustomLocation, setIsCustomLocation] = useState(false);
   const autocompleteRef = useRef<google.maps.places.Autocomplete | null>(null);
-  const libraries: LoadScriptProps['libraries'] = ["places"];
-  
+
   // Load Google Maps API
   const { isLoaded, loadError } = useJsApiLoader({
     googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY as string,
@@ -68,9 +68,11 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onClose, clearCart, cartIte
     if (value === "custom") {
       setIsCustomLocation(true);
       setLocation("");
+      setInputValue(""); 
     } else {
       setIsCustomLocation(false);
       setLocation(value);
+      setInputValue(value); 
     }
   };
 
@@ -80,8 +82,16 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onClose, clearCart, cartIte
   const onPlaceChanged = () => {
     if (autocompleteRef.current !== null) {
       const place = autocompleteRef.current.getPlace();
-      if (place && place.formatted_address) {
-        setLocation(place.formatted_address);
+      console.log("onPlaceChanged 被調用");
+      console.log("選中的 place:", place); 
+
+      if (place && (place.formatted_address || place.name)) {
+        const selectedAddress = place.formatted_address || place.name;
+        console.log("選中的地址:", selectedAddress);
+        setLocation(selectedAddress);
+        if (selectedAddress) {
+          setInputValue(selectedAddress); 
+        }
         setError("");
       } else {
         setError("請選擇有效的地點");
@@ -315,8 +325,8 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onClose, clearCart, cartIte
                   <SelectValue placeholder="選擇時間" />
                 </SelectTrigger>
                 <SelectContent>
-                  {["11:00", "12:00", "13:00", "14:00", "15:00", "16:00", "17:00", "18:00", "19:00"].map(time => (
-                    <SelectItem key={time} value={time}>{time}</SelectItem>
+                  {["11:00", "12:00", "13:00", "14:00", "15:00", "16:00", "17:00", "18:00", "19:00"].map(timeOption => (
+                    <SelectItem key={timeOption} value={timeOption}>{timeOption}</SelectItem>
                   ))}
                 </SelectContent>
               </Select>
@@ -342,13 +352,25 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onClose, clearCart, cartIte
                       autocompleteRef.current = autocomplete;
                     }}
                     onPlaceChanged={onPlaceChanged}
+                    options={{
+                      fields: [
+                        "address_components",
+                        "geometry",
+                        "icon",
+                        "name",
+                        "formatted_address",
+                        "place_id",
+                        "types",
+                      ], // 擴展 fields
+                      types: ["establishment", "geocode"], // 根據需要指定類型
+                    }}
                   >
                     <Input
                       type="text"
                       placeholder="搜尋或輸入地點"
                       className="w-full"
-                      value={location}
-                      onChange={(e) => setLocation(e.target.value)}
+                      value={inputValue} // 使用 inputValue 狀態
+                      onChange={(e) => setInputValue(e.target.value)} // 更新 inputValue
                     />
                   </Autocomplete>
                 </div>
