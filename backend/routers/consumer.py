@@ -223,12 +223,17 @@ async def purchase_product(req: PurchaseProductRequest, conn: Connection = Depen
     """
     cur = conn.cursor()
     try:
+        cur.execute("SELECT phone FROM users WHERE id = %s", (req.buyer_id,))
+        result = cur.fetchone()
+        if result is None:
+            raise HTTPException(status_code=404, detail="Buyer not found")
+        buyer_phone = result[0] 
         logging.info("Inserting agricultural product order")
         cur.execute(
             """INSERT INTO agricultural_product_order 
-            (seller_id, buyer_id, buyer_name, produce_id, quantity, starting_point, end_point, status) 
-            VALUES (%s, %s, %s, %s, %s, %s, %s, %s) RETURNING id""",
-            (req.seller_id, req.buyer_id, req.buyer_name, req.produce_id, req.quantity, req.starting_point, req.end_point, '未接單')
+            (seller_id, buyer_id, buyer_name, buyer_phone, produce_id, quantity, starting_point, end_point, status) 
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s) RETURNING id""",
+            (req.seller_id, req.buyer_id, req.buyer_name, buyer_phone, req.produce_id, req.quantity, req.starting_point, req.end_point, '未接單')
         )
         order_id = cur.fetchone()[0]
         conn.commit()

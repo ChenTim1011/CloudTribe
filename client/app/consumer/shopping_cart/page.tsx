@@ -91,7 +91,6 @@ export default function ShoppingCart(){
               starting_point: res_seller.location,
               end_point: user?.location,
             }
-
             const res_order = await ConsumerService.add_product_order(req) 
             const res_cart_status = await ConsumerService.update_shopping_cart_status(item?.id)
           

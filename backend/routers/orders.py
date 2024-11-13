@@ -92,7 +92,7 @@ async def get_orders(conn: Connection = Depends(get_db)):
                 "id": order[0],
                 "buyer_id": order[1],
                 "buyer_name": order[2], 
-                #"buyer_phone": order[3], 
+                "buyer_phone": order[3], 
                 #"seller_id": int(order[4]), 
                 #"seller_name": order[5],
                 #"seller_phone": order[6], 
@@ -122,33 +122,34 @@ async def get_orders(conn: Connection = Depends(get_db)):
             })
         #add
         cur.execute("""
-            SELECT agri_p_o.id, agri_p_o.buyer_id, agri_p_o.buyer_name, agri_p_o.end_point, agri_p_o.status, agri_p_o.note, 
+            SELECT agri_p_o.id, agri_p_o.buyer_id, agri_p_o.buyer_name, agri_p_o.buyer_phone, agri_p_o.end_point, agri_p_o.status, agri_p_o.note, 
                     agri_p.id, agri_p.name, agri_p.price, agri_p_o.quantity, agri_p.img_link, agri_p_o.starting_point, agri_p.category
             FROM agricultural_product_order as agri_p_o
             JOIN agricultural_produce as agri_p ON agri_p.id = agri_p_o.produce_id
         """)
         agri_orders = cur.fetchall()
         for agri_order in agri_orders:
-            total_price = agri_order[8] * agri_order[9] #price*quantity
+            total_price = agri_order[9] * agri_order[10] #price*quantity
             agri_order_dict = {
                 "id": agri_order[0],
                 "buyer_id": agri_order[1],
                 "buyer_name": agri_order[2],
-                "location":agri_order[3], #商品要送達的目的地
+                "buyer_phone": agri_order[3],
+                "location":agri_order[4], #商品要送達的目的地
                 "is_urgent": False, 
                 "total_price": total_price,
                 "order_type": '購買類',
-                "order_status": agri_order[4], #未接單、已接單、已送達
-                "note": agri_order[5],
+                "order_status": agri_order[5], #未接單、已接單、已送達
+                "note": agri_order[6],
                 "service":'agricultural product',
                 "items": [{
-                    "item_id": str(agri_order[6]),
-                    "item_name": agri_order[7],
-                    "price": agri_order[8],
-                    "quantity": agri_order[9],
-                    "img": agri_order[10],
-                    "location": agri_order[11], #司機拿取農產品的地方
-                    "category": agri_order[12]
+                    "item_id": str(agri_order[7]),
+                    "item_name": agri_order[8],
+                    "price": agri_order[9],
+                    "quantity": agri_order[10],
+                    "img": agri_order[11],
+                    "location": agri_order[12], #司機拿取農產品的地方
+                    "category": agri_order[13]
                 }]
             }
             order_list.append(agri_order_dict)
@@ -215,8 +216,8 @@ async def accept_order(service: str, order_id: int, driver_order: DriverOrder, c
         cur.close()
 
 
-@router.post("/{order_id}/transfer")
-async def transfer_order(order_id: int, transfer_request: TransferOrderRequest, conn: Connection = Depends(get_db)):
+@router.post("/{service}/{order_id}/transfer")
+async def transfer_order(service:str, order_id: int, transfer_request: TransferOrderRequest, conn: Connection = Depends(get_db)):
     """
     Transfer an order to a new driver.
     Args:
@@ -229,6 +230,7 @@ async def transfer_order(order_id: int, transfer_request: TransferOrderRequest, 
     """
     cur = conn.cursor()
     try:
+        
         # Find new driver by phone
         cur.execute("SELECT id, driver_name, driver_phone FROM drivers WHERE driver_phone = %s", (transfer_request.new_driver_phone,))
         new_driver = cur.fetchone()
@@ -248,19 +250,25 @@ async def transfer_order(order_id: int, transfer_request: TransferOrderRequest, 
         # Get current driver details
         cur.execute("SELECT driver_name, driver_phone FROM drivers WHERE id = %s", (transfer_request.current_driver_id,))
         current_driver = cur.fetchone()
-
+        
         # Update driver_orders with new driver details
         cur.execute(
             "UPDATE driver_orders SET driver_id = %s, previous_driver_id = %s, previous_driver_name = %s, "
             "previous_driver_phone = %s WHERE order_id = %s AND driver_id = %s AND action = '接單'", 
             (new_driver_id, transfer_request.current_driver_id, current_driver[0], current_driver[1], order_id, transfer_request.current_driver_id)
         )
-
-        # Update orders with previous driver details
-        cur.execute(
-            "UPDATE orders SET previous_driver_id = %s, previous_driver_name = %s, previous_driver_phone = %s WHERE id = %s",
-            (transfer_request.current_driver_id, current_driver[0], current_driver[1], order_id)
-        )
+        if service == 'necessities':
+            # Update orders with previous driver details
+            cur.execute(
+                "UPDATE orders SET previous_driver_id = %s, previous_driver_name = %s, previous_driver_phone = %s WHERE id = %s",
+                (transfer_request.current_driver_id, current_driver[0], current_driver[1], order_id)
+            )
+        if service == 'agricultural product':
+            # Update orders with previous driver details
+            cur.execute(
+                "UPDATE agricultural_product_order SET previous_driver_id = %s, previous_driver_name = %s, previous_driver_phone = %s WHERE id = %s",
+                (transfer_request.current_driver_id, current_driver[0], current_driver[1], order_id)
+            )
 
         conn.commit()
         return {"status": "success"}

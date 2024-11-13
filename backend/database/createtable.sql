@@ -111,6 +111,7 @@ CREATE TABLE agricultural_product_order(
     seller_id INTEGER, --if products are necessities, be null
     buyer_id INTEGER NOT NULL,
     buyer_name VARCHAR(25) NOT NULL,
+    buyer_phone VARCHAR(20) NOT NULL,
     produce_id INTEGER NOT NULL,
     quantity INTEGER NOT NULL,
     starting_point VARCHAR(25) NOT NULL,

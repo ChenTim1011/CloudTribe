@@ -22,7 +22,7 @@ class Order(BaseModel):
     id: Optional[int] = None 
     buyer_id: int
     buyer_name: str
-    #buyer_phone: str
+    buyer_phone: str
     #seller_id: int
     #seller_name: str
     #seller_phone: str
@@ -43,7 +43,6 @@ class Order(BaseModel):
     items: List[OrderItem]
 
 class DetailedOrder(Order):
-    buyer_phone: str
     seller_id: int
     seller_name: str
     seller_phone: str
