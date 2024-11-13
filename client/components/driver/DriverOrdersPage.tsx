@@ -9,7 +9,6 @@ import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 import { format } from "date-fns";
-import { on } from 'events';
 
 interface DriverOrdersPageProps {
     driverData: Driver;
@@ -34,7 +33,6 @@ const DriverOrdersPage: React.FC<DriverOrdersPageProps> = ({ driverData, onAccep
     const [startDate, setStartDate] = useState<Date | null>(null);
     const [endDate, setEndDate] = useState<Date | null>(null);
     const [error, setError] = useState<string>("");
-
 
     /**
      * Fetches the orders assigned to the driver from the server.
@@ -83,6 +81,35 @@ const DriverOrdersPage: React.FC<DriverOrdersPageProps> = ({ driverData, onAccep
      */
     const totalPrice = finalFilteredOrders.reduce((total, order) => total + order.total_price, 0);
 
+    /**
+     * Aggregates all items from the filtered orders, categorized by location.
+     */
+    const aggregatedItemsByLocation = useMemo(() => {
+        const locationMap: { [location: string]: { [itemName: string]: number } } = {};
+
+        finalFilteredOrders.forEach(order => {
+            order.items.forEach(item => {
+                const location = item.location || "未指定地點"; 
+                if (!locationMap[location]) {
+                    locationMap[location] = {};
+                }
+                if (locationMap[location][item.item_name]) {
+                    locationMap[location][item.item_name] += item.quantity;
+                } else {
+                    locationMap[location][item.item_name] = item.quantity;
+                }
+            });
+        });
+
+        // Convert the locationMap object to an array of objects
+        const result: { location: string; items: { name: string; quantity: number }[] }[] = [];
+        for (const [location, items] of Object.entries(locationMap)) {
+            const itemList = Object.entries(items).map(([name, quantity]) => ({ name, quantity }));
+            result.push({ location, items: itemList });
+        }
+
+        return result;
+    }, [finalFilteredOrders]);
 
     return (
         <div className="p-4">
@@ -116,7 +143,7 @@ const DriverOrdersPage: React.FC<DriverOrdersPageProps> = ({ driverData, onAccep
                                     {startDate ? format(startDate, "PPP") : "選擇開始日期"}
                                 </Button>
                             </PopoverTrigger>
-                            <PopoverContent className="w-auto p-0">
+                            <PopoverContent className="w-auto p-1">
                                 <Calendar
                                     mode="single"
                                     selected={startDate || undefined}
@@ -134,7 +161,7 @@ const DriverOrdersPage: React.FC<DriverOrdersPageProps> = ({ driverData, onAccep
                                     {endDate ? format(endDate, "PPP") : "選擇結束日期"}
                                 </Button>
                             </PopoverTrigger>
-                            <PopoverContent className="w-auto p-0">
+                            <PopoverContent className="w-auto p-1">
                                 <Calendar
                                     mode="single"
                                     selected={endDate || undefined}
@@ -145,6 +172,47 @@ const DriverOrdersPage: React.FC<DriverOrdersPageProps> = ({ driverData, onAccep
                         </Popover>
                     </div>
                 </div>
+            </div>
+
+            {/* Aggregated Items Button and Popover */}
+            <div className="flex overflow-auto justify-center mb-4">
+                <Popover>
+                    <PopoverTrigger asChild>
+                        <Button variant="secondary">
+                            統計所有需要購買的物品
+                        </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-96 p-4 overflow-auto max-h-80">
+                        {aggregatedItemsByLocation.length > 0 ? (
+                            <div>
+                                <h2 className="text-md font-semibold mb-4">需要購買的物品清單 (按地點分類)</h2>
+                                {aggregatedItemsByLocation.map((locationGroup, index) => (
+                                    <div key={index} className="mb-4">
+                                        <h3 className="text-sm font-medium mb-2">{locationGroup.location}</h3>
+                                        <table className="w-full table-auto mb-2">
+                                            <thead>
+                                                <tr>
+                                                    <th className="text-left border-b pb-1">物品名稱</th>
+                                                    <th className="text-right border-b pb-1">數量</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {locationGroup.items.map((item, idx) => (
+                                                    <tr key={idx}>
+                                                        <td className="py-1">{item.name}</td>
+                                                        <td className="text-right py-1">{item.quantity}</td>
+                                                    </tr>
+                                                ))}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                ))}
+                            </div>
+                        ) : (
+                            <p>目前沒有需要購買的物品。</p>
+                        )}
+                    </PopoverContent>
+                </Popover>
             </div>
 
             {/* Display total price if there are filtered orders */}
