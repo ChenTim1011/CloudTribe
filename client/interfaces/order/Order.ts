@@ -6,7 +6,7 @@ export interface Order {
     id?: number;
     buyer_id: number;
     buyer_name: string;
-    //buyer_phone: string;
+    buyer_phone: string;
     //seller_id: number;
     //seller_name: string;
     //seller_phone: string;
