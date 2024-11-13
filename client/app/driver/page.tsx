@@ -105,6 +105,7 @@ const DriverPage: React.FC = () => {
             const now = new Date();
 
             // condition: only show future unaccepted orders
+            /*
             data = data.filter((order) => {
                 const orderDateTime = new Date(`${order.date}T${order.time}`);
                 const isFuturePendingOrder = orderDateTime > now && order.order_status === "未接單";
@@ -113,9 +114,12 @@ const DriverPage: React.FC = () => {
                 const matchesEndDate = filterEndDate ? new Date(order.date) <= filterEndDate : true;
         
                 return isFuturePendingOrder && matchesStartDate && matchesEndDate;
-            });
-
-            
+            });*/
+            // no filter date version
+            data = data.filter((order) => {
+                const availableOrder = order.order_status === "未接單";
+                return availableOrder
+            }); 
             setUnacceptedOrders(data);
         } catch (error) {
             console.error('Error fetching unaccepted orders:', error);
@@ -144,7 +148,7 @@ const DriverPage: React.FC = () => {
      * Handle accepting an order.
      * @param orderId - The ID of the order to accept.
      */
-    
+    /*
     const handleAcceptOrder = async (orderId: string) => {
         try {
             console.log("handleAcceptOrder called with driverId:", driverData?.id);
@@ -187,11 +191,11 @@ const DriverPage: React.FC = () => {
             console.error('Error accepting order:', error);
             alert('接單失敗');
         }
-    };
+    };*/
 
     //change version below
-    /*
-    const handleAcceptOrder = async (orderId: string) => {
+    
+    const handleAcceptOrder = async (orderId: string, service: string) => {
         console.log("handleAcceptOrder called with driverId:", driverData?.id);
         console.log("Accepting order with orderId:", orderId);
         if (!driverData || !driverData.id) {
@@ -208,9 +212,9 @@ const DriverPage: React.FC = () => {
                 previous_driver_id: null,
                 previous_driver_name: null,
                 previous_driver_phone: null,
-                service:'生活用品'
+                service: service
             }
-            const response = await DriverService.handle_accept_order(driverData.id, accept_order)
+            const response = await DriverService.handle_accept_order(service, parseInt(orderId), accept_order)
             alert('接單成功');
             if (driverData) {
                 handleFetchDriverOrders(driverData.id); 
@@ -220,7 +224,7 @@ const DriverPage: React.FC = () => {
             console.error('Error accepting order:', error);
             alert('接單失敗');
         }
-    };*/
+    };
 
     /**
      * Handle transferring an order.
@@ -270,9 +274,10 @@ const DriverPage: React.FC = () => {
      * Handle completing an order.
      * @param orderId - The ID of the order to complete.
      */
-    const handleCompleteOrder = async (orderId: string) => {
+    const handleCompleteOrder = async (orderId: string, service: string) => {
         try {
-            const response = await fetch(`/api/orders/${orderId}/complete`, {
+            console.log('service=', service)
+            const response = await fetch(`/api/orders/${service}/${orderId}/complete`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

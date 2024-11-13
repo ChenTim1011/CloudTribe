@@ -5,10 +5,10 @@ import { Order } from '@/interfaces/order/Order';
 
 interface OrderListWithPaginationProps {
     orders: Order[];
-    onAccept: (orderId: string) => Promise<void>;
+    onAccept: (orderId: string, service: string) => Promise<void>;
     onTransfer: (orderId: string, newDriverPhone: string) => Promise<void>;
     onNavigate: (orderId: string) => void;
-    onComplete: (orderId: string) => Promise<void>;
+    onComplete: (orderId: string, service: string) => Promise<void>;
     driverId: number;
 }
 

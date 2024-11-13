@@ -315,7 +315,7 @@ async def get_driver_orders(driver_id: int, conn: Connection = Depends(get_db)):
             FROM orders 
             JOIN driver_orders ON orders.id = driver_orders.order_id 
             WHERE driver_orders.driver_id = %s and driver_orders.service = %s 
-        """, (driver_id, '生活用品'))
+        """, (driver_id, 'necessities'))
         orders = cur.fetchall()
         order_list = []
         for order in orders:
@@ -323,7 +323,7 @@ async def get_driver_orders(driver_id: int, conn: Connection = Depends(get_db)):
                 "id": order[0],
                 "buyer_id": order[1],
                 "buyer_name": order[2],
-                #"buyer_phone": order[3],
+                "buyer_phone": order[3],
                 #"seller_id": order[4], # no
                 #"seller_name": order[5], # no
                 #"seller_phone": order[6], # no
@@ -340,6 +340,7 @@ async def get_driver_orders(driver_id: int, conn: Connection = Depends(get_db)):
                 "previous_driver_id": order[17],
                 "previous_driver_name": order[18],
                 "previous_driver_phone": order[19],
+                "service":"necessities",
                 "items": []
             }
             # Retrieve order items
@@ -361,38 +362,40 @@ async def get_driver_orders(driver_id: int, conn: Connection = Depends(get_db)):
 
         #add
         cur.execute("""
-            SELECT agri_p_o.id, agri_p_o.buyer_id, agri_p_o.buyer_name, agri_p_o.end_point, agri_p_o.status, agri_p_o.note, 
+            SELECT agri_p_o.id, agri_p_o.buyer_id, agri_p_o.buyer_name, agri_p_o.buyer_phone, agri_p_o.end_point, agri_p_o.status, agri_p_o.note, 
                     driver_o.previous_driver_id, driver_o.previous_driver_name, driver_o.previous_driver_phone, 
                     agri_p.id, agri_p.name, agri_p.price, agri_p_o.quantity, agri_p.img_link, agri_p_o.starting_point, agri_p.category
             FROM agricultural_product_order as agri_p_o
             JOIN driver_orders as driver_o ON agri_p_o.id = driver_o.order_id
             JOIN agricultural_produce as agri_p on agri_p.id = agri_p_o.produce_id
             WHERE driver_o.driver_id = %s and driver_o.service = %s 
-        """, (driver_id, '農產品'))
+        """, (driver_id, 'agricultural product'))
         agri_orders = cur.fetchall()
         for agri_order in agri_orders:
-            total_price = agri_order[11] * agri_order[12] #price*quantity
+            total_price = agri_order[12] * agri_order[13] #price*quantity
             agri_order_dict = {
                 "id": agri_order[0],
                 "buyer_id": agri_order[1],
                 "buyer_name": agri_order[2],
-                "location":agri_order[3], #商品要送達的目的地
+                "buyer_phone": agri_order[3],
+                "location":agri_order[4], #商品要送達的目的地
                 "is_urgent": False, # optional(or default false) 
                 "total_price": total_price,
                 "order_type": '購買類',
-                "order_status": agri_order[4], #未接單、已接單、已送達
-                "note": agri_order[5],
-                "previous_driver_id": agri_order[6],
-                "previous_driver_name": agri_order[7],
-                "previous_driver_phone": agri_order[8],
+                "order_status": agri_order[5], #未接單、已接單、已送達
+                "note": agri_order[6],
+                "previous_driver_id": agri_order[7],
+                "previous_driver_name": agri_order[8],
+                "previous_driver_phone": agri_order[9],
+                "service":'agricultural product',
                 "items": [{
-                    "item_id": agri_order[9],
-                    "item_name": agri_order[10],
-                    "price": agri_order[11],
-                    "quantity": agri_order[12],
-                    "img": agri_order[13],
-                    "location": agri_order[14], #司機拿取農產品的地方
-                    "category": agri_order[15]
+                    "item_id": agri_order[10],
+                    "item_name": agri_order[11],
+                    "price": agri_order[12],
+                    "quantity": agri_order[13],
+                    "img": agri_order[14],
+                    "location": agri_order[15], #司機拿取農產品的地方
+                    "category": agri_order[16]
 
                 }]
             }

@@ -33,7 +33,6 @@ class PurchaseProductRequest(BaseModel):
     quantity: int
     starting_point: str
     end_point: str
-    category: str #agriculture or necessity
 
 class PurchasedProduct(BaseModel):
     order_id: int

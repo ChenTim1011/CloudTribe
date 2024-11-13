@@ -19,10 +19,10 @@ import { Order } from '@/interfaces/order/Order';
 const OrderCard: React.FC<{
     order: Order;
     driverId: number;
-    onAccept: (orderId: string) => Promise<void>;
+    onAccept: (orderId: string, service: string) => Promise<void>;
     onTransfer: (orderId: string, newDriverPhone: string) => Promise<void>;
     onNavigate: (orderId: string) => void;
-    onComplete: (orderId: string) => Promise<void>;
+    onComplete: (orderId: string, service: string) => Promise<void>;
 }> = ({ order, driverId, onAccept, onTransfer, onNavigate, onComplete }) => {
     console.log('OrderCard received order:', order);
 
@@ -41,7 +41,7 @@ const OrderCard: React.FC<{
     const handleAccept = async () => {
         try {
             if (order.id) {
-                await onAccept(order.id.toString());
+                await onAccept(order.id.toString(), order.service);
                 setAcceptError(""); // Clear any previous errors
             } else {
                 setAcceptError("order ID not exist");
@@ -55,6 +55,7 @@ const OrderCard: React.FC<{
             }
         }
     };
+   
 
     /**
      * Handles the transfer of an order to a new driver.
@@ -90,9 +91,11 @@ const OrderCard: React.FC<{
                     <CardDescription className="text-lg text-white font-semibold">消費者姓名: {order.buyer_name}</CardDescription>
                 </div>
                 {order.order_status === '接單' && (
-                    <Button className="bg-white text-black" onClick={() => onComplete(order.id?.toString() || "")}>
+                    <div>
+                    <Button className="bg-white text-black" onClick={() => onComplete(order.id?.toString() || "", order.service)}>
                         貨品已到達目的地
                     </Button>
+                    </div>
                 )}
             </CardHeader>
             <CardContent className="p-4">

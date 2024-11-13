@@ -170,6 +170,7 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onClose, clearCart, cartIte
       order_type: string;
       order_status: string;
       note: string;
+      service: string;
       shipment_count: number;
       required_orders_count: number;
       previous_driver_id: null;
@@ -199,6 +200,7 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onClose, clearCart, cartIte
       order_type: "購買類",
       order_status: "未接單",
       note: note,
+      service: 'necessities',
       shipment_count: 1,         // TODO: seller function
       required_orders_count: 1,  // TODO: seller function
       previous_driver_id: null,

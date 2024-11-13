@@ -46,7 +46,6 @@ export interface PurchasedProductRequest{
   quantity: Number
   starting_point: string
   end_point: string
-  category: string //agriculture or necessity
 }
 export interface PurchasedProduct{
   order_id: Number

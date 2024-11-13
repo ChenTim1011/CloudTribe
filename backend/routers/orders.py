@@ -5,10 +5,10 @@ transferring orders, retrieving specific orders, and completing orders.
 Endpoints:
 - POST /: Create a new order.
 - GET /: Get all unaccepted orders.
-- POST /{order_id}/accept: Accept an order.
-- POST /{order_id}/transfer: Transfer an order to a new driver.
+- POST /{service}/{order_id}/accept: Accept an order.
+- POST /{service}/{order_id}/transfer: Transfer an order to a new driver.
 - GET /{order_id}: Retrieve a specific order by ID.
-- POST /{order_id}/complete: Complete an order.
+- POST /{service}/{order_id}: Complete an order.
 """
 
 from typing import List
@@ -16,7 +16,7 @@ import logging
 
 from psycopg2.extensions import connection as Connection
 from fastapi import APIRouter, HTTPException, Depends
-from backend.models.models import Order, DriverOrder, TransferOrderRequest
+from backend.models.models import Order, DriverOrder, TransferOrderRequest, DetailedOrder
 from backend.database import get_db_connection
 
 logging.basicConfig(level=logging.DEBUG)
@@ -35,7 +35,7 @@ def get_db():
         conn.close()
 
 @router.post("/", response_model=Order)
-async def create_order(order: Order, conn: Connection = Depends(get_db)):
+async def create_order(order: DetailedOrder, conn: Connection = Depends(get_db)):
     """
     Create a new order.
     Args:
@@ -93,25 +93,66 @@ async def get_orders(conn: Connection = Depends(get_db)):
                 "buyer_id": order[1],
                 "buyer_name": order[2], 
                 "buyer_phone": order[3], 
-                "seller_id": int(order[4]), 
-                "seller_name": order[5],
-                "seller_phone": order[6], 
-                "date": order[7].isoformat(),  
-                "time": order[8].isoformat(),  
+                #"seller_id": int(order[4]), 
+                #"seller_name": order[5],
+                #"seller_phone": order[6], 
+                #"date": order[7].isoformat(),  
+                #"time": order[8].isoformat(),  
                 "location": order[9],
                 "is_urgent": bool(order[10]),  
                 "total_price": float(order[11]),  
                 "order_type": order[12],
                 "order_status": order[13],
                 "note": order[14],
-                "shipment_count": order[15],
-                "required_orders_count": order[16],
-                "previous_driver_id": order[17],
-                "previous_driver_name": order[18],
-                "previous_driver_phone": order[19],
-                "items": [{"order_id": item[1], "item_id": item[2], "item_name": item[3], "price": float(item[4]), "quantity": int(item[5]), 
-                           "img": str(item[6]), "location": str(item[7]),"category":str(item[8])} for item in items]  
+                #"shipment_count": order[15],
+                #"required_orders_count": order[16],
+                #"previous_driver_id": order[17],
+                #"previous_driver_name": order[18],
+                #"previous_driver_phone": order[19],
+                "service":'necessities',
+                "items": [{
+                    #"order_id": item[1], 
+                    "item_id": item[2], 
+                    "item_name": item[3], 
+                    "price": float(item[4]), 
+                    "quantity": int(item[5]), 
+                    "img": str(item[6]), 
+                    "location": str(item[7]),
+                    "category":str(item[8])} for item in items]  
             })
+        #add
+        cur.execute("""
+            SELECT agri_p_o.id, agri_p_o.buyer_id, agri_p_o.buyer_name, agri_p_o.buyer_phone, agri_p_o.end_point, agri_p_o.status, agri_p_o.note, 
+                    agri_p.id, agri_p.name, agri_p.price, agri_p_o.quantity, agri_p.img_link, agri_p_o.starting_point, agri_p.category
+            FROM agricultural_product_order as agri_p_o
+            JOIN agricultural_produce as agri_p ON agri_p.id = agri_p_o.produce_id
+        """)
+        agri_orders = cur.fetchall()
+        for agri_order in agri_orders:
+            total_price = agri_order[9] * agri_order[10] #price*quantity
+            agri_order_dict = {
+                "id": agri_order[0],
+                "buyer_id": agri_order[1],
+                "buyer_name": agri_order[2],
+                "buyer_phone": agri_order[3],
+                "location":agri_order[4], #商品要送達的目的地
+                "is_urgent": False, 
+                "total_price": total_price,
+                "order_type": '購買類',
+                "order_status": agri_order[5], #未接單、已接單、已送達
+                "note": agri_order[6],
+                "service":'agricultural product',
+                "items": [{
+                    "item_id": str(agri_order[7]),
+                    "item_name": agri_order[8],
+                    "price": agri_order[9],
+                    "quantity": agri_order[10],
+                    "img": agri_order[11],
+                    "location": agri_order[12], #司機拿取農產品的地方
+                    "category": agri_order[13]
+                }]
+            }
+            order_list.append(agri_order_dict)
         return order_list
     except Exception as e:
         logging.error("Error fetching orders: %s", str(e))
@@ -119,8 +160,8 @@ async def get_orders(conn: Connection = Depends(get_db)):
     finally:
         cur.close()
 
-@router.post("/{order_id}/accept")
-async def accept_order(order_id: int, driver_order: DriverOrder, conn: Connection = Depends(get_db)):
+@router.post("/{service}/{order_id}/accept")
+async def accept_order(service: str, order_id: int, driver_order: DriverOrder, conn: Connection = Depends(get_db)):
     """
     Accept an order.
     Args:
@@ -133,8 +174,11 @@ async def accept_order(order_id: int, driver_order: DriverOrder, conn: Connectio
     logging.info("Received driver_order: %s", driver_order.model_dump_json())
     cur = conn.cursor()
     try:
-        logging.info("Driver %s attempting to accept order %s", driver_order.driver_id, order_id)
-        cur.execute("SELECT order_status FROM orders WHERE id = %s FOR UPDATE", (order_id,))
+        logging.info("Driver %s attempting to accept order %s in %s", driver_order.driver_id, order_id, service)
+        if service == 'necessities':
+            cur.execute("SELECT order_status FROM orders WHERE id = %s FOR UPDATE", (order_id,))
+        if service == 'agricultural product':
+            cur.execute("SELECT status FROM agricultural_product_order WHERE id = %s FOR UPDATE", (order_id,))
         order = cur.fetchone()
 
         logging.info("Fetched order: %s", order)
@@ -145,8 +189,10 @@ async def accept_order(order_id: int, driver_order: DriverOrder, conn: Connectio
         order_status = order[0]
         if order_status != '未接單':
             raise HTTPException(status_code=400, detail="訂單已被接")
-
-        cur.execute("UPDATE orders SET order_status = %s WHERE id = %s", ('接單', order_id))
+        if service == 'necessities':
+            cur.execute("UPDATE orders SET order_status = %s WHERE id = %s", ('接單', order_id))
+        if service == 'agricultural product':
+            cur.execute("UPDATE agricultural_product_order SET status = %s WHERE id = %s", ('接單', order_id))
         cur.execute(
             "INSERT INTO driver_orders (driver_id, order_id, action, timestamp, previous_driver_id, previous_driver_name, previous_driver_phone, service) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)",
             (driver_order.driver_id, order_id, '接單', driver_order.timestamp, driver_order.previous_driver_id, driver_order.previous_driver_name, driver_order.previous_driver_phone, driver_order.service)
@@ -170,8 +216,8 @@ async def accept_order(order_id: int, driver_order: DriverOrder, conn: Connectio
         cur.close()
 
 
-@router.post("/{order_id}/transfer")
-async def transfer_order(order_id: int, transfer_request: TransferOrderRequest, conn: Connection = Depends(get_db)):
+@router.post("/{service}/{order_id}/transfer")
+async def transfer_order(service:str, order_id: int, transfer_request: TransferOrderRequest, conn: Connection = Depends(get_db)):
     """
     Transfer an order to a new driver.
     Args:
@@ -184,6 +230,7 @@ async def transfer_order(order_id: int, transfer_request: TransferOrderRequest, 
     """
     cur = conn.cursor()
     try:
+        
         # Find new driver by phone
         cur.execute("SELECT id, driver_name, driver_phone FROM drivers WHERE driver_phone = %s", (transfer_request.new_driver_phone,))
         new_driver = cur.fetchone()
@@ -203,19 +250,25 @@ async def transfer_order(order_id: int, transfer_request: TransferOrderRequest, 
         # Get current driver details
         cur.execute("SELECT driver_name, driver_phone FROM drivers WHERE id = %s", (transfer_request.current_driver_id,))
         current_driver = cur.fetchone()
-
+        
         # Update driver_orders with new driver details
         cur.execute(
             "UPDATE driver_orders SET driver_id = %s, previous_driver_id = %s, previous_driver_name = %s, "
             "previous_driver_phone = %s WHERE order_id = %s AND driver_id = %s AND action = '接單'", 
             (new_driver_id, transfer_request.current_driver_id, current_driver[0], current_driver[1], order_id, transfer_request.current_driver_id)
         )
-
-        # Update orders with previous driver details
-        cur.execute(
-            "UPDATE orders SET previous_driver_id = %s, previous_driver_name = %s, previous_driver_phone = %s WHERE id = %s",
-            (transfer_request.current_driver_id, current_driver[0], current_driver[1], order_id)
-        )
+        if service == 'necessities':
+            # Update orders with previous driver details
+            cur.execute(
+                "UPDATE orders SET previous_driver_id = %s, previous_driver_name = %s, previous_driver_phone = %s WHERE id = %s",
+                (transfer_request.current_driver_id, current_driver[0], current_driver[1], order_id)
+            )
+        if service == 'agricultural product':
+            # Update orders with previous driver details
+            cur.execute(
+                "UPDATE agricultural_product_order SET previous_driver_id = %s, previous_driver_name = %s, previous_driver_phone = %s WHERE id = %s",
+                (transfer_request.current_driver_id, current_driver[0], current_driver[1], order_id)
+            )
 
         conn.commit()
         return {"status": "success"}
@@ -276,8 +329,8 @@ async def get_order(order_id: int, conn: Connection = Depends(get_db)):
         cur.close()
 
 
-@router.post("/{order_id}/complete")
-async def complete_order(order_id: int, conn = Depends(get_db)):
+@router.post("/{service}/{order_id}/complete")
+async def complete_order(service: str, order_id: int, conn = Depends(get_db)):
     """
     Complete an order.
     Args:
@@ -288,23 +341,42 @@ async def complete_order(order_id: int, conn = Depends(get_db)):
     """
     cur = conn.cursor()
     try:
-        # Check if order exists
-        cur.execute("SELECT * FROM orders WHERE id = %s", (order_id,))
-        order = cur.fetchone()
-        if not order:
-            raise HTTPException(status_code=404, detail="訂單不存在")
-        if order[13] != '接單':
-            raise HTTPException(status_code=400, detail="訂單狀態不是接單，無法完成訂單")
-        
-        # Update the order status
-        cur.execute("UPDATE orders SET order_status = '已完成' WHERE id = %s", (order_id,))
-        
-        # Update the driver_orders action
-        cur.execute("""
-            UPDATE driver_orders
-            SET action = '完成'
-            WHERE order_id = %s
-        """, (order_id,))
+        if service == 'necessities':
+            # Check if order exists
+            cur.execute("SELECT * FROM orders WHERE id = %s", (order_id,))
+            order = cur.fetchone()
+            if not order:
+                raise HTTPException(status_code=404, detail="訂單不存在")
+            if order[13] != '接單':
+                raise HTTPException(status_code=400, detail="訂單狀態不是接單，無法完成訂單")
+            
+            # Update the order status
+            cur.execute("UPDATE orders SET order_status = '已完成' WHERE id = %s", (order_id,))
+            
+            # Update the driver_orders action
+            cur.execute("""
+                UPDATE driver_orders
+                SET action = '完成'
+                WHERE order_id = %s and service = %s
+            """, (order_id, 'necessities'))
+        if service == 'agricultural product':
+             # Check if order exists
+            cur.execute("SELECT * FROM agricultural_product_order WHERE id = %s", (order_id,))
+            order = cur.fetchone()
+            if not order:
+                raise HTTPException(status_code=404, detail="訂單不存在")
+            if order[9] != '接單':
+                raise HTTPException(status_code=400, detail="訂單狀態不是接單，無法完成訂單")
+            
+            # Update the order status
+            cur.execute("UPDATE agricultural_product_order SET status = '已完成' WHERE id = %s", (order_id,))
+            
+            # Update the driver_orders action
+            cur.execute("""
+                UPDATE driver_orders
+                SET action = '完成'
+                WHERE order_id = %s and service = %s
+            """, (order_id, 'agricultural product'))
         
         conn.commit()
         return {"status": "success", "message": "訂單已完成"}
