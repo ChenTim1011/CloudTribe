@@ -340,6 +340,7 @@ async def get_driver_orders(driver_id: int, conn: Connection = Depends(get_db)):
                 "previous_driver_id": order[17],
                 "previous_driver_name": order[18],
                 "previous_driver_phone": order[19],
+                "service":"necessities",
                 "items": []
             }
             # Retrieve order items
@@ -385,6 +386,7 @@ async def get_driver_orders(driver_id: int, conn: Connection = Depends(get_db)):
                 "previous_driver_id": agri_order[6],
                 "previous_driver_name": agri_order[7],
                 "previous_driver_phone": agri_order[8],
+                "service":'agricultural product',
                 "items": [{
                     "item_id": agri_order[9],
                     "item_name": agri_order[10],

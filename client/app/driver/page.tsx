@@ -274,9 +274,10 @@ const DriverPage: React.FC = () => {
      * Handle completing an order.
      * @param orderId - The ID of the order to complete.
      */
-    const handleCompleteOrder = async (orderId: string) => {
+    const handleCompleteOrder = async (orderId: string, service: string) => {
         try {
-            const response = await fetch(`/api/orders/${orderId}/complete`, {
+            console.log('service=', service)
+            const response = await fetch(`/api/orders/${service}/${orderId}/complete`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

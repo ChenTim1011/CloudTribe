@@ -6,9 +6,9 @@ Endpoints:
 - POST /: Create a new order.
 - GET /: Get all unaccepted orders.
 - POST /{service}/{order_id}/accept: Accept an order.
-- POST /{order_id}/transfer: Transfer an order to a new driver.
+- POST /{service}/{order_id}/transfer: Transfer an order to a new driver.
 - GET /{order_id}: Retrieve a specific order by ID.
-- POST /{order_id}/complete: Complete an order.
+- POST /{service}/{order_id}: Complete an order.
 """
 
 from typing import List
@@ -321,8 +321,8 @@ async def get_order(order_id: int, conn: Connection = Depends(get_db)):
         cur.close()
 
 
-@router.post("/{order_id}/complete")
-async def complete_order(order_id: int, conn = Depends(get_db)):
+@router.post("/{service}/{order_id}/complete")
+async def complete_order(service: str, order_id: int, conn = Depends(get_db)):
     """
     Complete an order.
     Args:
@@ -333,23 +333,42 @@ async def complete_order(order_id: int, conn = Depends(get_db)):
     """
     cur = conn.cursor()
     try:
-        # Check if order exists
-        cur.execute("SELECT * FROM orders WHERE id = %s", (order_id,))
-        order = cur.fetchone()
-        if not order:
-            raise HTTPException(status_code=404, detail="訂單不存在")
-        if order[13] != '接單':
-            raise HTTPException(status_code=400, detail="訂單狀態不是接單，無法完成訂單")
-        
-        # Update the order status
-        cur.execute("UPDATE orders SET order_status = '已完成' WHERE id = %s", (order_id,))
-        
-        # Update the driver_orders action
-        cur.execute("""
-            UPDATE driver_orders
-            SET action = '完成'
-            WHERE order_id = %s
-        """, (order_id,))
+        if service == 'necessities':
+            # Check if order exists
+            cur.execute("SELECT * FROM orders WHERE id = %s", (order_id,))
+            order = cur.fetchone()
+            if not order:
+                raise HTTPException(status_code=404, detail="訂單不存在")
+            if order[13] != '接單':
+                raise HTTPException(status_code=400, detail="訂單狀態不是接單，無法完成訂單")
+            
+            # Update the order status
+            cur.execute("UPDATE orders SET order_status = '已完成' WHERE id = %s", (order_id,))
+            
+            # Update the driver_orders action
+            cur.execute("""
+                UPDATE driver_orders
+                SET action = '完成'
+                WHERE order_id = %s and service = %s
+            """, (order_id, 'necessities'))
+        if service == 'agricultural product':
+             # Check if order exists
+            cur.execute("SELECT * FROM agricultural_product_order WHERE id = %s", (order_id,))
+            order = cur.fetchone()
+            if not order:
+                raise HTTPException(status_code=404, detail="訂單不存在")
+            if order[9] != '接單':
+                raise HTTPException(status_code=400, detail="訂單狀態不是接單，無法完成訂單")
+            
+            # Update the order status
+            cur.execute("UPDATE agricultural_product_order SET status = '已完成' WHERE id = %s", (order_id,))
+            
+            # Update the driver_orders action
+            cur.execute("""
+                UPDATE driver_orders
+                SET action = '完成'
+                WHERE order_id = %s and service = %s
+            """, (order_id, 'agricultural product'))
         
         conn.commit()
         return {"status": "success", "message": "訂單已完成"}
