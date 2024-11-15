@@ -7,7 +7,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog"
-import { PurchasedProduct } from "@/services/interface"
+import { PurchasedProduct } from "@/interfaces/consumer/consumer";
 import Image from 'next/image';
 
 interface DetailDialogProp {

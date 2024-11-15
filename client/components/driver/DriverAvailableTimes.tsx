@@ -7,7 +7,7 @@ import { Calendar } from "@/components/ui/calendar";
 import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from "@/components/ui/select";
 import TimeCard from './TimeCard';
 import { Sheet, SheetTrigger, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
-import { TimeSlot } from '@/interfaces/driver/TimeSlot';
+import { TimeSlot } from '@/interfaces/driver/driver';
 
 
 // use `timeOptions` to populate the select dropdown for start time

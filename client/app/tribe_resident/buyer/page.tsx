@@ -14,9 +14,9 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faShoppingCart } from "@fortawesome/free-solid-svg-icons";
 import { useMediaQuery } from "react-responsive";
 import UserService from "@/services/user/user";
-import { Product } from "@/interfaces/tribe_resident/buyer/Product";
-import { CartItem } from "@/interfaces/tribe_resident/buyer/CartItem";
-import { Order } from "@/interfaces/order/Order";
+import { Product } from "@/interfaces/tribe_resident/buyer/buyer";
+import { CartItem } from "@/interfaces/tribe_resident/buyer/buyer";
+import { Order } from "@/interfaces/tribe_resident/buyer/order";
 
 /**
  * The number of items to display per page

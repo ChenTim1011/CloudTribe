@@ -38,11 +38,11 @@ import {
 import { useSearchParams, useRouter } from "next/navigation";
 import Directions from "@/components/navigation/Directions";
 import DriverOrdersPage from "@/components/driver/DriverOrdersPage";
-import { LatLng } from "@/interfaces/navigation/LatLng";
-import { Route } from "@/interfaces/navigation/Route"; 
-import { Leg } from "@/interfaces/navigation/Leg";
-import { Driver } from "@/interfaces/driver/Driver";
-import { Order } from "@/interfaces/order/Order";
+import { LatLng } from "@/interfaces/navigation/navigation";
+import { Route } from "@/interfaces/navigation/navigation"; 
+import { Leg } from "@/interfaces/navigation/navigation";
+import { Driver } from "@/interfaces/driver/driver";
+import { Order } from "@/interfaces/tribe_resident/buyer/order";
 
 // Import the necessary service functions
 import {

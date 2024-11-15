@@ -10,7 +10,9 @@ import { NavigationBar } from'@/components/NavigationBar'
 import ConsumerService from '@/services/consumer/consumer'
 import DriverService from '@/services/driver/driver'
 import UserService from '@/services/user/user'
-import { User, CartItem, PurchasedProductRequest } from '@/services/interface'
+import { User } from '@/interfaces/user/user';
+import { CartItem } from '@/interfaces/tribe_resident/seller/seller';
+import { PurchasedProductRequest } from '@/interfaces/consumer/consumer';
 import { useRouter } from 'next/navigation'
 import Link from "next/link"
 

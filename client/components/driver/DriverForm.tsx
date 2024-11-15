@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import UserService from '@/services/user/user'; 
-import { Driver } from '@/interfaces/driver/Driver';
+import { Driver } from '@/interfaces/driver/driver';
 
 /**
  * Represents the form for creating or updating a driver.

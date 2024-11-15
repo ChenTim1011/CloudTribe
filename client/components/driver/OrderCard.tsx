@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Order } from '@/interfaces/order/Order';
+import { Order } from '@/interfaces/tribe_resident/buyer/order';
 
 /**
  * Represents an order card component.

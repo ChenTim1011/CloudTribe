@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Order } from '@/interfaces/order/Order';
+import { Order } from '@/interfaces/tribe_resident/buyer/order';
 
 /**
  * A functional component that displays a simplified order card for buyers.

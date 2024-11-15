@@ -1,4 +1,4 @@
-// @/interfaces/user/User.ts
+
 
 export interface User {
     id: number;

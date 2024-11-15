@@ -3,8 +3,7 @@ import React, { useState, useEffect } from "react"
 import { NavigationBar } from "@/components/NavigationBar";
 import { ProductDetailTable } from "@/components/tribe_resident/seller/ProductDetailTable";
 import SellerService from '@/services/seller/seller'
-import { ProductInfo } from '@/services/interface'
-import Image from 'next/image';
+import { ProductInfo } from '@/interfaces/tribe_resident/seller/seller';
 
 export default function Page(){
   const [productInfo, setProductInfo] = useState<ProductInfo>()

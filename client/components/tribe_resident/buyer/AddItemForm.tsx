@@ -10,7 +10,7 @@ import {
   SheetTitle,
   SheetFooter,
 } from "@/components/ui/sheet";
-import { AddItemFormProps } from "@/interfaces/tribe_resident/buyer/AddItemFormProps";
+import { AddItemFormProps } from "@/interfaces/tribe_resident/buyer/buyer";
 import {
   GoogleMap,
   Autocomplete,

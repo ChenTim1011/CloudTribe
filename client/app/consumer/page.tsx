@@ -1,10 +1,11 @@
 'use client'
 import React, { useState, useEffect } from "react";
 import Link from 'next/link'
-import { User, ProductInfo } from '@/services/interface'
+import { User } from '@/interfaces/user/user';
+import { ProductInfo } from '@/interfaces/tribe_resident/seller/seller';
 import UserService from '@/services/user/user'
 import ConsumerService from '@/services/consumer/consumer'
-import { AddCartRequest } from "@/services/interface";
+import { AddCartRequest } from "@/interfaces/consumer/consumer";
 import { CATEGORIES } from "@/constants/constants";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faShoppingCart } from '@fortawesome/free-solid-svg-icons';

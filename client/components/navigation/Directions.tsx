@@ -1,8 +1,8 @@
 // components/navigation/Directions.tsx
 
 import React, { useEffect } from "react";
-import { DirectionsProps } from "@/interfaces/navigation/DirectionsProps";
-import { Route } from "@/interfaces/navigation/Route";
+import { DirectionsProps } from "@/interfaces/navigation/navigation";
+import { Route } from "@/interfaces/navigation/navigation";
 
 const Directions: React.FC<DirectionsProps> = ({
   map,

@@ -6,7 +6,8 @@ import { OrderedProductTable } from "@/components/consumer/OrderedProductTable"
 import { ArrivedProductTable } from "@/components/consumer/ArrivedProductTable"
 import ConsumerService from '@/services/consumer/consumer'
 import UserSrevice from '@/services/user/user'
-import { User, PurchasedProduct } from '@/services/interface'
+import { User } from '@/interfaces/user/user';
+import { PurchasedProduct } from '@/interfaces/consumer/consumer';
 import { useRouter } from 'next/navigation'
 
 export default function Page(){

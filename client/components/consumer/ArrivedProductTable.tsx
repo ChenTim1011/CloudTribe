@@ -9,7 +9,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import { PurchasedProduct, User } from '@/services/interface'
+import { PurchasedProduct } from '@/interfaces/consumer/consumer';
+import { User } from '@/interfaces/user/user';
 import { NavigationBar } from "@/components/NavigationBar"
 import { ProductDetailDialog } from '@/components/consumer/ProductDetailDialog'
 import Link from "next/link"

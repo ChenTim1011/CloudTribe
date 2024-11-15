@@ -12,7 +12,7 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetFooter, SheetClose }
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import UserService from '@/services/user/user';  
-import { CheckoutFormProps } from '@/interfaces/tribe_resident/buyer/CheckoutFormProps';
+import { CheckoutFormProps } from '@/interfaces/tribe_resident/buyer/buyer';
 import { Autocomplete, useJsApiLoader, LoadScriptProps } from "@react-google-maps/api";
 
 // Define the required libraries

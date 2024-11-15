@@ -7,7 +7,7 @@ import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 import { format } from "date-fns";
 import BuyerOrderCard from "@/components/tribe_resident/buyer/BuyerOrderCard";
-import { Order } from "@/interfaces/order/Order";
+import { Order } from "@/interfaces/tribe_resident/buyer/order";
 import UserService from "@/services/user/user";
 
 interface OrderManagementProps {

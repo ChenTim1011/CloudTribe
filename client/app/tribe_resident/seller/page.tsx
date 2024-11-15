@@ -6,7 +6,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { NavigationBar } from "@/components/NavigationBar"
 import UseService from "@/services/user/user"
 import SellerService from "@/services/seller/seller"
-import { User, BasicProductInfo } from '@/services/interface'
+import { User } from '@/interfaces/user/user';
+import { BasicProductInfo } from '@/interfaces/tribe_resident/seller/seller';
 import { useRouter } from 'next/navigation'
 
 export default function Page(){

@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react'
 import { LOCATIONS } from "@/constants/constants"
 import UserService from '@/services/user/user'
 import { NavigationBar } from '@/components/NavigationBar'
-import { User } from '@/services/interface'
+import { User } from '@/interfaces/user/user'
 import { Label } from '@/components/ui/label'
 import { Button } from '@/components/ui/button'
 import {

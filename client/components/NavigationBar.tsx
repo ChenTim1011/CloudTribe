@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react'; 
 import UserService from '@/services/user/user';
-import { User } from '@/services/interface';
+import { User } from '@/interfaces/user/user';
 import { Menubar, MenubarMenu, MenubarTrigger} from "@/components/ui/menubar";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faMountain, faGear } from '@fortawesome/free-solid-svg-icons';

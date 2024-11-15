@@ -1,5 +1,4 @@
 import React from "react"
-import { Button } from '@/components/ui/button'
 
 import {
   Table,
@@ -9,9 +8,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import { PurchasedProduct } from "@/services/interface"
+import { PurchasedProduct } from "@/interfaces/consumer/consumer"
 import { ProductDetailDialog } from '@/components/consumer/ProductDetailDialog'
-import Link from "next/link"
 
 
 interface orderedProductProp {

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import OrderCard from './OrderCard';
 import PaginationDemo from './PaginationDemo';
-import { Order } from '@/interfaces/order/Order';
+import { Order } from '@/interfaces/tribe_resident/buyer/order';
 
 interface OrderListWithPaginationProps {
     orders: Order[];

@@ -3,8 +3,8 @@
 import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import OrderCard from '@/components/driver/OrderCard';
 import { useRouter } from 'next/navigation';
-import { Order } from '@/interfaces/order/Order';
-import { Driver } from '@/interfaces/driver/Driver';
+import { Order } from '@/interfaces/tribe_resident/buyer/order';
+import { Driver } from '@/interfaces/driver/driver';
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";

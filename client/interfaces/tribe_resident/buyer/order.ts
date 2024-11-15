@@ -1,6 +1,4 @@
-// @/interfaces/order/Order.ts
 
-import { OrderItem } from './OrderItem';
 
 export interface Order {
     id?: number;
@@ -25,4 +23,15 @@ export interface Order {
     //previous_driver_phone?: string;
     service: string;
     items: OrderItem[];
+}
+
+
+export interface OrderItem {
+    item_id: string;
+    item_name: string;
+    price: number;
+    quantity: number;
+    img: string;
+    location?: string; 
+    category?: string;
 }

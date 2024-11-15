@@ -1,6 +1,7 @@
 'use client'
 import React, { useState, useEffect } from "react";
-import { User, UploadItem } from '@/services/interface'
+import { User } from '@/interfaces/user/user';
+import { UploadItem } from '@/interfaces/tribe_resident/seller/seller';
 import UserService from '@/services/user/user'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'

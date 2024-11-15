@@ -1,5 +1,5 @@
 import React, { useEffect } from "react"
-import { BasicProductInfo } from '@/services/interface'
+import { BasicProductInfo } from '@/interfaces/tribe_resident/seller/seller'
 import { Button } from '@/components/ui/button'
 
 import {

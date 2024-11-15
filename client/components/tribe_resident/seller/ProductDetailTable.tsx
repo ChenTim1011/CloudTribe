@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react"
 import SellerService from '@/services/seller/seller'
-import { ProductOrderInfo } from "@/services/interface"
+import { ProductOrderInfo } from "@/interfaces/tribe_resident/seller/seller"
 import { Button } from '@/components/ui/button'
 
 import {

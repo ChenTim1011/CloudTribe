@@ -1,4 +1,4 @@
-import { DriverOrder } from '@/services/interface'
+import { DriverOrder } from '@/interfaces/driver/driver';
 class DriverService {
     async handle_accept_order(service: string, order_id: Number, req: DriverOrder){
         
@@ -18,8 +18,8 @@ class DriverService {
 
 // juiting version
 
-import { Driver } from '@/interfaces/driver/Driver';
-import { Order } from '@/interfaces/order/Order';
+import { Driver } from '@/interfaces/driver/driver';
+import { Order } from '@/interfaces/tribe_resident/buyer/order';
 
 /**
  * Fetch driver data based on user ID.
@@ -42,6 +42,47 @@ export const fetchDriverData = async (userId: number): Promise<Driver | null> =>
         return data;
     } catch (error) {
         console.error('Error fetching driver data:', error);
+        throw error;
+    }
+};
+
+
+/**
+ * Accept an order.
+ * @param orderId - The ID of the order to accept.
+ * @param driverId - The driver's ID.
+ * @returns A success message.
+ */
+export const acceptOrder = async (orderId: string, driverId: number): Promise<void> => {
+    try {
+        console.log("Accepting order with orderId:", orderId);
+        const timestamp = new Date().toISOString();
+
+        const response = await fetch(`/api/orders/${orderId}/accept`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                driver_id: driverId,
+                order_id: orderId,
+                action: "接單",
+                timestamp: timestamp,
+                previous_driver_id: null,
+                previous_driver_name: null,
+                previous_driver_phone: null
+            }),
+        });
+
+        if (!response.ok) {
+            const errorText = await response.text();
+            throw new Error(`Failed to accept order: ${errorText}`);
+        }
+
+        alert('接單成功');
+    } catch (error) {
+        console.error('Error accepting order:', error);
+        alert('接單失敗');
         throw error;
     }
 };
@@ -91,45 +132,7 @@ export const fetchDriverOrders = async (driverId: number): Promise<Order[]> => {
     }
 };
 
-/**
- * Accept an order.
- * @param orderId - The ID of the order to accept.
- * @param driverId - The driver's ID.
- * @returns A success message.
- */
-export const acceptOrder = async (orderId: string, driverId: number): Promise<void> => {
-    try {
-        console.log("Accepting order with orderId:", orderId);
-        const timestamp = new Date().toISOString();
 
-        const response = await fetch(`/api/orders/${orderId}/accept`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                driver_id: driverId,
-                order_id: orderId,
-                action: "接單",
-                timestamp: timestamp,
-                previous_driver_id: null,
-                previous_driver_name: null,
-                previous_driver_phone: null
-            }),
-        });
-
-        if (!response.ok) {
-            const errorText = await response.text();
-            throw new Error(`Failed to accept order: ${errorText}`);
-        }
-
-        alert('接單成功');
-    } catch (error) {
-        console.error('Error accepting order:', error);
-        alert('接單失敗');
-        throw error;
-    }
-};
 
 /**
  * Transfer an order to a new driver.

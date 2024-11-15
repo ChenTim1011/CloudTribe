@@ -1,4 +1,4 @@
-import { AddCartRequest, PurchasedProductRequest } from '@/services/interface'
+import { AddCartRequest, PurchasedProductRequest } from '@/interfaces/consumer/consumer';
 class ConsumerService{
   async get_on_sell_product(){
     const res = await fetch('/api/consumer',{

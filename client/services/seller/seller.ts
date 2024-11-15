@@ -1,4 +1,4 @@
-import { UploadItem } from '@/services/interface'
+import { UploadItem } from '@/interfaces/tribe_resident/seller/seller';
 
 class SellerService {
   async upload_image(img: string){

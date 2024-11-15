@@ -13,9 +13,9 @@ import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover
 import { format } from "date-fns";
 import { useRouter } from 'next/navigation';
 import UserService from '@/services/user/user'; 
-import { Driver } from '@/interfaces/driver/Driver'; 
-import { Order } from '@/interfaces/order/Order';
-import { DriverOrder } from '@/services/interface'
+import { Driver } from '@/interfaces/driver/driver'; 
+import { Order } from '@/interfaces/tribe_resident/buyer/order';
+import { DriverOrder } from '@/interfaces/driver/driver';
 import DriverService from '@/services/driver/driver'
 
 const DriverPage: React.FC = () => {
@@ -209,9 +209,9 @@ const DriverPage: React.FC = () => {
                 order_id: parseInt(orderId),  
                 action: "接單",
                 timestamp: timestamp,
-                previous_driver_id: null,
-                previous_driver_name: null,
-                previous_driver_phone: null,
+                previous_driver_id: 0,
+                previous_driver_name: "",
+                previous_driver_phone: "",
                 service: service
             }
             const response = await DriverService.handle_accept_order(service, parseInt(orderId), accept_order)

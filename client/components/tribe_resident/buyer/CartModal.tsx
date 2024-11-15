@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetFooter, SheetClose } from "@/components/ui/sheet";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTrashAlt } from '@fortawesome/free-solid-svg-icons';
-import { CartModalProps } from '@/interfaces/tribe_resident/buyer/CartModalProps';
+import { CartModalProps } from '@/interfaces/tribe_resident/buyer/buyer';
 import CheckoutForm from "@/components/tribe_resident/buyer/CheckoutForm";
 
 /**

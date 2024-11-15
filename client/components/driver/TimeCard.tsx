@@ -1,7 +1,7 @@
 import React from 'react';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { TimeSlot } from '@/interfaces/driver/TimeSlot';
+import { TimeSlot } from '@/interfaces/driver/driver';
 
 /**
  * Represents a card displaying the driver's available time slot.
