@@ -101,9 +101,9 @@ const OrderCard: React.FC<{
             <CardContent className="p-4">
                 {/* Order details including buyer phone, date, time, and location */}
                 <div className="mb-2">
-                    <p className="text-sm text-gray-700 font-bold">電話: {order.buyer_phone}</p>
-                    <p className="text-sm text-gray-700 font-bold">最晚可接單日期: {new Date(order.date).toLocaleDateString()}</p>
-                    <p className="text-sm text-gray-700 font-bold">最晚可接單時間: {order.time}</p>
+                    {order.order_status !== '未接單' && (
+                    <p className="text-sm text-gray-700 font-bold">聯絡電話: {order.buyer_phone}</p>
+                    )}
                     <p className="text-sm text-gray-700 font-bold">送達地點: {order.location}</p>
                 </div>
                 {/* List of items in the order */}
@@ -144,11 +144,11 @@ const OrderCard: React.FC<{
                     <p className="text-sm text-gray-700 font-bold">備註: {order.note}</p>
                 )}
                 {/* Display previous driver info if the order was transferred */}
-                {order.previous_driver_name && (
+                {/* {order.previous_driver_name && (
                     <div className="mt-4">
                         <p className="text-sm text-gray-700 font-bold">🔄轉單自: {order.previous_driver_name} ({order.previous_driver_phone})</p>
                     </div>
-                )}
+                )} */}
                 {/* Transfer form for entering new driver's phone number */}
                 {showTransferForm && (
                     <div className="mt-4">

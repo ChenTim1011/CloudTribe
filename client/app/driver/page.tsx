@@ -116,10 +116,10 @@ const DriverPage: React.FC = () => {
                 return isFuturePendingOrder && matchesStartDate && matchesEndDate;
             });*/
             // no filter date version
-            data = data.filter((order) => {
-                const availableOrder = order.order_status === "未接單";
-                return availableOrder
-            }); 
+            data = data.filter((order) => 
+                order.order_status === "未接單")
+                .sort((a, b) => (b.is_urgent ? 1 : 0) - (a.is_urgent ? 1 : 0));
+                
             setUnacceptedOrders(data);
         } catch (error) {
             console.error('Error fetching unaccepted orders:', error);
@@ -289,7 +289,7 @@ const DriverPage: React.FC = () => {
             }
 
             alert('訂單已完成');
-            handleFetchDriverOrders(driverData!.id); // 更新已接單訂單
+            handleFetchDriverOrders(driverData!.id); // Refresh driver orders
         } catch (error) {
             console.error('Error completing order:', error);
             alert('完成訂單失敗');

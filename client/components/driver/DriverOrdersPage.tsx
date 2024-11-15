@@ -64,15 +64,13 @@ const DriverOrdersPage: React.FC<DriverOrdersPageProps> = ({ driverData, onAccep
     }, [driverData, fetchDriverOrders]);
 
     /**
+     *
      * Filters the orders based on the selected status and date range.
      */
     const finalFilteredOrders = useMemo(() => {
         return orders.filter((order) => {
-            const orderDate = new Date(order.date);
             const matchesStatus = order.order_status === orderStatus;
-            const matchesStartDate = startDate ? orderDate >= startDate : true;
-            const matchesEndDate = endDate ? orderDate <= endDate : true;
-            return matchesStatus && matchesStartDate && matchesEndDate;
+            return matchesStatus ;
         });
     }, [orders, orderStatus, startDate, endDate]);
 
