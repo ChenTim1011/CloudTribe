@@ -369,7 +369,7 @@ async def get_driver_orders(driver_id: int, conn: Connection = Depends(get_db)):
             JOIN driver_orders as driver_o ON agri_p_o.id = driver_o.order_id
             JOIN agricultural_produce as agri_p on agri_p.id = agri_p_o.produce_id
             WHERE driver_o.driver_id = %s and driver_o.service = %s 
-        """, (driver_id, 'agricultural product'))
+        """, (driver_id, 'agricultural_product'))
         agri_orders = cur.fetchall()
         for agri_order in agri_orders:
             total_price = agri_order[12] * agri_order[13] #price*quantity
@@ -387,7 +387,7 @@ async def get_driver_orders(driver_id: int, conn: Connection = Depends(get_db)):
                 "previous_driver_id": agri_order[7],
                 "previous_driver_name": agri_order[8],
                 "previous_driver_phone": agri_order[9],
-                "service":'agricultural product',
+                "service":'agricultural_product',
                 "items": [{
                     "item_id": agri_order[10],
                     "item_name": agri_order[11],

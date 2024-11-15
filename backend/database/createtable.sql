@@ -105,7 +105,7 @@ CREATE TABLE agricultural_shopping_cart (
     quantity INTEGER NOT NULL,
     status VARCHAR(5) NOT NULL DEFAULT '未送單'--status:已送單/未送單
 );
---order of agricultural products and necessities
+--order of agricultural_products and necessities
 CREATE TABLE agricultural_product_order(
     id SERIAL PRIMARY KEY,
     seller_id INTEGER, --if products are necessities, be null

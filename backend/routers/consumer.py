@@ -33,19 +33,19 @@ def get_db():
 @router.get('/', response_model=List[ProductInfo])
 async def get_on_sell_item(conn: Connection=Depends(get_db)):
     """
-    Get agricultural product which off_shelf_date is larger than today_date
+    Get agricultural_product which off_shelf_date is larger than today_date
 
     Args:
         today_date(str):today date
         conn(Connection): The database connection.
 
     Returns:
-        List[ProductInfo]: A list of agricultural product information.
+        List[ProductInfo]: A list of agricultural_product information.
     """
     today = datetime.date.today()
     cur = conn.cursor()
     try:
-        logging.info("Get agricultural product.(today_date: %s)", today)
+        logging.info("Get agricultural_product.(today_date: %s)", today)
         cur.execute("SELECT * FROM agricultural_produce WHERE off_shelf_date >= %s", (today,))
         products = cur.fetchall()
         logging.info('start create product list')
@@ -228,7 +228,7 @@ async def purchase_product(req: PurchaseProductRequest, conn: Connection = Depen
         if result is None:
             raise HTTPException(status_code=404, detail="Buyer not found")
         buyer_phone = result[0] 
-        logging.info("Inserting agricultural product order")
+        logging.info("Inserting agricultural_product order")
         cur.execute(
             """INSERT INTO agricultural_product_order 
             (seller_id, buyer_id, buyer_name, buyer_phone, produce_id, quantity, starting_point, end_point, status) 

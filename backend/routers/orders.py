@@ -141,7 +141,7 @@ async def get_orders(conn: Connection = Depends(get_db)):
                 "order_type": '購買類',
                 "order_status": agri_order[5], #未接單、已接單、已送達
                 "note": agri_order[6],
-                "service":'agricultural product',
+                "service":'agricultural_product',
                 "items": [{
                     "item_id": str(agri_order[7]),
                     "item_name": agri_order[8],
@@ -177,7 +177,7 @@ async def accept_order(service: str, order_id: int, driver_order: DriverOrder, c
         logging.info("Driver %s attempting to accept order %s in %s", driver_order.driver_id, order_id, service)
         if service == 'necessities':
             cur.execute("SELECT order_status FROM orders WHERE id = %s FOR UPDATE", (order_id,))
-        if service == 'agricultural product':
+        if service == 'agricultural_product':
             cur.execute("SELECT status FROM agricultural_product_order WHERE id = %s FOR UPDATE", (order_id,))
         order = cur.fetchone()
 
@@ -191,7 +191,7 @@ async def accept_order(service: str, order_id: int, driver_order: DriverOrder, c
             raise HTTPException(status_code=400, detail="訂單已被接")
         if service == 'necessities':
             cur.execute("UPDATE orders SET order_status = %s WHERE id = %s", ('接單', order_id))
-        if service == 'agricultural product':
+        if service == 'agricultural_product':
             cur.execute("UPDATE agricultural_product_order SET status = %s WHERE id = %s", ('接單', order_id))
         cur.execute(
             "INSERT INTO driver_orders (driver_id, order_id, action, timestamp, previous_driver_id, previous_driver_name, previous_driver_phone, service) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)",
@@ -263,7 +263,7 @@ async def transfer_order(service:str, order_id: int, transfer_request: TransferO
                 "UPDATE orders SET previous_driver_id = %s, previous_driver_name = %s, previous_driver_phone = %s WHERE id = %s",
                 (transfer_request.current_driver_id, current_driver[0], current_driver[1], order_id)
             )
-        if service == 'agricultural product':
+        if service == 'agricultural_product':
             # Update orders with previous driver details
             cur.execute(
                 "UPDATE agricultural_product_order SET previous_driver_id = %s, previous_driver_name = %s, previous_driver_phone = %s WHERE id = %s",
@@ -359,7 +359,7 @@ async def complete_order(service: str, order_id: int, conn = Depends(get_db)):
                 SET action = '完成'
                 WHERE order_id = %s and service = %s
             """, (order_id, 'necessities'))
-        if service == 'agricultural product':
+        if service == 'agricultural_product':
              # Check if order exists
             cur.execute("SELECT * FROM agricultural_product_order WHERE id = %s", (order_id,))
             order = cur.fetchone()
@@ -376,7 +376,7 @@ async def complete_order(service: str, order_id: int, conn = Depends(get_db)):
                 UPDATE driver_orders
                 SET action = '完成'
                 WHERE order_id = %s and service = %s
-            """, (order_id, 'agricultural product'))
+            """, (order_id, 'agricultural_product'))
         
         conn.commit()
         return {"status": "success", "message": "訂單已完成"}

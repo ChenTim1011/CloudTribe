@@ -16,11 +16,10 @@ import UserService from '@/services/user/user';
 import { Driver } from '@/interfaces/driver/driver'; 
 import { Order } from '@/interfaces/tribe_resident/buyer/order';
 import { DriverOrder } from '@/interfaces/driver/driver';
-import DriverService from '@/services/driver/driver'
+import { handle_accept_order } from '@/services/driver/driver';
 
 const DriverPage: React.FC = () => {
     const [showRegisterForm, setShowRegisterForm] = useState(false);
-    const [showLoginForm, setShowLoginForm] = useState(false);
     const [showDriverOrders, setShowDriverOrders] = useState(false);
     const [unacceptedOrders, setUnacceptedOrders] = useState<any[]>([]);
     const [acceptedOrders, setAcceptedOrders] = useState<any[]>([]);
@@ -144,56 +143,9 @@ const DriverPage: React.FC = () => {
         }
     };
 
-    /**
-     * Handle accepting an order.
-     * @param orderId - The ID of the order to accept.
-     */
-    /*
-    const handleAcceptOrder = async (orderId: string) => {
-        try {
-            console.log("handleAcceptOrder called with driverId:", driverData?.id);
-            console.log("Accepting order with orderId:", orderId);
-            if (!driverData || !driverData.id) {
-                console.error("Driver data is missing or incomplete");
-                return;
-            }
-        
-            const timestamp = new Date().toISOString();
-        
-            const response = await fetch(`/api/orders/${orderId}/accept`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ 
-                    driver_id: driverData.id,
-                    order_id: parseInt(orderId),  
-                    action: "接單",
-                    timestamp: timestamp,
-                    previous_driver_id: null,
-                    previous_driver_name: null,
-                    previous_driver_phone: null,
-                    service:'生活用品'
-                }),
-            });
-        
-            if (!response.ok) {
-                const errorText = await response.text();
-                throw new Error(`Failed to accept order: ${errorText}`);
-            }
-        
-            alert('接單成功');
-            if (driverData) {
-                handleFetchDriverOrders(driverData.id); 
-            }
-            handleFetchUnacceptedOrders(); 
-        } catch (error) {
-            console.error('Error accepting order:', error);
-            alert('接單失敗');
-        }
-    };*/
 
-    //change version below
+
+    //New Version to handle accepting an order
     
     const handleAcceptOrder = async (orderId: string, service: string) => {
         console.log("handleAcceptOrder called with driverId:", driverData?.id);
@@ -204,21 +156,19 @@ const DriverPage: React.FC = () => {
         }
         try {
             const timestamp = new Date().toISOString();
-            const accept_order: DriverOrder = {
+            const acceptOrder: DriverOrder = {
                 driver_id: driverData.id,
                 order_id: parseInt(orderId),  
                 action: "接單",
                 timestamp: timestamp,
-                previous_driver_id: 0,
-                previous_driver_name: "",
-                previous_driver_phone: "",
+                previous_driver_id: undefined,
+                previous_driver_name: undefined,
+                previous_driver_phone: undefined,
                 service: service
             }
-            const response = await DriverService.handle_accept_order(service, parseInt(orderId), accept_order)
+            await handle_accept_order(service, parseInt(orderId), acceptOrder)
             alert('接單成功');
-            if (driverData) {
-                handleFetchDriverOrders(driverData.id); 
-            }
+
             handleFetchUnacceptedOrders(); 
         } catch (error) {
             console.error('Error accepting order:', error);
@@ -247,10 +197,6 @@ const DriverPage: React.FC = () => {
             }
     
             alert('轉單成功，重整頁面可看到更新結果');
-            if (driverData) {
-                handleFetchDriverOrders(driverData.id); 
-            }
-            
 
         } catch (error) {
 
@@ -289,7 +235,7 @@ const DriverPage: React.FC = () => {
             }
 
             alert('訂單已完成');
-            handleFetchDriverOrders(driverData!.id); // Refresh driver orders
+
         } catch (error) {
             console.error('Error completing order:', error);
             alert('完成訂單失敗');

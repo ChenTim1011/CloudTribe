@@ -113,7 +113,7 @@ class UploadImageResponse(BaseModel):
 
 class UploadItemRequest(BaseModel):
     """
-    Model representing upload agricultural product request.
+    Model representing upload agricultural_product request.
     """
     name: str
     price: str

@@ -43,14 +43,8 @@ import { Route } from "@/interfaces/navigation/navigation";
 import { Leg } from "@/interfaces/navigation/navigation";
 import { Driver } from "@/interfaces/driver/driver";
 import { Order } from "@/interfaces/tribe_resident/buyer/order";
-
-// Import the necessary service functions
-import {
-  fetchDriverOrders,
-  acceptOrder,
-  transferOrder,
-  completeOrder,
-} from "@/services/driver/driver";
+import { DriverOrder } from "@/interfaces/driver/driver";
+import { handle_accept_order } from "@/services/driver/driver";
 
 // Define libraries for Google Maps
 const libraries: LoadScriptProps["libraries"] = ["places"];
@@ -227,6 +221,7 @@ const MapComponentContent: React.FC = () => {
       setError("無法獲取司機資料");
     }
   };
+  
 
   // Move useMemo here to ensure it's always called
   const memoizedWaypoints = useMemo(() => {
@@ -507,72 +502,99 @@ const MapComponentContent: React.FC = () => {
   };
 
   // Define handler functions for DriverOrdersPage
-
-  /**
-   * Handle accepting an order.
-   * @param orderId - The ID of the order to accept.
-   */
-  const onAccept = async (orderId: string) => {
-    if (!driverData?.id) {
-      alert("Driver data is missing or incomplete");
-      return;
+  const handleAcceptOrder = async (orderId: string, service: string) => {
+    console.log("handleAcceptOrder called with driverId:", driverData?.id);
+    console.log("Accepting order with orderId:", orderId);
+    if (!driverData || !driverData.id) {
+        console.error("Driver data is missing or incomplete");
+        return;
     }
     try {
-      await acceptOrder(orderId, driverData.id);
-      // Optionally, refresh the order data or handle state updates here
-      if (Number(orderId) === orderData?.id) {
-        fetchOrderData(orderId);
-      }
-    } catch (error) {
-      // Error handling is already done in the service
-    }
-  };
+        const timestamp = new Date().toISOString();
+        const acceptOrder: DriverOrder = {
+            driver_id: driverData.id,
+            order_id: parseInt(orderId),  
+            action: "接單",
+            timestamp: timestamp,
+            previous_driver_id: undefined,
+            previous_driver_name: undefined,
+            previous_driver_phone: undefined,
+            service: service
+        }
+        await handle_accept_order(service, parseInt(orderId), acceptOrder)
+        alert('接單成功');
 
-  /**
-   * Handle transferring an order.
-   * @param orderId - The ID of the order to transfer.
-   * @param newDriverPhone - The phone number of the new driver.
-   */
-  const onTransfer = async (orderId: string, newDriverPhone: string) => {
-    if (!driverData?.id) {
-      alert("Driver data is missing or incomplete");
-      return;
+    } catch (error) {
+        console.error('Error accepting order:', error);
+        alert('接單失敗');
     }
+};
+
+/**
+ * Handle transferring an order.
+ * @param orderId - The ID of the order to transfer.
+ * @param newDriverPhone - The phone number of the new driver.
+ */
+const handleTransferOrder = async (orderId: string, newDriverPhone: string) => {
     try {
-      await transferOrder(orderId, driverData.id, newDriverPhone);
-      // Optionally, refresh the order data or handle state updates here
-      if (Number(orderId) === orderData?.id) {
-        fetchOrderData(orderId);
-      }
-    } catch (error) {
-      // Error handling is already done in the service
-    }
-  };
+        const response = await fetch(`/api/orders/${orderId}/transfer`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ current_driver_id: driverData?.id, new_driver_phone: newDriverPhone }),
+        });
 
-  /**
-   * Handle navigating to order details.
-   * @param orderId - The ID of the order to navigate to.
-   * @param driverId - The driver's ID.
-   */
-  const onNavigate = (orderId: string, driverId: number) => {
+        if (!response.ok) {
+            const errorText = await response.text();
+            throw new Error(`Failed to transfer order: ${errorText}`);
+        }
+
+        alert('轉單成功，重整頁面可看到更新結果');
+
+    } catch (error) {
+
+
+        console.error('Error transferring order:', error);
+        alert('轉單失敗');
+    }
+};
+
+/**
+ * Handle navigating to order details.
+ * @param orderId - The ID of the order to navigate to.
+ * @param driverId - The driver's ID.
+ */
+const handleNavigate = (orderId: string, driverId: number) => {
+    console.log("Navigating to order with driverId:", driverId);
     router.push(`/navigation?orderId=${orderId}&driverId=${driverId}`);
-  };
+};
 
-  /**
-   * Handle completing an order.
-   * @param orderId - The ID of the order to complete.
-   */
-  const onComplete = async (orderId: string) => {
+/**
+ * Handle completing an order.
+ * @param orderId - The ID of the order to complete.
+ */
+const handleCompleteOrder = async (orderId: string, service: string) => {
     try {
-      await completeOrder(orderId);
-      // Optionally, refresh the order data or handle state updates here
-      if (Number(orderId) === orderData?.id) {
-        fetchOrderData(orderId);
-      }
+        console.log('service=', service)
+        const response = await fetch(`/api/orders/${service}/${orderId}/complete`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        });
+
+        if (!response.ok) {
+            throw new Error('Failed to complete order');
+        }
+
+        alert('訂單已完成');
+        
     } catch (error) {
-      // Error handling is already done in the service
+        console.error('Error completing order:', error);
+        alert('完成訂單失敗');
     }
-  };
+};
 
   return (
     <Suspense fallback={<div>Loading map...</div>}>
@@ -798,12 +820,12 @@ const MapComponentContent: React.FC = () => {
               driverData ? (
                 <DriverOrdersPage
                   driverData={driverData}
-                  onAccept={onAccept}
-                  onTransfer={onTransfer}
+                  onAccept={handleAcceptOrder}
+                  onTransfer={handleAcceptOrder}
                   onNavigate={(orderId: string) =>
-                    onNavigate(orderId, driverData.id || 0)
+                    handleNavigate(orderId, driverData.id || 0)
                   }
-                  onComplete={onComplete}
+                  onComplete={handleCompleteOrder}
                 />
               ) : (
                 <div className="p-4">
