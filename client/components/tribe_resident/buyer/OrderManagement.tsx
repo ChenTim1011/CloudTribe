@@ -44,25 +44,21 @@ const OrderManagement: React.FC<OrderManagementProps> = ({ isOpen, onClose, orde
     const now = new Date();
 
     return filteredOrders.filter((order) => {
-      const orderDateTime = new Date(`${order.date}T${order.time}`);
-      const matchesStatus = order.order_status === orderStatus;
-      const matchesStartDate = startDate ? new Date(order.date) >= startDate : true;
-      const matchesEndDate = endDate ? new Date(order.date) <= endDate  : true;
-      
-      // Show the future pending orders 
-      const isFuturePendingOrder = orderDateTime > now && order.order_status === "未接單";
 
+      const matchesStatus = order.order_status === orderStatus;
+
+      
       // Filter orders based on status and date range
       if (orderStatus === "未接單") {
-        return isFuturePendingOrder && matchesStartDate && matchesEndDate;
+        return matchesStatus;
       } else if (orderStatus === "接單" || orderStatus === "已完成") {
-        return matchesStatus && order.order_status === orderStatus && matchesStartDate && matchesEndDate;
+        return matchesStatus;
       }
 
       return false;
      
     });
-  }, [filteredOrders, orderStatus, startDate, endDate]);
+  }, [filteredOrders, orderStatus]);
 
   /**
    * Calculate the total price of the filtered orders

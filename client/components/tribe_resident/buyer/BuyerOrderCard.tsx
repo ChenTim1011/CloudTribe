@@ -15,15 +15,6 @@ const BuyerOrderCard: React.FC<{
   // Log the received order object for debugging purposes
   console.log('BuyerOrderCard received order:', order);
 
-  // Parse the order date and time
-  const orderDateTime = new Date(`${order.date}T${order.time}`);
-  const now = new Date();
-
-  // If the order date is in the past and the order is not accepted, do not render the card
-  if (now > orderDateTime && order.order_status === '未接單') {
-    return null;
-  }
-
   return (
     <Card className="max-w-md mx-auto my-6 shadow-lg">
       {/* Header of the card displaying the order title */}
@@ -37,8 +28,6 @@ const BuyerOrderCard: React.FC<{
       <CardContent className="p-4">
         <div className="mb-2">
           {/* Display order date and time */}
-          <p className="text-sm text-gray-700 font-bold">最晚日期: {order.date}</p>
-          <p className="text-sm text-gray-700 font-bold">最晚時間: {order.time}</p>
           <p className="text-sm text-gray-700 font-bold">送達地點: {order.location}</p>
         </div>
         <div className="mb-2">
