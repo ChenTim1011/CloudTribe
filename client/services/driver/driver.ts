@@ -64,20 +64,6 @@ export const fetchUnacceptedOrders = async (
 
         let data: Order[] = await response.json();
 
-        // Define current time to filter future unaccepted orders
-        const now = new Date();
-
-        // Condition: only show future unaccepted orders
-        data = data.filter((order) => {
-            const orderDateTime = new Date(`${order.date}T${order.time}`);
-            const isFuturePendingOrder = orderDateTime > now && order.order_status === "未接單";
-
-            const matchesStartDate = filterStartDate ? new Date(order.date) >= filterStartDate : true;
-            const matchesEndDate = filterEndDate ? new Date(order.date) <= filterEndDate : true;
-
-            return isFuturePendingOrder && matchesStartDate && matchesEndDate;
-        });
-
         return data;
     } catch (error) {
         console.error('Error fetching unaccepted orders:', error);
