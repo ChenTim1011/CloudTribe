@@ -8,7 +8,6 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTrashAlt } from '@fortawesome/free-solid-svg-icons';
 import { NavigationBar } from'@/components/NavigationBar'
 import ConsumerService from '@/services/consumer/consumer'
-import DriverService from '@/services/driver/driver'
 import UserService from '@/services/user/user'
 import { User } from '@/interfaces/user/user';
 import { CartItem } from '@/interfaces/tribe_resident/seller/seller';

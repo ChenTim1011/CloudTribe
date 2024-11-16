@@ -44,7 +44,7 @@ import { Leg } from "@/interfaces/navigation/navigation";
 import { Driver } from "@/interfaces/driver/driver";
 import { Order } from "@/interfaces/tribe_resident/buyer/order";
 import { DriverOrder } from "@/interfaces/driver/driver";
-import { handle_accept_order } from "@/services/driver/driver";
+import DriverService  from '@/services/driver/driver';
 
 // Define libraries for Google Maps
 const libraries: LoadScriptProps["libraries"] = ["places"];
@@ -521,7 +521,7 @@ const MapComponentContent: React.FC = () => {
             previous_driver_phone: undefined,
             service: service
         }
-        await handle_accept_order(service, parseInt(orderId), acceptOrder)
+        await  DriverService.handle_accept_order(service, parseInt(orderId), acceptOrder)
         alert('接單成功');
 
     } catch (error) {

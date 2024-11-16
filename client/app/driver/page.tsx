@@ -13,10 +13,11 @@ import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover
 import { format } from "date-fns";
 import { useRouter } from 'next/navigation';
 import UserService from '@/services/user/user'; 
+import DriverService  from '@/services/driver/driver';
 import { Driver } from '@/interfaces/driver/driver'; 
 import { Order } from '@/interfaces/tribe_resident/buyer/order';
 import { DriverOrder } from '@/interfaces/driver/driver';
-import { handle_accept_order } from '@/services/driver/driver';
+
 
 const DriverPage: React.FC = () => {
     const [showRegisterForm, setShowRegisterForm] = useState(false);
@@ -166,7 +167,7 @@ const DriverPage: React.FC = () => {
                 previous_driver_phone: undefined,
                 service: service
             }
-            await handle_accept_order(service, parseInt(orderId), acceptOrder)
+            await DriverService.handle_accept_order(service, parseInt(orderId), acceptOrder)
             alert('接單成功');
 
             handleFetchUnacceptedOrders(); 

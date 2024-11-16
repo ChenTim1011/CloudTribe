@@ -20,6 +20,7 @@
     "paths": {
       "@/*": ["./*"],
       "@/components/*": ["./components/*"],
+      "@/interfaces/*": ["./interfaces/*"],
       "@/app/*": ["./app/*"],
     }
   },
