@@ -10,6 +10,8 @@ export interface DirectionsProps {
   setTotalDistance: React.Dispatch<React.SetStateAction<string | null>>;
   setTotalTime: React.Dispatch<React.SetStateAction<string | null>>;
   travelMode: google.maps.TravelMode;
+  optimizeWaypoints: boolean; 
+  onWaypointsOptimized?: (waypointOrder: number[]) => void;
 }
 
 

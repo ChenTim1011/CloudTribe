@@ -14,6 +14,8 @@ const Directions: React.FC<DirectionsProps> = ({
   setTotalDistance,
   setTotalTime,
   travelMode,
+  optimizeWaypoints,
+  onWaypointsOptimized,
 }) => {
   const directionsRendererRef = useRef<google.maps.DirectionsRenderer | null>(null);
 
@@ -48,12 +50,14 @@ const Directions: React.FC<DirectionsProps> = ({
         location: wp.location,
         stopover: true,
       })),
-      optimizeWaypoints: false, // Set to true if you want Google to optimize waypoints
+      optimizeWaypoints: optimizeWaypoints,
     };
 
     directionsService.route(request, (result, status) => {
       if (status === google.maps.DirectionsStatus.OK && result) {
-        directionsRendererRef.current!.setDirections(result);
+        if (directionsRendererRef.current) {
+          directionsRendererRef.current.setDirections(result);
+        }
         const route = result.routes[0];
 
         // Map DirectionsRoute to Route
@@ -92,6 +96,13 @@ const Directions: React.FC<DirectionsProps> = ({
 
         setTotalDistance(`${(totalDistanceMeters / 1000).toFixed(2)} km`);
         setTotalTime(`${Math.floor(totalTimeSeconds / 60)} 分鐘`);
+      
+        // If waypoints are optimized, call the callback function with the optimized waypoint order
+        if (optimizeWaypoints && result.routes[0].waypoint_order && onWaypointsOptimized) {
+          onWaypointsOptimized(result.routes[0].waypoint_order);
+        }
+        
+      
       } else {
         console.error("Directions request failed due to " + status);
       }
@@ -104,7 +115,17 @@ const Directions: React.FC<DirectionsProps> = ({
         directionsRendererRef.current = null;
       }
     };
-  }, [map, origin, waypoints, destination, setRoutes, setTotalDistance, setTotalTime, travelMode]);
+  }, [map, 
+    origin, 
+    waypoints, 
+    destination, 
+    setRoutes, 
+    setTotalDistance, 
+    setTotalTime, 
+    travelMode,
+    optimizeWaypoints,
+    onWaypointsOptimized,
+  ]);
 
   return null;
 };

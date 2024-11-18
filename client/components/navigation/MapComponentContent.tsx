@@ -29,7 +29,8 @@ import {
   faTrash,
   faWalking,   
   faBicycle,  
-  faCar, 
+  faCar,
+  faThumbsUp, 
 } from "@fortawesome/free-solid-svg-icons";
 import {
   GoogleMap,
@@ -113,6 +114,8 @@ const MapComponentContent: React.FC = () => {
   const [showDriverOrders, setShowDriverOrders] = useState(false);
   const [driverData, setDriverData] = useState<Driver | null>(null);
   const [travelMode, setTravelMode] = useState<string>("DRIVING"); // Changed to string
+  const [optimizeWaypoints, setOptimizeWaypoints] = useState<boolean>(false);
+
 
   const [destinations, setDestinations] = useState<
     { name: string; location: LatLng }[]
@@ -610,6 +613,34 @@ const handleCompleteOrder = async (orderId: string, service: string) => {
     }
 };
 
+
+// Function to recommend route by optimizing waypoints
+const handleRecommendRoute = () => {
+  if (destinations.length <= 2) {
+    setError("至少需要兩個目的地才能推薦路徑。");
+    return;
+  }
+  setOptimizeWaypoints(true);
+};
+
+// Callback to handle optimized waypoint order
+const handleWaypointsOptimized = (waypointOrder: number[]) => {
+  // waypointOrder is optimized order of waypoints
+  // origin and terminal are fixed
+  // reorder destinations based on waypointOrder
+  const optimizedWaypoints = waypointOrder.map((index) => destinations[index]);
+
+  // Get terminal destination
+  const terminal = destinations[destinations.length - 1];
+
+  // Update order of waypoint：origin -> optimizedWaypoints -> terminal
+  setDestinations([...optimizedWaypoints, terminal]);
+
+  // reset optimizeWaypoints to false
+  setOptimizeWaypoints(false);
+};
+
+
   return (
     <Suspense fallback={<div>正在加載地圖...</div>}>
       <div className="max-w-full mx-auto space-y-6">
@@ -674,6 +705,8 @@ const handleCompleteOrder = async (orderId: string, service: string) => {
               setTotalDistance={setTotalDistance}
               setTotalTime={setTotalTime}
               travelMode={travelMode as google.maps.TravelMode} // Now a string
+              optimizeWaypoints={optimizeWaypoints}
+              onWaypointsOptimized={handleWaypointsOptimized}
             />
           </GoogleMap>
         </div>
@@ -697,17 +730,7 @@ const handleCompleteOrder = async (orderId: string, service: string) => {
               查看表單
             </Button>
 
-            {/* Total Distance and Time */}
-            {totalDistance && totalTime && (
-              <Card className="shadow-lg mb-6">
-                <CardFooter className="p-4 flex flex-col space-y-4">
-                  <div className="space-y-2">
-                    <p className="text-lg">總距離: {totalDistance}</p>
-                    <p className="text-lg">總時間: {totalTime}</p>
-                  </div>
-                </CardFooter>
-              </Card>
-            )}
+
 
             {/* Travel Mode Selection */}
             <div className="flex justify-center space-x-4 mb-6">
@@ -742,6 +765,43 @@ const handleCompleteOrder = async (orderId: string, service: string) => {
                 腳踏車
               </Button>
             </div>
+
+                  {/* Recommend Route Button */}
+            <Button
+              onClick={handleRecommendRoute}
+              className="mb-10 flex justify-center space-x-4 mb-6 bg-black text-white max-w-xs w-1/2 mx-auto block"
+            >
+              <FontAwesomeIcon icon={faThumbsUp} className="mr-2" />
+              推薦路徑
+            </Button>
+            
+            {/* Generate Navigation Link Button */}
+              <Button
+              onClick={handleGenerateNavigationLinkFromCurrentLocation}
+              className="my-5 bg-black text-white max-w-xs w-1/2 mx-auto block"
+            >
+              生成導航連結
+            </Button>
+
+            {/* Total Distance and Time */}
+            {totalDistance && totalTime && (
+              <Card className="shadow-lg mb-6">
+                <CardFooter className="p-4 flex flex-col space-y-4">
+                  <div className="space-y-2">
+                    <p className="text-lg text-bold">總距離: {totalDistance}</p>
+                    <p className="text-lg text-bold">總時間: {totalTime}</p>
+                  </div>
+                </CardFooter>
+              </Card>
+            )}
+            
+            {/* Error Alert */}
+            {error && (
+              <Alert variant="destructive">
+                <AlertTitle>錯誤</AlertTitle>
+                <AlertDescription>{error}</AlertDescription>
+              </Alert>
+            )}
 
             {/* Destinations List with Move Buttons and Distance/Time */}
             <div className="my-5">
@@ -796,24 +856,6 @@ const handleCompleteOrder = async (orderId: string, service: string) => {
               </ul>
             </div>
 
-            {/* Show the terminal */}
-            {destinations.length > 0 && (
-              <div className="my-5">
-                <h2 className="text-lg font-bold mb-2">終點</h2>
-                <div className="p-2 border rounded-md bg-gray-200 flex flex-col sm:flex-row justify-between items-start sm:items-center">
-                  <span>{destinations[destinations.length - 1].name}</span>
-                  {/* Show the distance and time about Terminal */}
-                  {legs[legs.length - 1] ? (
-                    <span className=" text-sm text-black-600">
-                      距離: {legs[legs.length - 1].distance.text}, 時間: {legs[legs.length - 1].duration.text}
-                    </span>
-                  ) : (
-                    <span className="text-sm text-gray-600">距離和時間正在載入...</span>
-                  )}
-                </div>
-              </div>
-            )}
-
             {/* Add New Destination */}
             <div className="flex items-center space-x-2 justify-center">
               <Autocomplete
@@ -842,21 +884,24 @@ const handleCompleteOrder = async (orderId: string, service: string) => {
               <Button onClick={handleAddDestination}>新增</Button>
             </div>
 
-            {/* Generate Navigation Link Button */}
-            <Button
-              onClick={handleGenerateNavigationLinkFromCurrentLocation}
-              className="my-5 bg-black text-white max-w-xs w-1/2 mx-auto block"
-            >
-              生成導航連結
-            </Button>
-
-            {/* Error Alert */}
-            {error && (
-              <Alert variant="destructive">
-                <AlertTitle>錯誤</AlertTitle>
-                <AlertDescription>{error}</AlertDescription>
-              </Alert>
+            {/* Show the terminal */}
+            {destinations.length > 0 && (
+              <div className="my-5">
+                <h2 className="text-lg font-bold mb-2">終點</h2>
+                <div className="p-2 border rounded-md bg-gray-200 flex flex-col sm:flex-row justify-between items-start sm:items-center">
+                  <span>{destinations[destinations.length - 1].name}</span>
+                  {/* Show the distance and time about Terminal */}
+                  {legs[legs.length - 1] ? (
+                    <span className=" text-sm text-black-600">
+                      距離: {legs[legs.length - 1].distance.text}, 時間: {legs[legs.length - 1].duration.text}
+                    </span>
+                  ) : (
+                    <span className="text-sm text-gray-600">距離和時間正在載入...</span>
+                  )}
+                </div>
+              </div>
             )}
+
           </CardContent>
         </Card>
 
