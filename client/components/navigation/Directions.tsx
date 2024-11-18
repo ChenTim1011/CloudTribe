@@ -1,10 +1,11 @@
 // components/navigation/Directions.tsx
 
 import React, { useEffect, useRef } from "react";
-import { DirectionsProps } from "@/interfaces/navigation/navigation";
-import { Route } from "@/interfaces/navigation/navigation";
+import { throttle } from "lodash";
+import { DirectionsProps, Route } from "@/interfaces/navigation/navigation";
 
-const Directions: React.FC<DirectionsProps> = ({
+// Use React.memo to prevent unnecessary re-renders
+const Directions: React.FC<DirectionsProps> = React.memo(({
   map,
   origin,
   waypoints,
@@ -16,42 +17,15 @@ const Directions: React.FC<DirectionsProps> = ({
   travelMode,
   optimizeWaypoints,
   onWaypointsOptimized,
+  setError,
+  forceUpdateTrigger, // To force update the route
 }) => {
   const directionsRendererRef = useRef<google.maps.DirectionsRenderer | null>(null);
+  const prevRequestRef = useRef<string>(""); // To compare with the previous request
 
-  useEffect(() => {
-    if (!map || !origin || !destination) return;
-
-    if (
-      typeof google === "undefined" ||
-      !google.maps ||
-      !google.maps.DirectionsService ||
-      !google.maps.DirectionsRenderer
-    ) {
-      console.error("Google Maps API is not loaded properly.");
-      return;
-    }
-
-    // Initialize DirectionsRenderer if it hasn't been already
-    if (!directionsRendererRef.current) {
-      directionsRendererRef.current = new google.maps.DirectionsRenderer({
-        map: map,
-        suppressMarkers: true,
-      });
-    }
-
+  // Define the function to handle directions request
+  const handleDirectionsRequest = (request: google.maps.DirectionsRequest) => {
     const directionsService = new google.maps.DirectionsService();
-
-    const request: google.maps.DirectionsRequest = {
-      origin: origin,
-      destination: destination,
-      travelMode: travelMode,
-      waypoints: waypoints.map((wp) => ({
-        location: wp.location,
-        stopover: true,
-      })),
-      optimizeWaypoints: optimizeWaypoints,
-    };
 
     directionsService.route(request, (result, status) => {
       if (status === google.maps.DirectionsStatus.OK && result) {
@@ -105,29 +79,106 @@ const Directions: React.FC<DirectionsProps> = ({
       
       } else {
         console.error("Directions request failed due to " + status);
+        setError(`Directions request failed: ${status}`);
       }
     });
+  };
 
-    // Clean up the directions renderer when the component unmounts
-    return () => {
-      if (directionsRendererRef.current) {
-        directionsRendererRef.current.setMap(null);
-        directionsRendererRef.current = null;
-      }
+  // Throttled route request per minute
+  const throttledRoute = useRef(
+    throttle((request: google.maps.DirectionsRequest) => {
+      handleDirectionsRequest(request);
+    }, 60000) 
+  ).current;
+
+  // Immidiate route request
+  const immediateRoute = (request: google.maps.DirectionsRequest) => {
+    handleDirectionsRequest(request);
+  };
+
+  // Initialize DirectionsRenderer
+  useEffect(() => {
+    if (!map) return;
+
+    if (typeof google === "undefined" ||
+        !google.maps ||
+        !google.maps.DirectionsService ||
+        !google.maps.DirectionsRenderer) {
+      console.error("Google Maps API is not loaded properly.");
+      setError("Google Maps API 加載失敗。");
+      return;
+    }
+
+    if (!directionsRendererRef.current) {
+      directionsRendererRef.current = new google.maps.DirectionsRenderer({
+        map: map,
+        suppressMarkers: true,
+      });
+    }
+  }, [map, setError]);
+
+  // Normal route request
+  useEffect(() => {
+    if (!map || !origin || !destination) return;
+
+    const request: google.maps.DirectionsRequest = {
+      origin: new google.maps.LatLng(origin.lat, origin.lng),
+      destination: new google.maps.LatLng(destination.lat, destination.lng),
+      travelMode: travelMode,
+      waypoints: waypoints.map((wp) => ({
+        location: new google.maps.LatLng(wp.location.lat, wp.location.lng),
+        stopover: wp.stopover,
+      })),
+      optimizeWaypoints: optimizeWaypoints,
     };
-  }, [map, 
-    origin, 
-    waypoints, 
-    destination, 
-    setRoutes, 
-    setTotalDistance, 
-    setTotalTime, 
+
+    // To compare with the previous request
+    const requestKey = JSON.stringify(request);
+
+    if (prevRequestRef.current === requestKey) {
+      console.log("Same request, skipping...");
+      return;
+    }
+
+    prevRequestRef.current = requestKey;
+
+    // Use throttled version of route request
+    throttledRoute(request);
+  }, [
+    map,
+    origin,
+    waypoints,
+    destination,
+    setRoutes,
+    setTotalDistance,
+    setTotalTime,
     travelMode,
     optimizeWaypoints,
     onWaypointsOptimized,
+    throttledRoute,
+    setError,
   ]);
 
+  // Force update trigger
+  useEffect(() => {
+    if (!map || !origin || !destination) return;
+
+    const request: google.maps.DirectionsRequest = {
+      origin: new google.maps.LatLng(origin.lat, origin.lng),
+      destination: new google.maps.LatLng(destination.lat, destination.lng),
+      travelMode: travelMode,
+      waypoints: waypoints.map((wp) => ({
+        location: new google.maps.LatLng(wp.location.lat, wp.location.lng),
+        stopover: wp.stopover,
+      })),
+      optimizeWaypoints: optimizeWaypoints,
+    };
+
+    
+    immediateRoute(request);
+  }, [forceUpdateTrigger, map, origin, waypoints, destination, travelMode, optimizeWaypoints]);
+
   return null;
-};
+});
 
 export default Directions;

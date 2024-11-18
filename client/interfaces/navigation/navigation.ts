@@ -2,9 +2,9 @@
 
 export interface DirectionsProps {
   map: google.maps.Map | null;
-  origin: string;
+  origin: LatLng | null; 
   waypoints: { location: LatLng; stopover: boolean }[];
-  destination: string | null;
+  destination: LatLng | null;
   routes: Route[];
   setRoutes: React.Dispatch<React.SetStateAction<Route[]>>;
   setTotalDistance: React.Dispatch<React.SetStateAction<string | null>>;
@@ -12,6 +12,8 @@ export interface DirectionsProps {
   travelMode: google.maps.TravelMode;
   optimizeWaypoints: boolean; 
   onWaypointsOptimized?: (waypointOrder: number[]) => void;
+  setError: React.Dispatch<React.SetStateAction<string | null>>;
+  forceUpdateTrigger?: any; 
 }
 
 
@@ -25,6 +27,7 @@ export interface Step {
   distance: string;
   duration: string;
 }
+
 export interface Leg {
     distance: {
       text: string;
@@ -46,15 +49,14 @@ export interface Leg {
   
 
 export interface MapComponentState {
-  origin: string;
-  destination: string;
+  origin: LatLng | null;
+  destination: LatLng | null;
   originName: string;
   destinationName: string;
   totalDistance: string | null;
   totalTime: string | null;
   routes: Route[];
   currentLocation: LatLng | null;
-  center: LatLng | null;
   error: string | null;
   navigationUrl: string | null;
 }

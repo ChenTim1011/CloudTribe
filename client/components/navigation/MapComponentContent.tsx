@@ -42,9 +42,7 @@ import {
 import { useSearchParams, useRouter } from "next/navigation";
 import Directions from "@/components/navigation/Directions";
 import DriverOrdersPage from "@/components/driver/DriverOrdersPage";
-import { LatLng } from "@/interfaces/navigation/navigation";
-import { Route } from "@/interfaces/navigation/navigation"; 
-import { Leg } from "@/interfaces/navigation/navigation";
+import { LatLng, Route, Leg, DirectionsProps } from "@/interfaces/navigation/navigation";
 import { Driver } from "@/interfaces/driver/driver";
 import { Order } from "@/interfaces/tribe_resident/buyer/order";
 import { DriverOrder } from "@/interfaces/driver/driver";
@@ -100,29 +98,27 @@ const MapComponentContent: React.FC = () => {
   const orderId = searchParams.get("orderId");
 
   // Define state
-  const [origin, setOrigin] = useState<string>("");
+  const [origin, setOrigin] = useState<LatLng | null>(null);
   const [totalDistance, setTotalDistance] = useState<string | null>(null);
   const [totalTime, setTotalTime] = useState<string | null>(null);
   const [routes, setRoutes] = useState<Route[]>([]);
   const [legs, setLegs] = useState<Leg[]>([]); 
   const [currentLocation, setCurrentLocation] = useState<LatLng | null>(null);
-  const [center, setCenter] = useState<LatLng | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [navigationUrl, setNavigationUrl] = useState<string | null>(null);
   const [orderData, setOrderData] = useState<Order | null>(null);
   const [isSheetOpen, setIsSheetOpen] = useState(false);
   const [showDriverOrders, setShowDriverOrders] = useState(false);
   const [driverData, setDriverData] = useState<Driver | null>(null);
-  const [travelMode, setTravelMode] = useState<string>("DRIVING"); // Changed to string
+  const [travelMode, setTravelMode] = useState<google.maps.TravelMode>(() => google.maps.TravelMode.DRIVING);
   const [optimizeWaypoints, setOptimizeWaypoints] = useState<boolean>(false);
-
 
   const [destinations, setDestinations] = useState<
     { name: string; location: LatLng }[]
   >([]);
   const [newDestinationName, setNewDestinationName] = useState<string>("");
   const [newDestinationLocation, setNewDestinationLocation] =
-    useState<string>("");
+    useState<LatLng | null>(null); // Changed to LatLng | null
 
   // Autocomplete refs
   const autocompleteNewDestinationRef = useRef<
@@ -147,9 +143,12 @@ const MapComponentContent: React.FC = () => {
   // Ref for throttling updates
   const isThrottledRef = useRef(false);
 
-  // Format location to fixed decimal places
-  const formatLocation = (lat: number, lng: number) => {
-    return `${lat.toFixed(6)},${lng.toFixed(6)}`;
+  // State to trigger force update
+  const [forceUpdateTrigger, setForceUpdateTrigger] = useState<number>(0);
+
+  // Function to trigger force update
+  const triggerForceUpdate = () => {
+    setForceUpdateTrigger((prev) => prev + 1);
   };
 
   // Function to fetch order data
@@ -204,6 +203,7 @@ const MapComponentContent: React.FC = () => {
       );
 
       setDestinations(validDestinations);
+      triggerForceUpdate(); 
     } catch (error) {
       console.error("Error fetching order data:", error);
       setError("無法獲取訂單資料");
@@ -226,15 +226,7 @@ const MapComponentContent: React.FC = () => {
     }
   };
 
-  // Travel Mode Mapping 定義
-  const travelModeMapping: { [key: string]: string } = {
-    DRIVING: "driving",
-    WALKING: "walking",
-    BICYCLING: "bicycling",
-    TRANSIT: "transit",
-  };
-
-  // 記憶化路點
+  // Memoized waypoints for Directions component
   const memoizedWaypoints = useMemo(() => {
     console.log("useMemo: memoizedWaypoints");
     return destinations.slice(0, -1).map(dest => ({
@@ -242,13 +234,6 @@ const MapComponentContent: React.FC = () => {
       stopover: true,
     }));
   }, [destinations]);
-
-  // Set map center when currentLocation updates
-  useEffect(() => {
-    if (currentLocation) {
-      setCenter(currentLocation);
-    }
-  }, [currentLocation]);
 
   // Get current location and watch for changes
   useEffect(() => {
@@ -267,7 +252,7 @@ const MapComponentContent: React.FC = () => {
             getDistanceInMeters(newLoc, lastPositionRef.current) > 100 
           ) {
             setCurrentLocation(newLoc);
-            setOrigin(formatLocation(newLoc.lat, newLoc.lng));
+            setOrigin(newLoc);
             setError(null);
 
             // Update last position
@@ -346,10 +331,10 @@ const MapComponentContent: React.FC = () => {
   // Function to handle place changes in Autocomplete
   const handlePlaceChanged = async (
     autocompleteRef: React.RefObject<google.maps.places.Autocomplete>,
-    setFn: React.Dispatch<React.SetStateAction<string>>,
+    setFn: React.Dispatch<React.SetStateAction<LatLng | null>>,
     setNameFn: React.Dispatch<React.SetStateAction<string>>,
     setError: React.Dispatch<React.SetStateAction<string | null>>,
-    setNewDestinationFn?: React.Dispatch<React.SetStateAction<string>>,
+    setNewDestinationFn?: React.Dispatch<React.SetStateAction<LatLng | null>>,
     setNewDestinationNameFn?: React.Dispatch<React.SetStateAction<string>>
   ) => {
     let errorMsg = null;
@@ -357,7 +342,7 @@ const MapComponentContent: React.FC = () => {
       const place = autocompleteRef.current.getPlace();
       if (place.geometry && place.geometry.location) {
         const location = place.geometry.location;
-        const loc = `${location.lat()},${location.lng()}`;
+        const loc: LatLng = { lat: location.lat(), lng: location.lng() };
         setFn(loc);
         const name = place.name || "未知地點";
         setNameFn(name);
@@ -368,7 +353,7 @@ const MapComponentContent: React.FC = () => {
       } else if (place.name) {
         const location = await fetchCoordinates(place.name);
         if (location) {
-          const loc = `${location.lat},${location.lng}`;
+          const loc: LatLng = { lat: location.lat, lng: location.lng };
           setFn(loc);
           setNameFn(place.name);
           if (setNewDestinationFn && setNewDestinationNameFn) {
@@ -398,7 +383,7 @@ const MapComponentContent: React.FC = () => {
       return;
     }
 
-    const origin = `${currentLocation.lat},${currentLocation.lng}`;
+    const originStr = `${currentLocation.lat},${currentLocation.lng}`;
     const finalDestination = destinations[destinations.length - 1].location;
 
     // Extract waypoints and remove duplicates
@@ -419,12 +404,12 @@ const MapComponentContent: React.FC = () => {
       .map((loc) => `${loc.lat},${loc.lng}`)
       .join("|");
 
-    // Mapping of travel modes
-    const travelModeString = travelModeMapping[travelMode] || "driving";
-    
+    // Convert travelMode to lowercase for the URL
+    const travelModeString = travelMode.toLowerCase() || "driving";
+
     // Generate navigation URL
     let url = `https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent(
-      origin
+      originStr
     )}&destination=${encodeURIComponent(`${finalDestination.lat},${finalDestination.lng}`)}`;
 
     if (uniqueWaypoints) {
@@ -449,6 +434,7 @@ const MapComponentContent: React.FC = () => {
       newDestinations[index - 1],
     ];
     setDestinations(newDestinations);
+    triggerForceUpdate(); 
   };
 
   // Function to handle moving a destination down
@@ -460,6 +446,7 @@ const MapComponentContent: React.FC = () => {
       newDestinations[index + 1],
     ];
     setDestinations(newDestinations);
+    triggerForceUpdate(); 
   };
 
   // Function to view order details
@@ -478,6 +465,7 @@ const MapComponentContent: React.FC = () => {
     const updated = Array.from(destinations);
     updated.splice(index, 1);
     setDestinations(updated);
+    triggerForceUpdate(); 
   };
 
   // Function to add a new destination
@@ -488,8 +476,7 @@ const MapComponentContent: React.FC = () => {
     }
 
     // Check for duplicate destinations
-    const [lat, lng] = newDestinationLocation.split(",").map(Number);
-    const newLatLng: LatLng = { lat, lng };
+    const newLatLng: LatLng = newDestinationLocation;
 
     const isDuplicate = destinations.some(
       (dest) =>
@@ -514,8 +501,9 @@ const MapComponentContent: React.FC = () => {
 
     setDestinations(updatedDestinations);
     setNewDestinationName("");
-    setNewDestinationLocation("");
+    setNewDestinationLocation(null);
     setError(null);
+    triggerForceUpdate(); 
   };
 
   // Define handler functions for DriverOrdersPage
@@ -570,8 +558,6 @@ const handleTransferOrder = async (orderId: string, newDriverPhone: string) => {
         alert('轉單成功，重整頁面可看到更新結果');
 
     } catch (error) {
-
-
         console.error('Error transferring order:', error);
         alert('轉單失敗');
     }
@@ -621,6 +607,7 @@ const handleRecommendRoute = () => {
     return;
   }
   setOptimizeWaypoints(true);
+  triggerForceUpdate(); 
 };
 
 // Callback to handle optimized waypoint order
@@ -638,306 +625,309 @@ const handleWaypointsOptimized = (waypointOrder: number[]) => {
 
   // reset optimizeWaypoints to false
   setOptimizeWaypoints(false);
+  triggerForceUpdate(); 
 };
 
 
-  return (
-    <Suspense fallback={<div>正在加載地圖...</div>}>
-      <div className="max-w-full mx-auto space-y-6">
-        {/* Back Button */}
-        <div className="w-full flex justify-start p-4">
-          <Button variant="outline" onClick={() => window.history.back()}>
-            <FontAwesomeIcon icon={faArrowLeft} className="mr-2" />
-            上一頁
-          </Button>
-        </div>
-        
+return (
+  <Suspense fallback={<div>正在加載地圖...</div>}>
+    <div className="max-w-full mx-auto space-y-6">
+      {/* Back Button */}
+      <div className="w-full flex justify-start p-4">
+        <Button variant="outline" onClick={() => window.history.back()}>
+          <FontAwesomeIcon icon={faArrowLeft} className="mr-2" />
+          上一頁
+        </Button>
+      </div>
+      
+      {/* Google Map */}
+      <div id="map" className="mb-6" style={{ height: "60vh", width: "100%" }}>
+        <GoogleMap
+          onLoad={(map) => {
+            mapRef.current = map;
+          }}
+          center={currentLocation || { lat: 0, lng: 0 }} 
+          zoom={14}
+          mapContainerStyle={{ width: "100%", height: "100%" }}
+        >
+          {/* Current Location Marker */}
+          {currentLocation && <Marker position={currentLocation} label="目前位置" />}
 
-        
-        {/* Google Map */}
-        <div id="map" className="mb-6" style={{ height: "60vh", width: "100%" }}>
-          <GoogleMap
-            onLoad={(map) => {
-              mapRef.current = map;
-            }}
-            center={center!}
-            zoom={14}
-            mapContainerStyle={{ width: "100%", height: "100%" }}
-          >
-            {/* Current Location Marker */}
-            {currentLocation && <Marker position={currentLocation} label="目前位置" />}
-
-            {/* Intermediate Markers */}
-            {destinations.slice(0, -1).map((dest, index) => (
-              <Marker
-                key={`intermediate-${index}`}
-                position={{
-                  lat: dest.location.lat,
-                  lng: dest.location.lng,
-                }}
-                label={`中間點${index + 1}`}
-              />
-            ))}
-
-            {/* Terminal Marker */}
-            {destinations.length > 0 && (
-              <Marker
-                position={{
-                  lat: destinations[destinations.length - 1].location.lat,
-                  lng: destinations[destinations.length - 1].location.lng,
-                }}
-                label="終點"
-              />
-            )}
-
-            {/* Directions Renderer */}
-            <Directions
-              map={mapRef.current}
-              origin={origin}
-              waypoints={memoizedWaypoints}
-              destination={
-                destinations.length > 0
-                  ? `${destinations[destinations.length - 1].location.lat},${destinations[destinations.length - 1].location.lng}`
-                  : null
-              }
-              routes={routes}
-              setRoutes={setRoutes}
-              setTotalDistance={setTotalDistance}
-              setTotalTime={setTotalTime}
-              travelMode={travelMode as google.maps.TravelMode} // Now a string
-              optimizeWaypoints={optimizeWaypoints}
-              onWaypointsOptimized={handleWaypointsOptimized}
+          {/* Intermediate Markers */}
+          {destinations.slice(0, -1).map((dest, index) => (
+            <Marker
+              key={`intermediate-${index}`}
+              position={{
+                lat: dest.location.lat,
+                lng: dest.location.lng,
+              }}
+              label={`中間點${index + 1}`}
             />
-          </GoogleMap>
-        </div>
+          ))}
 
-        {/* Navigation Card */}
-        <Card className="my-10 shadow-lg mb-6">
-          <CardHeader className="bg-black text-white p-4 rounded-t-md flex justify-between">
-            <div>
-              <CardTitle className="my-3 text-lg font-bold">導航地圖</CardTitle>
-              <CardDescription className="my-3 text-white text-sm">
-                顯示路線與地圖
-              </CardDescription>
-            </div>
-          </CardHeader>
-          <CardContent className="p-4">
-            {/* View Order Button */}
+          {/* Terminal Marker */}
+          {destinations.length > 0 && (
+            <Marker
+              position={{
+                lat: destinations[destinations.length - 1].location.lat,
+                lng: destinations[destinations.length - 1].location.lng,
+              }}
+              label="終點"
+            />
+          )}
+
+          {/* Directions Renderer */}
+          <Directions
+            map={mapRef.current}
+            origin={origin}
+            waypoints={memoizedWaypoints}
+            destination={
+              destinations.length > 0
+                ? destinations[destinations.length - 1].location
+                : null
+            }
+            routes={routes}
+            setRoutes={setRoutes}
+            setTotalDistance={setTotalDistance}
+            setTotalTime={setTotalTime}
+            travelMode={travelMode} 
+            optimizeWaypoints={optimizeWaypoints}
+            onWaypointsOptimized={handleWaypointsOptimized}
+            setError={setError}
+            forceUpdateTrigger={forceUpdateTrigger} 
+          />
+        </GoogleMap>
+      </div>
+
+      {/* Navigation Card */}
+      <Card className="my-10 shadow-lg mb-6">
+        <CardHeader className="bg-black text-white p-4 rounded-t-md flex justify-between">
+          <div>
+            <CardTitle className="my-3 text-lg font-bold">導航地圖</CardTitle>
+            <CardDescription className="my-3 text-white text-sm">
+              顯示路線與地圖
+            </CardDescription>
+          </div>
+        </CardHeader>
+        <CardContent className="p-4">
+          {/* View Order Button */}
+          <Button
+            onClick={handleViewOrder}
+            className="my-5 bg-black text-white max-w-xs w-1/2 mx-auto block"
+          >
+            查看表單
+          </Button>
+
+          {/* Travel Mode Selection */}
+          <div className="flex justify-center space-x-4 mb-6">
             <Button
-              onClick={handleViewOrder}
-              className="my-5 bg-black text-white max-w-xs w-1/2 mx-auto block"
+              variant={travelMode === 'DRIVING' ? "default" : "outline"}
+              onClick={() => {
+                setTravelMode(google.maps.TravelMode.DRIVING);
+                triggerForceUpdate(); 
+              }}
+              className="flex items-center"
             >
-              查看表單
+              <FontAwesomeIcon icon={faCar} className="mr-2" />
+              汽車
             </Button>
-
-
-
-            {/* Travel Mode Selection */}
-            <div className="flex justify-center space-x-4 mb-6">
-              <Button
-                variant={travelMode === "DRIVING" ? "default" : "outline"}
-                onClick={() => {
-                  setTravelMode("DRIVING");
-                }}
-                className="flex items-center"
-              >
-                <FontAwesomeIcon icon={faCar} className="mr-2" />
-                汽車
-              </Button>
-              <Button
-                variant={travelMode === "WALKING" ? "default" : "outline"}
-                onClick={() => {
-                  setTravelMode("WALKING");
-                }}
-                className="flex items-center"
-              >
-                <FontAwesomeIcon icon={faWalking} className="mr-2" />
-                走路
-              </Button>
-              <Button
-                variant={travelMode === "BICYCLING" ? "default" : "outline"}
-                onClick={() => {
-                  setTravelMode("BICYCLING");
-                }}
-                className="flex items-center"
-              >
-                <FontAwesomeIcon icon={faBicycle} className="mr-2" />
-                腳踏車
-              </Button>
-            </div>
-
-                  {/* Recommend Route Button */}
             <Button
-              onClick={handleRecommendRoute}
-              className="mb-10 flex justify-center space-x-4 mb-6 bg-black text-white max-w-xs w-1/2 mx-auto block"
+              variant={travelMode === 'WALKING' ? "default" : "outline"}
+              onClick={() => {
+                setTravelMode(google.maps.TravelMode.WALKING);
+                triggerForceUpdate(); 
+              }}
+              className="flex items-center"
             >
-              <FontAwesomeIcon icon={faThumbsUp} className="mr-2" />
-              推薦路徑
+              <FontAwesomeIcon icon={faWalking} className="mr-2" />
+              走路
             </Button>
-            
-            {/* Generate Navigation Link Button */}
-              <Button
-              onClick={handleGenerateNavigationLinkFromCurrentLocation}
-              className="my-5 bg-black text-white max-w-xs w-1/2 mx-auto block"
+            <Button
+              variant={travelMode === 'BICYCLING' ? "default" : "outline"}
+              onClick={() => {
+                setTravelMode(google.maps.TravelMode.BICYCLING);
+                triggerForceUpdate(); 
+              }}
+              className="flex items-center"
             >
-              生成導航連結
+              <FontAwesomeIcon icon={faBicycle} className="mr-2" />
+              腳踏車
             </Button>
+          </div>
 
-            {/* Total Distance and Time */}
-            {totalDistance && totalTime && (
-              <Card className="shadow-lg mb-6">
-                <CardFooter className="p-4 flex flex-col space-y-4">
-                  <div className="space-y-2">
-                    <p className="text-lg text-bold">總距離: {totalDistance}</p>
-                    <p className="text-lg text-bold">總時間: {totalTime}</p>
+          {/* Recommend Route Button */}
+          <Button
+            onClick={handleRecommendRoute}
+            className="mb-10 flex justify-center space-x-4 bg-black text-white max-w-xs w-1/2 mx-auto block"
+          >
+            <FontAwesomeIcon icon={faThumbsUp} className="mr-2" />
+            推薦路徑
+          </Button>
+          
+          {/* Generate Navigation Link Button */}
+          <Button
+            onClick={handleGenerateNavigationLinkFromCurrentLocation}
+            className="my-5 bg-black text-white max-w-xs w-1/2 mx-auto block"
+          >
+            生成導航連結
+          </Button>
+
+          {/* Total Distance and Time */}
+          {totalDistance && totalTime && (
+            <Card className="shadow-lg mb-6">
+              <CardFooter className="p-4 flex flex-col space-y-4">
+                <div className="space-y-2">
+                  <p className="text-lg font-bold">總距離: {totalDistance}</p>
+                  <p className="text-lg font-bold">總時間: {totalTime}</p>
+                </div>
+              </CardFooter>
+            </Card>
+          )}
+          
+          {/* Error Alert */}
+          {error && (
+            <Alert variant="destructive">
+              <AlertTitle>錯誤</AlertTitle>
+              <AlertDescription>{error}</AlertDescription>
+            </Alert>
+          )}
+
+          {/* Destinations List with Move Buttons and Distance/Time */}
+          <div className="my-5">
+            <h2 className="text-lg font-bold mb-2">訂單地點</h2>
+            <ul className="space-y-2">
+              {destinations.slice(0, -1).map((dest, index) => (
+                <li
+                  key={`dest-${index}`}
+                  className="p-2 border rounded-md bg-gray-100 flex flex-col sm:flex-row justify-between items-start sm:items-center"
+                >
+                  <div className="flex items-center space-x-2">
+                    <span>{dest.name}</span>
+                    {/* Show direction and time  */}
+                    {legs[index] ? (
+                      <span className="text-sm text-black-600">
+                        距離: {legs[index].distance.text}, 時間: {legs[index].duration.text}
+                      </span>
+                    ) : (
+                      <span className="text-sm text-gray-600">距離和時間正在載入...</span>
+                    )}
                   </div>
-                </CardFooter>
-              </Card>
-            )}
-            
-            {/* Error Alert */}
-            {error && (
-              <Alert variant="destructive">
-                <AlertTitle>錯誤</AlertTitle>
-                <AlertDescription>{error}</AlertDescription>
-              </Alert>
-            )}
+                  <div className="flex space-x-2 mt-2 sm:mt-0">
+                    <Button
+                      onClick={() => handleMoveUp(index)}
+                      disabled={index === 0}
+                      variant="ghost"
+                      className="p-1"
+                      title="上移"
+                    >
+                      <FontAwesomeIcon icon={faArrowUp} />
+                    </Button>
+                    <Button
+                      onClick={() => handleMoveDown(index)}
+                      disabled={index >= destinations.length - 2}
+                      variant="ghost"
+                      className="p-1"
+                      title="下移"
+                    >
+                      <FontAwesomeIcon icon={faArrowDown} />
+                    </Button>
+                    <Button
+                      onClick={() => handleRemoveDestination(index)}
+                      variant="ghost"
+                      className="p-1 text-black-500"
+                      title="移除"
+                    >
+                      <FontAwesomeIcon icon={faTrash} />
+                    </Button>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </div>
 
-            {/* Destinations List with Move Buttons and Distance/Time */}
+          {/* Add New Destination */}
+          <div className="flex items-center space-x-2 justify-center">
+            <Autocomplete
+              onLoad={(autocomplete) => {
+                autocompleteNewDestinationRef.current = autocomplete;
+              }}
+              onPlaceChanged={() =>
+                handlePlaceChanged(
+                  autocompleteNewDestinationRef,
+                  setNewDestinationLocation,
+                  setNewDestinationName,
+                  setError,
+                  setNewDestinationLocation,
+                  setNewDestinationName
+                )
+              }
+            >
+              <Input
+                type="text"
+                placeholder="新增目的地"
+                className="w-full"
+                value={newDestinationName}
+                onChange={(e) => setNewDestinationName(e.target.value)}
+              />
+            </Autocomplete>
+            <Button onClick={handleAddDestination}>新增</Button>
+          </div>
+
+          {/* Show the terminal */}
+          {destinations.length > 0 && (
             <div className="my-5">
-              <h2 className="text-lg font-bold mb-2">訂單地點</h2>
-              <ul className="space-y-2">
-                {destinations.slice(0, -1).map((dest, index) => (
-                  <li
-                    key={`dest-${index}`}
-                    className="p-2 border rounded-md bg-gray-100 flex flex-col sm:flex-row justify-between items-start sm:items-center"
-                  >
-                    <div className="flex items-center space-x-2">
-                      <span>{dest.name}</span>
-                      {/* Show direction and time  */}
-                      {legs[index] ? (
-                        <span className="text-sm text-black-600">
-                          距離: {legs[index].distance.text}, 時間: {legs[index].duration.text}
-                        </span>
-                      ) : (
-                        <span className="text-sm text-gray-600">距離和時間正在載入...</span>
-                      )}
-                    </div>
-                    <div className="flex space-x-2 mt-2 sm:mt-0">
-                      <Button
-                        onClick={() => handleMoveUp(index)}
-                        disabled={index === 0}
-                        variant="ghost"
-                        className="p-1"
-                        title="上移"
-                      >
-                        <FontAwesomeIcon icon={faArrowUp} />
-                      </Button>
-                      <Button
-                        onClick={() => handleMoveDown(index)}
-                        disabled={index >= destinations.length - 2}
-                        variant="ghost"
-                        className="p-1"
-                        title="下移"
-                      >
-                        <FontAwesomeIcon icon={faArrowDown} />
-                      </Button>
-                      <Button
-                        onClick={() => handleRemoveDestination(index)}
-                        variant="ghost"
-                        className="p-1 text-black-500"
-                        title="移除"
-                      >
-                        <FontAwesomeIcon icon={faTrash} />
-                      </Button>
-                    </div>
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            {/* Add New Destination */}
-            <div className="flex items-center space-x-2 justify-center">
-              <Autocomplete
-                onLoad={(autocomplete) => {
-                  autocompleteNewDestinationRef.current = autocomplete;
-                }}
-                onPlaceChanged={() =>
-                  handlePlaceChanged(
-                    autocompleteNewDestinationRef,
-                    setNewDestinationLocation,
-                    setNewDestinationName,
-                    setError,
-                    setNewDestinationLocation,
-                    setNewDestinationName
-                  )
-                }
-              >
-                <Input
-                  type="text"
-                  placeholder="新增目的地"
-                  className="w-full"
-                  value={newDestinationName}
-                  onChange={(e) => setNewDestinationName(e.target.value)}
-                />
-              </Autocomplete>
-              <Button onClick={handleAddDestination}>新增</Button>
-            </div>
-
-            {/* Show the terminal */}
-            {destinations.length > 0 && (
-              <div className="my-5">
-                <h2 className="text-lg font-bold mb-2">終點</h2>
-                <div className="p-2 border rounded-md bg-gray-200 flex flex-col sm:flex-row justify-between items-start sm:items-center">
-                  <span>{destinations[destinations.length - 1].name}</span>
-                  {/* Show the distance and time about Terminal */}
-                  {legs[legs.length - 1] ? (
-                    <span className=" text-sm text-black-600">
-                      距離: {legs[legs.length - 1].distance.text}, 時間: {legs[legs.length - 1].duration.text}
-                    </span>
-                  ) : (
-                    <span className="text-sm text-gray-600">距離和時間正在載入...</span>
-                  )}
-                </div>
+              <h2 className="text-lg font-bold mb-2">終點</h2>
+              <div className="p-2 border rounded-md bg-gray-200 flex flex-col sm:flex-row justify-between items-start sm:items-center">
+                <span>{destinations[destinations.length - 1].name}</span>
+                {/* Show the distance and time about Terminal */}
+                {legs[legs.length - 1] ? (
+                  <span className=" text-sm text-black-600">
+                    距離: {legs[legs.length - 1].distance.text}, 時間: {legs[legs.length - 1].duration.text}
+                  </span>
+                ) : (
+                  <span className="text-sm text-gray-600">距離和時間正在載入...</span>
+                )}
               </div>
-            )}
+            </div>
+          )}
 
-          </CardContent>
-        </Card>
+        </CardContent>
+      </Card>
 
-        {/* Sheet for Order Details */}
-        <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
-          <SheetContent className="w-full max-w-2xl max-h-[calc(100vh-200px)] overflow-y-auto">
-            <SheetHeader>
-              <SheetTitle>訂單詳情</SheetTitle>
-              <SheetClose />
-            </SheetHeader>
-            {showDriverOrders ? (
-              driverData ? (
-                <DriverOrdersPage
-                  driverData={driverData}
-                  onAccept={handleAcceptOrder}
-                  onTransfer={handleTransferOrder} 
-                  onNavigate={(orderId: string) =>
-                    handleNavigate(orderId, driverData.id || 0)
-                  }
-                  onComplete={handleCompleteOrder}
-                />
-              ) : (
-                <div className="p-4">
-                  <p>正在加載司機資料...</p>
-                </div>
-              )
+      {/* Sheet for Order Details */}
+      <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
+        <SheetContent className="w-full max-w-2xl max-h-[calc(100vh-200px)] overflow-y-auto">
+          <SheetHeader>
+            <SheetTitle>訂單詳情</SheetTitle>
+            <SheetClose />
+          </SheetHeader>
+          {showDriverOrders ? (
+            driverData ? (
+              <DriverOrdersPage
+                driverData={driverData}
+                onAccept={handleAcceptOrder}
+                onTransfer={handleTransferOrder} 
+                onNavigate={(orderId: string) =>
+                  handleNavigate(orderId, driverData.id || 0)
+                }
+                onComplete={handleCompleteOrder}
+              />
             ) : (
               <div className="p-4">
-                <p>正在加載訂單資料...</p>
+                <p>正在加載司機資料...</p>
               </div>
-            )}
-          </SheetContent>
-        </Sheet>
-      </div>
-    </Suspense>
-  );
-};
+            )
+          ) : (
+            <div className="p-4">
+              <p>正在加載訂單資料...</p>
+            </div>
+          )}
+        </SheetContent>
+      </Sheet>
+    </div>
+  </Suspense>
+);    
+
+}
 
 export default MapComponentContent;
