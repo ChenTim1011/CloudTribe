@@ -10,5 +10,9 @@
         "concurrently": "^8.2.2",
         "cross-env": "^7.0.3",
         "dotenv-cli": "^5.0.0"
+    },
+    "dependencies": {
+        "@types/lodash.throttle": "^4.1.9",
+        "lodash.throttle": "^4.1.1"
     }
 }

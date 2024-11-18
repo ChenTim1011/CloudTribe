@@ -112,6 +112,7 @@ const MapComponentContent: React.FC = () => {
   const [driverData, setDriverData] = useState<Driver | null>(null);
   const [travelMode, setTravelMode] = useState<google.maps.TravelMode>(() => google.maps.TravelMode.DRIVING);
   const [optimizeWaypoints, setOptimizeWaypoints] = useState<boolean>(false);
+  const [showLinkTip, setShowLinkTip] = useState(true);
 
   const [destinations, setDestinations] = useState<
     { name: string; location: LatLng }[]
@@ -237,7 +238,7 @@ const MapComponentContent: React.FC = () => {
 
   // Get current location and watch for changes
   useEffect(() => {
-    console.log("useEffect: watchPosition");
+    setShowLinkTip(true);
     if (typeof navigator !== "undefined" && navigator.geolocation) {
       const watchId = navigator.geolocation.watchPosition(
         (position) => {
@@ -262,7 +263,7 @@ const MapComponentContent: React.FC = () => {
             isThrottledRef.current = true;
             setTimeout(() => {
               isThrottledRef.current = false;
-            }, 5000); 
+            }, 300000); 
           }
         },
         (error) => {
@@ -639,6 +640,20 @@ return (
           上一頁
         </Button>
       </div>
+
+      {/* To remind client to click google navigation link  */}
+      {showLinkTip && (
+        <div className="bg-blue-100 border border-blue-500 text-blue-700 px-4 py-3 rounded relative mb-4" role="alert">
+            <strong className="font-bold">提醒：</strong>
+            <span className="block sm:inline">請點擊導航連結，有更好的導航體驗。</span>
+            <Button
+                className="absolute top-0 bottom-0 right-0 px-4 py-3" 
+                onClick={() => setShowLinkTip(false)}
+            >
+                <span aria-hidden="true">&times;</span>
+            </Button>
+        </div>
+      )}
       
       {/* Google Map */}
       <div id="map" className="mb-6" style={{ height: "60vh", width: "100%" }}>
