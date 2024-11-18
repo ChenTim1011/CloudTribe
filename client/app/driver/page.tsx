@@ -30,6 +30,7 @@ const DriverPage: React.FC = () => {
     const [isClient, setIsClient] = useState(false); 
     const [filterStartDate, setFilterStartDate] = useState<Date | null>(null);
     const [filterEndDate, setFilterEndDate] = useState<Date | null>(null);
+    const [showAddTimeTip, setShowAddTimeTip] = useState(true);
 
     // add state for showing unaccepted orders
     const [showUnacceptedOrders, setShowUnacceptedOrders] = useState(false);
@@ -59,6 +60,7 @@ const DriverPage: React.FC = () => {
         };
 
     useEffect(() => {
+        setShowAddTimeTip(true);
         setIsClient(true);
         const handleUserDataChanged = () => {
             const updatedUser = UserService.getLocalStorageUser();
@@ -299,6 +301,21 @@ const DriverPage: React.FC = () => {
                 }}
             >
                 <div className="content flex-grow p-10 bg-white bg-opacity-10 flex flex-col items-center">
+                    
+                    {/* To remind */}
+                    {showAddTimeTip && (
+                        <div className="bg-blue-100 border border-blue-500 text-blue-700 px-4 py-3 rounded relative mb-4" role="alert">
+                            <strong className="font-bold">提醒：</strong>
+                            <span className="block sm:inline">請到 "新增時間" 以設定您的可運送時間，讓賣家知道您何時可以接單。</span>
+                            <Button
+                                className="absolute top-0 bottom-0 right-0 px-4 py-3" 
+                                onClick={() => setShowAddTimeTip(false)}
+                            >
+                                <span aria-hidden="true">&times;</span>
+                            </Button>
+                        </div>
+                    )}
+                    
                     <div className="w-full flex justify-start space-x-2 mt-4">
                     </div>
                     <h1 className="mb-20 text-4xl font-bold text-white text-center" style={{ marginTop: '40px' }}>司機專區</h1>
