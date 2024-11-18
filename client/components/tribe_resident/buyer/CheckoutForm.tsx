@@ -340,7 +340,7 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onClose, clearCart, cartIte
                   <SelectValue placeholder="選擇地點" />
                 </SelectTrigger>
                 <SelectContent>
-                  {["飛鼠不渴露營農場", "樹不老休閒莊園", "戀戀雅渡農場", "政治大學大門", "自定義"].map(locationOption => (
+                  {["飛鼠不渴露營農場", "樹不老休閒莊園", "戀戀雅渡農場", "國立政治大學大門", "自定義"].map(locationOption => (
                     <SelectItem key={locationOption} value={locationOption === "自定義" ? "custom" : locationOption}>
                       {locationOption}
                     </SelectItem>

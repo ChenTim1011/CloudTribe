@@ -17,7 +17,7 @@ const timeOptions = [
   "18:00", "19:00", "20:00"
 ];
 
-const locationOptions = ["飛鼠不渴露營農場", "樹不老休閒莊園", "戀戀雅渡農場","政治大學大門", "自定義"];
+const locationOptions = ["飛鼠不渴露營農場", "樹不老休閒莊園", "戀戀雅渡農場","國立政治大學大門", "自定義"];
 
 const DriverAvailableTimes: React.FC<{ driverId: number }> = ({ driverId }) => {
   const [date, setDate] = useState<Date | undefined>(new Date());

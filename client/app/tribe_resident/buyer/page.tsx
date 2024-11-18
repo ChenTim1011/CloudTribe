@@ -44,6 +44,18 @@ const BuyerPage: React.FC = () => {
   const isTablet = useMediaQuery({ minWidth: 768, maxWidth: 1024 });
 
   /**
+   * Handles the click event for the "Test login status" button
+   */
+
+  const handleApplyBuyerClick = () => {
+    if (!user || user.id === 0 || user.name === 'empty' || user.phone === 'empty') {
+        alert('請先按右上角的登入');
+    } else {
+        setIsCartOpen(true)
+    }
+  };
+
+  /**
    * Fetches order data from the server and updates the state
    */
   const fetchOrders = useCallback(async () => {
@@ -212,7 +224,8 @@ const BuyerPage: React.FC = () => {
           <div className={`fixed ${isMobile ? "relative" : "top-20 left-4"} z-50`}>
             <Button
               variant="outline"
-              onClick={() => setIsCartOpen(true)}
+              onClick={handleApplyBuyerClick}
+              
               className="px-4 py-2 text-lg font-bold border-2 border-black-500 text-black-500 hover:bg-blue-500 hover:text-white"
             >
               <FontAwesomeIcon icon={faShoppingCart} className="mr-2" />
