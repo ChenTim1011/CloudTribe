@@ -1,6 +1,6 @@
 // components/navigation/Directions.tsx
 
-import React, { useEffect } from "react";
+import React, { useEffect, useRef } from "react";
 import { DirectionsProps } from "@/interfaces/navigation/navigation";
 import { Route } from "@/interfaces/navigation/navigation";
 
@@ -13,7 +13,10 @@ const Directions: React.FC<DirectionsProps> = ({
   setRoutes,
   setTotalDistance,
   setTotalTime,
+  travelMode,
 }) => {
+  const directionsRendererRef = useRef<google.maps.DirectionsRenderer | null>(null);
+
   useEffect(() => {
     if (!map || !origin || !destination) return;
 
@@ -27,26 +30,30 @@ const Directions: React.FC<DirectionsProps> = ({
       return;
     }
 
+    // Initialize DirectionsRenderer if it hasn't been already
+    if (!directionsRendererRef.current) {
+      directionsRendererRef.current = new google.maps.DirectionsRenderer({
+        map: map,
+        suppressMarkers: true,
+      });
+    }
+
     const directionsService = new google.maps.DirectionsService();
-    const directionsRenderer = new google.maps.DirectionsRenderer({
-      map: map,
-      suppressMarkers: true,
-    });
 
     const request: google.maps.DirectionsRequest = {
       origin: origin,
       destination: destination,
-      travelMode: google.maps.TravelMode.DRIVING,
+      travelMode: travelMode,
       waypoints: waypoints.map((wp) => ({
         location: wp.location,
         stopover: true,
       })),
-      optimizeWaypoints: false, // If true, the Directions service will attempt to re-order the supplied waypoints to minimize overall cost of the route. If waypoints are optimized, inspect DirectionsRoute.waypoint_order in the response to determine the new ordering.
+      optimizeWaypoints: false, // Set to true if you want Google to optimize waypoints
     };
 
     directionsService.route(request, (result, status) => {
       if (status === google.maps.DirectionsStatus.OK && result) {
-        directionsRenderer.setDirections(result);
+        directionsRendererRef.current!.setDirections(result);
         const route = result.routes[0];
 
         // Map DirectionsRoute to Route
@@ -92,11 +99,14 @@ const Directions: React.FC<DirectionsProps> = ({
 
     // Clean up the directions renderer when the component unmounts
     return () => {
-      directionsRenderer.setMap(null);
+      if (directionsRendererRef.current) {
+        directionsRendererRef.current.setMap(null);
+        directionsRendererRef.current = null;
+      }
     };
-  }, [map, origin, waypoints, destination, setRoutes, setTotalDistance, setTotalTime]);
+  }, [map, origin, waypoints, destination, setRoutes, setTotalDistance, setTotalTime, travelMode]);
 
-  return null; 
+  return null;
 };
 
 export default Directions;

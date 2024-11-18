@@ -27,6 +27,9 @@ import {
   faArrowUp,
   faArrowDown,
   faTrash,
+  faWalking,   
+  faBicycle,  
+  faCar, 
 } from "@fortawesome/free-solid-svg-icons";
 import {
   GoogleMap,
@@ -88,9 +91,6 @@ const fetchCoordinates = async (placeName: string) => {
   return null;
 };
 
-
-const MemoizedDirections = Directions;
-
 const MapComponentContent: React.FC = () => {
   console.log("MapComponentContent render");
 
@@ -103,7 +103,7 @@ const MapComponentContent: React.FC = () => {
   const [totalDistance, setTotalDistance] = useState<string | null>(null);
   const [totalTime, setTotalTime] = useState<string | null>(null);
   const [routes, setRoutes] = useState<Route[]>([]);
-  const [legs, setLegs] = useState<Leg[]>([]); // 新增狀態來存儲路段
+  const [legs, setLegs] = useState<Leg[]>([]); 
   const [currentLocation, setCurrentLocation] = useState<LatLng | null>(null);
   const [center, setCenter] = useState<LatLng | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -112,6 +112,7 @@ const MapComponentContent: React.FC = () => {
   const [isSheetOpen, setIsSheetOpen] = useState(false);
   const [showDriverOrders, setShowDriverOrders] = useState(false);
   const [driverData, setDriverData] = useState<Driver | null>(null);
+  const [travelMode, setTravelMode] = useState<string>("DRIVING"); // Changed to string
 
   const [destinations, setDestinations] = useState<
     { name: string; location: LatLng }[]
@@ -221,9 +222,16 @@ const MapComponentContent: React.FC = () => {
       setError("無法獲取司機資料");
     }
   };
-  
 
-  // Move useMemo here to ensure it's always called
+  // Travel Mode Mapping 定義
+  const travelModeMapping: { [key: string]: string } = {
+    DRIVING: "driving",
+    WALKING: "walking",
+    BICYCLING: "bicycling",
+    TRANSIT: "transit",
+  };
+
+  // 記憶化路點
   const memoizedWaypoints = useMemo(() => {
     console.log("useMemo: memoizedWaypoints");
     return destinations.slice(0, -1).map(dest => ({
@@ -323,7 +331,7 @@ const MapComponentContent: React.FC = () => {
     }
   }, [routes]);
 
-  // Now handle early returns based on loading state
+  // Handle early returns based on loading state
   if (loadError) {
     return <div>地圖加載失敗</div>;
   }
@@ -383,7 +391,7 @@ const MapComponentContent: React.FC = () => {
     }
 
     if (destinations.length === 0) {
-      setError("請至少添加一個目的地");
+      setError("請至少增加一個目的地");
       return;
     }
 
@@ -408,6 +416,9 @@ const MapComponentContent: React.FC = () => {
       .map((loc) => `${loc.lat},${loc.lng}`)
       .join("|");
 
+    // Mapping of travel modes
+    const travelModeString = travelModeMapping[travelMode] || "driving";
+    
     // Generate navigation URL
     let url = `https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent(
       origin
@@ -416,6 +427,9 @@ const MapComponentContent: React.FC = () => {
     if (uniqueWaypoints) {
       url += `&waypoints=${encodeURIComponent(uniqueWaypoints)}`;
     }
+
+    // Add travelMode   
+    url += `&travelmode=${travelModeString}`;
 
     setNavigationUrl(url);
     setError(null);
@@ -597,7 +611,7 @@ const handleCompleteOrder = async (orderId: string, service: string) => {
 };
 
   return (
-    <Suspense fallback={<div>Loading map...</div>}>
+    <Suspense fallback={<div>正在加載地圖...</div>}>
       <div className="max-w-full mx-auto space-y-6">
         {/* Back Button */}
         <div className="w-full flex justify-start p-4">
@@ -606,7 +620,9 @@ const handleCompleteOrder = async (orderId: string, service: string) => {
             上一頁
           </Button>
         </div>
+        
 
+        
         {/* Google Map */}
         <div id="map" className="mb-6" style={{ height: "60vh", width: "100%" }}>
           <GoogleMap
@@ -620,7 +636,7 @@ const handleCompleteOrder = async (orderId: string, service: string) => {
             {/* Current Location Marker */}
             {currentLocation && <Marker position={currentLocation} label="目前位置" />}
 
-            {/* Intermediate */}
+            {/* Intermediate Markers */}
             {destinations.slice(0, -1).map((dest, index) => (
               <Marker
                 key={`intermediate-${index}`}
@@ -632,7 +648,7 @@ const handleCompleteOrder = async (orderId: string, service: string) => {
               />
             ))}
 
-            {/* Terminal */}
+            {/* Terminal Marker */}
             {destinations.length > 0 && (
               <Marker
                 position={{
@@ -644,7 +660,7 @@ const handleCompleteOrder = async (orderId: string, service: string) => {
             )}
 
             {/* Directions Renderer */}
-            <MemoizedDirections
+            <Directions
               map={mapRef.current}
               origin={origin}
               waypoints={memoizedWaypoints}
@@ -657,6 +673,7 @@ const handleCompleteOrder = async (orderId: string, service: string) => {
               setRoutes={setRoutes}
               setTotalDistance={setTotalDistance}
               setTotalTime={setTotalTime}
+              travelMode={travelMode as google.maps.TravelMode} // Now a string
             />
           </GoogleMap>
         </div>
@@ -691,6 +708,40 @@ const handleCompleteOrder = async (orderId: string, service: string) => {
                 </CardFooter>
               </Card>
             )}
+
+            {/* Travel Mode Selection */}
+            <div className="flex justify-center space-x-4 mb-6">
+              <Button
+                variant={travelMode === "DRIVING" ? "default" : "outline"}
+                onClick={() => {
+                  setTravelMode("DRIVING");
+                }}
+                className="flex items-center"
+              >
+                <FontAwesomeIcon icon={faCar} className="mr-2" />
+                汽車
+              </Button>
+              <Button
+                variant={travelMode === "WALKING" ? "default" : "outline"}
+                onClick={() => {
+                  setTravelMode("WALKING");
+                }}
+                className="flex items-center"
+              >
+                <FontAwesomeIcon icon={faWalking} className="mr-2" />
+                走路
+              </Button>
+              <Button
+                variant={travelMode === "BICYCLING" ? "default" : "outline"}
+                onClick={() => {
+                  setTravelMode("BICYCLING");
+                }}
+                className="flex items-center"
+              >
+                <FontAwesomeIcon icon={faBicycle} className="mr-2" />
+                腳踏車
+              </Button>
+            </div>
 
             {/* Destinations List with Move Buttons and Distance/Time */}
             <div className="my-5">
@@ -821,7 +872,7 @@ const handleCompleteOrder = async (orderId: string, service: string) => {
                 <DriverOrdersPage
                   driverData={driverData}
                   onAccept={handleAcceptOrder}
-                  onTransfer={handleAcceptOrder}
+                  onTransfer={handleTransferOrder} 
                   onNavigate={(orderId: string) =>
                     handleNavigate(orderId, driverData.id || 0)
                   }

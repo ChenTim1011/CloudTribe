@@ -9,6 +9,7 @@ export interface DirectionsProps {
   setRoutes: React.Dispatch<React.SetStateAction<Route[]>>;
   setTotalDistance: React.Dispatch<React.SetStateAction<string | null>>;
   setTotalTime: React.Dispatch<React.SetStateAction<string | null>>;
+  travelMode: google.maps.TravelMode;
 }
 
 
