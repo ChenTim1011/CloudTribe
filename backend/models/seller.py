@@ -45,6 +45,7 @@ class ProductInfo(BaseModel):
     off_shelf_date: str
     img_link: str
     img_id: str
+    unit: str
 
 class ProductOrderInfo(BaseModel):
     order_id: int
