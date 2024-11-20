@@ -28,6 +28,7 @@ class UploadItemRequest(BaseModel):
     img_link: str
     img_id: str
     seller_id: int
+    unit: str
 
 class ProductBasicInfo(BaseModel):
     id: int

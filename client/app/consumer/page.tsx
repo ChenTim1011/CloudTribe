@@ -183,7 +183,7 @@ export default function Page() {
             <div className="lg:h-1"/>
             <div className="flex flex-col items-center space-y-1">
               <p className="lg:text-2xl text-sm">{product.name}</p>
-              <p className="lg:text-3xl text-md text-red-600">{String(product.price)}</p>
+              <p className="lg:text-3xl text-md text-red-600">${String(product.price)} / {product.unit}</p>
               <div className="flex flex-row space-x-2 items-center text-center">
                 <label htmlFor={`quantity-${product.id}`} className="lg:text-2xl text-sm">購買數量:</label>
                 <Input

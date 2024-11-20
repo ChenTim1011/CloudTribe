@@ -95,7 +95,8 @@ CREATE TABLE agricultural_produce (
     off_shelf_date Date NOT NULL,
     img_link VARCHAR(255) NOT NULL,
     img_id VARCHAR(36) NOT NULL,
-    seller_id INTEGER NOT NULL
+    seller_id INTEGER NOT NULL,
+    unit VARCHAR(10) NOT NULL
 );
 
 CREATE TABLE agricultural_shopping_cart (

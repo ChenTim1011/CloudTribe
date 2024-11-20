@@ -26,6 +26,7 @@ export interface UploadItem {
     price: Number
     quantity: Number
     seller_id: Number
+    unit: string
   }
 
 
@@ -39,6 +40,7 @@ export interface UploadItem {
     off_shelf_date: string
     img_link: string
     img_id: string  
+    unit: string
   }
   
   export interface ProductOrderInfo {

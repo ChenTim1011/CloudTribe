@@ -4,6 +4,7 @@ export interface AddCartRequest {
     buyer_id: Number
     produce_id: Number
     quantity: Number
+    unit: string
   }
 
   export interface PurchasedProductRequest{

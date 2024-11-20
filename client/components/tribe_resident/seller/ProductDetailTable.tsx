@@ -42,7 +42,6 @@ export const ProductDetailTable = ()=> {
  
   const handleIsPut: React.MouseEventHandler<HTMLButtonElement> = (event) => {
     const target = event.target as HTMLButtonElement
-    //const id = target.id.split('-')[1]
     const id = parseInt(target.id)
     if(check.includes(id))
       setCheck(check.filter((element) => element != id))

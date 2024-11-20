@@ -61,7 +61,8 @@ async def get_on_sell_item(conn: Connection=Depends(get_db)):
                 "off_shelf_date":str(product[6]),
                 "img_link": product[7],
                 "img_id": product[8],
-                "seller_id": product[9],    
+                "seller_id": product[9],
+                "unit": product[10],   
             })
         return product_list
     except Exception as e:
@@ -126,7 +127,7 @@ async def get_seller_item(userId: int, conn: Connection=Depends(get_db)):
     try:
         logging.info("Get cart items of user whose id is %s.", userId)
         cur.execute(
-            """SELECT cart.id, produce.id, produce.name, produce.img_link, produce.price, cart.quantity, produce.seller_id
+            """SELECT cart.id, produce.id, produce.name, produce.img_link, produce.price, cart.quantity, produce.seller_id, produce.unit
             FROM agricultural_shopping_cart as cart
             JOIN agricultural_produce as produce ON cart.produce_id=produce.id
             WHERE buyer_id = %s AND produce.off_shelf_date >= %s AND cart.status = %s""", (userId, today, '未送單'))
@@ -142,7 +143,8 @@ async def get_seller_item(userId: int, conn: Connection=Depends(get_db)):
                 "img_url":item[3],
                 "price":item[4],
                 "quantity":item[5],
-                "seller_id":item[6]
+                "seller_id":item[6],
+                "unit": item[7],
             })
         return cart_list
     except Exception as e:
