@@ -35,29 +35,7 @@ const DriverPage: React.FC = () => {
     // add state for showing unaccepted orders
     const [showUnacceptedOrders, setShowUnacceptedOrders] = useState(false);
 
-        /**
-     * Fetch driver data based on user_id.
-     * @param userId - The user's ID.
-     */
-        const fetchDriverData = async (userId: number) => {
-            try {
-                const response = await fetch(`/api/drivers/user/${userId}`);
-                if (!response.ok) {
-                    if (response.status === 404) {
-                        console.warn("使用者尚未成為司機");
-                    } else {
-                        throw new Error(`Failed to fetch driver data: ${response.statusText}`);
-                    }
-                } else {
-                    const data: Driver = await response.json();
-                    console.log('Fetched driver data:', data);
-                    setDriverData(data);
-                    handleFetchDriverOrders(data.id);
-                }
-            } catch (error) {
-                console.error('Error fetching driver data:', error);
-            }
-        };
+
 
     useEffect(() => {
         setShowAddTimeTip(true);
@@ -84,10 +62,35 @@ const DriverPage: React.FC = () => {
 
     // use user.id to get driverData
     useEffect(() => {
-        if (isClient && user && user.is_driver) {
-            fetchDriverData(user.id);
+
+    /**
+     * Fetch driver data based on user_id.
+     * @param userId - The user's ID.
+     */
+    const fetchDriverData = async (userId: number) => {
+        try {
+            const response = await fetch(`/api/drivers/user/${userId}`);
+            if (!response.ok) {
+                if (response.status === 404) {
+                    console.warn("使用者尚未成為司機");
+                } else {
+                    throw new Error(`Failed to fetch driver data: ${response.statusText}`);
+                }
+            } else {
+                const data: Driver = await response.json();
+                console.log('Fetched driver data:', data);
+                setDriverData(data);
+                handleFetchDriverOrders(data.id);
+            }
+        } catch (error) {
+            console.error('Error fetching driver data:', error);
         }
-    }, [isClient, user,fetchDriverData]);
+    };
+
+    if (isClient && user && user.is_driver) {
+        fetchDriverData(user.id);
+    }
+    }, [isClient, user]);
 
 
 
@@ -306,7 +309,7 @@ const DriverPage: React.FC = () => {
                     {showAddTimeTip && (
                         <div className="bg-blue-100 border border-blue-500 text-blue-700 px-4 py-3 rounded relative mb-4" role="alert">
                             <strong className="font-bold">提醒：</strong>
-                            <span className="block sm:inline">請到 "新增時間" 以設定您的可運送時間，讓賣家知道您何時可以接單。</span>
+                            <span className="block sm:inline">請到新增時間以設定您的可運送時間，讓賣家知道您何時可以接單。</span>
                             <Button
                                 className="absolute top-0 bottom-0 right-0 px-4 py-3" 
                                 onClick={() => setShowAddTimeTip(false)}
