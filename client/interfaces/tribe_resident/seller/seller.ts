@@ -9,6 +9,7 @@ export interface UploadItem {
     img_link: string
     img_id: string
     seller_id: Number | null
+    unit: string
   }
   export interface BasicProductInfo{
     id: Number
@@ -26,6 +27,7 @@ export interface UploadItem {
     price: Number
     quantity: Number
     seller_id: Number
+    unit: string
   }
 
 
@@ -39,6 +41,7 @@ export interface UploadItem {
     off_shelf_date: string
     img_link: string
     img_id: string  
+    unit: string
   }
   
   export interface ProductOrderInfo {
@@ -48,5 +51,9 @@ export interface UploadItem {
     product_price: Number
     status: string
     timestamp: string
+    is_put: boolean
   }
   
+  export interface IsPutRequest {
+    order_ids: Number[]
+  }

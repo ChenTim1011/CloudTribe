@@ -4,7 +4,9 @@ This module defines the Pydantic models used in the application.
 It includes models for UploadImage,.
 These models help in validating and serializing the data exchanged between the API and the database.
 """
+from typing import List
 from pydantic import BaseModel
+
 class UploadImageRequset(BaseModel):
     img: str
     
@@ -26,6 +28,7 @@ class UploadItemRequest(BaseModel):
     img_link: str
     img_id: str
     seller_id: int
+    unit: str
 
 class ProductBasicInfo(BaseModel):
     id: int
@@ -42,6 +45,7 @@ class ProductInfo(BaseModel):
     off_shelf_date: str
     img_link: str
     img_id: str
+    unit: str
 
 class ProductOrderInfo(BaseModel):
     order_id: int
@@ -50,6 +54,10 @@ class ProductOrderInfo(BaseModel):
     product_price: int
     status: str
     timestamp: str
+    is_put: bool
+
+class IsPutRequest(BaseModel):
+    order_ids:List[int]
 
     
 

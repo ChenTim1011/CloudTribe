@@ -179,7 +179,7 @@ export default function ShoppingCart(){
             </div> 
             <div className="flex flex-col w-5/12 text-center">
               <p className="lg:text-2xl line-clamp-2 text-pretty">{item.name}</p>
-              <p className="lg:text-lg text-red-600">${item.price.toString()}</p>
+              <p className="lg:text-lg text-red-600">${item.price.toString()} / {item.unit}</p>
               
             </div>
             <Input

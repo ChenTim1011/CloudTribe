@@ -4,6 +4,7 @@ export interface AddCartRequest {
     buyer_id: Number
     produce_id: Number
     quantity: Number
+    unit: string
   }
 
   export interface PurchasedProductRequest{
@@ -24,4 +25,5 @@ export interface AddCartRequest {
     product_price: Number
     img_url: string
     status: string //未接單or已接單or已送達
+    unit: string
   }

@@ -1,4 +1,4 @@
-import { UploadItem } from '@/interfaces/tribe_resident/seller/seller';
+import { UploadItem, IsPutRequest } from '@/interfaces/tribe_resident/seller/seller';
 
 class SellerService {
   async upload_image(img: string){
@@ -58,6 +58,19 @@ class SellerService {
       headers: {
         'Content-Type': 'application/json',
       },
+    })
+    const data = await res.json()
+    if(!res.ok)
+      throw new Error(`Error: ${data.detail}`)
+    return data
+  }
+  async check_is_put(req: IsPutRequest){
+    const res = await fetch('/api/seller/agricultural_product/is_put',{
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body:JSON.stringify(req)
     })
     const data = await res.json()
     if(!res.ok)

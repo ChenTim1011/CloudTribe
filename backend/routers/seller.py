@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException, Depends
 from psycopg2.extensions import connection as Connection
-from backend.models.seller import UploadImageResponse, UploadImageRequset, UploadItemRequest, ProductBasicInfo, ProductInfo, ProductOrderInfo
+from backend.models.seller import UploadImageResponse, UploadImageRequset, UploadItemRequest, ProductBasicInfo, ProductInfo, ProductOrderInfo, IsPutRequest
 from backend.database import get_db_connection
 from dotenv import load_dotenv
 import os
@@ -71,9 +71,9 @@ async def upload_item(req: UploadItemRequest, conn: Connection = Depends(get_db)
     try:
         logging.info("Inserting new item")
         cur.execute(
-            """INSERT INTO agricultural_produce (name, price, total_quantity, category, upload_date, off_shelf_date, img_link, img_id, seller_id) 
-            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)""",
-            (req.name, req.price, req.total_quantity, req.category, str(datetime.date.today()), req.off_shelf_date, req.img_link, req.img_id, req.seller_id)
+            """INSERT INTO agricultural_produce (name, price, total_quantity, category, upload_date, off_shelf_date, img_link, img_id, seller_id, unit) 
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)""",
+            (req.name, req.price, req.total_quantity, req.category, str(datetime.date.today()), req.off_shelf_date, req.img_link, req.img_id, req.seller_id, req.unit)
         )
         conn.commit()
         return "item create successfully"
@@ -135,7 +135,7 @@ async def get_product_info(productId: int, conn: Connection=Depends(get_db)):
     try:
         logging.info("Get item information with id is %s.", productId)
         cur.execute(
-            """SELECT id, name, price, category, total_quantity, upload_date, off_shelf_date, img_link, img_id
+            """SELECT id, name, price, category, total_quantity, upload_date, off_shelf_date, img_link, img_id, unit
             FROM agricultural_produce WHERE id = %s""", (productId,))
  
         product = cur.fetchone()
@@ -148,7 +148,8 @@ async def get_product_info(productId: int, conn: Connection=Depends(get_db)):
             "upload_date":str(product[5]),
             "off_shelf_date": str(product[6]),
             "img_link": product[7],
-            "img_id": product[8]
+            "img_id": product[8],
+            "unit":product[9]
         }
         return _product
     except Exception as e:
@@ -175,10 +176,10 @@ async def get_product_order(productId: int, conn: Connection=Depends(get_db)):
     try:
         logging.info("Get orders of item with id %s.", productId)
         cur.execute(
-            """SELECT o.id, o.buyer_name, o.quantity, produce.price, o.status, o.timestamp
-            FROM product_order as o
+            """SELECT o.id, o.buyer_name, o.quantity, produce.price, o.status, o.timestamp, o.is_put
+            FROM agricultural_product_order as o
             JOIN agricultural_produce as produce ON o.produce_id=produce.id
-            WHERE produce_id = %s  AND o.category = %s""", (productId, 'agriculture'))
+            WHERE produce_id = %s""", (productId,))
 
         items = cur.fetchall()
         logging.info('start create product order list')
@@ -191,6 +192,7 @@ async def get_product_order(productId: int, conn: Connection=Depends(get_db)):
                 "product_price":item[3],
                 "status":item[4],
                 "timestamp":str(item[5]),
+                "is_put": item[6]
             })
         return item_order_list
     except Exception as e:
@@ -200,7 +202,35 @@ async def get_product_order(productId: int, conn: Connection=Depends(get_db)):
     finally:
         cur.close()
 
- 
+@router.post('/agricultural_product/is_put')
+async def check_is_put(req: IsPutRequest, conn = Depends(get_db)):
+    """
+    Check is put checkbox.
+    Args:
+        order_id (int): The ID of the order to be completed.
+        conn (Connection): The database connection.
+    Returns:
+        dict: A success message.
+    """
+    cur = conn.cursor()
+    try:
+        for id in req.order_ids:
+            # Check if order exists
+            cur.execute("SELECT * FROM agricultural_product_order WHERE id = %s", (id,))
+            order = cur.fetchone()
+            if not order:
+                raise HTTPException(status_code=404, detail="訂單不存在")
+            
+            # Update the order status
+            cur.execute("UPDATE agricultural_product_order SET is_put = %s WHERE id = %s", (True, id,))
+    
+        conn.commit()
+        return {"status": "success", "message": "訂單已放置"}
+    except Exception as e:
+        conn.rollback()
+        raise HTTPException(status_code=500, detail=str(e)) from e
+    finally:
+        cur.close()
 
 
 

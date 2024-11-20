@@ -95,7 +95,8 @@ CREATE TABLE agricultural_produce (
     off_shelf_date Date NOT NULL,
     img_link VARCHAR(255) NOT NULL,
     img_id VARCHAR(36) NOT NULL,
-    seller_id INTEGER NOT NULL
+    seller_id INTEGER NOT NULL,
+    unit VARCHAR(10) NOT NULL
 );
 
 CREATE TABLE agricultural_shopping_cart (
@@ -118,6 +119,7 @@ CREATE TABLE agricultural_product_order(
     end_point VARCHAR(25) NOT NULL,
     timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP, --TIMESTAMP WITHOUT TIME ZONE
     status VARCHAR(5) DEFAULT '未接單', --未接單 or 已接單 or 已送達
+    is_put BOOLEAN DEFAULT FALSE,
     note VARCHAR(255)
 );
 '''
