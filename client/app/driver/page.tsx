@@ -22,8 +22,8 @@ import { DriverOrder } from '@/interfaces/driver/driver';
 const DriverPage: React.FC = () => {
     const [showRegisterForm, setShowRegisterForm] = useState(false);
     const [showDriverOrders, setShowDriverOrders] = useState(false);
-    const [unacceptedOrders, setUnacceptedOrders] = useState<any[]>([]);
-    const [acceptedOrders, setAcceptedOrders] = useState<any[]>([]);
+    const [unacceptedOrders, setUnacceptedOrders] = useState<Order[]>([]);
+    const [acceptedOrders, setAcceptedOrders] = useState<Order[]>([]);
     const [driverData, setDriverData] = useState<Driver | null>(null);
     const router = useRouter();
     const [user, setUser] = useState(UserService.getLocalStorageUser());
@@ -46,7 +46,7 @@ const DriverPage: React.FC = () => {
                     if (response.status === 404) {
                         console.warn("使用者尚未成為司機");
                     } else {
-                        throw new Error('Failed to fetch driver data');
+                        throw new Error(`Failed to fetch driver data: ${response.statusText}`);
                     }
                 } else {
                     const data: Driver = await response.json();
@@ -67,10 +67,10 @@ const DriverPage: React.FC = () => {
             setUser(updatedUser);
         };
     
-        window.addEventListener('userDataChanged', handleUserDataChanged);
+        window.addEventListener("userDataChanged", handleUserDataChanged);
     
         return () => {
-            window.removeEventListener('userDataChanged', handleUserDataChanged);
+            window.removeEventListener("userDataChanged", handleUserDataChanged);
         };
     }, []);
 
@@ -87,7 +87,7 @@ const DriverPage: React.FC = () => {
         if (isClient && user && user.is_driver) {
             fetchDriverData(user.id);
         }
-    }, [isClient, user]);
+    }, [isClient, user,fetchDriverData]);
 
 
 
@@ -291,7 +291,7 @@ const DriverPage: React.FC = () => {
             <div
                 className="flex h-screen"
                 style={{
-                    backgroundImage: "url('/road.jpg')",
+                    backgroundImage: 'url("/road.jpg")',
                     backgroundSize: 'cover',
                     backgroundRepeat: 'no-repeat',
                     backgroundPosition: 'center',

@@ -176,9 +176,11 @@ const Directions: React.FC<DirectionsProps> = React.memo(({
 
     
     immediateRoute(request);
-  }, [forceUpdateTrigger, map, origin, waypoints, destination, travelMode, optimizeWaypoints]);
+  }, [forceUpdateTrigger, map, origin, waypoints, destination, travelMode, optimizeWaypoints,immediateRoute]);
 
   return null;
 });
+
+Directions.displayName = "Directions";
 
 export default Directions;
