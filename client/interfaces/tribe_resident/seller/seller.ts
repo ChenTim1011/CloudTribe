@@ -9,6 +9,7 @@ export interface UploadItem {
     img_link: string
     img_id: string
     seller_id: Number | null
+    unit: string
   }
   export interface BasicProductInfo{
     id: Number

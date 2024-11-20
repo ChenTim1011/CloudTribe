@@ -29,6 +29,7 @@ export const SellerDialog = () => {
   const [itemName, setItemName] = useState('')
   const [itemPrice, setItemPrice] = useState('')
   const [itemQuantity, setItemQuantity] = useState('')
+  const [itemUnit, setItemUnit] = useState('')
   const [errorMessage, setErrorMessage] = useState('')
   const [fileType, setFileType] = useState('')
   const [closeDialog, setCloseDialog] = useState(false)
@@ -45,10 +46,11 @@ export const SellerDialog = () => {
       setLocationError('請先點擊右上角的標誌來設定出貨物品放置地點')}
   }, [])
 
-  const handleConfirm = async() =>{
+  const handleConfirm = async() => {
+    console.log('test')
     //get image URL
-    if(itemName == '' || itemPrice == '' || date == null || selectedCategory == null || itemQuantity == null)
-      setErrorMessage("上面的所有欄位都必須要填寫喔!!")
+    if(itemName == '' || itemPrice == '' || date == null || selectedCategory == null || itemQuantity == '' || itemUnit == '')
+      setErrorMessage("上面的所有欄位都必須要填寫喔!!") 
     else if(itemName.length > 20)
       setErrorMessage("商品名稱大於20字")
     else if(isNaN(parseInt(itemPrice)) || (parseInt(itemPrice)) <= 0)
@@ -62,6 +64,7 @@ export const SellerDialog = () => {
     else if(fileType == 'notImage')
       setErrorMessage("上傳的檔案非圖片")
     else{
+      console.log('test2')
       setIsUploading(true)
       try{
         var res_img = await SellerService.upload_image(imgBase64)
@@ -78,7 +81,8 @@ export const SellerDialog = () => {
         off_shelf_date: date.toLocaleDateString().replaceAll("/", "-"),
         img_link: res_img.img_link,
         img_id: res_img.img_id,
-        seller_id: user && user.id ? Number(user.id) : null
+        seller_id: user && user.id ? Number(user.id) : null,
+        unit: itemUnit
       }
       try{
         const res_item = await SellerService.upload_item(item)
@@ -100,6 +104,10 @@ export const SellerDialog = () => {
   }
   const handleQuantityButton: React.ChangeEventHandler<HTMLInputElement> = (event) => {
     setItemQuantity(event.target.value);
+    setErrorMessage('')
+  }
+  const handleUnitButton: React.ChangeEventHandler<HTMLInputElement> = (event) => {
+    setItemUnit(event.target.value);
     setErrorMessage('')
   }
   const handleDateButton =(date: Date | undefined) => {
@@ -164,6 +172,12 @@ export const SellerDialog = () => {
             <Input id="quantity" className="col-span-3" onChange={handleQuantityButton}/>
           </div>
           <div className="grid grid-cols-4 items-center gap-4">
+            <Label htmlFor="unit" className="text-left lg:text-2xl text-md">
+              商品單位
+            </Label>
+            <Input id="unit" className="col-span-3" onChange={handleUnitButton}/>
+          </div>
+          <div className="grid grid-cols-4 items-center gap-4">
             <Label htmlFor="date" className="text-left lg:text-2xl text-md">
               下架日期
             </Label>
@@ -172,7 +186,7 @@ export const SellerDialog = () => {
           <CategorySelector handleIsOpen={handleSelector}/>
           <UploadRegion handleSendImg={setImgBase64} handleSendType={setFileType} handleSendError={setErrorMessage} selectorStatus={isSelectorOpen}/>
         </div>
-        {errorMessage && (
+        {errorMessage != '' && (
           <Alert className="bg-red-500 text-white">
             <AlertTitle>錯誤</AlertTitle>
             <AlertDescription>{errorMessage}</AlertDescription>
@@ -191,7 +205,6 @@ export const SellerDialog = () => {
         </DialogFooter>}
         {closeDialog &&
         <Alert className="bg-green-500 text-white">
-          <AlertTitle>成功!!</AlertTitle>
           <AlertDescription>商品上傳成功，請關閉表單</AlertDescription>
         </Alert>}
         {closeDialog &&

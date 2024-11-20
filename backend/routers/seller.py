@@ -71,9 +71,9 @@ async def upload_item(req: UploadItemRequest, conn: Connection = Depends(get_db)
     try:
         logging.info("Inserting new item")
         cur.execute(
-            """INSERT INTO agricultural_produce (name, price, total_quantity, category, upload_date, off_shelf_date, img_link, img_id, seller_id) 
-            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)""",
-            (req.name, req.price, req.total_quantity, req.category, str(datetime.date.today()), req.off_shelf_date, req.img_link, req.img_id, req.seller_id)
+            """INSERT INTO agricultural_produce (name, price, total_quantity, category, upload_date, off_shelf_date, img_link, img_id, seller_id, unit) 
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)""",
+            (req.name, req.price, req.total_quantity, req.category, str(datetime.date.today()), req.off_shelf_date, req.img_link, req.img_id, req.seller_id, req.unit)
         )
         conn.commit()
         return "item create successfully"
