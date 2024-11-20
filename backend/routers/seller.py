@@ -176,9 +176,9 @@ async def get_product_order(productId: int, conn: Connection=Depends(get_db)):
         logging.info("Get orders of item with id %s.", productId)
         cur.execute(
             """SELECT o.id, o.buyer_name, o.quantity, produce.price, o.status, o.timestamp
-            FROM product_order as o
+            FROM agricultural_product_order as o
             JOIN agricultural_produce as produce ON o.produce_id=produce.id
-            WHERE produce_id = %s  AND o.category = %s""", (productId, 'agriculture'))
+            WHERE produce_id = %s""", (productId,))
 
         items = cur.fetchall()
         logging.info('start create product order list')
