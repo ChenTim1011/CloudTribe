@@ -1,6 +1,6 @@
 // components/navigation/Directions.tsx
 
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useCallback } from "react";
 import { throttle } from "lodash";
 import { DirectionsProps, Route } from "@/interfaces/navigation/navigation";
 
@@ -24,7 +24,7 @@ const Directions: React.FC<DirectionsProps> = React.memo(({
   const prevRequestRef = useRef<string>(""); // To compare with the previous request
 
   // Define the function to handle directions request
-  const handleDirectionsRequest = (request: google.maps.DirectionsRequest) => {
+  const handleDirectionsRequest = useCallback((request: google.maps.DirectionsRequest) => {
     const directionsService = new google.maps.DirectionsService();
 
     directionsService.route(request, (result, status) => {
@@ -82,7 +82,7 @@ const Directions: React.FC<DirectionsProps> = React.memo(({
         setError(`Directions request failed: ${status}`);
       }
     });
-  };
+  }, [setRoutes, setTotalDistance, setTotalTime, optimizeWaypoints, onWaypointsOptimized, setError]);
 
   // Throttled route request per minute
   const throttledRoute = useRef(
@@ -91,10 +91,10 @@ const Directions: React.FC<DirectionsProps> = React.memo(({
     }, 60000) 
   ).current;
 
-  // Immidiate route request
-  const immediateRoute = (request: google.maps.DirectionsRequest) => {
+  // Immediate route request, memoized to prevent re-creation
+  const immediateRoute = useCallback((request: google.maps.DirectionsRequest) => {
     handleDirectionsRequest(request);
-  };
+  }, [handleDirectionsRequest]);
 
   // Initialize DirectionsRenderer
   useEffect(() => {
@@ -149,14 +149,9 @@ const Directions: React.FC<DirectionsProps> = React.memo(({
     origin,
     waypoints,
     destination,
-    setRoutes,
-    setTotalDistance,
-    setTotalTime,
+    throttledRoute,
     travelMode,
     optimizeWaypoints,
-    onWaypointsOptimized,
-    throttledRoute,
-    setError,
   ]);
 
   // Force update trigger
@@ -174,9 +169,8 @@ const Directions: React.FC<DirectionsProps> = React.memo(({
       optimizeWaypoints: optimizeWaypoints,
     };
 
-    
     immediateRoute(request);
-  }, [forceUpdateTrigger, map, origin, waypoints, destination, travelMode, optimizeWaypoints,immediateRoute]);
+  }, [forceUpdateTrigger, map, origin, waypoints, destination, travelMode, optimizeWaypoints, immediateRoute]);
 
   return null;
 });

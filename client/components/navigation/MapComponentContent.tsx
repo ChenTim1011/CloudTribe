@@ -2,7 +2,7 @@
 
 "use client";
 
-import React, { useState, useEffect, useRef, useMemo, Suspense } from "react";
+import React, { useState, useEffect, useRef, useMemo, useCallback, Suspense } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -110,7 +110,6 @@ const MapComponentContent: React.FC = () => {
   const [isSheetOpen, setIsSheetOpen] = useState(false);
   const [showDriverOrders, setShowDriverOrders] = useState(false);
   const [driverData, setDriverData] = useState<Driver | null>(null);
-  const [travelMode, setTravelMode] = useState<google.maps.TravelMode>(() => google.maps.TravelMode.DRIVING);
   const [optimizeWaypoints, setOptimizeWaypoints] = useState<boolean>(false);
   const [showLinkTip, setShowLinkTip] = useState(true);
 
@@ -119,7 +118,9 @@ const MapComponentContent: React.FC = () => {
   >([]);
   const [newDestinationName, setNewDestinationName] = useState<string>("");
   const [newDestinationLocation, setNewDestinationLocation] =
-    useState<LatLng | null>(null); // Changed to LatLng | null
+    useState<LatLng | null>(null);
+
+  const [travelMode, setTravelMode] = useState<'DRIVING' | 'WALKING' | 'BICYCLING' | 'TRANSIT'>('DRIVING');
 
   // Autocomplete refs
   const autocompleteNewDestinationRef = useRef<
@@ -208,22 +209,6 @@ const MapComponentContent: React.FC = () => {
     } catch (error) {
       console.error("Error fetching order data:", error);
       setError("無法獲取訂單資料");
-    }
-  };
-
-  // Function to fetch driver data
-  const fetchDriverData = async (driverId: string) => {
-    try {
-      const response = await fetch(`/api/drivers/${driverId}`);
-      if (!response.ok) {
-        throw new Error("Failed to fetch driver data");
-      }
-      const data: Driver = await response.json();
-      console.log("Fetched Driver Data:", data);
-      setDriverData(data);
-    } catch (error) {
-      console.error("Error fetching driver data:", error);
-      setError("無法獲取司機資料");
     }
   };
 
@@ -320,17 +305,10 @@ const MapComponentContent: React.FC = () => {
     }
   }, [routes]);
 
-  // Handle early returns based on loading state
-  if (loadError) {
-    return <div>地圖加載失敗</div>;
-  }
-
-  if (!isLoaded) {
-    return <div>正在加載地圖...</div>;
-  }
 
   // Function to handle place changes in Autocomplete
-  const handlePlaceChanged = async (
+  const handlePlaceChanged = useCallback(
+  async (
     autocompleteRef: React.RefObject<google.maps.places.Autocomplete>,
     setFn: React.Dispatch<React.SetStateAction<LatLng | null>>,
     setNameFn: React.Dispatch<React.SetStateAction<string>>,
@@ -370,7 +348,15 @@ const MapComponentContent: React.FC = () => {
       }
     }
     setError(errorMsg);
-  };
+  },
+  []
+);
+
+  // Travel mode change handler
+  const handleTravelModeChange = useCallback((mode: 'DRIVING' | 'WALKING' | 'BICYCLING' | 'TRANSIT') => {
+    setTravelMode(mode);
+    triggerForceUpdate();
+  },[triggerForceUpdate]);
 
   // Function to generate navigation link from current location to the last destination
   const handleGenerateNavigationLinkFromCurrentLocation = () => {
@@ -427,7 +413,7 @@ const MapComponentContent: React.FC = () => {
   };
 
   // Function to handle moving a destination up
-  const handleMoveUp = (index: number) => {
+  const handleMoveUp = useCallback((index: number) => {
     if (index === 0 || index === destinations.length - 1) return;
     const newDestinations = Array.from(destinations);
     [newDestinations[index - 1], newDestinations[index]] = [
@@ -436,10 +422,10 @@ const MapComponentContent: React.FC = () => {
     ];
     setDestinations(newDestinations);
     triggerForceUpdate(); 
-  };
+  },[destinations]);
 
   // Function to handle moving a destination down
-  const handleMoveDown = (index: number) => {
+  const handleMoveDown = useCallback((index: number) => {
     if (index >= destinations.length - 2) return;
     const newDestinations = Array.from(destinations);
     [newDestinations[index + 1], newDestinations[index]] = [
@@ -448,16 +434,16 @@ const MapComponentContent: React.FC = () => {
     ];
     setDestinations(newDestinations);
     triggerForceUpdate(); 
-  };
+  },[destinations,triggerForceUpdate]);
 
   // Function to view order details
-  const handleViewOrder = () => {
+  const handleViewOrder = useCallback(() => {
     setShowDriverOrders(true);
     setIsSheetOpen(true);
-  };
+  },[]);
 
   // Function to remove a specific destination
-  const handleRemoveDestination = (index: number) => {
+  const handleRemoveDestination = useCallback((index: number) => {
     if (index === destinations.length - 1) {
       setError("無法移除終點站");
       return;
@@ -467,7 +453,23 @@ const MapComponentContent: React.FC = () => {
     updated.splice(index, 1);
     setDestinations(updated);
     triggerForceUpdate(); 
-  };
+  },[destinations, triggerForceUpdate]);
+
+  // Fetch driver data
+  const fetchDriverData = useCallback(async (driverId: string) => {
+    try {
+      const response = await fetch(`/api/drivers/${driverId}`);
+      if (!response.ok) {
+        throw new Error("Failed to fetch driver data");
+      }
+      const data: Driver = await response.json();
+      console.log("Fetched Driver Data:", data);
+      setDriverData(data);
+    } catch (error) {
+      console.error("Error fetching driver data:", error);
+      setError("無法獲取司機資料");
+    }
+  }, []);
 
   // Function to add a new destination
   const handleAddDestination = () => {
@@ -527,7 +529,7 @@ const MapComponentContent: React.FC = () => {
             previous_driver_phone: undefined,
             service: service
         }
-        await  DriverService.handle_accept_order(service, parseInt(orderId), acceptOrder)
+        await DriverService.handle_accept_order(service, parseInt(orderId), acceptOrder)
         alert('接單成功');
 
     } catch (error) {
@@ -601,7 +603,9 @@ const handleCompleteOrder = async (orderId: string, service: string) => {
 };
 
 
-// Function to recommend route by optimizing waypoints
+/**
+ * Function to recommend route by optimizing waypoints
+ */
 const handleRecommendRoute = () => {
   if (destinations.length <= 2) {
     setError("至少需要兩個目的地才能推薦路徑。");
@@ -611,8 +615,10 @@ const handleRecommendRoute = () => {
   triggerForceUpdate(); 
 };
 
-// Callback to handle optimized waypoint order
-const handleWaypointsOptimized = (waypointOrder: number[]) => {
+/**
+ * Callback to handle optimized waypoint order
+ */
+const handleWaypointsOptimized = useCallback((waypointOrder: number[]) => {
   // waypointOrder is optimized order of waypoints
   // origin and terminal are fixed
   // reorder destinations based on waypointOrder
@@ -627,7 +633,7 @@ const handleWaypointsOptimized = (waypointOrder: number[]) => {
   // reset optimizeWaypoints to false
   setOptimizeWaypoints(false);
   triggerForceUpdate(); 
-};
+},[destinations]);
 
 
 return (
@@ -656,64 +662,71 @@ return (
       )}
       
       {/* Google Map */}
-      <div id="map" className="mb-6" style={{ height: "60vh", width: "100%" }}>
-        <GoogleMap
-          onLoad={(map) => {
-            mapRef.current = map;
-          }}
-          center={currentLocation || { lat: 0, lng: 0 }} 
-          zoom={14}
-          mapContainerStyle={{ width: "100%", height: "100%" }}
-        >
-          {/* Current Location Marker */}
-          {currentLocation && <Marker position={currentLocation} label="目前位置" />}
+      {/* Handle error and loading inside the JSX */}
+      {loadError ? (
+        <div>地圖加載失敗</div>
+      ) : !isLoaded ? (
+        <div>正在加載地圖...</div>
+      ) : (
+        <>
+        <div id="map" className="mb-6" style={{ height: "60vh", width: "100%" }}>
+          <GoogleMap
+            onLoad={(map) => {
+              mapRef.current = map;
+            }}
+            center={currentLocation || { lat: 0, lng: 0 }} 
+            zoom={14}
+            mapContainerStyle={{ width: "100%", height: "100%" }}
+          >
+            {/* Current Location Marker */}
+            {currentLocation && <Marker position={currentLocation} label="目前位置" />}
 
-          {/* Intermediate Markers */}
-          {destinations.slice(0, -1).map((dest, index) => (
-            <Marker
-              key={`intermediate-${index}`}
-              position={{
-                lat: dest.location.lat,
-                lng: dest.location.lng,
-              }}
-              label={`中間點${index + 1}`}
+            {/* Intermediate Markers */}
+            {destinations.slice(0, -1).map((dest, index) => (
+              <Marker
+                key={`intermediate-${index}`}
+                position={{
+                  lat: dest.location.lat,
+                  lng: dest.location.lng,
+                }}
+                label={`中間點${index + 1}`}
+              />
+            ))}
+
+            {/* Terminal Marker */}
+            {destinations.length > 0 && (
+              <Marker
+                position={{
+                  lat: destinations[destinations.length - 1].location.lat,
+                  lng: destinations[destinations.length - 1].location.lng,
+                }}
+                label="終點"
+              />
+            )}
+
+            {/* Directions Renderer */}
+            <Directions
+              map={mapRef.current}
+              origin={origin}
+              waypoints={memoizedWaypoints}
+              destination={
+                destinations.length > 0
+                  ? destinations[destinations.length - 1].location
+                  : null
+              }
+              routes={routes}
+              setRoutes={setRoutes}
+              setTotalDistance={setTotalDistance}
+              setTotalTime={setTotalTime}
+              travelMode={travelMode as google.maps.TravelMode} 
+              optimizeWaypoints={optimizeWaypoints}
+              onWaypointsOptimized={handleWaypointsOptimized}
+              setError={setError}
+              forceUpdateTrigger={forceUpdateTrigger} 
             />
-          ))}
-
-          {/* Terminal Marker */}
-          {destinations.length > 0 && (
-            <Marker
-              position={{
-                lat: destinations[destinations.length - 1].location.lat,
-                lng: destinations[destinations.length - 1].location.lng,
-              }}
-              label="終點"
-            />
-          )}
-
-          {/* Directions Renderer */}
-          <Directions
-            map={mapRef.current}
-            origin={origin}
-            waypoints={memoizedWaypoints}
-            destination={
-              destinations.length > 0
-                ? destinations[destinations.length - 1].location
-                : null
-            }
-            routes={routes}
-            setRoutes={setRoutes}
-            setTotalDistance={setTotalDistance}
-            setTotalTime={setTotalTime}
-            travelMode={travelMode} 
-            optimizeWaypoints={optimizeWaypoints}
-            onWaypointsOptimized={handleWaypointsOptimized}
-            setError={setError}
-            forceUpdateTrigger={forceUpdateTrigger} 
-          />
-        </GoogleMap>
-      </div>
-
+          </GoogleMap>
+        </div>
+ 
       {/* Navigation Card */}
       <Card className="my-10 shadow-lg mb-6">
         <CardHeader className="bg-black text-white p-4 rounded-t-md flex justify-between">
@@ -908,6 +921,8 @@ return (
 
         </CardContent>
       </Card>
+      </>
+    )}
 
       {/* Sheet for Order Details */}
       <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
