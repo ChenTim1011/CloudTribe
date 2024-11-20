@@ -293,7 +293,7 @@ async def get_purchase_item(userId: int, conn: Connection=Depends(get_db)):
     try:
         logging.info("Get purchased items of user whose id is %s.", userId)
         cur.execute(
-            """SELECT o.id, o.quantity, o.timestamp, produce.name, produce.price, produce.img_link, o.status
+            """SELECT o.id, o.quantity, o.timestamp, produce.name, produce.price, produce.img_link, o.status, produce.unit
             FROM agricultural_product_order as o
             JOIN agricultural_produce as produce ON o.produce_id=produce.id
             WHERE buyer_id = %s  """, (userId,))
@@ -309,7 +309,8 @@ async def get_purchase_item(userId: int, conn: Connection=Depends(get_db)):
                 "product_name":item[3],
                 "product_price":item[4],
                 "img_url":item[5],
-                "status":item[6]
+                "status":item[6],
+                "unit": item[7]
 
             })
         return purchased_item_list

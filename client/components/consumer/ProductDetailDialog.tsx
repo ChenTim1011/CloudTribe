@@ -47,7 +47,7 @@ export const ProductDetailDialog:React.FC<DetailDialogProp> = (prop) => {
           </div>
           <div className="grid grid-cols-5 items-center gap-4">
             <p className="lg:text-2xl col-span-2">購買數量</p>
-            <p className="lg:text-2xl col-span-3">{item?.quantity.toString()}</p>
+            <p className="lg:text-2xl col-span-3">{item?.quantity.toString()}{item?.unit}</p>
           </div>
           <div className="grid grid-cols-5 items-center gap-4">
             <p className="lg:text-2xl col-span-2">商品狀態</p>
