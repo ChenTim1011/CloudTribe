@@ -48,5 +48,9 @@ export interface UploadItem {
     product_price: Number
     status: string
     timestamp: string
+    is_put: boolean
   }
   
+  export interface IsPutRequest {
+    order_ids: Number[]
+  }

@@ -118,6 +118,7 @@ CREATE TABLE agricultural_product_order(
     end_point VARCHAR(25) NOT NULL,
     timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP, --TIMESTAMP WITHOUT TIME ZONE
     status VARCHAR(5) DEFAULT '未接單', --未接單 or 已接單 or 已送達
+    is_put BOOLEAN DEFAULT FALSE,
     note VARCHAR(255)
 );
 '''
