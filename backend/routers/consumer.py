@@ -311,7 +311,6 @@ async def get_purchase_item(userId: int, conn: Connection=Depends(get_db)):
                 "img_url":item[5],
                 "status":item[6],
                 "unit": item[7]
-
             })
         return purchased_item_list
     except Exception as e:
