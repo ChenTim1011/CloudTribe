@@ -71,7 +71,7 @@ export default function Page() {
       setMapItems(products)
     }
   }
-  const handleAddCart = async (produceId: Number) => {
+  const handleAddCart = async (produceId: Number, unit: string) => {
     // check if user is login
     if (!user || user.id === 0 || user.name === 'empty' || user.phone === 'empty') {
       alert('請先按右上角的登入');
@@ -196,7 +196,7 @@ export default function Page() {
               </div>
               <Button 
                 className="bg-black text-white lg:h-10 h-6 lg:w-1/2 w-2/3"
-                onClick={() => handleAddCart(product.id)}>
+                onClick={() => handleAddCart(product.id, product.unit)}>
                 <FontAwesomeIcon icon={faShoppingCart} className="lg:mr-2" />
                 加入購物車
               </Button>

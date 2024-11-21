@@ -12,7 +12,6 @@ class AddCartRequest(BaseModel):
     buyer_id: int
     produce_id: int
     quantity: int
-    unit: str
 
 class CartItem(BaseModel):
     id: int
