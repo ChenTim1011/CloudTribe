@@ -6,7 +6,7 @@ Endpoints:
 - POST /: Create a new order.
 - GET /: Get all unaccepted orders.
 - POST /{service}/{order_id}/accept: Accept an order.
-- POST /{service}/{order_id}/transfer: Transfer an order to a new driver.
+- POST /{order_id}/transfer: Transfer an order to a new driver.
 - GET /{order_id}: Retrieve a specific order by ID.
 - POST /{service}/{order_id}: Complete an order.
 """
@@ -216,8 +216,8 @@ async def accept_order(service: str, order_id: int, driver_order: DriverOrder, c
         cur.close()
 
 
-@router.post("/{service}/{order_id}/transfer")
-async def transfer_order(service:str, order_id: int, transfer_request: TransferOrderRequest, conn: Connection = Depends(get_db)):
+@router.post("/{order_id}/transfer")
+async def transfer_order(order_id: int, transfer_request: TransferOrderRequest, conn: Connection = Depends(get_db)):
     """
     Transfer an order to a new driver.
     Args:
@@ -257,6 +257,7 @@ async def transfer_order(service:str, order_id: int, transfer_request: TransferO
             "previous_driver_phone = %s WHERE order_id = %s AND driver_id = %s AND action = '接單'", 
             (new_driver_id, transfer_request.current_driver_id, current_driver[0], current_driver[1], order_id, transfer_request.current_driver_id)
         )
+        '''
         if service == 'necessities':
             # Update orders with previous driver details
             cur.execute(
@@ -269,7 +270,7 @@ async def transfer_order(service:str, order_id: int, transfer_request: TransferO
                 "UPDATE agricultural_product_order SET previous_driver_id = %s, previous_driver_name = %s, previous_driver_phone = %s WHERE id = %s",
                 (transfer_request.current_driver_id, current_driver[0], current_driver[1], order_id)
             )
-
+        '''
         conn.commit()
         return {"status": "success"}
     except Exception as e:
