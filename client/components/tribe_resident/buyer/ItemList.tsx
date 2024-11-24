@@ -77,7 +77,7 @@ const ItemList: React.FC<ItemListProps> = ({ products, itemsPerPage, addToCart }
               >
                 {product.name}
               </h2>
-              <p className="text-2xl font-bold text-red-500 mb-4">參考價格: ${product.price}</p>
+              <p className="text-2xl font-bold text-red-500 mb-4">參考價格: {product.price} 元</p>
               <div className="flex justify-center items-center mb-4">
                 <label htmlFor={`quantity-${product.id}`} className="mr-2">購買數量:</label>
                 <input

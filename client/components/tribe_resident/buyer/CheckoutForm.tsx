@@ -3,10 +3,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Calendar as CalendarIcon } from "lucide-react";
-import { format } from "date-fns";
-import { Calendar } from "@/components/ui/calendar";
-import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from "@/components/ui/select";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetFooter, SheetClose } from "@/components/ui/sheet";
 import { Label } from "@/components/ui/label";
@@ -14,6 +10,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import UserService from '@/services/user/user';  
 import { CheckoutFormProps } from '@/interfaces/tribe_resident/buyer/buyer';
 import { Autocomplete, useJsApiLoader, LoadScriptProps } from "@react-google-maps/api";
+import { now } from 'lodash';
 
 // Define the required libraries
 const libraries: LoadScriptProps['libraries'] = ["places"] as const;
@@ -34,10 +31,8 @@ const containerStyle = {
 const CheckoutForm: React.FC<CheckoutFormProps> = ({ onClose, clearCart, cartItems, totalPrice }) => {
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
-  const [date, setDate] = useState<Date>();
-  const [time, setTime] = useState<string | undefined>(undefined);
   const [location, setLocation] = useState<string | undefined>(undefined);
-  const [inputValue, setInputValue] = useState<string>(""); // 新增 inputValue 狀態
+  const [inputValue, setInputValue] = useState<string>(""); 
   const [is_urgent, setIsUrgent] = useState(false);
   const [note, setNote] = useState<string>("");  // Note field
   const [showAlert, setShowAlert] = useState(false);
@@ -120,30 +115,6 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onClose, clearCart, cartIte
       return;
     }
 
-    // Validate the date
-    if (!date || !time) {
-      setError("未選擇日期和時間");
-      return;
-    }
-
-    // Get the current date and time
-    const now = new Date();
-
-    // Combine date and time to a single datetime object
-    const [hours, minutes] = time.split(":").map(Number);
-    const combinedDateTime = new Date(date);
-    combinedDateTime.setHours(hours, minutes, 0, 0);
-
-    if (combinedDateTime < now) {
-      setError("不能選比現在更早的時間");
-      return;
-    }
-
-    // Validate the time
-    if (!time) {
-      setError("未選擇時間");
-      return;
-    }
 
     // Validate the location
     if (!location) {
@@ -159,11 +130,11 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onClose, clearCart, cartIte
       buyer_id: number;
       buyer_name: string;
       buyer_phone: string;
-      seller_id: number;
-      seller_name: string;
-      seller_phone: string;
-      date: string;
-      time: string;
+      seller_id?: number;
+      seller_name?: string;
+      seller_phone?: string;
+      date?: string;
+      time?: string;
       location: string;
       is_urgent: boolean;
       total_price: number;
@@ -171,11 +142,11 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onClose, clearCart, cartIte
       order_status: string;
       note: string;
       service: string;
-      shipment_count: number;
-      required_orders_count: number;
-      previous_driver_id: null;
-      previous_driver_name: null;
-      previous_driver_phone: null;
+      shipment_count?: number;
+      required_orders_count?: number;
+      previous_driver_id?: null;
+      previous_driver_name?: null;
+      previous_driver_phone?: null;
       items: {
         item_id: string;
         item_name: string;
@@ -192,8 +163,8 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onClose, clearCart, cartIte
       seller_id: 1,             // TODO: Replace with the actual buyer ID => login function
       seller_name: '賣家名稱', 
       seller_phone: '賣家電話',
-      date: new Date(date.getTime() - date.getTimezoneOffset() * 60000).toISOString().split('T')[0], 
-      time: time, 
+      date: new Date().toISOString().split('T')[0],
+      time: new Date().toTimeString().split(' ')[0],
       location: location,
       is_urgent: is_urgent,
       total_price: totalPrice,
@@ -299,41 +270,6 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onClose, clearCart, cartIte
               />
             </div>
             <div className="mb-4">
-              <Label htmlFor="date" className="block text-sm font-medium text-gray-700">可以接受司機接單的最後日期(超過時間沒有司機接單就放棄)</Label>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant={"outline"}
-                    className={"w-full justify-start text-left font-normal"}
-                  >
-                    <CalendarIcon className="mr-2 h-4 w-4" />
-                    {date ? format(date, "PPP") : <span>選擇日期</span>}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0">
-                  <Calendar
-                    mode="single"
-                    selected={date}
-                    onSelect={setDate}
-                    initialFocus
-                  />
-                </PopoverContent>
-              </Popover>
-            </div>
-            <div className="mb-4">
-              <Label htmlFor="time" className="block text-sm font-medium text-gray-700">可以接受司機接單的最後時間(超過時間沒有司機接單就放棄)</Label>
-              <Select onValueChange={setTime}>
-                <SelectTrigger className="w-full">
-                  <SelectValue placeholder="選擇時間" />
-                </SelectTrigger>
-                <SelectContent>
-                  {["11:00", "12:00", "13:00", "14:00", "15:00", "16:00", "17:00", "18:00", "19:00"].map(timeOption => (
-                    <SelectItem key={timeOption} value={timeOption}>{timeOption}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="mb-4">
               <Label htmlFor="location" className="block text-sm font-medium text-gray-700">領貨的地點</Label>
               <Select onValueChange={handleLocationChange}>
                 <SelectTrigger className="w-full">
@@ -363,16 +299,16 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onClose, clearCart, cartIte
                         "formatted_address",
                         "place_id",
                         "types",
-                      ], // 擴展 fields
-                      types: ["establishment", "geocode"], // 根據需要指定類型
+                      ], 
+                      types: ["establishment", "geocode"], 
                     }}
                   >
                     <Input
                       type="text"
                       placeholder="搜尋或輸入地點"
                       className="w-full"
-                      value={inputValue} // 使用 inputValue 狀態
-                      onChange={(e) => setInputValue(e.target.value)} // 更新 inputValue
+                      value={inputValue} 
+                      onChange={(e) => setInputValue(e.target.value)} 
                     />
                   </Autocomplete>
                 </div>

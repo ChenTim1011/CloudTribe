@@ -2,6 +2,7 @@
 This module is responsible for importing FastAPI and its dependencies.
 """
 import logging
+import os
 from fastapi import FastAPI, Request, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
@@ -40,6 +41,9 @@ from .handlers.driver import handle_driver
 
 # environment variables
 load_dotenv()
+
+line_bot_token = os.getenv('LINE_BOT_TOKEN')
+line_bot_secret = os.getenv('LINE_BOT_SECRET')
 
 app = FastAPI()
 
@@ -82,8 +86,7 @@ async def callback(request: Request):
     - str: The response message.
     """
     signature = request.headers['X-Line-Signature']
-    body = await request.body()
-    body = body.decode('utf-8')
+    body = await request.body() 
     logger.info("Request body: %s", body)
     try:
         handler.handle(body, signature)
