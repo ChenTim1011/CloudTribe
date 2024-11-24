@@ -97,46 +97,6 @@ const OrderManagement: React.FC<OrderManagementProps> = ({ isOpen, onClose, orde
               </Button>
             </div>
 
-            {/* Date range selectors */}
-            <div className="flex justify-center space-x-4 mt-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">開始時間</label>
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button variant="outline" className="w-full justify-start text-left font-normal">
-                      {startDate ? format(startDate, "PPP") : "選擇開始時間"}
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0">
-                    <Calendar
-                      mode="single"
-                      selected={startDate || undefined}
-                      onSelect={(day) => setStartDate(day || null)}
-                      initialFocus
-                    />
-                  </PopoverContent>
-                </Popover>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">結束時間</label>
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button variant="outline" className="w-full justify-start text-left font-normal">
-                      {endDate ? format(endDate, "PPP") : "選擇結束時間"}
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0">
-                    <Calendar
-                      mode="single"
-                      selected={endDate || undefined}
-                      onSelect={(day) => setEndDate(day || null)}
-                      initialFocus
-                    />
-                  </PopoverContent>
-                </Popover>
-              </div>
-            </div>
-
             {/* Display total price if there are matching orders */}
             {finalFilteredOrders.length > 0 && (
               <div className="w-full flex justify-center mt-4">
@@ -155,7 +115,7 @@ const OrderManagement: React.FC<OrderManagementProps> = ({ isOpen, onClose, orde
               <p className="mt-4 text-center">沒有符合條件的訂單</p>
             )
           ) : (
-            <p>沒有相關的訂單</p>
+            <p className="mt-4 text-center"> 沒有相關的訂單</p>
           )}
 
           {/* Display error message if needed */}

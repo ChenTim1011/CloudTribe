@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect,useMemo } from 'react'; 
 import OrderCard from './OrderCard';
 import PaginationDemo from './PaginationDemo';
 import { Order } from '@/interfaces/tribe_resident/buyer/order';
@@ -27,9 +27,7 @@ interface OrderListWithPaginationProps {
  */
 const OrderListWithPagination: React.FC<OrderListWithPaginationProps> = ({ orders, onAccept, onTransfer, onNavigate, onComplete, driverId }) => {
     const [currentPage, setCurrentPage] = useState(1);
-
     const itemsPerPage = 5;
-
 
     /**
      * Handles the page change event.
@@ -40,30 +38,39 @@ const OrderListWithPagination: React.FC<OrderListWithPaginationProps> = ({ order
         setCurrentPage(page);
     };
 
+    // Sort orders by urgency
+    const sortedOrders = useMemo(() => {
+        return [...orders].sort((a, b) => {
+            if (a.is_urgent === b.is_urgent) return 0;
+            return a.is_urgent ? -1 : 1;
+        });
+    }, [orders]);
+
     const startIndex = (currentPage - 1) * itemsPerPage;
-    const currentOrders = orders.slice(startIndex, startIndex + itemsPerPage);
- return (
-     <div>
-         {currentOrders.length > 0 ? (
-             currentOrders.map(order => {
-                 console.log('Rendering order:', order); 
-                 return (
-                     <OrderCard
-                         key={order.id}
-                         order={order}
-                         driverId={driverId}
-                         onAccept={onAccept}
-                         onTransfer={onTransfer}
-                         onNavigate={onNavigate}
-                         onComplete={onComplete}
-                     />
-                 );
-             })
-         ) : (
+    const currentOrders = sortedOrders.slice(startIndex, startIndex + itemsPerPage);
+
+    return (
+        <div>
+            {currentOrders.length > 0 ? (
+                currentOrders.map(order => {
+                    console.log('Rendering order:', order); 
+                    return (
+                        <OrderCard
+                            key={order.id}
+                            order={order}
+                            driverId={driverId}
+                            onAccept={onAccept}
+                            onTransfer={onTransfer}
+                            onNavigate={onNavigate}
+                            onComplete={onComplete}
+                        />
+                    );
+                })
+            ) : (
                 <p className="text-center mt-8">沒有符合的訂單。</p>
             )}
             <PaginationDemo
-                totalItems={orders.length}
+                totalItems={sortedOrders.length}
                 itemsPerPage={itemsPerPage}
                 currentPage={currentPage}
                 onPageChange={handlePageChange}

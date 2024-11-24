@@ -131,45 +131,8 @@ const DriverOrdersPage: React.FC<DriverOrdersPageProps> = ({ driverData, onAccep
                     </Button>
                 </div>
 
-                {/* Date range picker */}
-                <div className="flex justify-center space-x-4">
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">起始時間</label>
-                        <Popover>
-                            <PopoverTrigger asChild>
-                                <Button variant="outline" className="w-full justify-start text-left font-normal">
-                                    {startDate ? format(startDate, "PPP") : "選擇開始日期"}
-                                </Button>
-                            </PopoverTrigger>
-                            <PopoverContent className="w-auto p-1">
-                                <Calendar
-                                    mode="single"
-                                    selected={startDate || undefined}
-                                    onSelect={(day) => setStartDate(day || null)}
-                                    initialFocus
-                                />
-                            </PopoverContent>
-                        </Popover>
-                    </div>
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">終止時間</label>
-                        <Popover>
-                            <PopoverTrigger asChild>
-                                <Button variant="outline" className="w-full justify-start text-left font-normal">
-                                    {endDate ? format(endDate, "PPP") : "選擇結束日期"}
-                                </Button>
-                            </PopoverTrigger>
-                            <PopoverContent className="w-auto p-1">
-                                <Calendar
-                                    mode="single"
-                                    selected={endDate || undefined}
-                                    onSelect={(day) => setEndDate(day || null)}
-                                    initialFocus
-                                />
-                            </PopoverContent>
-                        </Popover>
-                    </div>
-                </div>
+              
+             
             </div>
 
             {/* Aggregated Items Button and Popover */}

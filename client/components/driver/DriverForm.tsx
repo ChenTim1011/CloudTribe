@@ -17,10 +17,6 @@ import { Driver } from '@/interfaces/driver/driver';
 const DriverForm: React.FC<{ onClose: () => void, onUpdateSuccess: (data: Driver) => void, initialData?: Driver }> = ({ onClose, onUpdateSuccess, initialData }) => {
     const [name, setName] = useState<string>(initialData?.driver_name || "");
     const [phone, setPhone] = useState<string>(initialData?.driver_phone || "");
-    const [direction, setDirection] = useState<string | undefined>(initialData?.direction);
-    const [date, setDate] = useState<string>(initialData?.available_date || "");
-    const [startTime, setStartTime] = useState<string | undefined>(initialData?.start_time);
-    const [endTime, setEndTime] = useState<string | undefined>(initialData?.end_time);
     const [showAlert, setShowAlert] = useState(false);
     const [error, setError] = useState("");
 
@@ -33,12 +29,6 @@ const DriverForm: React.FC<{ onClose: () => void, onUpdateSuccess: (data: Driver
             setPhone(user.phone); 
         }
 
-        if (initialData) {
-            setDirection(initialData.direction);
-            setDate(initialData.available_date || "");
-            setStartTime(initialData.start_time);
-            setEndTime(initialData.end_time);
-        }
     }, [initialData]);
 
     /**
@@ -59,35 +49,6 @@ const DriverForm: React.FC<{ onClose: () => void, onUpdateSuccess: (data: Driver
 
         
 
-        if (!date) {
-            setError("未選擇日期");
-            return;
-        }
-
-        const selectedDate = new Date(date);
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-
-        if (selectedDate < today) {
-            setError("選擇的日期不能比今天早");
-            return;
-        }
-
-        if (!startTime) {
-            setError("未選擇起始時間");
-            return;
-        }
-
-        if (!endTime) {
-            setError("未選擇結束時間");
-            return;
-        }
-
-        if (startTime >= endTime) {
-            setError("起始時間不能比結束時間晚");
-            return;
-        }
-
         // check if user is logged in
         const user = UserService.getLocalStorageUser();
         if (!user || user.id === 0) {
@@ -99,10 +60,6 @@ const DriverForm: React.FC<{ onClose: () => void, onUpdateSuccess: (data: Driver
             user_id: user.id,
             driver_name: name,
             driver_phone: phone,
-            direction,
-            available_date: date,
-            start_time: startTime,
-            end_time: endTime,
         };
 
         try {
@@ -192,43 +149,8 @@ const DriverForm: React.FC<{ onClose: () => void, onUpdateSuccess: (data: Driver
                 onChange={(e) => setPhone(e.target.value)} 
                 placeholder="輸入您的電話" />
             </div>                                                      
-            <div className="mb-4">
-                <Label htmlFor="available_date" className="block text-sm font-medium text-gray-700">方便運送的日期</Label>
-                <Input
-                    type="date"
-                    id="available_date"
-                    value={date}
-                    onChange={(e) => setDate(e.target.value)}
-                    className="w-full"
-                />
-            </div>
-            <div className="mb-4">
-                <Label htmlFor="start_time" className="block text-sm font-medium text-gray-700">方便運送的起始時間</Label>
-                <Select onValueChange={setStartTime} value={startTime}>
-                    <SelectTrigger className="w-full">
-                        <SelectValue placeholder="選擇起始時間" />
-                    </SelectTrigger>
-                    <SelectContent>
-                        {["06:00", "07:00", "08:00", "09:00", "10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00", "17:00", "18:00"].map(time => (
-                            <SelectItem key={time} value={time}>{time}</SelectItem>
-                        ))}
-                    </SelectContent>
-                </Select>
-            </div>
-            <div className="mb-4">
-                <Label htmlFor="end_time" className="block text-sm font-medium text-gray-700">方便運送的結束時間</Label>
-                <Select onValueChange={setEndTime} value={endTime}>
-                    <SelectTrigger className="w-full">
-                        <SelectValue placeholder="選擇結束時間" />
-                    </SelectTrigger>
-                    <SelectContent>
-                        {["06:00", "07:00", "08:00", "09:00", "10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00", "17:00", "18:00", "19:00", "20:00", "21:00"].map(time => (
-                            <SelectItem key={time} value={time}>{time}</SelectItem>
-                        ))}
-                    </SelectContent>
-                </Select>
-            </div>
-            <Button className="bg-black text-white w-full" onClick={handleSubmit}>{initialData ? "更新" : "提交"}</Button>
+
+            <Button className="bg-black text-white w-full" onClick={handleSubmit}>{initialData ? "更新" : "我確定要當司機"}</Button>
         </>
     );
 };

@@ -329,19 +329,10 @@ const DriverPage: React.FC = () => {
                         )}
 
                         {isClient && user?.is_driver && (
-                            <>
+                            <div className="flex flex-col items-center">
                                 <DriverAvailableTimes driverId={driverData?.id || 0} />
 
-
-                                <Button 
-                                    className="mb-10 px-6 py-3 text-lg font-bold border-2 border-black text-black bg-white hover:bg-blue-500 hover:text-white"
-                                    onClick={toggleUnacceptedOrders}
-                                >
-                                    {showUnacceptedOrders ? '隱藏未接單表單' : '取得未接單表單'}
-                                </Button>
-
-
-
+                                
                                 <Button 
                                     className="mb-10 px-6 py-3 text-lg font-bold border-2 border-black text-black bg-white hover:bg-blue-500 hover:text-white"
                                     onClick={() => {
@@ -353,8 +344,20 @@ const DriverPage: React.FC = () => {
                                 >
                                     管理訂單
                                 </Button>
+
+                                
+
+                                <Button 
+                                    className="mb-10 px-6 py-3 text-lg font-bold border-2 border-black text-black bg-white hover:bg-blue-500 hover:text-white"
+                                    onClick={toggleUnacceptedOrders}
+                                >
+                                    {showUnacceptedOrders ? '隱藏未接單表單' : '取得未接單表單'}
+                                </Button>
+
+
+
        
-                            </>
+                            </div>
                         )}
                     </div>
 

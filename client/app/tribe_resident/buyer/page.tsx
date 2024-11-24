@@ -233,12 +233,7 @@ const BuyerPage: React.FC = () => {
             </Button>
           </div>
 
-          {/* Manual item addition button */}
-          <div className="mb-3 w-full flex justify-center space-x-2 mt-4">
-            <Button variant="outline" onClick={() => setIsAddItemFormOpen(true)}>
-              如果商品找不到，請點此新增
-            </Button>
-          </div>
+
 
           {/* Page title */}
           <h1 className={`mb-3 text-4xl font-bold text-center ${isMobile ? "text-2xl" : ""}`}>
@@ -249,6 +244,13 @@ const BuyerPage: React.FC = () => {
           <div className="mb-3 w-full flex justify-center space-x-2 mt-4">
             <Button variant="outline" onClick={handleViewForm}>
               查看已填寫表單
+            </Button>
+          </div>
+
+          {/* Manual item addition button */}
+          <div className="mb-3 w-full flex justify-center space-x-2 mt-4">
+            <Button variant="outline" onClick={() => setIsAddItemFormOpen(true)}>
+              如果商品找不到，請點此新增
             </Button>
           </div>
 

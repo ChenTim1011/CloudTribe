@@ -55,7 +55,6 @@ const OrderCard: React.FC<{
             }
         }
     };
-   
 
     /**
      * Handles the transfer of an order to a new driver.
@@ -83,18 +82,29 @@ const OrderCard: React.FC<{
     };
 
     return (
-        <Card className="max-w-md mx-auto my-6 shadow-lg">
+        <Card 
+            className={`max-w-md mx-auto my-6 shadow-lg ${
+                order.is_urgent ? 'border-2 border-black-500' : ''
+            }`}
+        >
             {/* Card header displaying order type and buyer's name */}
-            <CardHeader className="bg-black text-white p-4 rounded-t-md flex justify-between">
-                <div>
-                    <CardTitle className="text-lg font-bold">{order.order_type}</CardTitle>
-                    <CardDescription className="text-lg text-white font-semibold">消費者姓名: {order.buyer_name}</CardDescription>
+            <CardHeader className="bg-black text-white p-4 rounded-t-md flex justify-between items-center">
+                <div className="flex items-center space-x-2">
+                    {order.is_urgent && (
+                        <span className="bg-red-500 text-white text-xs font-bold px-2 py-1 ">
+                            緊急
+                        </span>
+                    )}
+                    <div>
+                        <CardTitle className="text-lg font-bold">{order.order_type}</CardTitle>
+                        <CardDescription className="text-lg text-white font-semibold">消費者姓名: {order.buyer_name}</CardDescription>
+                    </div>
                 </div>
                 {order.order_status === '接單' && (
                     <div>
-                    <Button className="bg-white text-black" onClick={() => onComplete(order.id?.toString() || "", order.service)}>
-                        貨品已到達目的地
-                    </Button>
+                        <Button className="bg-white text-black" onClick={() => onComplete(order.id?.toString() || "", order.service)}>
+                            貨品已到達目的地
+                        </Button>
                     </div>
                 )}
             </CardHeader>
@@ -102,7 +112,7 @@ const OrderCard: React.FC<{
                 {/* Order details including buyer phone, date, time, and location */}
                 <div className="mb-2">
                     {order.order_status !== '未接單' && (
-                    <p className="text-sm text-gray-700 font-bold">聯絡電話: {order.buyer_phone}</p>
+                        <p className="text-sm text-gray-700 font-bold">聯絡電話: {order.buyer_phone}</p>
                     )}
                     <p className="text-sm text-gray-700 font-bold">送達地點: {order.location}</p>
                 </div>
