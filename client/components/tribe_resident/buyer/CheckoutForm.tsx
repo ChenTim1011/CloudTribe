@@ -162,7 +162,7 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onClose, clearCart, cartIte
       buyer_phone: phone,
       seller_id: 1,             // TODO: Replace with the actual buyer ID => login function
       seller_name: '賣家名稱', 
-      seller_phone: '賣家電話',
+      seller_phone: '00000000',
       date: new Date().toISOString().split('T')[0],
       time: new Date().toTimeString().split(' ')[0],
       location: location,

@@ -82,7 +82,11 @@ async def get_orders(conn: Connection = Depends(get_db)):
     """
     cur = conn.cursor()
     try:
-        cur.execute("SELECT * FROM orders")
+        cur.execute("""
+            SELECT id, buyer_id, buyer_name, buyer_phone, location, is_urgent, total_price, 
+                order_type, order_status, note 
+            FROM orders
+        """)
         orders = cur.fetchall()
         order_list = []
         for order in orders:
@@ -119,7 +123,12 @@ async def get_orders(conn: Connection = Depends(get_db)):
         """)
         agri_orders = cur.fetchall()
         for agri_order in agri_orders:
-            total_price = agri_order[9] * agri_order[10] #price*quantity
+            try:
+                total_price = agri_order[9] * agri_order[10] #price*quantity
+            except (ValueError, TypeError) as ve:
+                logging.error(f"Invalid price or quantity for agricultural order {agri_order[0]}: {agri_order[9]}, {agri_order[10]}")
+                raise HTTPException(status_code=500, detail="Invalid price or quantity data.")
+            
             agri_order_dict = {
                 "id": agri_order[0],
                 "buyer_id": agri_order[1],
@@ -301,7 +310,7 @@ async def get_order(order_id: int, conn: Connection = Depends(get_db)):
             "time": order[8].isoformat(),  # str
             "location": order[9],
             "is_urgent": bool(order[10]),  # bool
-            "total_price": float(order[11]),  # float
+            "total_price": (order[11]),  # float
             "order_type": order[12],
             "order_status": order[13],
             "note": order[14],
@@ -310,7 +319,7 @@ async def get_order(order_id: int, conn: Connection = Depends(get_db)):
             "previous_driver_id": order[17],
             "previous_driver_name": order[18],
             "previous_driver_phone": order[19],
-            "items": [{"order_id": item[1], "item_id": item[2], "item_name": item[3], "price": float(item[4]), "quantity": int(item[5]), 
+            "items": [{"order_id": item[1], "item_id": item[2], "item_name": item[3], "price": (item[4]), "quantity": int(item[5]), 
                        "img": str(item[6]),"location": str(item[7]),"category":str(item[8])} for item in items]
         }
         return order_data
