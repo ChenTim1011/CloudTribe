@@ -1,14 +1,22 @@
-'use client'
+'use client';
 import React, { useState } from "react";
-import Link from 'next/link'
-import { Button } from "@/components/ui/button"
+import Link from 'next/link';
+import { Button } from "@/components/ui/button";
+
+// Define the main section types
+type MainSection = 'experience' | 'guide' | null;
+
+// Define the guide sub-section types
+type GuideSection = 'guideText' | 'guideVideo' | null;
 
 export default function Page() {
-  const [isVisible, setIsVisible] = useState(false)
-  
+  const [mainSection, setMainSection] = useState<MainSection>(null);
+  const [guideSection, setGuideSection] = useState<GuideSection>(null);
+
   return (
     <main className="flex min-h-screen flex-col items-center justify-between bg-slate-100">
       <div className="w-full h-full lg:p-8 p-2">
+        {/* Header Section */}
         <div className="lg:h-96 h-52 relative w-full overflow-hidden bg-green-600 flex flex-col items-center justify-center rounded-xl shadow-2xl transition hover:bg-green-400">
           <div className="absolute inset-0 w-full h-full bg-slate-600 z-20 [mask-image:radial-gradient(transparent,white)] pointer-events-none" />
           <div className="lg:text-4xl text-3xl flex flex-col items-center justify-center text-white font-mono lg:text-5xl font-extrabold">
@@ -19,45 +27,101 @@ export default function Page() {
           </p>
         </div>
 
-        <div className="p-8 flex flex-row gap-4 items-center justify-center">
-          <Button 
-            className="lg:h-16 h-12 lg:w-1/4 w-1/2 lg:text-2xl text-md rounded-2xl bg-slate-500 shadow-2xl text-white font-mono hover:bg-slate-400"
-            onClick={() => setIsVisible(true)}>
+        {/* Main Button Area */}
+        <div className="mt-8 flex flex-row gap-6 justify-center">
+          <Button
+            className={`lg:h-16 h-12 lg:w-1/4 w-1/2 lg:text-xl text-md rounded-full ${
+              mainSection === 'experience' ? 'bg-green-400' : 'bg-green-500'
+            } shadow-lg hover:bg-green-400 hover:scale-105 transform transition duration-200 text-white`}
+            onClick={() => {
+              setMainSection(mainSection === 'experience' ? null : 'experience');
+              setGuideSection(null); // Clear guide sub-section state
+            }}
+          >
             立即體驗
           </Button>
-
-          <Button className="lg:h-16 h-12 lg:w-1/4 w-1/2 lg:text-2xl text-md rounded-2xl text-mdrounded-2xl bg-slate-300 shadow-2xl font-mono hover:bg-slate-400">
+          <Button
+            className={`lg:h-16 h-12 lg:w-1/4 w-1/2 lg:text-xl text-md rounded-full ${
+              mainSection === 'guide' ? 'bg-gray-400' : 'bg-gray-300'
+            } shadow-lg hover:bg-gray-400 hover:scale-105 transform transition duration-200`}
+            onClick={() => {
+              setMainSection(mainSection === 'guide' ? null : 'guide');
+              setGuideSection(null); // Clear guide sub-section state
+            }}
+          >
             使用指南
           </Button>
         </div>
-        {isVisible &&
-        <div className="lg:p-8 flex lg:flex-row  flex-col gap-2 items-center justify-center">
-          <Button className="lg:h-16 h-12 lg:text-2xl text-md rounded-2xl bg-gray-500 shadow-2xl font-mono hover:bg-slate-400">
-            <Link href="/login">
-              註冊與登入
-            </Link>
-          </Button>
-          <Button className="lg:h-16 h-12 lg:text-2xl text-md rounded-2xl bg-gray-500 shadow-2xl font-mono hover:bg-slate-400">
-            <Link href="/tribe_resident/buyer"> 
-              部落居民專區-購買服務
-            </Link>
-          </Button>
-          <Button className="lg:h-16 h-12 lg:text-2xl text-md rounded-2xl bg-gray-500 shadow-2xl font-mono hover:bg-slate-400">
-            <Link href="/tribe_resident/seller"> 
-              部落居民專區-商品上架服務
-            </Link>
-          </Button>
-          <Button className="lg:h-16 h-12 lg:text-2xl text-md rounded-2xl bg-gray-500 shadow-2xl font-mono hover:bg-slate-400">
-            <Link href="/consumer">
-              購買農產品專區
-            </Link>
-          </Button>
-          <Button className="lg:h-16 h-12 lg:text-2xl text-md rounded-2xl bg-gray-500 shadow-2xl font-mono hover:bg-slate-400">
-            <Link href="/driver">
-              司機專區
-            </Link>
-          </Button>
-        </div>}
+
+        {/* Experience Section */}
+        {mainSection === 'experience' && (
+          <div className="mt-8 grid lg:grid-cols-3 grid-cols-1 gap-6">
+            {[
+              { title: "註冊與登入", link: "/login" },
+              { title: "部落居民專區-購買服務", link: "/tribe_resident/buyer" },
+              { title: "部落居民專區-商品上架服務", link: "/tribe_resident/seller" },
+              { title: "購買農產品專區", link: "/consumer" },
+              { title: "司機專區", link: "/driver" },
+            ].map((item, index) => (
+              <Link
+                href={item.link}
+                key={index}
+                className="flex items-center justify-center bg-white shadow-lg rounded-xl p-6 hover:shadow-xl transform hover:scale-105 transition duration-200"
+              >
+                <div className="text-center">
+                  <h3 className="text-lg font-bold text-gray-700">{item.title}</h3>
+                </div>
+              </Link>
+            ))}
+          </div>
+        )}
+
+        {/* Guide Section */}
+        {mainSection === 'guide' && (
+          <div className="mt-8 flex flex-col lg:flex-row gap-6 justify-center items-center">
+            {/* Guide Text Card Button */}
+            <Button
+              className={`lg:w-1/4 w-full h-24 rounded-xl border-2 ${
+                guideSection === 'guideText' ? 'border-green-400 bg-green-100' : 'border-green-500 bg-white'
+              } shadow-lg hover:bg-green-200 hover:border-green-400 hover:scale-105 transform transition duration-200 text-green-500 flex items-center justify-center`}
+              onClick={() => setGuideSection(guideSection === 'guideText' ? null : 'guideText')}
+            >
+              <span className="text-lg font-semibold">圖文說明</span>
+            </Button>
+            {/* Guide Video Card Button */}
+            <Button
+              className={`lg:w-1/4 w-full h-24 rounded-xl border-2 ${
+                guideSection === 'guideVideo' ? 'border-green-400 bg-green-100' : 'border-green-500 bg-white'
+              } shadow-lg hover:bg-green-200 hover:border-green-400 hover:scale-105 transform transition duration-200 text-green-500 flex items-center justify-center`}
+              onClick={() => setGuideSection(guideSection === 'guideVideo' ? null : 'guideVideo')}
+            >
+              <span className="text-lg font-semibold">影片說明</span>
+            </Button>
+          </div>
+        )}
+
+        {/* Guide Text Content */}
+        {guideSection === 'guideText' && (
+          <div className="mt-8 flex justify-center">
+            <div className="w-3/4 bg-white p-6 rounded-xl shadow-lg">
+              <h2 className="text-xl font-bold text-gray-700">圖文說明</h2>
+              <p className="text-gray-600 mt-4">這裡可以放一些使用平台的圖文教學內容。</p>
+            </div>
+          </div>
+        )}
+
+        {/* Guide Video Content */}
+        {guideSection === 'guideVideo' && (
+          <div className="mt-8 flex justify-center">
+            <iframe
+              src="https://drive.google.com/file/d/1GUbCEWnjVAVEYf5XwSkaVw-taDZpFY8d/preview"
+              width="640"
+              height="360"
+              allow="autoplay"
+              className="rounded-xl shadow-lg"
+            ></iframe>
+          </div>
+        )}
       </div>
     </main>
   );
