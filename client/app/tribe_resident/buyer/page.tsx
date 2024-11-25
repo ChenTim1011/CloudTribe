@@ -27,10 +27,25 @@ const ITEMS_PER_PAGE = 16;
  * A functional component representing the buyer's page where users can browse and add items to their cart.
  */
 const BuyerPage: React.FC = () => {
+
+  // Use lazy initialization to load the cart from the local storage
+  const [cart, setCart] = useState<CartItem[]>(() => {
+    if (typeof window !== "undefined") {
+      const savedCart = localStorage.getItem("cart");
+      console.log("Load Card from localStorage:", savedCart);
+      try {
+        return savedCart ? JSON.parse(savedCart) : [];
+      } catch (e) {
+        console.error("localStorage error:", e);
+        return [];
+      }
+    }
+    return [];
+  });
+
   // State variables for managing products, cart, and user data
   const [products, setProducts] = useState<Product[]>([]);
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
-  const [cart, setCart] = useState<CartItem[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [initialLoad, setInitialLoad] = useState<boolean>(true);
   const [isCartOpen, setIsCartOpen] = useState(false);
@@ -42,6 +57,13 @@ const BuyerPage: React.FC = () => {
   // Media query hooks to detect the device type
   const isMobile = useMediaQuery({ maxWidth: 767 });
   const isTablet = useMediaQuery({ minWidth: 768, maxWidth: 1024 });
+
+
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   /**
    * Handles the click event for the "Test login status" button
@@ -86,6 +108,20 @@ const BuyerPage: React.FC = () => {
       window.removeEventListener("userDataChanged", handleUserDataChanged);
     };
   }, []);
+
+
+  useEffect(() => {
+    console.log("Saving cart to localStorage:", cart);
+    try {
+      if (cart.length === 0) {
+        localStorage.removeItem('cart');
+      } else {
+        localStorage.setItem("cart", JSON.stringify(cart));
+      }
+    } catch (e) {
+      console.error("Error saving cart to localStorage:", e);
+    }
+  }, [cart]);
 
   /**
    * Handles the click event for viewing filled forms.
@@ -138,12 +174,12 @@ const BuyerPage: React.FC = () => {
    */
   const handleAddToCart = (product: Product, quantity: number) => {
     setCart((prevCart) => {
-      const existingItem = prevCart.find((item) => item.name === product.name);
+      const existingItem = prevCart.find((item) => item.id === product.id);
 
       if (existingItem) {
         // Update the quantity of the existing item
         return prevCart.map((item) =>
-          item.name === product.name ? { ...item, quantity: item.quantity + quantity } : item
+          item.id === product.id ? { ...item, quantity: item.quantity + quantity } : item
         );
       } else {
         // Add a new item to the cart
@@ -222,6 +258,7 @@ const BuyerPage: React.FC = () => {
         >
           {/* Shopping cart button */}
           <div className={`fixed ${isMobile ? "relative" : "top-20 left-4"} z-50`}>
+          {isMounted && ( 
             <Button
               variant="outline"
               onClick={handleApplyBuyerClick}
@@ -231,6 +268,7 @@ const BuyerPage: React.FC = () => {
               <FontAwesomeIcon icon={faShoppingCart} className="mr-2" />
               {`購物車 (${cart.reduce((total, item) => total + item.quantity, 0)})`}
             </Button>
+            )}
           </div>
 
 
