@@ -37,13 +37,12 @@ from .handlers.buyer import handle_buyer
 from .handlers.driver import handle_driver
 
 
-
-
 # environment variables
 load_dotenv()
 
 line_bot_token = os.getenv('LINE_BOT_TOKEN')
 line_bot_secret = os.getenv('LINE_BOT_SECRET')
+
 
 app = FastAPI()
 
@@ -66,9 +65,9 @@ app.add_middleware(
 
 # setup Line Bot API
 configuration = Configuration(
-    access_token='LINE_BOT_TOKEN'
+    access_token=line_bot_token
 )
-handler = WebhookHandler('LINE_BOT_SECRET')
+handler = WebhookHandler(line_bot_secret)
 
 
 logging.basicConfig(level=logging.INFO)
@@ -86,13 +85,17 @@ async def callback(request: Request):
     - str: The response message.
     """
     signature = request.headers['X-Line-Signature']
-    body = await request.body() 
+
+    body = (await request.body()).decode('utf-8')
     logger.info("Request body: %s", body)
     try:
         handler.handle(body, signature)
     except InvalidSignatureError:
         logger.error("Invalid signature")
-        handle_invalid_signature_error()
+        raise HTTPException(status_code=400, detail="Invalid signature")
+    except Exception as e:
+        logger.exception("Unhandled exception occurred during webhook handling")
+        raise HTTPException(status_code=500, detail="Internal Server Error")
 
     return 'OK'
 
@@ -147,4 +150,4 @@ def handle_message(event):
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run("backend.main:app", host="0.0.0.0", port=8000, reload=True)
+    uvicorn.run("backend.main:app", host="0.0.0.0", port=8001, reload=True)
