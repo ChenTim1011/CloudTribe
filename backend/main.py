@@ -29,12 +29,8 @@ from linebot.v3.webhooks import (
 )
 
 # Import handlers
-from .handlers.order_query import handle_order_query
-from .handlers.platform_info import handle_platform_info
 from .handlers.customer_service import handle_customer_service
-from .handlers.seller import handle_seller
-from .handlers.buyer import handle_buyer
-from .handlers.driver import handle_driver
+
 
 
 # environment variables
@@ -128,16 +124,6 @@ def handle_message(event):
         line_bot_api = MessagingApi(api_client)
         if user_message in ["客服", "詢問客服", "詢問"]:
             handle_customer_service(event, line_bot_api)
-        elif user_message == "司機":
-            handle_driver(event, line_bot_api)
-        elif user_message == "賣家":
-            handle_seller(event, line_bot_api)
-        elif user_message in ["買家", "買東西", "買", "團購"]:
-            handle_buyer(event, line_bot_api)
-        elif user_message in ["訂單資訊", "訂單查詢", "訂單", "查詢", "處理中的訂單", "進行中的訂單", "已完成的訂單"]:
-            handle_order_query(event, line_bot_api)
-        elif user_message in ["平台介紹", "介紹"]:
-            handle_platform_info(event, line_bot_api)
         else:
             reply_message = TextMessage(text="未知的選擇。")
             line_bot_api.reply_message(
