@@ -129,7 +129,7 @@ const BuyerPage: React.FC = () => {
    */
   const handleViewForm = () => {
     if (!user || user.id === 0) {
-      alert("Please log in by clicking the top right corner");
+      alert("請先按右上角的登入");
     } else {
       fetchOrders();
       setIsFormOpen(true);

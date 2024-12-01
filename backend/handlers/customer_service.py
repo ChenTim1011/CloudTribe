@@ -23,7 +23,7 @@ def handle_customer_service(event, line_bot_api):
             )
             reply_request = ReplyMessageRequest(
                 reply_token=event.reply_token,
-                reply_message=reply_message
+                messages=[reply_message]
             )
             line_bot_api.reply_message(reply_request)
             logger.info("客服回應已發送")
