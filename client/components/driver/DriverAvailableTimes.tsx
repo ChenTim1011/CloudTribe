@@ -47,60 +47,74 @@ const DriverAvailableTimes: React.FC<{ driverId: number }> = ({ driverId }) => {
       fetchTimeSlots(); 
     };
 
-
   // add a new time slot
-  const handleAddTimeSlot = async () => {
-    setError(null);
-    const finalLocation = locations === "自定義" ? customLocation : locations;
-        // validate the form fields
-        if (!date || date < new Date()) {
-          setError("請選擇有效日期（不能早於今天）。");
-          return;
-        }
-        if (!startTime) {
-          setError("請選擇開始時間。");
-          return;
-        }
-        if (!finalLocation) {
-          setError("請選擇或輸入地點。");
-          return;
-        }
-
-    if (date && startTime  && finalLocation) {
-      try {
-        const response = await fetch(`/api/drivers/time`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            driver_id: driverId,
-            date: date.toISOString().split('T')[0], 
-            start_time: startTime,
-            locations: finalLocation,
-          }),
-        });
-        const result = await response.json();
-       
-        // ensure that the timeSlots state is an array
-        setTimeSlots((prevTimeSlots) => {
-          if (Array.isArray(prevTimeSlots)) {
-            return [...prevTimeSlots, result];
-          } else {
-            return [result]; // if not an array, return the single result
-          }
-        });
-
-        await fetchTimeSlots();
-        
-        setSuccessMessage("時間新增成功！"); 
-        
-        setTimeout(() => setSuccessMessage(null), 1000); // after 3 seconds, remove the success message
-      } catch (error) {
-        console.error("Error adding time slot:", error);
+    const handleAddTimeSlot = async () => {
+      setError(null);
+      const finalLocation = locations === "自定義" ? customLocation : locations;
+      
+      if (!date) {
+        setError("請選擇日期。");
+        return;
       }
-    }
-  };
+    
+      if (!startTime) {
+        setError("請選擇開始時間。");
+        return;
+      }
+    
+      const now = new Date();
+      
+      const [hours, minutes] = startTime.split(':');
+      const selectedDateTime = new Date(date);
+      selectedDateTime.setHours(parseInt(hours), parseInt(minutes), 0, 0);
+      
+      if (selectedDateTime < now) {
+        setError("請選擇未來的時間。");
+        return;
+      }
+      
+      if (!finalLocation) {
+        setError("請選擇或輸入地點。");
+        return;
+      }
+    
+      if (date && startTime && finalLocation) {
+        try {
+          const formattedDate = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+          
+          const response = await fetch(`/api/drivers/time`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              driver_id: driverId,
+              date: formattedDate,
+              start_time: startTime,
+              locations: finalLocation,
+            }),
+          });
+          const result = await response.json();
+           // ensure that the timeSlots state is an array
+          setTimeSlots((prevTimeSlots) => {
+            if (Array.isArray(prevTimeSlots)) {
+              return [...prevTimeSlots, result];
+            } else {
+              return [result]; // if not an array, return the single result
+            }
+          });
+    
+          await fetchTimeSlots();
+          
+          setSuccessMessage("時間新增成功！");
+          setTimeout(() => setSuccessMessage(null), 1000);
+        } catch (error) {
+          console.error("Error adding time slot:", error);
+          setError("新增時間失敗，請稍後再試。");
+        }
+      }
+    };
+    
 
   // delete a time slot
   const handleDeleteTimeSlot = async (id: number) => {

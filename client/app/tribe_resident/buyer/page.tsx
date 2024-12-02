@@ -257,7 +257,7 @@ const BuyerPage: React.FC = () => {
           }`}
         >
           {/* Shopping cart button */}
-          <div className={`fixed ${isMobile ? "relative" : "top-20 left-4"} z-50`}>
+          <div className={`fixed ${isMobile ? "relative" : "top-1/2 left-4 transform -translate-y-1/2"} z-50`}>
           {isMounted && ( 
             <Button
               variant="outline"
