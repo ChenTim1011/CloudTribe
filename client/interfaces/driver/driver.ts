@@ -39,3 +39,14 @@ export interface TimeSlot {
     locations: string;
 }
 
+export interface DriverTimeDetail {
+    id: number
+    date: string // ISO format date, e.g. '2024-05-01'
+    start_time: string // ISO formate time, e.g. '09:00'
+    locations: string
+    driver_name: string
+    driver_phone: string
+}
+
+
+

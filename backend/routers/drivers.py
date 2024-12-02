@@ -21,8 +21,9 @@ import logging
 from fastapi import APIRouter, HTTPException, Depends
 from psycopg2.extensions import connection as Connection
 from backend.models.models import Driver
-from backend.models.models import DriverTime
+from backend.models.models import DriverTime, DriverTimeDetail
 from backend.database import get_db_connection
+from typing import List
 
 router = APIRouter()
 
@@ -534,6 +535,92 @@ async def delete_driver_time(id: int, conn: Connection = Depends(get_db)):
     except Exception as e:
         conn.rollback()
         logging.error("Error deleting driver time: %s", str(e))
+        raise HTTPException(status_code=500, detail="伺服器內部錯誤") from e
+    finally:
+        cur.close()
+'''
+#add 2024.11.21
+@router.get("/times", response_model=Driver)
+async def get_drivers_times(conn: Connection = Depends(get_db)):
+    """
+    Retrieve available time slots for all driver.
+
+    Args:
+        conn (Connection): The database connection.
+
+    Returns:
+        list: A list of dictionaries representing the available time slots for all drivers. Each dictionary contains
+              the time slot ID, date, start time, location, driver's name, and phone number.
+    """
+    cur = conn.cursor()
+    try:
+        cur.execute(
+            """
+            SELECT dt.id, dt.date, dt.start_time, dt.locations, d.driver_name, d.driver_phone
+            FROM driver_time dt
+            JOIN drivers d ON dt.driver_id = d.id
+            """
+        )
+        times = cur.fetchall()
+        return [
+            {
+                "id": time[0],
+                "date": time[1].isoformat(),
+                "start_time": time[2].isoformat(),
+                "locations": time[3],
+                "driver_name": time[4],
+                "driver_phone": time[5]
+            }
+            for time in times
+        ]
+    except HTTPException as he:
+        raise he
+    except Exception as e:
+        logging.error("Error fetching driver times: %s", str(e))
+        raise HTTPException(status_code=500, detail="伺服器內部錯誤") from e
+    finally:
+        cur.close()
+'''
+#edit above version, Response model seems werid
+@router.get("/times", response_model=List[DriverTimeDetail])
+async def get_all_drivers_times(conn: Connection = Depends(get_db)):
+    """
+    Retrieve available time slots for all driver.
+
+    Args:
+        conn (Connection): The database connection.
+
+    Returns:
+        list: A list of dictionaries representing the available time slots for all drivers. Each dictionary contains
+              the time slot ID, date, start time, location, driver's name, and phone number.
+    """
+    cur = conn.cursor()
+    try:
+        cur.execute(
+            """
+            SELECT dt.id, dt.date, dt.start_time, dt.locations, d.driver_name, d.driver_phone
+            FROM driver_time dt
+            JOIN drivers d ON dt.driver_id = d.id
+            """
+        )
+        times = cur.fetchall()
+        logging.info('start create driver time list')
+        time_list:List[DriverTimeDetail] = []
+        for time in times:
+            time_list.append({
+                "id": time[0],
+                "date": str(time[1]),
+                "start_time": str(time[2]),
+                "locations": time[3],
+                "driver_name": time[4],
+                "driver_phone": time[5]
+            })
+        return time_list
+        
+    except HTTPException as he:
+        raise he
+    except Exception as e:
+        logging.error("Error fetching driver times: %s", str(e))
         raise HTTPException(status_code=500, detail="伺服器內部錯誤") from e
     finally:
         cur.close()
