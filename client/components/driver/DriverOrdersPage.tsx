@@ -6,9 +6,7 @@ import { useRouter } from 'next/navigation';
 import { Order } from '@/interfaces/tribe_resident/buyer/order';
 import { Driver } from '@/interfaces/driver/driver';
 import { Button } from "@/components/ui/button";
-import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
-import { format } from "date-fns";
 
 interface DriverOrdersPageProps {
     driverData: Driver;
@@ -30,8 +28,6 @@ const DriverOrdersPage: React.FC<DriverOrdersPageProps> = ({ driverData, onAccep
 
     // State variables for order status and date range filtering
     const [orderStatus, setOrderStatus] = useState<string>("接單");
-    const [startDate, setStartDate] = useState<Date | null>(null);
-    const [endDate, setEndDate] = useState<Date | null>(null);
     const [error, setError] = useState<string>("");
 
     /**
@@ -63,16 +59,40 @@ const DriverOrdersPage: React.FC<DriverOrdersPageProps> = ({ driverData, onAccep
         fetchDriverOrders();
     }, [driverData, fetchDriverOrders]);
 
-    /**
-     *
-     * Filters the orders based on the selected status and date range.
-     */
+    // Handle local transfer of order
+    const handleLocalTransfer = async (orderId: string, newDriverPhone: string) => {
+        try {
+            // Call the transfer API
+            await onTransfer(orderId, newDriverPhone);
+            // Update the local state
+            setOrders(prevOrders => prevOrders.filter(order => order.id !== parseInt(orderId)));
+        } catch (error) {
+            console.error('Error in handleLocalTransfer:', error);
+            setError('轉單失敗');
+        }
+    };
+
+    // Handle local complete of order
+    const handleLocalComplete = async (orderId: string, service: string) => {
+        try {
+            // Call the complete API
+            await onComplete(orderId, service);
+            // Update the local state
+            setOrders(prevOrders => prevOrders.filter(order => order.id !== parseInt(orderId)));
+        } catch (error) {
+            console.error('Error in handleLocalComplete:', error);
+            setError('完成訂單失敗');
+        }
+    };
+
+
+
     const finalFilteredOrders = useMemo(() => {
         return orders.filter((order) => {
             const matchesStatus = order.order_status === orderStatus;
-            return matchesStatus ;
+            return matchesStatus;
         });
-    }, [orders, orderStatus, startDate, endDate]);
+    }, [orders, orderStatus]);
 
     /**
      * Calculates the total price of the filtered orders.
@@ -198,9 +218,9 @@ const DriverOrdersPage: React.FC<DriverOrdersPageProps> = ({ driverData, onAccep
                                 console.log(`Order ${orderId} accepted`);
                                 await onAccept(orderId, order.service);
                             }}
-                            onTransfer={onTransfer}
+                            onTransfer={(orderId: string, newDriverPhone: string) => handleLocalTransfer(orderId, newDriverPhone)}
                             onNavigate={onNavigate}
-                            onComplete={onComplete}
+                            onComplete={(orderId: string) => handleLocalComplete(orderId, order.service)}
                         />
                     ))
                 ) : (
