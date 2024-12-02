@@ -2,6 +2,9 @@
 import React, { useState } from "react";
 import Link from 'next/link';
 import { Button } from "@/components/ui/button";
+import { Card, CardContent } from '@/components/ui/card';
+import TribeBuyerTutorial from '@/components/tutorials/TribeBuyerTutorial';
+import DriverTutorial from '@/components/tutorials/DriverTutorial';
 
 // Define the main section types
 type MainSection = 'experience' | 'guide' | null;
@@ -9,10 +12,13 @@ type MainSection = 'experience' | 'guide' | null;
 // Define the guide sub-section types
 type GuideSection = 'guideText' | 'guideVideo' | null;
 
+// Define role types
+type Role = 'seller' | 'driver' | 'tribebuyer' | 'buyer' | null;
+
 export default function Page() {
   const [mainSection, setMainSection] = useState<MainSection>(null);
   const [guideSection, setGuideSection] = useState<GuideSection>(null);
-  const [role, setRole] = useState<'seller' | 'buyer' | 'driver' | null>(null); // Add state for role selection
+  const [role, setRole] = useState<Role>(null);
 
   // Function to render picture content based on selected role
   const renderRolePictureContent = () => {
@@ -22,29 +28,35 @@ export default function Page() {
       case 'seller':
         return (
           <div className="mt-8 flex justify-center">
-          <div className={`w-3/4 bg-white p-6 rounded-xl shadow-lg ${role ? 'animate__animated animate__fadeIn' : ''}`}>
-            <h2 className="text-xl font-bold text-gray-700">賣家圖文說明</h2>
-            <p className="text-gray-600 mt-4">這裡可以放一些賣家圖文教學內容。</p>
+            <div className={`w-11/12 bg-white p-6 rounded-xl shadow-lg ${role ? 'animate__animated animate__fadeIn' : ''}`}>
+              <h2 className="text-xl font-bold text-green-600">賣家圖文說明</h2>
+              <p className="text-gray-600 mt-4">這裡可以放一些賣家圖文教學內容。</p>
+            </div>
           </div>
+        );
+      case 'tribebuyer':
+        return (
+          <div className="mt-8 flex justify-center w-full">
+            <div className="w-11/12">
+              <TribeBuyerTutorial />
+            </div>
+          </div>
+        );
+      case 'driver':
+        return (
+          <div className="mt-8 flex justify-center w-full">
+            <div className="w-11/12">
+              <DriverTutorial />
+            </div>
           </div>
         );
       case 'buyer':
         return (
-   
           <div className="mt-8 flex justify-center">
-          <div className={`w-3/4 bg-white p-6 rounded-xl shadow-lg ${role ? 'animate__animated animate__fadeIn' : ''}`}>
-            <h2 className="text-xl font-bold text-gray-700">買家圖文說明</h2>
-            <p className="text-gray-600 mt-4">這裡可以放一些買家圖文教學內容。</p>
-          </div>
-        </div>
-        );
-      case 'driver':
-        return (
-          <div className="mt-8 flex justify-center">
-          <div className={`w-3/4 bg-white p-6 rounded-xl shadow-lg ${role ? 'animate__animated animate__fadeIn' : ''}`}>
-            <h2 className="text-xl font-bold text-gray-700">司機圖文說明</h2>
-            <p className="text-gray-600 mt-4">這裡可以放一些司機圖文教學內容。</p>
-          </div>
+            <div className={`w-11/12 bg-white p-6 rounded-xl shadow-lg ${role ? 'animate__animated animate__fadeIn' : ''}`}>
+              <h2 className="text-xl font-bold text-green-600">山下買家圖文說明</h2>
+              <p className="text-gray-600 mt-4">這裡可以放一些山下買家圖文教學內容。</p>
+            </div>
           </div>
         );
       default:
@@ -52,51 +64,28 @@ export default function Page() {
     }
   };
 
-    // Function to render video content based on selected role
-    const renderRoleVideoContent = () => {
-      if (!role) return null;
-  
-      switch (role) {
-        case 'seller':
-          return (
-            <div className="mt-8 flex justify-center">
-            <iframe
-              src="https://drive.google.com/file/d/1GUbCEWnjVAVEYf5XwSkaVw-taDZpFY8d/preview"
-              width="640"
-              height="360"
-              allow="autoplay"
-              className={`rounded-xl shadow-lg ${role ? 'animate__animated animate__fadeIn' : ''}`}
-            ></iframe>
-          </div>
-          );
-        case 'buyer':
-          return (
-            <div className="mt-8 flex justify-center">
-            <iframe
-              src="https://drive.google.com/file/d/1GUbCEWnjVAVEYf5XwSkaVw-taDZpFY8d/preview"
-              width="640"
-              height="360"
-              allow="autoplay"
-              className={`rounded-xl shadow-lg ${role ? 'animate__animated animate__fadeIn' : ''}`}
-            ></iframe>
-          </div>
-          );
-        case 'driver':
-          return (
-            <div className="mt-8 flex justify-center">
-            <iframe
-              src="https://drive.google.com/file/d/1GUbCEWnjVAVEYf5XwSkaVw-taDZpFY8d/preview"
-              width="640"
-              height="360"
-              allow="autoplay"
-              className={`rounded-xl shadow-lg ${role ? 'animate__animated animate__fadeIn' : ''}`}
-            ></iframe>
-          </div>
-          );
-        default:
-          return null;
-      }
+  const renderRoleVideoContent = () => {
+    if (!role) return null;
+
+    const videoUrls = {
+      seller: "https://drive.google.com/file/d/1GUbCEWnjVAVEYf5XwSkaVw-taDZpFY8d/preview",
+      tribebuyer: "https://drive.google.com/file/d/1GUbCEWnjVAVEYf5XwSkaVw-taDZpFY8d/preview",
+      driver: "https://drive.google.com/file/d/1GUbCEWnjVAVEYf5XwSkaVw-taDZpFY8d/preview",
+      buyer: "https://drive.google.com/file/d/1GUbCEWnjVAVEYf5XwSkaVw-taDZpFY8d/preview"
     };
+
+    return role ? (
+      <div className="mt-8 flex justify-center">
+        <iframe
+          src={videoUrls[role]}
+          width="640"
+          height="360"
+          allow="autoplay"
+          className={`rounded-xl shadow-lg ${role ? 'animate__animated animate__fadeIn' : ''}`}
+        ></iframe>
+      </div>
+    ) : null;
+  };
 
   return (
     <main className="flex min-h-screen flex-col items-center justify-between bg-slate-100">
@@ -115,23 +104,27 @@ export default function Page() {
         {/* Main Button Area */}
         <div className="mt-8 flex flex-row gap-6 justify-center">
           <Button
-            className={`lg:h-16 h-12 lg:w-1/4 w-1/2 lg:text-xl text-md rounded-full ${
-              mainSection === 'experience' ? 'bg-green-400' : 'bg-green-500'
-            } shadow-lg hover:bg-green-400 hover:scale-105 transform transition duration-200 text-white`}
+            className={`lg:h-16 h-12 lg:w-1/4 w-1/2 lg:text-xl text-md rounded-full shadow-lg hover:scale-105 transform transition duration-200 text-white ${
+              mainSection === 'experience' 
+                ? 'bg-green-500 hover:bg-green-400' 
+                : 'bg-gray-400 hover:bg-gray-300'
+            }`}
             onClick={() => {
               setMainSection(mainSection === 'experience' ? null : 'experience');
-              setGuideSection(null); // Clear guide sub-section state
+              setGuideSection(null);
             }}
           >
             立即體驗
           </Button>
           <Button
-            className={`lg:h-16 h-12 lg:w-1/4 w-1/2 lg:text-xl text-md rounded-full ${
-              mainSection === 'guide' ? 'bg-gray-400' : 'bg-gray-300'
-            } shadow-lg hover:bg-gray-400 hover:scale-105 transform transition duration-200`}
+            className={`lg:h-16 h-12 lg:w-1/4 w-1/2 lg:text-xl text-md rounded-full shadow-lg hover:scale-105 transform transition duration-200 text-white ${
+              mainSection === 'guide' 
+                ? 'bg-green-500 hover:bg-green-400' 
+                : 'bg-gray-400 hover:bg-gray-300'
+            }`}
             onClick={() => {
               setMainSection(mainSection === 'guide' ? null : 'guide');
-              setGuideSection(null); // Clear guide sub-section state
+              setGuideSection(null);
             }}
           >
             使用指南
@@ -185,32 +178,51 @@ export default function Page() {
           </div>
         )}
 
-        {/* Role Selection after selecting guide */}
-        {(guideSection === 'guideText' || guideSection === 'guideVideo') && (
-          <div className="mt-8 flex gap-6 justify-center">
-            {/* Role Selection Buttons */}
-            <Button
-              className={`lg:w-1/4 w-full h-12 rounded-xl ${role === 'seller' ? 'bg-green-400 text-white' : 'bg-white text-green-500'} border-2 shadow-lg hover:bg-green-200 hover:text-white`}
-              onClick={() => setRole(role === 'seller' ? null : 'seller')}
-            >
-              賣家
-            </Button>
-            <Button
-              className={`lg:w-1/4 w-full h-12 rounded-xl ${role === 'buyer' ? 'bg-green-400 text-white' : 'bg-white text-green-500'} border-2 shadow-lg hover:bg-green-200 hover:text-white`}
-              onClick={() => setRole(role === 'buyer' ? null : 'buyer')}
-            >
-              買家
-            </Button>
-            <Button
-              className={`lg:w-1/4 w-full h-12 rounded-xl ${role === 'driver' ? 'bg-green-400 text-white' : 'bg-white text-green-500'} border-2 shadow-lg hover:bg-green-200 hover:text-white`}
-              onClick={() => setRole(role === 'driver' ? null : 'driver')}
-            >
-              司機
-            </Button>
-          </div>
-        )}
+          {/* Role Selection after selecting guide */}
+          {(guideSection === 'guideText' || guideSection === 'guideVideo') && (
+            <div className="mt-8 space-y-4">
+              {/* First Row: Seller and Driver */}
+              <div className="flex gap-6 justify-center">
+                <Button
+                  className={`lg:w-1/4 w-full h-12 rounded-xl ${
+                    role === 'seller' ? 'bg-green-100' : 'bg-white'
+                  } border-2 border-green-500 shadow-lg hover:bg-green-50 hover:scale-105 transform transition duration-200 text-green-600`}
+                  onClick={() => setRole(role === 'seller' ? null : 'seller')}
+                >
+                  賣家
+                </Button>
+                <Button
+                  className={`lg:w-1/4 w-full h-12 rounded-xl ${
+                    role === 'driver' ? 'bg-green-100' : 'bg-white'
+                  } border-2 border-green-500 shadow-lg hover:bg-green-50 hover:scale-105 transform transition duration-200 text-green-600`}
+                  onClick={() => setRole(role === 'driver' ? null : 'driver')}
+                >
+                  司機
+                </Button>
+              </div>
+              
+              {/* Second Row: Tribe Buyer and Buyer */}
+              <div className="flex gap-6 justify-center">
+                <Button
+                  className={`lg:w-1/4 w-full h-12 rounded-xl ${
+                    role === 'tribebuyer' ? 'bg-green-100' : 'bg-white'
+                  } border-2 border-green-500 shadow-lg hover:bg-green-50 hover:scale-105 transform transition duration-200 text-green-600`}
+                  onClick={() => setRole(role === 'tribebuyer' ? null : 'tribebuyer')}
+                >
+                  山上買家
+                </Button>
+                <Button
+                  className={`lg:w-1/4 w-full h-12 rounded-xl ${
+                    role === 'buyer' ? 'bg-green-100' : 'bg-white'
+                  } border-2 border-green-500 shadow-lg hover:bg-green-50 hover:scale-105 transform transition duration-200 text-green-600`}
+                  onClick={() => setRole(role === 'buyer' ? null : 'buyer')}
+                >
+                  山下買家
+                </Button>
+              </div>
+            </div>
+          )}
 
-        {/* Role-Specific Content */}
  
 
         {/* Guide Text Content */}
