@@ -247,11 +247,14 @@ const DriverAvailableTimes: React.FC<{ driverId: number }> = ({ driverId }) => {
       </Button>
 
       <Sheet open={openSheet} onOpenChange={setOpenSheet}>
-        <SheetContent className="max-h-[80vh] overflow-y-auto">
-          <SheetHeader>
+        <SheetContent 
+          side="right"
+          className="w-full sm:max-w-2xl p-0 sm:p-6"
+        >
+          <SheetHeader className="p-6 sm:p-0">
             <SheetTitle>新增可用時間</SheetTitle>
           </SheetHeader>
-
+          <div className="overflow-y-auto h-[calc(100vh-80px)] p-6 sm:p-0">
           <div className="mt-4">
             <Calendar
               mode="single"
@@ -328,21 +331,22 @@ const DriverAvailableTimes: React.FC<{ driverId: number }> = ({ driverId }) => {
             </Button>
           </div>
 
-          <div className="mt-6">
-            <h3 className="text-lg font-semibold">目前可用的時間</h3>
-            {timeSlots.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {timeSlots.map(slot => (
-                  <TimeCard
-                    key={slot.id}
-                    timeSlot={slot}
-                    onDelete={() => handleDeleteTimeSlot(slot.id)}
-                  />
-                ))}
-              </div>
-            ) : (
-              <p>尚無可用時間。</p>
-            )}
+            <div className="mt-6">
+              <h3 className="text-lg font-semibold">目前可用的時間</h3>
+              {timeSlots.length > 0 ? (
+                <div className="grid grid-cols-1 gap-4">
+                  {timeSlots.map(slot => (
+                    <TimeCard
+                      key={slot.id}
+                      timeSlot={slot}
+                      onDelete={() => handleDeleteTimeSlot(slot.id)}
+                    />
+                  ))}
+                </div>
+              ) : (
+                <p>尚無可用時間。</p>
+              )}
+            </div>
           </div>
         </SheetContent>
       </Sheet>

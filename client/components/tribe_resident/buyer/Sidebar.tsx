@@ -220,27 +220,32 @@ const Sidebar: React.FC<SidebarProps> = ({ filterCategory, className }) => {
               {selectedCategory}
             </Button>
           </SheetTrigger>
-          <SheetContent>
-            <SheetHeader>
+          <SheetContent 
+            side="right"
+            className="w-full sm:max-w-2xl p-0 sm:p-6"
+          >
+            <SheetHeader className="p-6 sm:p-0">
               <SheetTitle>{selectedCategory}</SheetTitle>
               <SheetDescription>選擇想要的種類</SheetDescription>
             </SheetHeader>
-            <div className="grid gap-4 py-4">
-              {selectedCategoryObject.subcategories.map((subcategory) => (
-                <div key={subcategory}>
-                  <Button
-                    variant="ghost"
-                    className="w-full text-left"
-                    onClick={() => handleSubcategorySelect(subcategory)}
-                  >
-                    {subcategory}
-                  </Button>
-                </div>
-              ))}
+            <div className="overflow-y-auto h-[calc(100vh-180px)] p-6 sm:p-0">
+              <div className="grid gap-4 py-4">
+                {selectedCategoryObject.subcategories.map((subcategory) => (
+                  <div key={subcategory}>
+                    <Button
+                      variant="ghost"
+                      className="w-full text-left"
+                      onClick={() => handleSubcategorySelect(subcategory)}
+                    >
+                      {subcategory}
+                    </Button>
+                  </div>
+                ))}
+              </div>
             </div>
-            <SheetFooter>
+            <SheetFooter className="p-6 sm:p-0 absolute bottom-0 left-0 right-0 bg-white border-t">
               <SheetClose asChild>
-                <Button type="button">關閉</Button>
+                <Button type="button" className="w-full">關閉</Button>
               </SheetClose>
             </SheetFooter>
           </SheetContent>

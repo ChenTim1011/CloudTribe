@@ -242,7 +242,7 @@ const BuyerPage: React.FC = () => {
     <div>
       <NavigationBar />
       <div
-        className="flex h-screen"
+        className="flex min-h-screen"
         style={{
           backgroundImage: "url('/eat.jpg')",
           backgroundSize: "cover",
@@ -251,63 +251,69 @@ const BuyerPage: React.FC = () => {
           height: "400px",
         }}
       >
-        <div
-          className={`content flex-grow p-10 bg-white bg-opacity-50 flex flex-col items-center ${
-            isMobile ? "mobile-class" : isTablet ? "tablet-class" : "desktop-class"
-          }`}
-        >
-          {/* Shopping cart button */}
-          <div className={`fixed ${isMobile ? "relative" : "top-1/2 left-4 transform -translate-y-1/2"} z-50`}>
-          {isMounted && ( 
-            <Button
-              variant="outline"
-              onClick={handleApplyBuyerClick}
-              
-              className="px-4 py-2 text-lg font-bold border-2 border-black-500 text-black-500 hover:bg-blue-500 hover:text-white"
-            >
-              <FontAwesomeIcon icon={faShoppingCart} className="mr-2" />
-              {`購物車 (${cart.reduce((total, item) => total + item.quantity, 0)})`}
-            </Button>
-            )}
-          </div>
+        <div className="w-full content flex-grow p-4 sm:p-10 bg-white bg-opacity-50 flex flex-col items-center">
+          {/* Container for all buttons and content */}
+          <div className="w-full max-w-4xl mx-auto">
+            {/* Title */}
+            <h1 className="text-2xl sm:text-4xl font-bold text-center mb-6">
+              今天我想要來點...
+            </h1>
 
+            {/* Buttons container */}
+            <div className="w-full flex flex-col items-center gap-4 mb-6">
+              {/* Shopping cart button */}
+              <div className="w-full flex justify-center">
+                {isMounted && (
+                  <Button
+                    variant="outline"
+                    onClick={handleApplyBuyerClick}
+                    className="w-full sm:w-80 px-4 py-2 text-lg font-bold border-2 border-black-500 text-black-500 hover:bg-blue-500 hover:text-white"
+                  >
+                    <FontAwesomeIcon icon={faShoppingCart} className="mr-2" />
+                    {`購物車 (${cart.reduce((total, item) => total + item.quantity, 0)})`}
+                  </Button>
+                )}
+              </div>
 
+              {/* View forms button */}
+              <div className="w-full flex justify-center">
+                <Button 
+                  variant="outline" 
+                  onClick={handleViewForm}
+                  className="w-full sm:w-80"
+                >
+                  查看已填寫表單
+                </Button>
+              </div>
 
-          {/* Page title */}
-          <h1 className={`mb-3 text-4xl font-bold text-center ${isMobile ? "text-2xl" : ""}`}>
-            今天我想要來點...
-          </h1>
-
-          {/* View filled forms button */}
-          <div className="mb-3 w-full flex justify-center space-x-2 mt-4">
-            <Button variant="outline" onClick={handleViewForm}>
-              查看已填寫表單
-            </Button>
-          </div>
-
-          {/* Manual item addition button */}
-          <div className="mb-3 w-full flex justify-center space-x-2 mt-4">
-            <Button variant="outline" onClick={() => setIsAddItemFormOpen(true)}>
-              如果商品找不到，請點此新增
-            </Button>
-          </div>
-
-          {/* Search bar */}
-          <div className="flex justify-center w-full mb-3">
-            <SearchBar onSearch={handleSearch} className="w-80" />
-          </div>
-
-          {/* Sidebar for category filtering */}
-          <div className="flex justify-center w-full mb-3">
-            <Sidebar filterCategory={handleFilterCategory} className="w-80" />
-          </div>
-
-          {/* Display selected category */}
-          {selectedCategory && (
-            <div className="mt-5 text-2xl font-semibold text-center">
-              商品種類: {selectedCategory}
+              {/* Add item button */}
+              <div className="w-full flex justify-center">
+                <Button 
+                  variant="outline" 
+                  onClick={() => setIsAddItemFormOpen(true)}
+                  className="w-full sm:w-80"
+                >
+                  如果商品找不到，請點此新增
+                </Button>
+              </div>
             </div>
-          )}
+
+            {/* Search and Filter container */}
+            <div className="w-full flex flex-col items-center gap-4 mb-6">
+              <div className="w-full sm:w-80">
+                <SearchBar onSearch={handleSearch} className="w-full" />
+              </div>
+              <div className="w-full sm:w-80">
+                <Sidebar filterCategory={handleFilterCategory} className="w-full" />
+              </div>
+            </div>
+
+            {/* Selected category display */}
+            {selectedCategory && (
+              <div className="w-full text-2xl font-semibold text-center mb-6">
+                商品種類: {selectedCategory}
+              </div>
+            )}
 
           {/* Product list */}
           {!initialLoad && (filteredProducts.length > 0 ? (
@@ -355,6 +361,7 @@ const BuyerPage: React.FC = () => {
           />
         </div>
       </div>
+    </div>
     </div>
   );
 };

@@ -57,7 +57,7 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onClose, clearCart, cartIte
   const [predictions, setPredictions] = useState<google.maps.places.AutocompletePrediction[]>([]);
 
   // Initialize debounced search term
-  const debouncedSearchTerm = useDebounce(searchInput, 500);
+  const debouncedSearchTerm = useDebounce(searchInput, 1000);
 
   // Service references for Google Places API
   const autocompleteService = useRef<google.maps.places.AutocompleteService | null>(null);

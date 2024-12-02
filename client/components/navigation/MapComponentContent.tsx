@@ -924,13 +924,17 @@ return (
       </>
     )}
 
-      {/* Sheet for Order Details */}
-      <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
-        <SheetContent className="w-full max-w-2xl max-h-[calc(100vh-200px)] overflow-y-auto">
-          <SheetHeader>
-            <SheetTitle>訂單詳情</SheetTitle>
-            <SheetClose />
-          </SheetHeader>
+    {/* Sheet for Order Details */}
+    <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
+      <SheetContent 
+        side="right"
+        className="w-full sm:max-w-2xl p-0 sm:p-6"
+      >
+        <SheetHeader className="p-6 sm:p-0">
+          <SheetTitle>訂單詳情</SheetTitle>
+          <SheetClose />
+        </SheetHeader>
+        <div className="overflow-y-auto h-[calc(100vh-80px)] p-6 sm:p-0">
           {showDriverOrders ? (
             driverData ? (
               <DriverOrdersPage
@@ -952,8 +956,9 @@ return (
               <p>正在加載訂單資料...</p>
             </div>
           )}
-        </SheetContent>
-      </Sheet>
+        </div>
+      </SheetContent>
+    </Sheet>
     </div>
   </Suspense>
 );    

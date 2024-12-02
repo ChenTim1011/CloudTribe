@@ -82,9 +82,9 @@ const DriverPage: React.FC = () => {
         }
     };
 
-    if (isClient && user && user.is_driver) {
-        fetchDriverData(user.id);
-    }
+        if (isClient && user && user.is_driver) {
+            fetchDriverData(user.id);
+        }
     }, [isClient, user]);
 
 
@@ -100,22 +100,6 @@ const DriverPage: React.FC = () => {
             }
             
             let data: Order[] = await response.json();
-        
-            // define current time to filter future unaccepted orders
-            const now = new Date();
-
-            // condition: only show future unaccepted orders
-            /*
-            data = data.filter((order) => {
-                const orderDateTime = new Date(`${order.date}T${order.time}`);
-                const isFuturePendingOrder = orderDateTime > now && order.order_status === "未接單";
-                
-                const matchesStartDate = filterStartDate ? new Date(order.date) >= filterStartDate : true;
-                const matchesEndDate = filterEndDate ? new Date(order.date) <= filterEndDate : true;
-        
-                return isFuturePendingOrder && matchesStartDate && matchesEndDate;
-            });*/
-            // no filter date version
             data = data.filter((order) => 
                 order.order_status === "未接單")
                 .sort((a, b) => (b.is_urgent ? 1 : 0) - (a.is_urgent ? 1 : 0));
@@ -364,30 +348,40 @@ const DriverPage: React.FC = () => {
 
                     {/* Apply for driver */}
                     <Sheet open={showRegisterForm} onOpenChange={setShowRegisterForm}>
-                        <SheetContent className="w-full max-w-2xl" aria-describedby="register-form-description">
-                            <SheetHeader>
+                        <SheetContent 
+                            side="right"
+                            className="w-full sm:max-w-2xl p-0 sm:p-6"
+                        >
+                            <SheetHeader className="p-6 sm:p-0">
                                 <SheetTitle>申請司機</SheetTitle>
                                 <SheetClose />
                             </SheetHeader>
-                            <DriverForm onClose={() => setShowRegisterForm(false)} onUpdateSuccess={handleUpdateSuccess} />
+                            <div className="overflow-y-auto h-[calc(100vh-80px)] p-6 sm:p-0">
+                                <DriverForm onClose={() => setShowRegisterForm(false)} onUpdateSuccess={handleUpdateSuccess} />
+                            </div>
                         </SheetContent>
                     </Sheet>
 
-                    {/* Order management page */}
-                    <Sheet open={showDriverOrders} onOpenChange={setShowDriverOrders}> 
-                        <SheetContent className="w-full max-w-2xl max-h-[calc(100vh-200px)] overflow-y-auto" aria-describedby="driver-orders-description">
-                            <SheetHeader>
+                    <Sheet open={showDriverOrders} onOpenChange={setShowDriverOrders}>
+                        <SheetContent 
+                            side="right"
+                            className="w-full sm:max-w-2xl p-0 sm:p-6"
+                        >
+                            <SheetHeader className="p-6 sm:p-0">
                                 <SheetTitle>我的訂單</SheetTitle>
                                 <SheetClose />
                             </SheetHeader>
-                            {driverData && <DriverOrdersPage 
-                                            driverData={driverData} 
-                                            onAccept={handleAcceptOrder}
-                                            onTransfer={handleTransferOrder}
-                                            onNavigate={(orderId: string) => handleNavigate(orderId, driverData?.id || 0)}
-                                            onComplete={handleCompleteOrder}
-                                            
-                                            />}
+                            <div className="overflow-y-auto h-[calc(100vh-80px)] p-6 sm:p-0">
+                                {driverData && 
+                                    <DriverOrdersPage 
+                                        driverData={driverData} 
+                                        onAccept={handleAcceptOrder}
+                                        onTransfer={handleTransferOrder}
+                                        onNavigate={(orderId: string) => handleNavigate(orderId, driverData?.id || 0)}
+                                        onComplete={handleCompleteOrder}
+                                    />
+                                }
+                            </div>
                         </SheetContent>
                     </Sheet>
 
