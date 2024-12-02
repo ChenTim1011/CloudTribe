@@ -1,120 +1,221 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
-import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from "@/components/ui/select";
-import TimeCard from './TimeCard';
-import { Sheet, SheetTrigger, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { TimeSlot } from '@/interfaces/driver/driver';
+import TimeCard from './TimeCard';
+import { useJsApiLoader, LoadScriptProps } from "@react-google-maps/api";
 
+const libraries: LoadScriptProps['libraries'] = ["places"];
 
-// use `timeOptions` to populate the select dropdown for start time
 const timeOptions = [
   "08:00", "09:00", "10:00", "11:00", "12:00",
   "13:00", "14:00", "15:00", "16:00", "17:00",
   "18:00", "19:00", "20:00"
 ];
 
-const locationOptions = ["飛鼠不渴露營農場", "樹不老休閒莊園", "戀戀雅渡農場","國立政治大學大門", "自定義"];
+// Custom hook for debouncing input values
+const useDebounce = (value: string, delay: number) => {
+  const [debouncedValue, setDebouncedValue] = useState(value);
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedValue(value);
+    }, delay);
+
+    return () => {
+      clearTimeout(handler);
+    };
+  }, [value, delay]);
+
+  return debouncedValue;
+};
+
+// Format prediction description
+const formatPredictionDisplay = (prediction: google.maps.places.AutocompletePrediction) => {
+  const businessName = prediction.structured_formatting.main_text;
+  const address = prediction.structured_formatting.secondary_text;
+
+  return {
+    businessName: businessName || '',
+    address: address || ''
+  };
+};
 
 const DriverAvailableTimes: React.FC<{ driverId: number }> = ({ driverId }) => {
   const [date, setDate] = useState<Date | undefined>(new Date());
   const [startTime, setStartTime] = useState<string>("");
-  const [locations, setLocations] = useState<string>("");
-  const [customLocation, setCustomLocation] = useState<string>("");
+  const [location, setLocation] = useState<string>("");
+  const [searchInput, setSearchInput] = useState<string>("");
+  const [predictions, setPredictions] = useState<google.maps.places.AutocompletePrediction[]>([]);
   const [timeSlots, setTimeSlots] = useState<TimeSlot[]>([]); 
   const [openSheet, setOpenSheet] = useState(false);
   const [successMessage, setSuccessMessage] = useState<string | null>(null); 
-  const [error, setError] = useState<string | null>(null);  
+  const [error, setError] = useState<string | null>(null);
 
-   // to fetch the time slots for the driver
-   const fetchTimeSlots = async () => {
+  // Initialize debounced search term
+  const debouncedSearchTerm = useDebounce(searchInput, 1000);
+
+  // Service references for Google Places API
+  const autocompleteService = useRef<google.maps.places.AutocompleteService | null>(null);
+  const placesService = useRef<google.maps.places.PlacesService | null>(null);
+
+  const { isLoaded, loadError } = useJsApiLoader({
+    googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY as string,
+    libraries,
+    language: 'zh-TW'
+  });
+
+  // Initialize Google Places services
+  useEffect(() => {
+    if (isLoaded && !autocompleteService.current) {
+      autocompleteService.current = new google.maps.places.AutocompleteService();
+      const mapDiv = document.createElement('div');
+      const map = new google.maps.Map(mapDiv);
+      placesService.current = new google.maps.places.PlacesService(map);
+    }
+  }, [isLoaded]);
+
+  // Fetch predictions when search term changes
+  useEffect(() => {
+    if (debouncedSearchTerm && autocompleteService.current) {
+      const searchQuery = {
+        input: debouncedSearchTerm,
+        language: 'zh-TW',
+        componentRestrictions: { country: 'tw' },
+        types: ['establishment']
+      };
+
+      autocompleteService.current.getPlacePredictions(
+        searchQuery,
+        (results, status) => {
+          if (status === google.maps.places.PlacesServiceStatus.OK && results) {
+            setPredictions(results);
+          } else {
+            setPredictions([]);
+          }
+        }
+      );
+    } else {
+      setPredictions([]);
+    }
+  }, [debouncedSearchTerm]);
+
+  // Handle place selection
+  const handlePlaceSelect = (placeId: string) => {
+    if (placesService.current) {
+      placesService.current.getDetails(
+        {
+          placeId: placeId,
+          fields: ['formatted_address', 'name']
+        },
+        (place, status) => {
+          if (status === google.maps.places.PlacesServiceStatus.OK && place) {
+            const fullAddress = `${place.name} ${place.formatted_address}`;
+            setLocation(fullAddress);
+            setSearchInput(fullAddress);
+            setPredictions([]);
+            setError(null);
+          } else {
+            setError("無法獲取地點詳細資訊");
+          }
+        }
+      );
+    }
+  };
+
+  // Handle input change for search
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setSearchInput(value);
+    if (!value) {
+      setPredictions([]);
+    }
+  };
+
+  // to fetch the time slots for the driver
+  const fetchTimeSlots = async () => {
     try {
       const response = await fetch(`/api/drivers/${driverId}/times`);
       const data = await response.json();
-      console.log("Fetched time slots:", data);
       setTimeSlots(data);
     } catch (error) {
       console.error('Error fetching driver times:', error);
     }
   };
 
-    // read the time slots when the component mounts
-    const handleSheetOpen = () => {
-      setOpenSheet(true); 
-      fetchTimeSlots(); 
-    };
+  const handleSheetOpen = () => {
+    setOpenSheet(true); 
+    fetchTimeSlots(); 
+  };
 
   // add a new time slot
-    const handleAddTimeSlot = async () => {
-      setError(null);
-      const finalLocation = locations === "自定義" ? customLocation : locations;
-      
-      if (!date) {
-        setError("請選擇日期。");
-        return;
-      }
+  const handleAddTimeSlot = async () => {
+    setError(null);
     
-      if (!startTime) {
-        setError("請選擇開始時間。");
-        return;
-      }
+    if (!date) {
+      setError("請選擇日期。");
+      return;
+    }
+  
+    if (!startTime) {
+      setError("請選擇開始時間。");
+      return;
+    }
+  
+    const now = new Date();
     
-      const now = new Date();
-      
-      const [hours, minutes] = startTime.split(':');
-      const selectedDateTime = new Date(date);
-      selectedDateTime.setHours(parseInt(hours), parseInt(minutes), 0, 0);
-      
-      if (selectedDateTime < now) {
-        setError("請選擇未來的時間。");
-        return;
-      }
-      
-      if (!finalLocation) {
-        setError("請選擇或輸入地點。");
-        return;
-      }
+    const [hours, minutes] = startTime.split(':');
+    const selectedDateTime = new Date(date);
+    selectedDateTime.setHours(parseInt(hours), parseInt(minutes), 0, 0);
     
-      if (date && startTime && finalLocation) {
-        try {
-          const formattedDate = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
-          
-          const response = await fetch(`/api/drivers/time`, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              driver_id: driverId,
-              date: formattedDate,
-              start_time: startTime,
-              locations: finalLocation,
-            }),
-          });
-          const result = await response.json();
-           // ensure that the timeSlots state is an array
-          setTimeSlots((prevTimeSlots) => {
-            if (Array.isArray(prevTimeSlots)) {
-              return [...prevTimeSlots, result];
-            } else {
-              return [result]; // if not an array, return the single result
-            }
-          });
+    if (selectedDateTime < now) {
+      setError("請選擇未來的時間。");
+      return;
+    }
     
-          await fetchTimeSlots();
-          
-          setSuccessMessage("時間新增成功！");
-          setTimeout(() => setSuccessMessage(null), 1000);
-        } catch (error) {
-          console.error("Error adding time slot:", error);
-          setError("新增時間失敗，請稍後再試。");
+    if (!location) {
+      setError("請選擇地點。");
+      return;
+    }
+  
+    try {
+      const formattedDate = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+      
+      const response = await fetch(`/api/drivers/time`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          driver_id: driverId,
+          date: formattedDate,
+          start_time: startTime,
+          locations: location,
+        }),
+      });
+      
+      const result = await response.json();
+      setTimeSlots((prevTimeSlots) => {
+        if (Array.isArray(prevTimeSlots)) {
+          return [...prevTimeSlots, result];
+        } else {
+          return [result];
         }
-      }
-    };
-    
+      });
+
+      await fetchTimeSlots();
+      
+      setSuccessMessage("時間新增成功！");
+      setTimeout(() => setSuccessMessage(null), 1000);
+    } catch (error) {
+      console.error("Error adding time slot:", error);
+      setError("新增時間失敗，請稍後再試。");
+    }
+  };
 
   // delete a time slot
   const handleDeleteTimeSlot = async (id: number) => {
@@ -122,29 +223,36 @@ const DriverAvailableTimes: React.FC<{ driverId: number }> = ({ driverId }) => {
       await fetch(`/api/drivers/time/${id}`, {
         method: 'DELETE',
       });
-      setTimeSlots(timeSlots.filter(slot => slot.id !== id)); // update the timeSlots state
+      setTimeSlots(timeSlots.filter(slot => slot.id !== id));
     } catch (error) {
       console.error("Error deleting time slot:", error);
     }
   };
 
+  if (loadError) {
+    return <div>地圖載入失敗</div>;
+  }
+
+  if (!isLoaded) {
+    return <div>載入中...</div>;
+  }
+
   return (
     <div>
-        <Button 
-          className="mb-10 px-6 py-3 text-lg font-bold border-2 border-black text-black bg-white hover:bg-blue-500 hover:text-white"
-          onClick={handleSheetOpen}
-        >
+      <Button 
+        className="mb-10 px-6 py-3 text-lg font-bold border-2 border-black text-black bg-white hover:bg-blue-500 hover:text-white"
+        onClick={handleSheetOpen}
+      >
         新增時間
-        </Button>
+      </Button>
 
-        <Sheet open={openSheet} onOpenChange={setOpenSheet}>
+      <Sheet open={openSheet} onOpenChange={setOpenSheet}>
         <SheetContent className="max-h-[80vh] overflow-y-auto">
           <SheetHeader>
             <SheetTitle>新增可用時間</SheetTitle>
           </SheetHeader>
 
           <div className="mt-4">
-            {/* choose date */}
             <Calendar
               mode="single"
               selected={date}
@@ -152,7 +260,6 @@ const DriverAvailableTimes: React.FC<{ driverId: number }> = ({ driverId }) => {
               className="rounded-md border mt-2"
             />
 
-            {/* choose start time */}
             <div className="flex space-x-4 mt-4">
               <div>
                 <label className="block text-sm font-medium">開始時間</label>
@@ -170,46 +277,57 @@ const DriverAvailableTimes: React.FC<{ driverId: number }> = ({ driverId }) => {
               </div>
             </div>
                 
-            <div className="mt-5">
+            <div className="mt-5 relative">
               <label className="block text-sm font-medium text-gray-700">地點</label>
-            <Select onValueChange={setLocations} defaultValue="飛鼠不渴露營農場">
-                <SelectTrigger className="w-full">
-                  <SelectValue placeholder="選擇地點" />
-                </SelectTrigger>
-                <SelectContent>
-                  {locationOptions.map((locationOption) => (
-                    <SelectItem key={locationOption} value={locationOption}>
-                      {locationOption}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-
-              {locations === "自定義" && (
+              <div className="relative">
                 <Input
                   type="text"
-                  value={customLocation}
-                  onChange={(e) => setCustomLocation(e.target.value)}
-                  placeholder="輸入自定義地點"
-                  className="mt-3"
+                  value={searchInput}
+                  onChange={handleInputChange}
+                  placeholder="搜尋地點"
+                  className="w-full"
                 />
+                {predictions.length > 0 && (
+                  <div className="absolute z-50 w-full bg-white mt-1 rounded-md shadow-lg max-h-60 overflow-auto">
+                    {predictions.map((prediction) => {
+                      const { businessName, address } = formatPredictionDisplay(prediction);
+                      return (
+                        <div
+                          key={prediction.place_id}
+                          className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                          onClick={() => handlePlaceSelect(prediction.place_id)}
+                        >
+                          <div className="font-medium text-gray-900">{businessName}</div>
+                          <div className="text-sm text-gray-500">{address}</div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+              {location && (
+                <div className="mt-2 text-sm text-gray-600">
+                  選擇的地點: {location}
+                </div>
               )}
             </div>
 
             {error && (
-                <p className="mt-2 text-red-600">{error}</p>
+              <p className="mt-2 text-red-600">{error}</p>
             )}
 
             {successMessage && (
               <p className="mt-2 text-green-600">{successMessage}</p>
             )}
               
-            {/* add time slot button */}
-            <Button  className="mt-5 px-6 py-3 text-lg font-bold border-2 border-black text-black bg-white hover:bg-blue-500 hover:text-white" onClick={handleAddTimeSlot}>
+            <Button 
+              className="mt-5 px-6 py-3 text-lg font-bold border-2 border-black text-black bg-white hover:bg-blue-500 hover:text-white" 
+              onClick={handleAddTimeSlot}
+            >
               新增時間
             </Button>
           </div>
-          {/* show the available time slots*/}
+
           <div className="mt-6">
             <h3 className="text-lg font-semibold">目前可用的時間</h3>
             {timeSlots.length > 0 ? (
@@ -231,6 +349,5 @@ const DriverAvailableTimes: React.FC<{ driverId: number }> = ({ driverId }) => {
     </div>
   );
 };
-
 
 export default DriverAvailableTimes;

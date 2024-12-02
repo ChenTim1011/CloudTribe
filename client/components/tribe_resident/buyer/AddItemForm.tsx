@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useCallback, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
@@ -18,87 +18,151 @@ import {
   LoadScriptProps,
 } from "@react-google-maps/api";
 
-// Define the required libraries
 const libraries: LoadScriptProps["libraries"] = ["places"];
 
-/**
- * Define the container style for Google Maps (set width and height to 0 if you don't need to display the map)
- */
 const containerStyle = {
   width: "0px",
   height: "0px",
 };
 
-/**
- * Represents the form for adding an item to the cart with location autocomplete.
- * @param onClose - Callback function to close the form.
- * @param addToCart - Function to add the item to the cart.
- */
+// Custom hook for debouncing input values
+const useDebounce = (value: string, delay: number) => {
+  const [debouncedValue, setDebouncedValue] = useState(value);
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedValue(value);
+    }, delay);
+
+    return () => {
+      clearTimeout(handler);
+    };
+  }, [value, delay]);
+
+  return debouncedValue;
+};
+
+// Format prediction description to highlight business name
+const formatPredictionDisplay = (prediction: google.maps.places.AutocompletePrediction) => {
+  // Use structured_formatting to access main_text and secondary_text
+  const businessName = prediction.structured_formatting.main_text;
+  // secondary_text is usually the address
+  const address = prediction.structured_formatting.secondary_text;
+
+  return {
+    businessName: businessName || '',
+    address: address || ''
+  };
+};
+
 const AddItemForm: React.FC<AddItemFormProps> = ({ onClose, addToCart }) => {
   const [name, setName] = useState("");
   const [quantity, setQuantity] = useState<string | number>("");
   const [price, setPrice] = useState<string | number>("");
   const [location, setLocation] = useState<string>("");
+  const [searchInput, setSearchInput] = useState<string>("");
   const [error, setError] = useState("");
+  const [predictions, setPredictions] = useState<google.maps.places.AutocompletePrediction[]>([]);
+  
+  // Initialize debounced search term
+  const debouncedSearchTerm = useDebounce(searchInput, 1000);
 
-  const autocompleteRef = useRef<google.maps.places.Autocomplete | null>(null);
+  // Service references for Google Places API
+  const autocompleteService = useRef<google.maps.places.AutocompleteService | null>(null);
+  const placesService = useRef<google.maps.places.PlacesService | null>(null);
 
-  // Load Google Maps API
   const { isLoaded, loadError } = useJsApiLoader({
     googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY as string,
     libraries,
     language: "zh-TW",
   });
 
-  /**
-   * Handles the place selection from Autocomplete.
-   */
-  const onPlaceChanged = () => {
-    if (autocompleteRef.current !== null) {
-      const place = autocompleteRef.current.getPlace();
-      console.log("Selected place:", place); // Debug log
-      if (place && place.formatted_address) {
-        setLocation(place.formatted_address);
-        setError("");
-      } else if (place && place.name) {
-        // If there's no formatted_address, use name
-        setLocation(place.name);
-        setError("");
-      } else {
-        setError("請選擇有效的地點");
-      }
+  // Fetch predictions when search term changes
+  useEffect(() => {
+    if (debouncedSearchTerm && autocompleteService.current) {
+      const searchQuery = {
+        input: debouncedSearchTerm,
+        language: 'zh-TW',
+        componentRestrictions: { country: 'tw' },
+        types: ['establishment'] // Focus on businesses and establishments
+      };
+
+      autocompleteService.current.getPlacePredictions(
+        searchQuery,
+        (results, status) => {
+          if (status === google.maps.places.PlacesServiceStatus.OK && results) {
+            setPredictions(results);
+          } else {
+            setPredictions([]);
+          }
+        }
+      );
     } else {
-      setError("Autocomplete 尚未加載完成！");
+      setPredictions([]);
+    }
+  }, [debouncedSearchTerm]);
+
+  // Initialize Google Places services
+  useEffect(() => {
+    if (isLoaded && !autocompleteService.current) {
+      autocompleteService.current = new google.maps.places.AutocompleteService();
+      const mapDiv = document.createElement('div');
+      const map = new google.maps.Map(mapDiv);
+      placesService.current = new google.maps.places.PlacesService(map);
+    }
+  }, [isLoaded]);
+
+  // Handle place selection
+  const handlePlaceSelect = (placeId: string) => {
+    if (placesService.current) {
+      placesService.current.getDetails(
+        {
+          placeId: placeId,
+          fields: ['formatted_address', 'name']
+        },
+        (place, status) => {
+          if (status === google.maps.places.PlacesServiceStatus.OK && place) {
+            const address = place.formatted_address || place.name || '';
+            setLocation(address);
+            setSearchInput(address);
+            setPredictions([]);
+            setError("");
+          } else {
+            setError("無法獲取地點詳細資訊");
+          }
+        }
+      );
     }
   };
 
-  /**
-   * Handles the form submission.
-   * Resets the error message, validates the input fields, and adds the item to the cart.
-   */
+  // Handle input change for search
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setSearchInput(value);
+    if (!value) {
+      setPredictions([]);
+    }
+  };
+
+  // Form submission handler
   const handleSubmit = () => {
-    // Reset the error message
     setError("");
 
-    // Validate the name
     if (!name.trim()) {
       setError("商品名稱不能是空的");
       return;
     }
 
-    // Validate the quantity
     if (Number(quantity) <= 0 || !quantity) {
       setError("數量必須大於零");
       return;
     }
 
-    // Validate the price
     if (Number(price) <= 0 || !price) {
       setError("價格必須大於零");
       return;
     }
 
-    // Validate the location
     if (!location.trim()) {
       setError("地點不能是空的");
       return;
@@ -115,18 +179,16 @@ const AddItemForm: React.FC<AddItemFormProps> = ({ onClose, addToCart }) => {
   };
 
   if (loadError) {
-    return <div>Error loading maps</div>;
+    return <div>地圖載入失敗</div>;
   }
 
   if (!isLoaded) {
-    return <div>Loading...</div>;
+    return <div>載入中...</div>;
   }
 
   return (
     <Sheet open={true} onOpenChange={onClose}>
-      <SheetContent
-        className="w-full max-w-2xl overflow-visible z-50" // Changed overflow-y-auto to overflow-visible and added z-50
-      >
+      <SheetContent className="w-full max-w-2xl overflow-visible z-50">
         <SheetHeader>
           <SheetTitle>如果找不到，想要買的東西</SheetTitle>
         </SheetHeader>
@@ -166,29 +228,36 @@ const AddItemForm: React.FC<AddItemFormProps> = ({ onClose, addToCart }) => {
               placeholder="輸入購買價格"
             />
           </div>
-          <div className="mb-10 relative"> {/* Added relative positioning */}
+          <div className="mb-10 relative">
             <label className="mb-5 block text-sm font-medium text-gray-700">
               地點
             </label>
-            <Autocomplete
-              onLoad={(autocomplete) => {
-                autocompleteRef.current = autocomplete;
-              }}
-              onPlaceChanged={onPlaceChanged}
-              options={{
-                fields: ["formatted_address", "name"], // Specify required fields
-                types: ["establishment", "geocode"], // Specify types as needed
-              }}
-            >
+            <div className="relative">
               <Input
                 type="text"
+                value={searchInput}
+                onChange={handleInputChange}
                 placeholder="搜尋地點"
                 className="w-full"
-                // Removed value and onChange to avoid control conflicts
-                // Let Autocomplete control the input's value
               />
-            </Autocomplete>
-            {/* Display the selected location */}
+              {predictions.length > 0 && (
+                <div className="absolute z-50 w-full bg-white mt-1 rounded-md shadow-lg max-h-60 overflow-auto">
+                  {predictions.map((prediction) => {
+                    const { businessName, address } = formatPredictionDisplay(prediction);
+                    return (
+                      <div
+                        key={prediction.place_id}
+                        className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                        onClick={() => handlePlaceSelect(prediction.place_id)}
+                      >
+                        <div className="font-medium text-gray-900">{businessName}</div>
+                        <div className="text-sm text-gray-500">{address}</div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
             {location && (
               <div className="mt-2 text-sm text-gray-600">
                 選擇的地點: {location}
@@ -202,15 +271,6 @@ const AddItemForm: React.FC<AddItemFormProps> = ({ onClose, addToCart }) => {
           </Button>
         </SheetFooter>
       </SheetContent>
-      {/* Optional: Google Map component if you want to display the map */}
-      <GoogleMap
-        mapContainerStyle={containerStyle}
-        center={{ lat: 0, lng: 0 }}
-        zoom={2}
-        onLoad={(map) => {
-          // You can perform additional map setup here if needed
-        }}
-      />
     </Sheet>
   );
 };
