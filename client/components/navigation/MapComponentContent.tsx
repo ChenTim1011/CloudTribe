@@ -34,7 +34,6 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import {
   GoogleMap,
-  Autocomplete,
   Marker,
   useJsApiLoader,
   LoadScriptProps,
@@ -42,10 +41,9 @@ import {
 import { useSearchParams, useRouter } from "next/navigation";
 import Directions from "@/components/navigation/Directions";
 import DriverOrdersPage from "@/components/driver/DriverOrdersPage";
-import { LatLng, Route, Leg, DirectionsProps } from "@/interfaces/navigation/navigation";
-import { Driver } from "@/interfaces/driver/driver";
+import { LatLng, Route, Leg } from "@/interfaces/navigation/navigation";
+import { Driver,DriverOrder } from "@/interfaces/driver/driver";
 import { Order } from "@/interfaces/tribe_resident/buyer/order";
-import { DriverOrder } from "@/interfaces/driver/driver";
 import DriverService  from '@/services/driver/driver';
 
 // Define libraries for Google Maps
@@ -90,6 +88,36 @@ const fetchCoordinates = async (placeName: string) => {
   return null;
 };
 
+// Custom hook for debouncing input values
+const useDebounce = (value: string, delay: number) => {
+  const [debouncedValue, setDebouncedValue] = useState(value);
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedValue(value);
+    }, delay);
+
+    return () => {
+      clearTimeout(handler);
+    };
+  }, [value, delay]);
+
+  return debouncedValue;
+};
+
+// Format prediction description to highlight business name
+const formatPredictionDisplay = (prediction: google.maps.places.AutocompletePrediction) => {
+  // Use structured_formatting to access main_text and secondary_text
+  const businessName = prediction.structured_formatting.main_text;
+  // secondary_text is usually the address
+  const address = prediction.structured_formatting.secondary_text;
+
+  return {
+    businessName: businessName || '',
+    address: address || ''
+  };
+};
+
 const MapComponentContent: React.FC = () => {
   console.log("MapComponentContent render");
 
@@ -122,10 +150,14 @@ const MapComponentContent: React.FC = () => {
 
   const [travelMode, setTravelMode] = useState<'DRIVING' | 'WALKING' | 'BICYCLING' | 'TRANSIT'>('DRIVING');
 
-  // Autocomplete refs
-  const autocompleteNewDestinationRef = useRef<
-    google.maps.places.Autocomplete | null
-  >(null);
+  const [searchInput, setSearchInput] = useState<string>("");
+  const [predictions, setPredictions] = useState<google.maps.places.AutocompletePrediction[]>([]);
+  const autocompleteService = useRef<google.maps.places.AutocompleteService | null>(null);
+  const placesService = useRef<google.maps.places.PlacesService | null>(null);
+
+  // Initialize debounced search term
+  const debouncedSearchTerm = useDebounce(searchInput, 800);
+
 
   // Map ref
   const mapRef = useRef<google.maps.Map | null>(null);
@@ -221,6 +253,16 @@ const MapComponentContent: React.FC = () => {
     }));
   }, [destinations]);
 
+  // Initialize Google Places services
+  useEffect(() => {
+    if (isLoaded && !autocompleteService.current) {
+      autocompleteService.current = new google.maps.places.AutocompleteService();
+      const mapDiv = document.createElement('div');
+      const map = new google.maps.Map(mapDiv);
+      placesService.current = new google.maps.places.PlacesService(map);
+    }
+  }, [isLoaded]);
+
   // Get current location and watch for changes
   useEffect(() => {
     setShowLinkTip(true);
@@ -305,6 +347,68 @@ const MapComponentContent: React.FC = () => {
     }
   }, [routes]);
 
+    // Fetch predictions when search term changes
+    useEffect(() => {
+      if (debouncedSearchTerm && debouncedSearchTerm.length >= 2 && autocompleteService.current) {
+        const searchQuery = {
+          input: debouncedSearchTerm,
+          language: 'zh-TW',
+          componentRestrictions: { country: 'tw' },
+          types: ['establishment']
+        };
+  
+        autocompleteService.current.getPlacePredictions(
+          searchQuery,
+          (results, status) => {
+            if (status === google.maps.places.PlacesServiceStatus.OK && results) {
+              setPredictions(results);
+            } else {
+              setPredictions([]);
+            }
+          }
+        );
+      } else {
+        setPredictions([]);
+      }
+    }, [debouncedSearchTerm]);
+  
+    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+      const value = e.target.value;
+      setSearchInput(value);
+      if (!value) {
+        setPredictions([]);
+      }
+    };
+  
+    const handlePlaceSelect = (placeId: string) => {
+      if (placesService.current) {
+        placesService.current.getDetails(
+          {
+            placeId: placeId,
+            fields: ['formatted_address', 'name', 'geometry']
+          },
+          (place, status) => {
+            if (status === google.maps.places.PlacesServiceStatus.OK && place) {
+              const fullLocation = `${place.name} ${place.formatted_address}`;
+              setNewDestinationName(fullLocation);
+              
+              if (place.geometry?.location) {
+                setNewDestinationLocation({
+                  lat: place.geometry.location.lat(),
+                  lng: place.geometry.location.lng()
+                });
+              }
+              
+              setSearchInput(fullLocation);
+              setPredictions([]);
+              setError("");
+            } else {
+              setError("無法獲取地點詳細資訊");
+            }
+          }
+        );
+      }
+    };
 
   // Function to handle place changes in Autocomplete
   const handlePlaceChanged = useCallback(
@@ -558,7 +662,11 @@ const handleTransferOrder = async (orderId: string, newDriverPhone: string) => {
             throw new Error(`Failed to transfer order: ${errorText}`);
         }
 
-        alert('轉單成功，重整頁面可看到更新結果');
+        if (orderData && orderData.id === parseInt(orderId)) {
+          setOrderData(null);
+        }
+
+        alert('轉單成功，已交給目標的司機');
 
     } catch (error) {
         console.error('Error transferring order:', error);
@@ -592,6 +700,10 @@ const handleCompleteOrder = async (orderId: string, service: string) => {
 
         if (!response.ok) {
             throw new Error('Failed to complete order');
+        }
+
+        if (orderData && orderData.id === parseInt(orderId)) {
+          setOrderData(null);
         }
 
         alert('訂單已完成');
@@ -875,29 +987,32 @@ return (
 
           {/* Add New Destination */}
           <div className="flex items-center space-x-2 justify-center">
-            <Autocomplete
-              onLoad={(autocomplete) => {
-                autocompleteNewDestinationRef.current = autocomplete;
-              }}
-              onPlaceChanged={() =>
-                handlePlaceChanged(
-                  autocompleteNewDestinationRef,
-                  setNewDestinationLocation,
-                  setNewDestinationName,
-                  setError,
-                  setNewDestinationLocation,
-                  setNewDestinationName
-                )
-              }
-            >
+            <div className="relative w-full">
               <Input
                 type="text"
-                placeholder="新增目的地"
+                value={searchInput}
+                onChange={handleInputChange}
+                placeholder="搜尋地點"
                 className="w-full"
-                value={newDestinationName}
-                onChange={(e) => setNewDestinationName(e.target.value)}
               />
-            </Autocomplete>
+              {predictions.length > 0 && (
+                <div className="absolute z-50 w-full bg-white mt-1 rounded-md shadow-lg max-h-60 overflow-auto">
+                  {predictions.map((prediction) => {
+                    const { businessName, address } = formatPredictionDisplay(prediction);
+                    return (
+                      <div
+                        key={prediction.place_id}
+                        className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                        onClick={() => handlePlaceSelect(prediction.place_id)}
+                      >
+                        <div className="font-medium text-gray-900">{businessName}</div>
+                        <div className="text-sm text-gray-500">{address}</div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
             <Button onClick={handleAddDestination}>新增</Button>
           </div>
 

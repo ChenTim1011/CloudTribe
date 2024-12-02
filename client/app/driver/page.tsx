@@ -181,7 +181,7 @@ const DriverPage: React.FC = () => {
                 throw new Error(`Failed to transfer order: ${errorText}`);
             }
     
-            alert('轉單成功，重整頁面可看到更新結果');
+            alert('轉單成功，已成功交給目標司機');
 
         } catch (error) {
 

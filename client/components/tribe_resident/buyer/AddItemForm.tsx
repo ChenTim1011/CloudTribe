@@ -122,9 +122,9 @@ const AddItemForm: React.FC<AddItemFormProps> = ({ onClose, addToCart }) => {
         },
         (place, status) => {
           if (status === google.maps.places.PlacesServiceStatus.OK && place) {
-            const address = place.formatted_address || place.name || '';
-            setLocation(address);
-            setSearchInput(address);
+            const fullLocation = `${place.name} ${place.formatted_address}`;
+            setLocation(fullLocation);
+            setSearchInput(fullLocation);
             setPredictions([]);
             setError("");
           } else {
