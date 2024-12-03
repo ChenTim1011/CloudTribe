@@ -365,7 +365,7 @@ async def complete_order(service: str, order_id: int, conn = Depends(get_db)):
             order = cur.fetchone()
             if not order:
                 raise HTTPException(status_code=404, detail="訂單不存在")
-            if order[9] != '接單':
+            if order[10] != '接單':
                 raise HTTPException(status_code=400, detail="訂單狀態不是接單，無法完成訂單")
             
             # Update the order status
