@@ -369,7 +369,7 @@ async def complete_order(service: str, order_id: int, conn = Depends(get_db)):
                 raise HTTPException(status_code=400, detail="訂單狀態不是接單，無法完成訂單")
             
             # Update the order status
-            cur.execute("UPDATE agricultural_product_order SET status = '已完成' WHERE id = %s", (order_id,))
+            cur.execute("UPDATE agricultural_product_order SET status = '已送達' WHERE id = %s", (order_id,))
             
             # Update the driver_orders action
             cur.execute("""
