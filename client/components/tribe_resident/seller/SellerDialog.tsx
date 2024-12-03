@@ -126,7 +126,7 @@ export const SellerDialog = () => {
   return (
     <div>
       {locationError != 'empty' && (
-        <Alert className="bg-red-500 text-white w-1/2">
+        <Alert className="bg-red-500 text-white">
           <AlertDescription>{locationError}</AlertDescription>
         </Alert>
       )}
