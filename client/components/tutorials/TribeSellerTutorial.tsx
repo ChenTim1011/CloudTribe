@@ -1,86 +1,74 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
-const DriverTutorial = () => {
+const TribeSellerTutorial = () => {
   const tutorialSteps = [
     {
-        title: "1. 申請司機",
-        description: "• 輸入姓名和電話號碼\n• 點擊確認按鈕完成申請司機\n• 開始接單服務",
-        image: "/DriverTutorial/tutorial1.png"
+        title: "1. 申請賣家",
+        description: "• 首次上架商品時，需要點擊右上角的設定紐來設定出貨商品放置地\n• 設定完後上架商品的按鈕才可點擊",
+        image: "/TribeSellerTutorial/1.png"
     },
     {
-        title: "2. 司機專區",
-        description: "• 新增時間讓賣家知道司機有空時間\n• 管理訂單可以看到自己接單的詳細資訊\n• 取得未接單表單用來接單",
-        image: "/DriverTutorial/tutorial4.png"
+        title: "2. 設定出貨商品放置地",
+        description: "• 點擊更改資訊的按鈕後，即可選擇出貨商品放置地\n• 設定完成後點擊儲存鈕",
+        image: "/TribeSellerTutorial/2.png"
     },
     {
-        title: "3. 設定可接單時段",
-        description: "• 告訴賣家司機可以的時間，可以選擇日期和時間(不能比現在時間早)\n• 輸入預計時間到達地點\n• 點擊新增時間確認",
-        image: "/DriverTutorial/tutorial3.png"
+        title: "3. 上架商品",
+        description: "• 點擊新增商品的按鈕",
+        image: "/TribeSellerTutorial/4.png"
     },
     {
-        title: "4. 我的訂單管理",
-        description: "• 查看訂單狀態：接單或已完成\n• 檢視訂單的總金額\n• 查看購買者資訊和商品明細\n• 可以確認全部要買的商品數量和總價格",
-        image: "/DriverTutorial/tutorial5.png"
+        title: "4. 填入商品相關資訊",
+        description: "• 請確認填寫的資訊無誤再上傳",
+        image: "/TribeSellerTutorial/5.png"
     },
     {
-        title: "5. 未接單訂單",
-        description: "• 檢視新訂單的購買資訊\n• 查看配送地點\n• 確認商品清單和總金額\n• 選擇是否接單",
-        image: "/DriverTutorial/tutorial6.png"
+        title: "5. 等待商品上傳",
+        description: "• 請等待商品上傳完成後再關閉頁面",
+        image: "/TribeSellerTutorial/6.png"
     },
     {
-        title: "6. 轉單功能介紹",
-        description: "• 沒有棄單設計，必須輸入已存在司機的電話\n• 與對方司機聯絡好確定可以轉單\n• 輸入對方司機電話確認轉單",
-        image: "/DriverTutorial/tutorial7.png"
+        title: "6. 我的架上商品",
+        description: "• 可在我的架上商品頁面查看目前正在架上的商品",
+        image: "/TribeSellerTutorial/7.png"
     },
     {
-        title: "7. 導航路線規劃",
-        description: "• 查看目前位置到目的地的地圖\n• 檢視最佳配送路線\n• 確認預計送達時間\n",
-        image: "/DriverTutorial/tutorial8.png"
+        title: "7. 查看上架商品詳細資訊-1",
+        description: "• 可點選查看按鈕，查看商品的詳細資訊",
+        image: "/TribeSellerTutorial/8.png"
     },
     {
-        title: "9. 導航系統",
-        description: "• 選擇交通方式：汽車、步行或機車\n• 顯示總路程距離和預計時間\n• 查看詳細取貨和配送地點\n• 可新增額外配送點\n• 生成最佳配送路線",
-        image: "/DriverTutorial/tutorial9.png"
+      title: "8. 查看上架商品詳細資訊-2",
+      description: "• 往左滑動可以查看更多資訊",
+      image: "/TribeSellerTutorial/9.png"
     },
     {
-      title: "10. 可以調整想去的地點",
-      description: "• 起點終點固定，但是中間點可以自己加\n• 即時顯示總距離和時間，也有各段距離",
-      image: "/DriverTutorial/tutorial10.png"
+      title: "9. 勾選已放置出貨地的商品",
+      description: "• 將已送達出貨地的訂單作勾選\n• 確認無誤後點選確認已放置司機拿取地的訂單購選無誤",
+      image: "/TribeSellerTutorial/10.png"
     },
     {
-      title: "11. 推薦路線",
-      description: "• 按下推薦路線自己排序出最短路徑和時間\n• 讓司機知道怎麼走比較快，但按下生成導航連結體驗更好",
-      image: "/DriverTutorial/tutorial11.png"
+      title: "10. 勾選完成頁面",
+      description: "• 請確認已送達之後再勾選，點擊確認按鈕後就無法再次更改",
+      image: "/TribeSellerTutorial/11.png"
     },
-    {
-      title: "12. 生成導航連結",
-      description: "• 直接依照選擇模式和路線，幫你整理好Google 路徑連結\n• 讓 Google 導航告訴要你要怎麼走",
-      image: "/DriverTutorial/tutorial12.png"
-    },
-    {
-      title: "13. 貨品已到達目的地",
-      description: "• 當司機把貨運送到目的地，就可以按下貨品已到達目的地",
-      image: "/DriverTutorial/tutorial13.png"
-    }
   ];
 
   return (
     <div className="w-full space-y-6">
       <div className="text-center mb-8">
-        <h1 className="text-2xl font-bold text-green-600 mb-2">司機完整使用教學</h1>
-        <p className="text-gray-600 font-bold">從申請到完成配送的詳細指南</p>
+        <h1 className="text-2xl font-bold text-green-600 mb-2">部落賣家完整使用教學</h1>
+        <p className="text-gray-600 font-bold">完整上架與查看商品指南</p>
       </div>
       
       <Card className="bg-green-50">
         <CardContent className="p-4">
           <h3 className="font-bold text-green-600 mb-2">使用提醒</h3>
           <ul className="space-y-2 text-gray-600">
-            <li>• 請確實檢查訂單資訊和配送地址</li>
-            <li>• 接單前評估路程時間和距離</li>
-            <li>• 保持聯絡電話暢通，確保溝通順暢</li>
-            <li>• 善用路線規劃功能提升配送效率</li>
-            <li>• 定期更新可接單時段，維持良好服務品質</li>
+            <li>• 請定時查看司機能運送的時間</li>
+            <li>• 請記得勾選已放置至出貨地的訂單</li>
+            <li>• 請檢查出貨商品放置地是否正確(於右上角的設定中查看)</li>
           </ul>
         </CardContent>
       </Card>
@@ -112,4 +100,4 @@ const DriverTutorial = () => {
   );
 };
 
-export default DriverTutorial;
+export default TribeSellerTutorial;

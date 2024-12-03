@@ -5,6 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from '@/components/ui/card';
 import TribeBuyerTutorial from '@/components/tutorials/TribeBuyerTutorial';
 import DriverTutorial from '@/components/tutorials/DriverTutorial';
+import TribeSellerTutorial from '@/components/tutorials/TribeSellerTutorial';
+import ConsumerTutorial from '@/components/tutorials/ConsumerTutorial';
 
 // Define the main section types
 type MainSection = 'experience' | 'guide' | null;
@@ -27,10 +29,9 @@ export default function Page() {
     switch (role) {
       case 'seller':
         return (
-          <div className="mt-8 flex justify-center">
-            <div className={`w-11/12 bg-white p-6 rounded-xl shadow-lg ${role ? 'animate__animated animate__fadeIn' : ''}`}>
-              <h2 className="text-xl font-bold text-green-600">賣家圖文說明</h2>
-              <p className="text-gray-600 mt-4">這裡可以放一些賣家圖文教學內容。</p>
+          <div className="mt-8 flex justify-center w-full">
+            <div className="w-11/12">
+              <TribeSellerTutorial />
             </div>
           </div>
         );
@@ -52,10 +53,9 @@ export default function Page() {
         );
       case 'buyer':
         return (
-          <div className="mt-8 flex justify-center">
-            <div className={`w-11/12 bg-white p-6 rounded-xl shadow-lg ${role ? 'animate__animated animate__fadeIn' : ''}`}>
-              <h2 className="text-xl font-bold text-green-600">山下買家圖文說明</h2>
-              <p className="text-gray-600 mt-4">這裡可以放一些山下買家圖文教學內容。</p>
+          <div className="mt-8 flex justify-center w-full">
+            <div className="w-11/12">
+              <ConsumerTutorial />
             </div>
           </div>
         );
@@ -189,7 +189,7 @@ export default function Page() {
                   } border-2 border-green-500 shadow-lg hover:bg-green-50 hover:scale-105 transform transition duration-200 text-green-600`}
                   onClick={() => setRole(role === 'seller' ? null : 'seller')}
                 >
-                  賣家
+                  部落賣家
                 </Button>
                 <Button
                   className={`lg:w-1/4 w-full h-12 rounded-xl ${
@@ -217,7 +217,7 @@ export default function Page() {
                   } border-2 border-green-500 shadow-lg hover:bg-green-50 hover:scale-105 transform transition duration-200 text-green-600`}
                   onClick={() => setRole(role === 'buyer' ? null : 'buyer')}
                 >
-                  山下買家
+                  團購買家
                 </Button>
               </div>
             </div>
