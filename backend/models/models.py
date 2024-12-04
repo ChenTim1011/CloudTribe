@@ -69,6 +69,18 @@ class DriverTime(BaseModel):
     start_time: str
     locations: str
 
+class DriverTimeDetail(BaseModel):
+    """
+    Model representing a driver's time detail.
+    """
+    id: int
+    date: str
+    start_time: str
+    locations: str
+    driver_name: str
+    driver_phone: str
+    
+
 class DriverOrder(BaseModel):
     """
     Model representing the association between a driver and an order.

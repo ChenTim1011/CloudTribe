@@ -23,3 +23,7 @@ ADD COLUMN category VARCHAR(50);
 
 ALTER TABLE driver_orders
 ADD COLUMN service VARCHAR(20);
+
+
+ALTER TABLE agriculture_products
+ADD COLUMN unit VARCHAR(10);
