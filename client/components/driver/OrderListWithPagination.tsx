@@ -41,8 +41,18 @@ const OrderListWithPagination: React.FC<OrderListWithPaginationProps> = ({ order
     // Sort orders by urgency
     const sortedOrders = useMemo(() => {
         return [...orders].sort((a, b) => {
-            if (a.is_urgent === b.is_urgent) return 0;
-            return a.is_urgent ? -1 : 1;
+            // First, compare urgency
+            if (a.is_urgent !== b.is_urgent) {
+                return a.is_urgent ? -1 : 1;
+            }
+            
+            // If urgency is the same, compare location
+            if (a.location === b.location) {
+                return 0;
+            }
+            
+            // If urgency is the same, sort by location
+            return a.location.localeCompare(b.location);
         });
     }, [orders]);
 

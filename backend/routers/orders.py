@@ -13,15 +13,36 @@ Endpoints:
 
 from typing import List
 import logging
+from datetime import datetime
+import json
 
 from psycopg2.extensions import connection as Connection
 from fastapi import APIRouter, HTTPException, Depends
 from backend.models.models import Order, DriverOrder, TransferOrderRequest, DetailedOrder
 from backend.database import get_db_connection
 
-logging.basicConfig(level=logging.DEBUG)
+
 
 router = APIRouter()
+
+# Set up logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s [%(levelname)s] %(message)s',
+    handlers=[
+        logging.FileHandler('/var/log/logistics/orders.log'),
+        logging.StreamHandler()
+    ]
+)
+logger = logging.getLogger(__name__)
+
+def log_event(event_type: str, data: dict):
+    log_data = {
+        "timestamp": datetime.now().isoformat(),
+        "event_type": event_type,
+        "data": data
+    }
+    logger.info(json.dumps(log_data))
 
 
 def get_db():
@@ -47,7 +68,17 @@ async def create_order(order: DetailedOrder, conn: Connection = Depends(get_db))
     logging.info("Order data received: %s", order.model_dump_json())
     cur = conn.cursor()
     try:
+        
+        log_event("ORDER_CREATION_STARTED", {
+            "buyer_id": order.buyer_id,
+            "total_price": order.total_price,
+            "is_urgent": order.is_urgent,
+            "items_count": len(order.items)
+        })
+            
         cur.execute(
+
+
             "INSERT INTO orders (buyer_id, buyer_name, buyer_phone, seller_id, seller_name, seller_phone, date, time, location, is_urgent, total_price, order_type, order_status, note, shipment_count, required_orders_count, previous_driver_id, previous_driver_name, previous_driver_phone) "
             "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s) RETURNING id",
             (order.buyer_id, order.buyer_name, order.buyer_phone, order.seller_id, order.seller_name, order.seller_phone, order.date,
@@ -173,7 +204,14 @@ async def accept_order(service: str, order_id: int, driver_order: DriverOrder, c
     logging.info("Received driver_order: %s", driver_order.model_dump_json())
     cur = conn.cursor()
     try:
-        logging.info("Driver %s attempting to accept order %s in %s", driver_order.driver_id, order_id, service)
+        
+        log_event("ORDER_ACCEPTANCE_STARTED", {
+            "order_id": order_id,
+            "driver_id": driver_order.driver_id,
+            "service": service
+        })
+
+
         if service == 'necessities':
             cur.execute("SELECT order_status FROM orders WHERE id = %s FOR UPDATE", (order_id,))
         if service == 'agricultural_product':
@@ -229,6 +267,13 @@ async def transfer_order(order_id: int, transfer_request: TransferOrderRequest, 
     """
     cur = conn.cursor()
     try:
+
+        log_event("ORDER_TRANSFER_STARTED", {
+            "order_id": order_id,
+            "current_driver_id": transfer_request.current_driver_id,
+            "new_driver_phone": transfer_request.new_driver_phone
+        })
+
         
         # Find new driver by phone
         cur.execute("SELECT id, driver_name, driver_phone FROM drivers WHERE driver_phone = %s", (transfer_request.new_driver_phone,))
@@ -341,6 +386,13 @@ async def complete_order(service: str, order_id: int, conn = Depends(get_db)):
     """
     cur = conn.cursor()
     try:
+
+        log_event("ORDER_COMPLETION_STARTED", {
+            "order_id": order_id,
+            "service": service
+        })
+
+
         if service == 'necessities':
             # Check if order exists
             cur.execute("SELECT * FROM orders WHERE id = %s", (order_id,))

@@ -211,7 +211,6 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onClose, clearCart, cartIte
       }
 
       const result = await response.json();
-      console.log('Order submitted:', result);
 
       setShowAlert(true);
       clearCart();
