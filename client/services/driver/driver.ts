@@ -15,7 +15,7 @@ class DriverService{
         return data
     }   
     async get_all_driver_times(){
-      const res = await fetch('/api/drivers/times',{
+      const res = await fetch('/api/drivers/all/times',{
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
