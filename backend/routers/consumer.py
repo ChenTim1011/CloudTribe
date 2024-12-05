@@ -20,16 +20,23 @@ from typing import List
 from datetime import datetime
 import datetime as dt
 router = APIRouter()
+import os
 
-# Set up logging
+
+log_dir = os.path.join(os.getcwd(), 'backend', 'logs')
+
+if not os.path.exists(log_dir):
+    os.makedirs(log_dir)
+
+log_file = os.path.join(log_dir, 'consumers.log')
+
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s [%(levelname)s] %(message)s',
-    handlers=[
-        logging.FileHandler('/var/log/logistics/consumer.log'),
-        logging.StreamHandler()
-    ]
+    format='%(asctime)s - %(levelname)s - %(message)s',
+    handlers=[logging.FileHandler(log_file), logging.StreamHandler()]
 )
+
+
 logger = logging.getLogger(__name__)
 
 def log_event(event_type: str, data: dict):

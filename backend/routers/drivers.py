@@ -26,18 +26,23 @@ from backend.models.models import Driver
 from backend.models.models import DriverTime, DriverTimeDetail
 from backend.database import get_db_connection
 from typing import List
+import os 
 
 router = APIRouter()
 
-# Set up logging
+log_dir = os.path.join(os.getcwd(), 'backend', 'logs')
+
+if not os.path.exists(log_dir):
+    os.makedirs(log_dir)
+
+log_file = os.path.join(log_dir, 'drivers.log')
+
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s [%(levelname)s] %(message)s',
-    handlers=[
-        logging.FileHandler('/var/log/logistics/drivers.log'),
-        logging.StreamHandler()
-    ]
+    format='%(asctime)s - %(levelname)s - %(message)s',
+    handlers=[logging.FileHandler(log_file), logging.StreamHandler()]
 )
+
 logger = logging.getLogger(__name__)
 
 def log_event(event_type: str, data: dict):

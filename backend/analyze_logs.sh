@@ -1,7 +1,10 @@
 #!/bin/bash
 
+# Get the directory of the current script
+SCRIPT_DIR=$(dirname "$0")
+LOG_DIR="$SCRIPT_DIR/logs"  # Logs directory relative to script location
+
 # Set the log file paths
-LOG_DIR="/var/log/logistics"
 ORDER_LOG="$LOG_DIR/orders.log"
 DRIVER_LOG="$LOG_DIR/drivers.log"
 USER_LOG="$LOG_DIR/user.log"

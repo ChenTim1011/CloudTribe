@@ -13,16 +13,20 @@ from typing import List
 router = APIRouter()
 load_dotenv()
 
+log_dir = os.path.join(os.getcwd(), 'backend', 'logs')
 
-# set up logging
+if not os.path.exists(log_dir):
+    os.makedirs(log_dir)
+
+log_file = os.path.join(log_dir, 'sellers.log')
+
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s [%(levelname)s] %(message)s',
-    handlers=[
-        logging.FileHandler('/var/log/logistics/seller.log'),
-        logging.StreamHandler()
-    ]
+    format='%(asctime)s - %(levelname)s - %(message)s',
+    handlers=[logging.FileHandler(log_file), logging.StreamHandler()]
 )
+
+
 logger = logging.getLogger(__name__)
 
 def log_event(event_type: str, data: dict):

@@ -20,20 +20,24 @@ from psycopg2.extensions import connection as Connection
 from fastapi import APIRouter, HTTPException, Depends
 from backend.models.models import Order, DriverOrder, TransferOrderRequest, DetailedOrder
 from backend.database import get_db_connection
-
+import os
 
 
 router = APIRouter()
 
-# Set up logging
+log_dir = os.path.join(os.getcwd(), 'backend', 'logs')
+
+if not os.path.exists(log_dir):
+    os.makedirs(log_dir)
+
+log_file = os.path.join(log_dir, 'orders.log')
+
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s [%(levelname)s] %(message)s',
-    handlers=[
-        logging.FileHandler('/var/log/logistics/orders.log'),
-        logging.StreamHandler()
-    ]
+    format='%(asctime)s - %(levelname)s - %(message)s',
+    handlers=[logging.FileHandler(log_file), logging.StreamHandler()]
 )
+
 logger = logging.getLogger(__name__)
 
 def log_event(event_type: str, data: dict):

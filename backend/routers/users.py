@@ -18,16 +18,24 @@ from backend.database import get_db_connection
 import logging
 import json
 from datetime import datetime
+import os
 
 
+log_dir = os.path.join(os.getcwd(), 'backend', 'logs')
+
+
+if not os.path.exists(log_dir):
+    os.makedirs(log_dir)
+
+# 設定 FileHandler
+log_file = os.path.join(log_dir, 'users.log')
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s [%(levelname)s] %(message)s',
-    handlers=[
-        logging.FileHandler('/var/log/logistics/user.log'),
-        logging.StreamHandler()
-    ]
+    format='%(asctime)s - %(levelname)s - %(message)s',
+    handlers=[logging.FileHandler(log_file), logging.StreamHandler()]
 )
+
+
 logger = logging.getLogger(__name__)
 
 def log_event(event_type: str, data: dict):
