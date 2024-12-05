@@ -15,9 +15,31 @@ from psycopg2.extensions import connection as Connection
 from backend.models.consumer import ProductInfo, AddCartRequest, CartItem, UpdateCartQuantityRequest, PurchaseProductRequest, PurchasedProduct
 from backend.database import get_db_connection
 import logging
+import json
 from typing import List
-import datetime
+from datetime import datetime
+import datetime as dt
 router = APIRouter()
+
+# Set up logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s [%(levelname)s] %(message)s',
+    handlers=[
+        logging.FileHandler('/var/log/logistics/consumer.log'),
+        logging.StreamHandler()
+    ]
+)
+logger = logging.getLogger(__name__)
+
+def log_event(event_type: str, data: dict):
+    log_data = {
+        "timestamp": datetime.now().isoformat(),
+        "event_type": event_type,
+        "data": data
+    }
+    logger.info(json.dumps(log_data))
+
 def get_db():
     """
     Get a database connection.
@@ -42,7 +64,7 @@ async def get_on_sell_item(conn: Connection=Depends(get_db)):
     Returns:
         List[ProductInfo]: A list of agricultural_product information.
     """
-    today = datetime.date.today()
+    today = dt.date.today()
     cur = conn.cursor()
     try:
         logging.info("Get agricultural_product.(today_date: %s)", today)
@@ -84,6 +106,13 @@ async def add_cart(req: AddCartRequest, conn: Connection = Depends(get_db)):
         itemId(int):The id of added item.
     """
     cur = conn.cursor()
+
+    log_event("ADD_TO_CART_STARTED", {
+        "buyer_id": req.buyer_id,
+        "produce_id": req.produce_id,
+        "quantity": req.quantity
+    })
+
     try:
         logging.info('check whether insert the same item')
         cur.execute(
@@ -102,10 +131,20 @@ async def add_cart(req: AddCartRequest, conn: Connection = Depends(get_db)):
         )
         itemId = cur.fetchone()[0]
         conn.commit()
+        log_event("ADDED_TO_CART", {
+            "item_id": itemId,
+            "buyer_id": req.buyer_id,
+            "produce_id": req.produce_id,
+            "status": "success"
+        })
         return itemId
     except Exception as e:
         conn.rollback()
-        logging.error("Error occurred: %s", str(e))
+        log_event("ADD_TO_CART_ERROR", {
+            "buyer_id": req.buyer_id,
+            "produce_id": req.produce_id,
+            "error": str(e)
+        })
         raise HTTPException(status_code=500, detail=str(e)) from e
     finally:
         cur.close()
@@ -122,7 +161,7 @@ async def get_seller_item(userId: int, conn: Connection=Depends(get_db)):
     Returns:
         List[ProductBasicInfo]: A list of cart items.
     """
-    today = datetime.date.today()
+    today = dt.date.today()
     cur = conn.cursor()
     try:
         logging.info("Get cart items of user whose id is %s.", userId)
@@ -224,6 +263,14 @@ async def purchase_product(req: PurchaseProductRequest, conn: Connection = Depen
         orderId(int):The id of added order.
     """
     cur = conn.cursor()
+
+    log_event("PURCHASE_STARTED", {
+        "buyer_id": req.buyer_id,
+        "seller_id": req.seller_id,
+        "produce_id": req.produce_id,
+        "quantity": req.quantity
+    })
+
     try:
         cur.execute("SELECT phone FROM users WHERE id = %s", (req.buyer_id,))
         result = cur.fetchone()
@@ -239,10 +286,19 @@ async def purchase_product(req: PurchaseProductRequest, conn: Connection = Depen
         )
         order_id = cur.fetchone()[0]
         conn.commit()
+        log_event("PURCHASE_COMPLETED", {
+            "order_id": order_id,
+            "buyer_id": req.buyer_id,
+            "seller_id": req.seller_id,
+            "status": "success"
+        })
         return order_id
     except Exception as e:
         conn.rollback()
-        logging.error("Error occurred: %s", str(e))
+        log_event("PURCHASE_ERROR", {
+            "buyer_id": req.buyer_id,
+            "error": str(e)
+        })
         raise HTTPException(status_code=500, detail=str(e)) from e
     finally:
         cur.close()

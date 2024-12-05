@@ -94,8 +94,18 @@ async def create_order(order: DetailedOrder, conn: Connection = Depends(get_db))
             )
         conn.commit()
         order.id = order_id
+        log_event("ORDER_CREATED", {
+            "order_id": order_id,
+            "buyer_id": order.buyer_id,
+            "total_price": order.total_price,
+            "status": "success"
+        })
         return order
     except Exception as e:
+        log_event("ORDER_CREATION_ERROR", {
+            "error": str(e),
+            "buyer_id": order.buyer_id
+        })
         conn.rollback()
         raise HTTPException(status_code=500, detail=str(e)) from e
     finally:
@@ -235,7 +245,12 @@ async def accept_order(service: str, order_id: int, driver_order: DriverOrder, c
             (driver_order.driver_id, order_id, '接單', driver_order.timestamp, driver_order.previous_driver_id, driver_order.previous_driver_name, driver_order.previous_driver_phone, driver_order.service)
         )
         conn.commit()
-        logging.info("Order %s successfully accepted by driver %s", order_id, driver_order.driver_id)
+        log_event("ORDER_ACCEPTED", {
+            "order_id": order_id,
+            "driver_id": driver_order.driver_id,
+            "service": service,
+            "status": "success"
+        })
         return {"status": "success", "message": f"訂單 {order_id} 已成功被接受"}
 
     except HTTPException as e:
@@ -247,7 +262,11 @@ async def accept_order(service: str, order_id: int, driver_order: DriverOrder, c
         raise e
     except Exception as e:
         conn.rollback()
-        logging.error("Error accepting order %s by driver %s: %s", order_id, driver_order.driver_id, str(e))
+        log_event("ORDER_ACCEPTANCE_ERROR", {
+            "order_id": order_id,
+            "driver_id": driver_order.driver_id,
+            "error": str(e)
+        })
         raise HTTPException(status_code=500, detail="伺服器內部錯誤，請稍後再試") from e
     finally:
         cur.close()
@@ -431,8 +450,18 @@ async def complete_order(service: str, order_id: int, conn = Depends(get_db)):
             """, (order_id, 'agricultural_product'))
         
         conn.commit()
+        log_event("ORDER_COMPLETED", {
+            "order_id": order_id,
+            "service": service,
+            "status": "success"
+        })
         return {"status": "success", "message": "訂單已完成"}
     except Exception as e:
+        log_event("ORDER_COMPLETION_ERROR", {
+            "order_id": order_id,
+            "service": service,
+            "error": str(e)
+        })
         conn.rollback()
         raise HTTPException(status_code=500, detail=str(e)) from e
     finally:

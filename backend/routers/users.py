@@ -16,6 +16,27 @@ from psycopg2.extensions import connection as Connection
 from backend.models.user import User, UpdateLocationRequest
 from backend.database import get_db_connection
 import logging
+import json
+from datetime import datetime
+
+
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s [%(levelname)s] %(message)s',
+    handlers=[
+        logging.FileHandler('/var/log/logistics/user.log'),
+        logging.StreamHandler()
+    ]
+)
+logger = logging.getLogger(__name__)
+
+def log_event(event_type: str, data: dict):
+    log_data = {
+        "timestamp": datetime.now().isoformat(),
+        "event_type": event_type,
+        "data": data
+    }
+    logger.info(json.dumps(log_data))
 
 class LoginRequest(BaseModel):
     phone: str
@@ -47,6 +68,10 @@ async def login(request: LoginRequest, conn: Connection = Depends(get_db)):
     Returns:
         dict: The user data if phone number exists.
     """
+    log_event("USER_LOGIN_ATTEMPT", {
+        "phone": request.phone
+    })
+
     cur = conn.cursor()
     try:
         phone = request.phone
@@ -56,9 +81,18 @@ async def login(request: LoginRequest, conn: Connection = Depends(get_db)):
         if not user:
             logging.warning("User with phone number %s not found", phone)
             raise HTTPException(status_code=404, detail="User not found")
+        
+        log_event("USER_LOGIN_SUCCESS", {
+            "user_id": user[0],
+            "phone": user[2],
+            "is_driver": user[4]
+        })
         return {"id": user[0], "name": user[1], "phone": user[2], "location":user[3], "is_driver": user[4]}
     except Exception as e:
-        logging.error("Error occurred during login: %s", str(e))
+        log_event("USER_LOGIN_ERROR", {
+            "phone": request.phone,
+            "error": str(e)
+        })
         raise HTTPException(status_code=500, detail=str(e)) from e
     finally:
         cur.close()
@@ -92,11 +126,26 @@ async def create_user(user: User, conn: Connection = Depends(get_db)):
         )
         user_id = cur.fetchone()[0]
         conn.commit()
+        log_event("USER_REGISTRATION_STARTED", {
+            "name": user.name,
+            "phone": user.phone
+        })
         logging.info("User created with ID %s", user_id)
+        log_event("USER_REGISTERED", {
+            "user_id": user_id,
+            "name": user.name,
+            "phone": user.phone,
+            "status": "success"
+        })
         return {**user.dict(), "id": user_id}
     except Exception as e:
         conn.rollback()
         logging.error("Error occurred: %s", str(e))
+        log_event("USER_REGISTRATION_ERROR", {
+            "name": user.name,
+            "phone": user.phone,
+            "error": str(e)
+        })
         raise HTTPException(status_code=500, detail=str(e)) from e
     finally:
         cur.close()

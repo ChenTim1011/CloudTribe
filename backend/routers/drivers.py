@@ -18,6 +18,8 @@ Endpoints:
 """
 
 import logging
+import json
+from datetime import datetime
 from fastapi import APIRouter, HTTPException, Depends
 from psycopg2.extensions import connection as Connection
 from backend.models.models import Driver
@@ -26,6 +28,25 @@ from backend.database import get_db_connection
 from typing import List
 
 router = APIRouter()
+
+# Set up logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s [%(levelname)s] %(message)s',
+    handlers=[
+        logging.FileHandler('/var/log/logistics/drivers.log'),
+        logging.StreamHandler()
+    ]
+)
+logger = logging.getLogger(__name__)
+
+def log_event(event_type: str, data: dict):
+    log_data = {
+        "timestamp": datetime.now().isoformat(),
+        "event_type": event_type,
+        "data": data
+    }
+    logger.info(json.dumps(log_data))
 
 def get_db():
     """
@@ -49,6 +70,12 @@ async def create_driver(driver: Driver, conn: Connection = Depends(get_db)):
     Returns:
         dict: A success message.
     """
+    log_event("DRIVER_REGISTRATION_STARTED", {
+        "user_id": driver.user_id,
+        "driver_name": driver.driver_name,
+        "driver_phone": driver.driver_phone
+    })
+
     cur = conn.cursor()
     try:
         # Check if user_id exists
@@ -88,13 +115,21 @@ async def create_driver(driver: Driver, conn: Connection = Depends(get_db)):
         )
         new_driver_id = cur.fetchone()[0]
         conn.commit()
+        log_event("DRIVER_REGISTERED", {
+            "driver_id": new_driver_id,
+            "user_id": driver.user_id,
+            "status": "success"
+        })
         return {"status": "success", "driver_id": new_driver_id}
     except HTTPException as he:
         conn.rollback()
         raise he
     except Exception as e:
         conn.rollback()
-        logging.error("Error creating driver: %s", str(e))
+        log_event("DRIVER_REGISTRATION_ERROR", {
+            "user_id": driver.user_id,
+            "error": str(e)
+        })
         raise HTTPException(status_code=500, detail="伺服器內部錯誤") from e
     finally:
         cur.close()
@@ -124,6 +159,8 @@ async def get_driver_by_user(user_id: int, conn: Connection = Depends(get_db)):
         driver = cur.fetchone()
         if not driver:
             raise HTTPException(status_code=404, detail="該使用者不是司機或不存在")
+
+        
 
         return {
             "id": driver[0],

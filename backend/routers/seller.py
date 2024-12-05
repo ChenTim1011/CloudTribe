@@ -5,12 +5,33 @@ from backend.database import get_db_connection
 from dotenv import load_dotenv
 import os
 import requests
+import json
 import logging
 import datetime
 from typing import List
 
 router = APIRouter()
 load_dotenv()
+
+
+# set up logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s [%(levelname)s] %(message)s',
+    handlers=[
+        logging.FileHandler('/var/log/logistics/seller.log'),
+        logging.StreamHandler()
+    ]
+)
+logger = logging.getLogger(__name__)
+
+def log_event(event_type: str, data: dict):
+    log_data = {
+        "timestamp": datetime.datetime.now().isoformat(),
+        "event_type": event_type,
+        "data": data
+    }
+    logger.info(json.dumps(log_data))
 
 def get_db():
     """
@@ -46,12 +67,22 @@ async def upload_image(request: UploadImageRequset):
 
     # Upload image to Imgur and get URL
     try:
+        log_event("IMAGE_UPLOAD_STARTED", {
+            "image_size": len(request.img) if request.img else 0
+        })
         response = requests.post(url, headers=headers, data={'image': img, 'album': albumId})
         print('response:', response)
         response_data = response.json()
         if response_data["success"] is True:
+            log_event("IMAGE_UPLOADED", {
+                "img_id": response_data["data"]["id"],
+                "status": "success"
+            })
             return {"img_id": response_data["data"]["id"] , "img_link": response_data["data"]["link"]}
     except Exception as e:
+        log_event("IMAGE_UPLOAD_ERROR", {
+            "error": str(e)
+        })
         logging.error("Error occurred during upload photo: %s", str(e))
         raise HTTPException(status_code=500, detail=str(e)) from e
 
@@ -70,16 +101,35 @@ async def upload_item(req: UploadItemRequest, conn: Connection = Depends(get_db)
     cur = conn.cursor()
     try:
         logging.info("Inserting new item")
+
+        log_event("ITEM_UPLOAD_STARTED", {
+            "seller_id": req.seller_id,
+            "name": req.name,
+            "price": str(req.price),
+            "category": req.category,
+            "quantity": req.total_quantity
+        })
+
         cur.execute(
             """INSERT INTO agricultural_produce (name, price, total_quantity, category, upload_date, off_shelf_date, img_link, img_id, seller_id, unit) 
             VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)""",
             (req.name, req.price, req.total_quantity, req.category, str(datetime.date.today()), req.off_shelf_date, req.img_link, req.img_id, req.seller_id, req.unit)
         )
         conn.commit()
+        log_event("ITEM_UPLOADED", {
+            "seller_id": req.seller_id,
+            "name": req.name,
+            "upload_date": str(datetime.date.today()),
+            "status": "success"
+        })
         return "item create successfully"
     except Exception as e:
         conn.rollback()
-        logging.error("Error occurred: %s", str(e))
+        log_event("ITEM_UPLOAD_ERROR", {
+            "seller_id": req.seller_id,
+            "name": req.name,
+            "error": str(e)
+        })
         raise HTTPException(status_code=500, detail=str(e)) from e
     finally:
         cur.close()
@@ -214,6 +264,11 @@ async def check_is_put(req: IsPutRequest, conn = Depends(get_db)):
     """
     cur = conn.cursor()
     try:
+
+        log_event("PRODUCT_PUT_CHECK_STARTED", {
+            "order_ids": req.order_ids
+        })
+
         for id in req.order_ids:
             # Check if order exists
             cur.execute("SELECT * FROM agricultural_product_order WHERE id = %s", (id,))
@@ -225,9 +280,17 @@ async def check_is_put(req: IsPutRequest, conn = Depends(get_db)):
             cur.execute("UPDATE agricultural_product_order SET is_put = %s WHERE id = %s", (True, id,))
     
         conn.commit()
+        log_event("PRODUCT_PUT_CHECKED", {
+            "order_ids": req.order_ids,
+            "status": "success"
+        })
         return {"status": "success", "message": "訂單已放置"}
     except Exception as e:
         conn.rollback()
+        log_event("PRODUCT_PUT_CHECK_ERROR", {
+            "order_ids": req.order_ids,
+            "error": str(e)
+        })
         raise HTTPException(status_code=500, detail=str(e)) from e
     finally:
         cur.close()
