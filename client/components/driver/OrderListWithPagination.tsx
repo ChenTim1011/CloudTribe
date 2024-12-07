@@ -71,7 +71,6 @@ const OrderListWithPagination: React.FC<OrderListWithPaginationProps> = ({ order
                             driverId={driverId}
                             onAccept={onAccept}
                             onTransfer={onTransfer}
-                            onNavigate={onNavigate}
                             onComplete={onComplete}
                         />
                     );
