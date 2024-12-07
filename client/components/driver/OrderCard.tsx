@@ -21,9 +21,8 @@ const OrderCard: React.FC<{
     driverId: number;
     onAccept: (orderId: string, service: string) => Promise<void>;
     onTransfer: (orderId: string, newDriverPhone: string) => Promise<void>;
-    onNavigate: (orderId: string) => void;
     onComplete: (orderId: string, service: string) => Promise<void>;
-}> = ({ order, driverId, onAccept, onTransfer, onNavigate, onComplete }) => {
+}> = ({ order, driverId, onAccept, onTransfer, onComplete }) => {
     console.log('OrderCard received order:', order);
 
     // State for managing the visibility of the transfer form
@@ -74,12 +73,6 @@ const OrderCard: React.FC<{
         }
     };
 
-    /**
-     * Handles navigation to the order's location.
-     */
-    const handleNavigate = () => {
-        onNavigate(order.id?.toString() || "");
-    };
 
     return (
         <Card 
@@ -193,7 +186,6 @@ const OrderCard: React.FC<{
                         ) : (
                             <>
                                 <Button className="bg-red-500 text-white" onClick={() => setShowTransferForm(true)}>轉單</Button>
-                                <Button className="bg-black text-white" onClick={handleNavigate}>導航</Button>
                             </>
                         )}
                     </div>

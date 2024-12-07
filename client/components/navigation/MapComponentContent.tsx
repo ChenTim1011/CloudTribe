@@ -122,11 +122,11 @@ const formatPredictionDisplay = (prediction: google.maps.places.AutocompletePred
 };
 
 const MapComponentContent: React.FC = () => {
-  console.log("MapComponentContent render");
 
   const searchParams = useSearchParams();
   const driverIdParam = searchParams.get("driverId");
-  const orderId = searchParams.get("orderId");
+  const finalDestinationParam = searchParams.get("finalDestination");
+  const waypointsParam = searchParams.get("waypoints")
 
   // Define state
   const [origin, setOrigin] = useState<LatLng | null>(null);
@@ -205,64 +205,7 @@ const MapComponentContent: React.FC = () => {
     }
   }, [driverData?.id]);
 
-  // Function to fetch order data
-  const fetchOrderData = async (orderId: string) => {
-    try {
-      const response = await fetch(`/api/orders/${orderId}`);
-      if (!response.ok) {
-        throw new Error("Failed to fetch order data");
-      }
-      const data: Order = await response.json();
-      console.log("Fetched Order Data:", data);
-      setOrderData(data);
 
-      // Extract destinations from order items and filter out empty locations
-      const extractedDestinations = data.items
-        .map((item) => item.location)
-        .filter((loc): loc is string => loc !== undefined && loc.trim() !== "")
-        .map((loc) => ({ name: loc, location: loc }));
-
-      // Remove duplicate destinations
-      const uniqueDestinationsMap = new Map<
-        string,
-        { name: string; location: string }
-      >();
-      extractedDestinations.forEach((dest) => {
-        const locKey = dest.location.toLowerCase();
-        if (!uniqueDestinationsMap.has(locKey)) {
-          uniqueDestinationsMap.set(locKey, dest);
-        }
-      });
-      const uniqueDestinations = Array.from(uniqueDestinationsMap.values());
-
-      // Add the order terminal location if it is not empty
-      if (data.location && data.location.trim() !== "") {
-        uniqueDestinations.push({ name: data.location, location: data.location });
-      }
-
-      // Geocode the destinations
-      const destinationsWithCoords = await Promise.all(
-        uniqueDestinations.map(async (dest) => {
-          const coords = await fetchCoordinates(dest.location);
-          if (coords) {
-            return { name: dest.name, location: coords };
-          }
-          return null;
-        })
-      );
-
-      // Filter out null destinations
-      const validDestinations = destinationsWithCoords.filter(
-        (dest): dest is { name: string; location: LatLng } => dest !== null
-      );
-
-      setDestinations(validDestinations);
-      triggerForceUpdate(); 
-    } catch (error) {
-      console.error("Error fetching order data:", error);
-      setError("無法獲取訂單資料");
-    }
-  };
 
   // Memoized waypoints for Directions component
   const memoizedWaypoints = useMemo(() => {
@@ -282,6 +225,58 @@ const MapComponentContent: React.FC = () => {
       placesService.current = new google.maps.places.PlacesService(map);
     }
   }, [isLoaded]);
+
+  useEffect(() => {
+    // Parse final destination and waypoints from URL params
+    if (finalDestinationParam) {
+      try {
+        const finalDest = JSON.parse(decodeURIComponent(finalDestinationParam));
+        // Update destinations with the final destination
+        setDestinations(prev => {
+          // Remove the last destination (terminal)
+          const withoutLast = prev.length > 0 ? prev.slice(0, -1) : [];
+          return [...withoutLast, {
+            name: finalDest.name,
+            location: finalDest.location
+          }];
+        });
+      } catch (error) {
+        console.error("解析最終目的地時出錯:", error);
+        setError("解析目的地資訊時出錯");
+      }
+    }
+
+    // Decode and parse waypoints from URL params
+    if (waypointsParam) {
+      try {
+        const waypoints = JSON.parse(decodeURIComponent(waypointsParam));
+        // Fetch coordinates for each waypoint
+        Promise.all(waypoints.map(async (location: string) => {
+          const coords = await fetchCoordinates(location);
+          if (coords) {
+            return {
+              name: location,
+              location: coords
+            };
+          }
+          return null;
+        })).then(validDestinations => {
+          // Filter out null destinations
+          const filteredDestinations = validDestinations.filter((dest): dest is { name: string; location: { lat: number; lng: number } } => dest !== null);
+          
+          setDestinations(prev => {
+            // Remove the last destination (terminal)
+            const terminal = prev[prev.length - 1];
+            // Add the new waypoints
+            return [...filteredDestinations, terminal];
+          });
+        });
+      } catch (error) {
+        console.error("解析中間點時出錯:", error);
+        setError("解析路線資訊時出錯");
+      }
+    }
+  }, [finalDestinationParam, waypointsParam]);
 
   // Get current location and watch for changes
   useEffect(() => {
@@ -342,14 +337,7 @@ const MapComponentContent: React.FC = () => {
     }
   }, []);
 
-  // Fetch order data
-  useEffect(() => {
-    console.log("useEffect: fetchOrderData");
-    if (orderId) {
-      fetchOrderData(orderId);
-    }
-  }, [orderId]);
-
+ 
   // Fetch driver data
   useEffect(() => {
     console.log("useEffect: fetchDriverData");
@@ -576,7 +564,7 @@ const MapComponentContent: React.FC = () => {
   // Function to remove a specific destination
   const handleRemoveDestination = useCallback((index: number) => {
     if (index === destinations.length - 1) {
-      setError("無法移除終點站");
+      setError("終點站可以編輯但不能刪除");
       return;
     }
 
@@ -585,6 +573,26 @@ const MapComponentContent: React.FC = () => {
     setDestinations(updated);
     triggerForceUpdate(); 
   },[destinations, triggerForceUpdate]);
+
+  // Function to handle editing a terminal destination
+  const handleEditTerminal = () => {
+    if (!newDestinationName || !newDestinationLocation) {
+      setError("請輸入有效的地點名稱");
+      return;
+    }
+
+    const updatedDestinations = [...destinations];
+    updatedDestinations[updatedDestinations.length - 1] = {
+      name: newDestinationName,
+      location: newDestinationLocation
+    };
+
+    setDestinations(updatedDestinations);
+    setNewDestinationName("");
+    setNewDestinationLocation(null);
+    setError(null);
+    triggerForceUpdate();
+  };
 
   // Fetch driver data
   const fetchDriverData = useCallback(async (driverId: string) => {
@@ -624,13 +632,10 @@ const MapComponentContent: React.FC = () => {
     }
 
     const updatedDestinations = [...destinations];
-    if (updatedDestinations.length > 0) {
-      updatedDestinations.splice(updatedDestinations.length - 1, 0, {
-        name: newDestinationName,
-        location: newLatLng,
-      });
-    } else {
-      updatedDestinations.push({ name: newDestinationName, location: newLatLng });
+    const terminal = updatedDestinations.pop(); 
+    updatedDestinations.push({ name: newDestinationName, location: newLatLng }); // 添加新的中間點
+    if (terminal) {
+      updatedDestinations.push(terminal); 
     }
 
     setDestinations(updatedDestinations);
@@ -866,13 +871,27 @@ return (
 
             {/* Terminal Marker */}
             {destinations.length > 0 && (
-              <Marker
-                position={{
-                  lat: destinations[destinations.length - 1].location.lat,
-                  lng: destinations[destinations.length - 1].location.lng,
-                }}
-                label="終點"
-              />
+              <div className="my-5">
+                <h2 className="text-lg font-bold mb-2">終點</h2>
+                <div className="p-2 border rounded-md bg-gray-200">
+                  <div className="flex justify-between items-center">
+                    <span>{destinations[destinations.length - 1].name}</span>
+                    <Button
+                      variant="outline"
+                      onClick={handleEditTerminal}
+                      className="ml-2"
+                    >
+                      修改終點
+                    </Button>
+                  </div>
+                  {legs[legs.length - 1] && (
+                    <span className="text-sm text-black-600 block mt-2">
+                      距離: {legs[legs.length - 1].distance.text}, 
+                      時間: {legs[legs.length - 1].duration.text}
+                    </span>
+                  )}
+                </div>
+              </div>
             )}
 
             {/* Directions Renderer */}
