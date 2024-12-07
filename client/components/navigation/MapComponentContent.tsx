@@ -40,13 +40,13 @@ import {
 } from "@react-google-maps/api";
 import { useSearchParams, useRouter } from "next/navigation";
 import Directions from "@/components/navigation/Directions";
-import DriverOrdersPage from "@/components/driver/DriverOrdersPage";
+import DriverOrdersPage from "@/components/navigation/DriverOrdersPage";
 import { LatLng, Route, Leg } from "@/interfaces/navigation/navigation";
 import { Driver,DriverOrder } from "@/interfaces/driver/driver";
 import { Order } from "@/interfaces/tribe_resident/buyer/order";
 import DriverService  from '@/services/driver/driver';
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
-
+import MapContent from "@/components/navigation/MapContent";
 
 
 // Define libraries for Google Maps
@@ -121,6 +121,31 @@ const formatPredictionDisplay = (prediction: google.maps.places.AutocompletePred
   };
 };
 
+
+const STORAGE_KEY = 'driverChecklist';
+
+// Load checked items from localStorage
+const loadCheckedItems = () => {
+  if (typeof window === 'undefined') return {};
+  
+  try {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    return saved ? JSON.parse(saved) : {};
+  } catch (error) {
+    console.error('Error loading checklist:', error);
+    return {};
+  }
+};
+
+// Save checked items to localStorage
+const saveCheckedItems = (items: { [key: string]: boolean }) => {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
+  } catch (error) {
+    console.error('Error saving checklist:', error);
+  }
+};
+
 const MapComponentContent: React.FC = () => {
 
   const searchParams = useSearchParams();
@@ -152,6 +177,8 @@ const MapComponentContent: React.FC = () => {
     useState<LatLng | null>(null);
 
   const [travelMode, setTravelMode] = useState<'DRIVING' | 'WALKING' | 'BICYCLING' | 'TRANSIT'>('DRIVING');
+  const [checkedItems, setCheckedItems] = useState<{ [key: string]: boolean }>(() => loadCheckedItems());
+
 
   const [searchInput, setSearchInput] = useState<string>("");
   const [predictions, setPredictions] = useState<google.maps.places.AutocompletePrediction[]>([]);
@@ -225,6 +252,8 @@ const MapComponentContent: React.FC = () => {
       placesService.current = new google.maps.places.PlacesService(map);
     }
   }, [isLoaded]);
+
+  
 
   useEffect(() => {
     // Parse final destination and waypoints from URL params
@@ -425,57 +454,14 @@ const MapComponentContent: React.FC = () => {
       }
     };
 
-  // Function to handle place changes in Autocomplete
-  const handlePlaceChanged = useCallback(
-  async (
-    autocompleteRef: React.RefObject<google.maps.places.Autocomplete>,
-    setFn: React.Dispatch<React.SetStateAction<LatLng | null>>,
-    setNameFn: React.Dispatch<React.SetStateAction<string>>,
-    setError: React.Dispatch<React.SetStateAction<string | null>>,
-    setNewDestinationFn?: React.Dispatch<React.SetStateAction<LatLng | null>>,
-    setNewDestinationNameFn?: React.Dispatch<React.SetStateAction<string>>
-  ) => {
-    let errorMsg = null;
-    if (autocompleteRef.current) {
-      const place = autocompleteRef.current.getPlace();
-      if (place.geometry && place.geometry.location) {
-        const location = place.geometry.location;
-        const loc: LatLng = { lat: location.lat(), lng: location.lng() };
-        setFn(loc);
-        const name = place.name || "未知地點";
-        setNameFn(name);
-        if (setNewDestinationFn && setNewDestinationNameFn) {
-          setNewDestinationFn(loc);
-          setNewDestinationNameFn(name);
-        }
-      } else if (place.name) {
-        const location = await fetchCoordinates(place.name);
-        if (location) {
-          const loc: LatLng = { lat: location.lat, lng: location.lng };
-          setFn(loc);
-          setNameFn(place.name);
-          if (setNewDestinationFn && setNewDestinationNameFn) {
-            setNewDestinationFn(loc);
-            setNewDestinationNameFn(place.name);
-          }
-        } else {
-          errorMsg = "無法找到該地點，請重新輸入或選取有效的地點名稱";
-        }
-      } else {
-        errorMsg =
-          "請用選取的方式找到目標位置，或是輸入有效的地址或地標名稱";
-      }
-    }
-    setError(errorMsg);
-  },
-  []
-);
+    useEffect(() => {
+      saveCheckedItems(checkedItems);
+    }, [checkedItems]);
 
-  // Travel mode change handler
-  const handleTravelModeChange = useCallback((mode: 'DRIVING' | 'WALKING' | 'BICYCLING' | 'TRANSIT') => {
-    setTravelMode(mode);
-    triggerForceUpdate();
-  },[triggerForceUpdate]);
+    const handleClearChecklist = () => {
+      setCheckedItems({});
+    };
+
 
   // Function to generate navigation link from current location to the last destination
   const handleGenerateNavigationLinkFromCurrentLocation = () => {
@@ -839,12 +825,7 @@ return (
       
       {/* Google Map */}
       {/* Handle error and loading inside the JSX */}
-      {loadError ? (
-        <div>地圖加載失敗</div>
-      ) : !isLoaded ? (
-        <div>正在加載地圖...</div>
-      ) : (
-        <>
+      <MapContent loadError={!!loadError} isLoaded={isLoaded}>
         <div id="map" className="mb-6" style={{ height: "60vh", width: "100%" }}>
           <GoogleMap
             onLoad={(map) => {
@@ -937,44 +918,120 @@ return (
           </Button>
 
           <div className="flex overflow-auto justify-center mb-4">
-            <Popover>
-              <PopoverTrigger asChild>
-                <Button variant="outline" className="mb-4">
-                  查看所有訂單的運送物品
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-96 p-4 overflow-auto max-h-80">
-                {aggregatedItemsByLocation.length > 0 ? (
-                  <div>
-                    <h2 className="text-md font-semibold mb-4">所有訂單的運送物品清單（按地點分類）</h2>
-                    {aggregatedItemsByLocation.map((locationGroup, index) => (
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button variant="outline" className="mb-4">
+                查看所有訂單的運送物品
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-96 p-4 overflow-auto max-h-80">
+              {aggregatedItemsByLocation.length > 0 ? (
+                <div>
+                  <div className="flex justify-between items-center mb-4">
+                    <h2 className="text-md font-semibold">所有訂單的運送物品清單</h2>
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={handleClearChecklist}
+                    >
+                      清除所有勾選
+                    </Button>
+                  </div>
+                  {aggregatedItemsByLocation.map((locationGroup, index) => {
+                    // Calculate item keys for each location
+                    const locationItems = locationGroup.items.map((item, idx) => 
+                      `${locationGroup.location}-${item.name}-${idx}`
+                    );
+                    // Calculate checked count
+                    const checkedCount = locationItems.filter(key => checkedItems[key]).length;
+                    // Check if all items are checked
+                    const isAllChecked = checkedCount === locationItems.length;
+
+                    return (
                       <div key={index} className="mb-4">
-                        <h3 className="text-sm font-medium mb-2">{locationGroup.location}</h3>
+                        <div className="flex justify-between items-center mb-2">
+                          <h3 className="text-sm font-medium">{locationGroup.location}</h3>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => {
+                              const newCheckedItems = { ...checkedItems };
+                              // If all items are checked, uncheck all items
+                              locationItems.forEach(itemKey => {
+                                newCheckedItems[itemKey] = !isAllChecked;
+                              });
+                              setCheckedItems(newCheckedItems);
+                            }}
+                          >
+                            {isAllChecked ? "取消全選" : "全部勾選"}
+                          </Button>
+                        </div>
                         <table className="w-full table-auto mb-2">
                           <thead>
                             <tr>
                               <th className="text-left border-b pb-1">物品名稱</th>
                               <th className="text-right border-b pb-1">數量</th>
+                              <th className="text-center border-b pb-1 w-20">已購買</th>
                             </tr>
                           </thead>
                           <tbody>
-                            {locationGroup.items.map((item, idx) => (
-                              <tr key={idx}>
-                                <td className="py-1">{item.name}</td>
-                                <td className="text-right py-1">{item.quantity}</td>
-                              </tr>
-                            ))}
+                            {locationGroup.items.map((item, idx) => {
+                              const itemKey = `${locationGroup.location}-${item.name}-${idx}`;
+                              return (
+                                <tr key={idx} className={checkedItems[itemKey] ? "bg-gray-50" : ""}>
+                                  <td className="py-1">
+                                    <span className={checkedItems[itemKey] ? "line-through text-gray-500" : ""}>
+                                      {item.name}
+                                    </span>
+                                  </td>
+                                  <td className="text-right py-1">{item.quantity}</td>
+                                  <td className="text-center py-1">
+                                    <input
+                                      type="checkbox"
+                                      className="w-4 h-4 rounded border-gray-300"
+                                      checked={checkedItems[itemKey] || false}
+                                      title="已購買"
+                                      onChange={(e) => {
+                                        const newCheckedItems = {
+                                          ...checkedItems,
+                                          [itemKey]: e.target.checked
+                                        };
+                                        setCheckedItems(newCheckedItems);
+                                      }}
+                                    />
+                                  </td>
+                                </tr>
+                              );
+                            })}
                           </tbody>
                         </table>
+                        {/* Show progress */}
+                        <div className="mt-2 text-sm text-gray-600">
+                          {`完成進度: ${checkedCount}/${locationItems.length} (${Math.round((checkedCount / locationItems.length) * 100)}%)`}
+                        </div>
                       </div>
-                    ))}
+                    );
+                  })}
+                  {/* Show the total progress */}
+                  <div className="mt-4 pt-4 border-t border-gray-200">
+                    <p className="text-sm font-medium text-gray-600">
+                      {(() => {
+                        const totalItems = aggregatedItemsByLocation.reduce((acc, group) => 
+                          acc + group.items.length, 0
+                        );
+                        const totalChecked = Object.values(checkedItems).filter(Boolean).length;
+                        const percentage = Math.round((totalChecked / totalItems) * 100);
+                        return `總體完成進度: ${totalChecked}/${totalItems} (${percentage}%)`;
+                      })()}
+                    </p>
                   </div>
-                ) : (
-                  <p>目前沒有需要運送的物品。</p>
-                )}
-              </PopoverContent>
-            </Popover>
-          </div>
+                </div>
+              ) : (
+                <p>目前沒有需要運送的物品。</p>
+              )}
+            </PopoverContent>
+          </Popover>
+        </div>
 
           {/* Travel Mode Selection */}
           <div className="flex justify-center space-x-4 mb-6">
@@ -1154,8 +1211,6 @@ return (
 
         </CardContent>
       </Card>
-      </>
-    )}
 
     {/* Sheet for Order Details */}
     <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
@@ -1174,9 +1229,6 @@ return (
                 driverData={driverData}
                 onAccept={handleAcceptOrder}
                 onTransfer={handleTransferOrder} 
-                onNavigate={(orderId: string) =>
-                  handleNavigate(orderId, driverData.id || 0)
-                }
                 onComplete={handleCompleteOrder}
               />
             ) : (
@@ -1192,6 +1244,7 @@ return (
         </div>
       </SheetContent>
     </Sheet>
+    </MapContent>
     </div>
   </Suspense>
 );    
