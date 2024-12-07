@@ -7,7 +7,9 @@ from fastapi import FastAPI, Request, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
 from backend.routers import orders, drivers, users, seller, consumer
+from collections import defaultdict
 
+user_states = defaultdict(str)
 
 # Import Line Bot API
 from linebot.v3 import (
@@ -127,16 +129,40 @@ def handle_message(event):
     with ApiClient(configuration) as api_client:
         line_bot_api = MessagingApi(api_client)
         
-        if user_message.startswith("/bind"):
+
+        if user_message == "綁定":
+            user_states[line_user_id] = "waiting_for_phone"
+            line_bot_api.reply_message(
+                ReplyMessageRequest(
+                    reply_token=event.reply_token,
+                    messages=[TextMessage(text="請輸入您的電話號碼")]
+                )
+            )
+            return
+
+        
+        if user_states.get(line_user_id) == "waiting_for_phone":
             try:
-                phone = user_message.split(" ")[1]
+                phone = user_message.strip()
                 
+                #  check if the phone number is valid
+                if not phone.isdigit():
+                    line_bot_api.reply_message(
+                        ReplyMessageRequest(
+                            reply_token=event.reply_token,
+                            messages=[TextMessage(text="請輸入有效的電話號碼")]
+                        )
+                    )
+                    return
+
+                # Check if the phone number is already bound to an account
                 with get_db_connection() as conn:
                     cur = conn.cursor()
                     cur.execute("SELECT id FROM users WHERE phone = %s", (phone,))
                     user = cur.fetchone()
                     
                     if user:
+                        # Update the user's line_user_id
                         cur.execute(
                             "UPDATE users SET line_user_id = %s WHERE id = %s",
                             (line_user_id, user[0])
@@ -149,9 +175,13 @@ def handle_message(event):
                     line_bot_api.reply_message(
                         ReplyMessageRequest(
                             reply_token=event.reply_token,
-                            messages=[TextMessage(text=reply_text)]  
+                            messages=[TextMessage(text=reply_text)]
                         )
                     )
+                
+                
+                del user_states[line_user_id]
+                
             except Exception as e:
                 logger.error("Error binding LINE account: %s", str(e))
                 line_bot_api.reply_message(
@@ -160,13 +190,17 @@ def handle_message(event):
                         messages=[TextMessage(text="綁定失敗，請稍後再試。")]
                     )
                 )
+                
+                del user_states[line_user_id]
+            return
+
         elif user_message in ["客服", "詢問客服", "詢問"]:
             handle_customer_service(event, line_bot_api)
         else:
             line_bot_api.reply_message(
                 ReplyMessageRequest(
                     reply_token=event.reply_token,
-                    messages=[TextMessage(text="未知的選擇。請輸入 /bind {電話號碼} 來綁定帳號。")]
+                    messages=[TextMessage(text="請輸入「綁定」來開始綁定帳號，或輸入「客服」尋求協助。")]
                 )
             )
 
