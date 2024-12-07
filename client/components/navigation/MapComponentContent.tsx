@@ -149,9 +149,9 @@ const saveCheckedItems = (items: { [key: string]: boolean }) => {
 const MapComponentContent: React.FC = () => {
 
   const searchParams = useSearchParams();
-  const driverIdParam = searchParams.get("driverId");
-  const finalDestinationParam = searchParams.get("finalDestination");
-  const waypointsParam = searchParams.get("waypoints")
+  const driverIdParam = searchParams?.get("driverId");
+  const finalDestinationParam = searchParams?.get("finalDestination");
+  const waypointsParam = searchParams?.get("waypoints")
 
   // Define state
   const [origin, setOrigin] = useState<LatLng | null>(null);

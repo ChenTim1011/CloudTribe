@@ -25,7 +25,7 @@ ALTER TABLE driver_orders
 ADD COLUMN service VARCHAR(20);
 
 
-ALTER TABLE agriculture_products
+ALTER TABLE agricultural_produce
 ADD COLUMN unit VARCHAR(10);
 
 ALTER TABLE users ADD COLUMN line_user_id VARCHAR(255);

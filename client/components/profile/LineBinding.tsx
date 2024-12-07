@@ -13,9 +13,9 @@ export function LineBinding() {
 
     useEffect(() => {
         // Check URL parameters for success or error messages
-        if (searchParams.get('success') === 'true') {
+        if (searchParams?.get('success') === 'true') {
             setSuccess('LINE 帳號綁定成功！');
-        } else if (searchParams.get('error')) {
+        } else if (searchParams?.get('error')) {
             setError('綁定 LINE 帳號失敗，請稍後再試');
         }
     }, [searchParams]);
