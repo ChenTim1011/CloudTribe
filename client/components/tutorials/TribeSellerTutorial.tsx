@@ -6,52 +6,52 @@ const TribeSellerTutorial = () => {
     {
         title: "1. 申請賣家",
         description: "• 首次上架商品時，需要點擊右上角的設定紐來設定出貨商品放置地\n• 設定完後上架商品的按鈕才可點擊",
-        image: "/TribeSellerTutorial/1.png"
+        image: "/tribeSellerTutorial/1.png"
     },
     {
         title: "2. 設定出貨商品放置地",
         description: "• 點擊更改資訊的按鈕後，即可選擇出貨商品放置地\n• 設定完成後點擊儲存鈕",
-        image: "/TribeSellerTutorial/2.png"
+        image: "/tribeSellerTutorial/2.png"
     },
     {
         title: "3. 上架商品",
         description: "• 點擊新增商品的按鈕",
-        image: "/TribeSellerTutorial/4.png"
+        image: "/tribeSellerTutorial/4.png"
     },
     {
         title: "4. 填入商品相關資訊",
         description: "• 請確認填寫的資訊無誤再上傳",
-        image: "/TribeSellerTutorial/5.png"
+        image: "/tribeSellerTutorial/5.png"
     },
     {
         title: "5. 等待商品上傳",
         description: "• 請等待商品上傳完成後再關閉頁面",
-        image: "/TribeSellerTutorial/6.png"
+        image: "/tribeSellerTutorial/6.png"
     },
     {
         title: "6. 我的架上商品",
         description: "• 可在我的架上商品頁面查看目前正在架上的商品",
-        image: "/TribeSellerTutorial/7.png"
+        image: "/tribeSellerTutorial/7.png"
     },
     {
         title: "7. 查看上架商品詳細資訊-1",
         description: "• 可點選查看按鈕，查看商品的詳細資訊",
-        image: "/TribeSellerTutorial/8.png"
+        image: "/tribeSellerTutorial/8.png"
     },
     {
       title: "8. 查看上架商品詳細資訊-2",
       description: "• 往左滑動可以查看更多資訊",
-      image: "/TribeSellerTutorial/9.png"
+      image: "/tribeSellerTutorial/9.png"
     },
     {
       title: "9. 勾選已放置出貨地的商品",
       description: "• 將已送達出貨地的訂單作勾選\n• 確認無誤後點選確認已放置司機拿取地的訂單購選無誤",
-      image: "/TribeSellerTutorial/10.png"
+      image: "/tribeSellerTutorial/10.png"
     },
     {
       title: "10. 勾選完成頁面",
       description: "• 請確認已送達之後再勾選，點擊確認按鈕後就無法再次更改",
-      image: "/TribeSellerTutorial/11.png"
+      image: "/tribeSellerTutorial/11.png"
     },
   ];
 
