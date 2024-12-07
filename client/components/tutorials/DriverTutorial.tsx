@@ -6,62 +6,62 @@ const DriverTutorial = () => {
     {
         title: "1. 申請司機",
         description: "• 輸入姓名和電話號碼\n• 點擊確認按鈕完成申請司機\n• 開始接單服務",
-        image: "/DriverTutorial/tutorial1.png"
+        image: "/DriverTutorial/1.png"
     },
     {
         title: "2. 司機專區",
         description: "• 新增時間讓賣家知道司機有空時間\n• 管理訂單可以看到自己接單的詳細資訊\n• 取得未接單表單用來接單",
-        image: "/DriverTutorial/tutorial4.png"
+        image: "/DriverTutorial/4.png"
     },
     {
         title: "3. 設定可接單時段",
         description: "• 告訴賣家司機可以的時間，可以選擇日期和時間(不能比現在時間早)\n• 輸入預計時間到達地點\n• 點擊新增時間確認",
-        image: "/DriverTutorial/tutorial3.png"
+        image: "/DriverTutorial/3.png"
     },
     {
         title: "4. 我的訂單管理",
         description: "• 查看訂單狀態：接單或已完成\n• 檢視訂單的總金額\n• 查看購買者資訊和商品明細\n• 可以確認全部要買的商品數量和總價格",
-        image: "/DriverTutorial/tutorial5.png"
+        image: "/DriverTutorial/5.png"
     },
     {
         title: "5. 未接單訂單",
         description: "• 檢視新訂單的購買資訊\n• 查看配送地點\n• 確認商品清單和總金額\n• 選擇是否接單",
-        image: "/DriverTutorial/tutorial6.png"
+        image: "/DriverTutorial/6.png"
     },
     {
         title: "6. 轉單功能介紹",
         description: "• 沒有棄單設計，必須輸入已存在司機的電話\n• 與對方司機聯絡好確定可以轉單\n• 輸入對方司機電話確認轉單",
-        image: "/DriverTutorial/tutorial7.png"
+        image: "/DriverTutorial/7.png"
     },
     {
         title: "7. 導航路線規劃",
         description: "• 查看目前位置到目的地的地圖\n• 檢視最佳配送路線\n• 確認預計送達時間\n",
-        image: "/DriverTutorial/tutorial8.png"
+        image: "/DriverTutorial/8.png"
     },
     {
         title: "9. 導航系統",
         description: "• 選擇交通方式：汽車、步行或機車\n• 顯示總路程距離和預計時間\n• 查看詳細取貨和配送地點\n• 可新增額外配送點\n• 生成最佳配送路線",
-        image: "/DriverTutorial/tutorial9.png"
+        image: "/DriverTutorial/9.png"
     },
     {
       title: "10. 可以調整想去的地點",
       description: "• 起點終點固定，但是中間點可以自己加\n• 即時顯示總距離和時間，也有各段距離",
-      image: "/DriverTutorial/tutorial10.png"
+      image: "/DriverTutorial/10.png"
     },
     {
       title: "11. 推薦路線",
       description: "• 按下推薦路線自己排序出最短路徑和時間\n• 讓司機知道怎麼走比較快，但按下生成導航連結體驗更好",
-      image: "/DriverTutorial/tutorial11.png"
+      image: "/DriverTutorial/11.png"
     },
     {
       title: "12. 生成導航連結",
       description: "• 直接依照選擇模式和路線，幫你整理好Google 路徑連結\n• 讓 Google 導航告訴要你要怎麼走",
-      image: "/DriverTutorial/tutorial12.png"
+      image: "/DriverTutorial/12.png"
     },
     {
       title: "13. 貨品已到達目的地",
       description: "• 當司機把貨運送到目的地，就可以按下貨品已到達目的地",
-      image: "/DriverTutorial/tutorial13.png"
+      image: "/DriverTutorial/13.png"
     }
   ];
 

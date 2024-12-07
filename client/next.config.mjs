@@ -20,11 +20,14 @@ export default async (phase) => {
   return {
     reactStrictMode: true,
     trailingSlash: false,
-    // Setting Google Map API environmental variables
+    // Setting environment variables
     env: {
       NEXT_PUBLIC_GOOGLE_MAPS_API_KEY:
         process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY,
       NEXT_PUBLIC_MAP_ID: process.env.NEXT_PUBLIC_MAP_ID,
+      NEXT_PUBLIC_LINE_CLIENT_ID: process.env.NEXT_PUBLIC_LINE_CLIENT_ID,
+      LINE_CLIENT_SECRET: process.env.LINE_CLIENT_SECRET,
+      NEXT_PUBLIC_LINE_CALLBACK_URL: process.env.NEXT_PUBLIC_LINE_CALLBACK_URL,
     },
 
     images: {
@@ -32,10 +35,33 @@ export default async (phase) => {
         {
           protocol: "https",
           hostname: "online.carrefour.com.tw",
-          port: "", // option ， if there is specific port number ( usually ' ')
-          pathname: "/**", // Path comparison. use ** to compare all
+          port: "",
+          pathname: "/**",
+        },
+        {
+          protocol: "https",
+          hostname: "www.cloudtribe.online",
+          port: "",
+          pathname: "/**",
         },
       ],
+      domains: ["www.cloudtribe.online", "cloudtribe.online"],
+    },
+
+    // S
+    async headers() {
+      return [
+        {
+          source: "/:all*(svg|jpg|png)",
+          locale: false,
+          headers: [
+            {
+              key: "Cache-Control",
+              value: "public, max-age=2592000",
+            },
+          ],
+        },
+      ];
     },
 
     // API path rewrite
@@ -44,8 +70,8 @@ export default async (phase) => {
         {
           source: "/api/:path*",
           destination: isDev
-            ? "http://localhost:8000/api/:path*" // dev API
-            : "https://www.cloudtribe.online/api/:path*", // production API
+            ? "http://localhost:8000/api/:path*"
+            : "https://www.cloudtribe.online/api/:path*",
         },
       ];
     },
