@@ -6,6 +6,7 @@ CREATE TABLE users (
     phone VARCHAR(20) UNIQUE NOT NULL,
     location VARCHAR(15) DEFAULT '未選擇', -- New: add location column to users table
     is_driver BOOLEAN DEFAULT FALSE    -- New: add is_driver column to users table
+    line_user_id VARCHAR(255);
 );
 
 -- drivers table

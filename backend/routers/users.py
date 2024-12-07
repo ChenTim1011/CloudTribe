@@ -13,7 +13,7 @@ Endpoints:
 from fastapi import APIRouter, HTTPException, Depends
 from pydantic import BaseModel
 from psycopg2.extensions import connection as Connection
-from backend.models.user import User, UpdateLocationRequest
+from backend.models.user import User, UpdateLocationRequest, LineBindingRequest
 from backend.database import get_db_connection
 import logging
 import json
@@ -27,7 +27,7 @@ log_dir = os.path.join(os.getcwd(), 'backend', 'logs')
 if not os.path.exists(log_dir):
     os.makedirs(log_dir)
 
-# 設定 FileHandler
+# Set up logging
 log_file = os.path.join(log_dir, 'users.log')
 logging.basicConfig(
     level=logging.INFO,
@@ -157,6 +157,47 @@ async def create_user(user: User, conn: Connection = Depends(get_db)):
         raise HTTPException(status_code=500, detail=str(e)) from e
     finally:
         cur.close()
+
+@router.post("/bind-line", response_model=dict)
+async def bind_line_account(request: LineBindingRequest, conn: Connection = Depends(get_db)):
+    """
+    Bind LINE account to user
+    """
+    cur = conn.cursor()
+    try:
+        # Check if user exists
+        cur.execute("SELECT id FROM users WHERE id = %s", (request.user_id,))
+        user = cur.fetchone()
+        if not user:
+            raise HTTPException(status_code=404, detail="User not found")
+        
+        # Check if LINE account is already bound to another user
+        cur.execute("SELECT id FROM users WHERE line_user_id = %s", (request.line_user_id,))
+        existing_binding = cur.fetchone()
+        if existing_binding:
+            raise HTTPException(status_code=409, detail="LINE account already bound to another user")
+        
+        # Update user with LINE account
+        cur.execute(
+            "UPDATE users SET line_user_id = %s WHERE id = %s",
+            (request.line_user_id, request.user_id)
+        )
+        conn.commit()
+        
+        log_event("LINE_ACCOUNT_BINDING", {
+            "user_id": request.user_id,
+            "line_user_id": request.line_user_id
+        })
+        
+        return {"status": "success", "message": "LINE account bound successfully"}
+    except Exception as e:
+        conn.rollback()
+        logging.error("Error binding LINE account: %s", str(e))
+        raise HTTPException(status_code=500, detail=str(e)) from e
+    finally:
+        cur.close()
+
+
 
 @router.get("/{user_id}", response_model=User)
 async def get_user(user_id: int, conn: Connection = Depends(get_db)):

@@ -40,7 +40,7 @@ import {
 } from "@react-google-maps/api";
 import { useSearchParams, useRouter } from "next/navigation";
 import Directions from "@/components/navigation/Directions";
-import DriverOrdersPage from "@/components/navigation/DriverOrdersPage";
+import NavigationDriverOrdersPage from "@/components/navigation/NavigationDriverOrdersPage";
 import { LatLng, Route, Leg } from "@/interfaces/navigation/navigation";
 import { Driver,DriverOrder } from "@/interfaces/driver/driver";
 import { Order } from "@/interfaces/tribe_resident/buyer/order";
@@ -1225,7 +1225,7 @@ return (
         <div className="overflow-y-auto h-[calc(100vh-80px)] p-6 sm:p-0">
           {showDriverOrders ? (
             driverData ? (
-              <DriverOrdersPage
+              <NavigationDriverOrdersPage
                 driverData={driverData}
                 onAccept={handleAcceptOrder}
                 onTransfer={handleTransferOrder} 

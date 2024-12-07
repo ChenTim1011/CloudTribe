@@ -31,6 +31,9 @@ from linebot.v3.webhooks import (
 # Import handlers
 from .handlers.customer_service import handle_customer_service
 
+# Import database connection function
+from backend.database import get_db_connection
+
 
 
 # environment variables
@@ -118,21 +121,60 @@ def handle_message(event):
     - None
     """
     user_message = event.message.text
-    logger.info("Message from user: %s", user_message)
+    line_user_id = event.source.user_id
+    logger.info("Message from LINE user: %s, content: %s", line_user_id, user_message)
 
     with ApiClient(configuration) as api_client:
         line_bot_api = MessagingApi(api_client)
-        if user_message in ["客服", "詢問客服", "詢問"]:
-            handle_customer_service(event, line_bot_api)
-        else:
-            reply_message = TextMessage(text="未知的選擇。")
-            line_bot_api.reply_message(
+        
+        if user_message.startswith("/bind"):
+            # Bind LINE account to user
+            try:
+                # If the binding command is  "/bind {phone}"
+                phone = user_message.split(" ")[1]
+                
+                # check if the phone number is valid
+                with get_db_connection() as conn:
+                    cur = conn.cursor()
+                    cur.execute("SELECT id FROM users WHERE phone = %s", (phone,))
+                    user = cur.fetchone()
+                    
+                    if user:
+                        # Update user with LINE account
+                        cur.execute(
+                            "UPDATE users SET line_user_id = %s WHERE id = %s",
+                            (line_user_id, user[0])
+                        )
+                        conn.commit()
+                        reply_message = TextMessage(text="帳號綁定成功！")
+                    else:
+                        reply_message = TextMessage(text="找不到對應的用戶，請確認電話號碼是否正確。")
+                    
+                    line_bot_api.reply_message(
+                        ReplyMessageRequest(
+                            reply_token=event.reply_token,
+                            reply_message=reply_message
+                        )
+                    )
+            except Exception as e:
+                logger.error("Error binding LINE account: %s", str(e))
+                reply_message = TextMessage(text="綁定失敗，請稍後再試。")
+                line_bot_api.reply_message(
                     ReplyMessageRequest(
                         reply_token=event.reply_token,
                         reply_message=reply_message
                     )
                 )
-
+        elif user_message in ["客服", "詢問客服", "詢問"]:
+            handle_customer_service(event, line_bot_api)
+        else:
+            reply_message = TextMessage(text="未知的選擇。請輸入 /bind {電話號碼} 來綁定帳號。")
+            line_bot_api.reply_message(
+                ReplyMessageRequest(
+                    reply_token=event.reply_token,
+                    reply_message=reply_message
+                )
+            )
 
 if __name__ == "__main__":
     import uvicorn

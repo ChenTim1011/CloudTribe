@@ -9,6 +9,14 @@ class User(BaseModel):
     phone: str
     location: Optional[str] = None #str
     is_driver: Optional[bool] = False  #bool
+    line_user_id: Optional[str] = None 
 class UpdateLocationRequest(BaseModel):
     location: str
+
+class LineBindingRequest(BaseModel):
+    """
+    Request model for LINE account binding
+    """
+    user_id: int
+    line_user_id: str
 

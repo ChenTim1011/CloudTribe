@@ -96,7 +96,7 @@ const OrderCard: React.FC<{
                 {order.order_status === '接單' && (
                     <div>
                         <Button className="bg-white text-black" onClick={() => onComplete(order.id?.toString() || "", order.service)}>
-                            貨品已到達目的地
+                            各別訂單貨物已到達目的地
                         </Button>
                     </div>
                 )}

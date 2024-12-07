@@ -321,7 +321,7 @@ const DriverOrdersPage: React.FC<DriverOrdersPageProps> = ({
                 )}
             </div>
 
-            <h1 className="text-lg font-bold mb-4">只有找到下一位司機才可以轉單</h1>
+            <h1 className="text-lg text-center font-bold mb-4">只有找到下一位司機才可以轉單</h1>
 
             {/* Filter controls for order status and date range */}
             <div className="mb-4">
