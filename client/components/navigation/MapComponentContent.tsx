@@ -45,6 +45,9 @@ import { LatLng, Route, Leg } from "@/interfaces/navigation/navigation";
 import { Driver,DriverOrder } from "@/interfaces/driver/driver";
 import { Order } from "@/interfaces/tribe_resident/buyer/order";
 import DriverService  from '@/services/driver/driver';
+import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
+
+
 
 // Define libraries for Google Maps
 const libraries: LoadScriptProps["libraries"] = ["places"];
@@ -140,7 +143,7 @@ const MapComponentContent: React.FC = () => {
   const [driverData, setDriverData] = useState<Driver | null>(null);
   const [optimizeWaypoints, setOptimizeWaypoints] = useState<boolean>(false);
   const [showLinkTip, setShowLinkTip] = useState(true);
-
+  const [orders, setOrders] = useState<Order[]>([]);
   const [destinations, setDestinations] = useState<
     { name: string; location: LatLng }[]
   >([]);
@@ -184,6 +187,23 @@ const MapComponentContent: React.FC = () => {
   const triggerForceUpdate = () => {
     setForceUpdateTrigger((prev) => prev + 1);
   };
+
+  const fetchDriverOrders = useCallback(async () => {
+    try {
+      if (!driverData) {
+        throw new Error('Driver data is null');
+      }
+      const response = await fetch(`/api/drivers/${driverData.id}/orders`);
+      if (!response.ok) {
+        throw new Error('無法獲取司機訂單');
+      }
+      const data: Order[] = await response.json();
+      setOrders(data);
+    } catch (error) {
+      console.error('獲取司機訂單時發生錯誤:', error);
+      setError('獲取訂單失敗');
+    }
+  }, [driverData?.id]);
 
   // Function to fetch order data
   const fetchOrderData = async (orderId: string) => {
@@ -337,6 +357,13 @@ const MapComponentContent: React.FC = () => {
       fetchDriverData(driverIdParam);
     }
   }, [driverIdParam]);
+
+  useEffect(() => {
+    if (driverData?.id) {
+      fetchDriverOrders();
+    }
+  }, [driverData, fetchDriverOrders]);
+
 
   // Extract legs from routes
   useEffect(() => {
@@ -748,6 +775,38 @@ const handleWaypointsOptimized = useCallback((waypointOrder: number[]) => {
 },[destinations]);
 
 
+// Add this aggregation function inside MapComponentContent before the return statement
+const aggregatedItemsByLocation = useMemo(() => {
+
+  if (!driverData?.id) return [];
+  
+  const locationMap: { [location: string]: { [itemName: string]: number } } = {};
+
+  orders.forEach(order => { 
+    if (order.order_status === "接單") {
+      order.items.forEach(item => {
+        const location = item.location || "未指定地點";
+        if (!locationMap[location]) {
+          locationMap[location] = {};
+        }
+        if (locationMap[location][item.item_name]) {
+          locationMap[location][item.item_name] += item.quantity;
+        } else {
+          locationMap[location][item.item_name] = item.quantity;
+        }
+      });
+    }
+  });
+
+  // Convert locationMap to array
+  const result: { location: string; items: { name: string; quantity: number }[] }[] = [];
+  for (const [location, items] of Object.entries(locationMap)) {
+    const itemList = Object.entries(items).map(([name, quantity]) => ({ name, quantity }));
+    result.push({ location, items: itemList });
+  }
+
+  return result;
+}, [orders]);
 return (
   <Suspense fallback={<div>正在加載地圖...</div>}>
     <div className="max-w-full mx-auto space-y-6">
@@ -857,6 +916,46 @@ return (
           >
             查看表單
           </Button>
+
+          <div className="flex overflow-auto justify-center mb-4">
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button variant="outline" className="mb-4">
+                  查看所有訂單的運送物品
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-96 p-4 overflow-auto max-h-80">
+                {aggregatedItemsByLocation.length > 0 ? (
+                  <div>
+                    <h2 className="text-md font-semibold mb-4">所有訂單的運送物品清單（按地點分類）</h2>
+                    {aggregatedItemsByLocation.map((locationGroup, index) => (
+                      <div key={index} className="mb-4">
+                        <h3 className="text-sm font-medium mb-2">{locationGroup.location}</h3>
+                        <table className="w-full table-auto mb-2">
+                          <thead>
+                            <tr>
+                              <th className="text-left border-b pb-1">物品名稱</th>
+                              <th className="text-right border-b pb-1">數量</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {locationGroup.items.map((item, idx) => (
+                              <tr key={idx}>
+                                <td className="py-1">{item.name}</td>
+                                <td className="text-right py-1">{item.quantity}</td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p>目前沒有需要運送的物品。</p>
+                )}
+              </PopoverContent>
+            </Popover>
+          </div>
 
           {/* Travel Mode Selection */}
           <div className="flex justify-center space-x-4 mb-6">
