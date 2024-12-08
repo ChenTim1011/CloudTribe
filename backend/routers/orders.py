@@ -15,14 +15,14 @@ from typing import List
 import logging
 from datetime import datetime
 import json
-
+from backend.handlers.send_message import LineMessageService
 from psycopg2.extensions import connection as Connection
 from fastapi import APIRouter, HTTPException, Depends
 from backend.models.models import Order, DriverOrder, TransferOrderRequest, DetailedOrder
 from backend.database import get_db_connection
 import os
 
-
+line_service = LineMessageService()
 router = APIRouter()
 
 log_dir = os.path.join(os.getcwd(), 'backend', 'logs')
@@ -81,8 +81,6 @@ async def create_order(order: DetailedOrder, conn: Connection = Depends(get_db))
         })
             
         cur.execute(
-
-
             "INSERT INTO orders (buyer_id, buyer_name, buyer_phone, seller_id, seller_name, seller_phone, date, time, location, is_urgent, total_price, order_type, order_status, note, shipment_count, required_orders_count, previous_driver_id, previous_driver_name, previous_driver_phone) "
             "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s) RETURNING id",
             (order.buyer_id, order.buyer_name, order.buyer_phone, order.seller_id, order.seller_name, order.seller_phone, order.date,
@@ -230,9 +228,17 @@ async def accept_order(service: str, order_id: int, driver_order: DriverOrder, c
             cur.execute("SELECT order_status FROM orders WHERE id = %s FOR UPDATE", (order_id,))
         if service == 'agricultural_product':
             cur.execute("SELECT status FROM agricultural_product_order WHERE id = %s FOR UPDATE", (order_id,))
-        order = cur.fetchone()
 
-        logging.info("Fetched order: %s", order)
+        order = cur.fetchone()
+        if order:
+            buyer_id = order[0]
+            # Send a message to the buyer
+            success = await line_service.send_message_to_user(
+                buyer_id,
+                "司機已接取您的商品，請等待司機送貨"
+            )
+            if not success:
+                logger.warning(f"買家 (ID: {buyer_id}) 未綁定 LINE 帳號或發送通知失敗")
 
         if not order:
             raise HTTPException(status_code=404, detail="訂單未找到")
@@ -298,15 +304,43 @@ async def transfer_order(order_id: int, transfer_request: TransferOrderRequest, 
         })
 
         
+        cur.execute(
+            "SELECT driver_name, driver_phone FROM drivers WHERE id = %s",
+            (transfer_request.current_driver_id,)
+        )
+        current_driver = cur.fetchone()
+        if not current_driver:
+            raise HTTPException(status_code=404, detail="找不到原始司機資訊")
+        
+        current_driver_name = current_driver[0]
+        current_driver_phone = current_driver[1]
+
+        
         # Find new driver by phone
         cur.execute("SELECT id, driver_name, driver_phone FROM drivers WHERE driver_phone = %s", (transfer_request.new_driver_phone,))
         new_driver = cur.fetchone()
+
         if not new_driver:
             raise HTTPException(status_code=404, detail="新司機未註冊")
         new_driver_id = new_driver[0]
 
         if new_driver_id == transfer_request.current_driver_id:
             raise HTTPException(status_code=400, detail="不能將訂單轉給自己")
+
+        if new_driver:
+            # send notification to new driver
+            notification_message = (
+                f"您有一筆新的轉單訂單 (訂單編號: {order_id})\n"
+                f"轉單來自司機: {current_driver_name}\n"
+                f"聯絡電話: {current_driver_phone}"
+            )
+            
+            success = await line_service.send_message_to_user(
+                new_driver[0],
+                notification_message
+            )
+            if not success:
+                logger.warning(f"司機 (ID: {new_driver[0]}) 未綁定 LINE 帳號或發送通知失敗")
 
         # Ensure current driver is assigned to the order
         cur.execute("SELECT driver_id FROM driver_orders WHERE order_id = %s AND action = '接單' FOR UPDATE", (order_id,))
@@ -420,6 +454,18 @@ async def complete_order(service: str, order_id: int, conn = Depends(get_db)):
             # Check if order exists
             cur.execute("SELECT * FROM orders WHERE id = %s", (order_id,))
             order = cur.fetchone()
+
+            success = False
+            if order:
+                buyer_id = order[0]
+                # Send a message to the buyer
+                success = await line_service.send_message_to_user(
+                    buyer_id,
+                    "您的貨品已送達目的地"
+                )
+                if not success:
+                    logger.warning(f"買家 (ID: {buyer_id}) 未綁定 LINE 帳號或發送通知失敗")
+
             if not order:
                 raise HTTPException(status_code=404, detail="訂單不存在")
             if order[13] != '接單':
@@ -438,6 +484,18 @@ async def complete_order(service: str, order_id: int, conn = Depends(get_db)):
              # Check if order exists
             cur.execute("SELECT * FROM agricultural_product_order WHERE id = %s", (order_id,))
             order = cur.fetchone()
+
+            success = False
+            if order:
+                buyer_id = order[0]
+                # Send a message to the buyer
+                success = await line_service.send_message_to_user(
+                    buyer_id,
+                    "您的貨品已送達目的地"
+                )
+                if not success:
+                    logger.warning(f"買家 (ID: {buyer_id}) 未綁定 LINE 帳號或發送通知失敗")
+
             if not order:
                 raise HTTPException(status_code=404, detail="訂單不存在")
             if order[10] != '接單':
@@ -453,6 +511,8 @@ async def complete_order(service: str, order_id: int, conn = Depends(get_db)):
                 WHERE order_id = %s and service = %s
             """, (order_id, 'agricultural_product'))
         
+
+
         conn.commit()
         log_event("ORDER_COMPLETED", {
             "order_id": order_id,

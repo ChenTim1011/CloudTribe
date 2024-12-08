@@ -95,7 +95,20 @@ export function UserForm() {
     }
   };
 
+  const handleAddLineBot = () => {
+    window.open('https://line.me/R/ti/p/%40211mdhui', '_blank');
+  };
+
   return (
+
+    <div className="flex flex-col items-center space-y-4">
+      <Button 
+        onClick={handleAddLineBot}
+        className="w-full max-w-[400px] bg-[#00B900] hover:bg-[#009900] text-white flex items-center justify-center space-x-2"
+      >
+        <span>加入 LINE 機器人</span>
+      </Button>
+
     <Tabs defaultValue="login" className="lg:w-full max-w-[400px]">
       <TabsList className="grid w-full max-w-[400px] grid-cols-2"> 
         <TabsTrigger
@@ -178,6 +191,7 @@ export function UserForm() {
         </Card>
       </TabsContent>
     </Tabs>
+    </div>
   );
 }
 

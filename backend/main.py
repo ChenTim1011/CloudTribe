@@ -8,6 +8,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
 from backend.routers import orders, drivers, users, seller, consumer
 from collections import defaultdict
+import re
 
 user_states = defaultdict(str)
 
@@ -32,6 +33,7 @@ from linebot.v3.webhooks import (
 
 # Import handlers
 from .handlers.customer_service import handle_customer_service
+from .handlers.send_message import LineMessageService
 
 # Import database connection function
 from backend.database import get_db_connection
@@ -69,7 +71,7 @@ configuration = Configuration(
     access_token=line_bot_token
 )
 handler = WebhookHandler(line_bot_secret)
-
+line_message_service = LineMessageService()
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -128,70 +130,167 @@ def handle_message(event):
 
     with ApiClient(configuration) as api_client:
         line_bot_api = MessagingApi(api_client)
-        
 
-        if user_message == "綁定":
-            user_states[line_user_id] = "waiting_for_phone"
+        if user_message == "註冊":
+            # Check if user is already registered
+            with get_db_connection() as conn:
+                cur = conn.cursor()
+                cur.execute("SELECT id FROM users WHERE line_user_id = %s", (line_user_id,))
+                existing_binding = cur.fetchone()
+                
+                if existing_binding:
+                    line_bot_api.reply_message(
+                        ReplyMessageRequest(
+                            reply_token=event.reply_token,
+                            messages=[TextMessage(text="您已經註冊過帳號")]
+                        )
+                    )
+                    return
+                
+            user_states[line_user_id] = "waiting_for_name"
             line_bot_api.reply_message(
                 ReplyMessageRequest(
                     reply_token=event.reply_token,
-                    messages=[TextMessage(text="請輸入您的電話號碼")]
+                    messages=[
+                        TextMessage(text="請輸入您的姓名\n若要取消註冊，請輸入「取消」")
+                    ]
                 )
             )
             return
 
-        
+        if user_message.lower() == "取消":
+            if line_user_id in user_states:
+                del user_states[line_user_id]
+            if f"{line_user_id}_name" in user_states:
+                del user_states[f"{line_user_id}_name"]
+            line_bot_api.reply_message(
+                ReplyMessageRequest(
+                    reply_token=event.reply_token,
+                    messages=[TextMessage(text="已取消註冊流程。若要重新開始，請輸入「註冊」")]
+                )
+            )
+            return
+
+        # Deal with name input
+        if user_states.get(line_user_id) == "waiting_for_name":
+            name = user_message.strip()
+            # Check if name is valid
+            if not re.match(r'^[\u4e00-\u9fa5A-Za-z]+$', name):
+                line_bot_api.reply_message(
+                    ReplyMessageRequest(
+                        reply_token=event.reply_token,
+                        messages=[
+                            TextMessage(text="姓名格式不正確。\n- 只能包含中文和英文字母\n- 請重新輸入姓名\n- 若要取消註冊，請輸入「取消」")
+                        ]
+                    )
+                )
+                return
+            
+            # Save name and prompt for phone number
+            user_states[f"{line_user_id}_name"] = name
+            user_states[line_user_id] = "waiting_for_phone"
+            line_bot_api.reply_message(
+                ReplyMessageRequest(
+                    reply_token=event.reply_token,
+                    messages=[
+                        TextMessage(text=f"已記錄姓名：{name}\n請輸入您的電話號碼\n- 若要重新輸入姓名，請輸入「重新輸入」\n- 若要取消註冊，請輸入「取消」")
+                    ]
+                )
+            )
+            return
+
+        if user_message == "重新輸入":
+            if user_states.get(line_user_id) == "waiting_for_phone":
+                # Back to waiting for name
+                user_states[line_user_id] = "waiting_for_name"
+                if f"{line_user_id}_name" in user_states:
+                    del user_states[f"{line_user_id}_name"]
+                line_bot_api.reply_message(
+                    ReplyMessageRequest(
+                        reply_token=event.reply_token,
+                        messages=[TextMessage(text="請重新輸入您的姓名")]
+                    )
+                )
+                return
+            elif user_states.get(line_user_id) == "waiting_for_name":
+                line_bot_api.reply_message(
+                    ReplyMessageRequest(
+                        reply_token=event.reply_token,
+                        messages=[TextMessage(text="請輸入您的姓名")]
+                    )
+                )
+                return
+
+        # Deal with phone number input
         if user_states.get(line_user_id) == "waiting_for_phone":
             try:
                 phone = user_message.strip()
+                name = user_states.get(f"{line_user_id}_name")
                 
-                #  check if the phone number is valid
-                if not phone.isdigit():
+                if not phone.isdigit() or not (7 <= len(phone) <= 10):
                     line_bot_api.reply_message(
                         ReplyMessageRequest(
                             reply_token=event.reply_token,
-                            messages=[TextMessage(text="請輸入有效的電話號碼")]
+                            messages=[
+                                TextMessage(text="電話號碼格式不正確。\n- 需要是7-10位數字\n- 請重新輸入電話號碼\n- 若要重新輸入姓名，請輸入「重新輸入」\n- 若要取消註冊，請輸入「取消」")
+                            ]
                         )
                     )
                     return
 
-                # Check if the phone number is already bound to an account
+                # Check if phone number is already registered
                 with get_db_connection() as conn:
                     cur = conn.cursor()
                     cur.execute("SELECT id FROM users WHERE phone = %s", (phone,))
-                    user = cur.fetchone()
+                    existing_user = cur.fetchone()
                     
-                    if user:
-                        # Update the user's line_user_id
-                        cur.execute(
-                            "UPDATE users SET line_user_id = %s WHERE id = %s",
-                            (line_user_id, user[0])
+                    if existing_user:
+                        line_bot_api.reply_message(
+                            ReplyMessageRequest(
+                                reply_token=event.reply_token,
+                                messages=[
+                                    TextMessage(text="此電話號碼已被註冊。\n- 請使用其他號碼\n- 若要重新輸入姓名，請輸入「重新輸入」\n- 若要取消註冊，請輸入「取消」")
+                                ]
+                            )
                         )
-                        conn.commit()
-                        reply_text = "帳號綁定成功！"
-                    else:
-                        reply_text = "找不到對應的用戶，請確認電話號碼是否正確。"
+                        return
+                    
+                    # Create new user
+                    cur.execute(
+                        "INSERT INTO users (name, phone, location, is_driver, line_user_id) VALUES (%s, %s, %s, %s, %s) RETURNING id",
+                        (name, phone, '未選擇', False, line_user_id)
+                    )
+                    conn.commit()
                     
                     line_bot_api.reply_message(
                         ReplyMessageRequest(
                             reply_token=event.reply_token,
-                            messages=[TextMessage(text=reply_text)]
+                            messages=[
+                                TextMessage(text=f"註冊成功！\n姓名：{name}\n電話：{phone}\n\n")
+                            ]
                         )
                     )
                 
-                
+                # Clear user states
                 del user_states[line_user_id]
+                del user_states[f"{line_user_id}_name"]
                 
             except Exception as e:
-                logger.error("Error binding LINE account: %s", str(e))
+                logger.error("Error during registration: %s", str(e))
                 line_bot_api.reply_message(
                     ReplyMessageRequest(
                         reply_token=event.reply_token,
-                        messages=[TextMessage(text="綁定失敗，請稍後再試。")]
+                        messages=[
+                            TextMessage(text="註冊過程發生錯誤，請稍後再試\n- 若要重新開始註冊，請輸入「註冊」\n- 若需要協助，請輸入「客服」")
+                        ]
                     )
                 )
                 
-                del user_states[line_user_id]
+                # Clear user states
+                if line_user_id in user_states:
+                    del user_states[line_user_id]
+                if f"{line_user_id}_name" in user_states:
+                    del user_states[f"{line_user_id}_name"]
             return
 
         elif user_message in ["客服", "詢問客服", "詢問"]:
@@ -200,7 +299,7 @@ def handle_message(event):
             line_bot_api.reply_message(
                 ReplyMessageRequest(
                     reply_token=event.reply_token,
-                    messages=[TextMessage(text="請輸入「綁定」來開始綁定帳號，或輸入「客服」尋求協助。")]
+                    messages=[TextMessage(text="請輸入「註冊」來註冊新帳號，或輸入「客服」尋求協助。")]
                 )
             )
 
