@@ -225,17 +225,18 @@ async def accept_order(service: str, order_id: int, driver_order: DriverOrder, c
 
 
         if service == 'necessities':
-            cur.execute("SELECT order_status FROM orders WHERE id = %s FOR UPDATE", (order_id,))
+            cur.execute("SELECT order_status,buyer_id  FROM orders WHERE id = %s FOR UPDATE", (order_id,))
         if service == 'agricultural_product':
-            cur.execute("SELECT status FROM agricultural_product_order WHERE id = %s FOR UPDATE", (order_id,))
+            cur.execute("SELECT status,buyer_id  FROM agricultural_product_order WHERE id = %s FOR UPDATE", (order_id,))
 
         order = cur.fetchone()
         if order:
-            buyer_id = order[0]
+            # Find buyer ID
+            buyer_id = order[1]
             # Send a message to the buyer
             success = await line_service.send_message_to_user(
                 buyer_id,
-                "司機已接取您的商品，請等待司機送貨"
+                "司機已接取您的商品，請等待司機送貨👍🏻"
             )
             if not success:
                 logger.warning(f"買家 (ID: {buyer_id}) 未綁定 LINE 帳號或發送通知失敗")
@@ -317,7 +318,7 @@ async def transfer_order(order_id: int, transfer_request: TransferOrderRequest, 
 
         
         # Find new driver by phone
-        cur.execute("SELECT id, driver_name, driver_phone FROM drivers WHERE driver_phone = %s", (transfer_request.new_driver_phone,))
+        cur.execute("SELECT id,user_id, driver_name, driver_phone FROM drivers WHERE driver_phone = %s", (transfer_request.new_driver_phone,))
         new_driver = cur.fetchone()
 
         if not new_driver:
@@ -336,11 +337,12 @@ async def transfer_order(order_id: int, transfer_request: TransferOrderRequest, 
             )
             
             success = await line_service.send_message_to_user(
-                new_driver[0],
+                # new_driver[1]=user_id
+                new_driver[1],
                 notification_message
             )
             if not success:
-                logger.warning(f"司機 (ID: {new_driver[0]}) 未綁定 LINE 帳號或發送通知失敗")
+                logger.warning(f"司機 (ID: {new_driver[1]}) 未綁定 LINE 帳號或發送通知失敗")
 
         # Ensure current driver is assigned to the order
         cur.execute("SELECT driver_id FROM driver_orders WHERE order_id = %s AND action = '接單' FOR UPDATE", (order_id,))
@@ -358,20 +360,6 @@ async def transfer_order(order_id: int, transfer_request: TransferOrderRequest, 
             "previous_driver_phone = %s WHERE order_id = %s AND driver_id = %s AND action = '接單'", 
             (new_driver_id, transfer_request.current_driver_id, current_driver[0], current_driver[1], order_id, transfer_request.current_driver_id)
         )
-        '''
-        if service == 'necessities':
-            # Update orders with previous driver details
-            cur.execute(
-                "UPDATE orders SET previous_driver_id = %s, previous_driver_name = %s, previous_driver_phone = %s WHERE id = %s",
-                (transfer_request.current_driver_id, current_driver[0], current_driver[1], order_id)
-            )
-        if service == 'agricultural_product':
-            # Update orders with previous driver details
-            cur.execute(
-                "UPDATE agricultural_product_order SET previous_driver_id = %s, previous_driver_name = %s, previous_driver_phone = %s WHERE id = %s",
-                (transfer_request.current_driver_id, current_driver[0], current_driver[1], order_id)
-            )
-        '''
         conn.commit()
         return {"status": "success"}
     except Exception as e:
@@ -457,11 +445,12 @@ async def complete_order(service: str, order_id: int, conn = Depends(get_db)):
 
             success = False
             if order:
-                buyer_id = order[0]
+                # order[1] = buyer_id
+                buyer_id = order[1]
                 # Send a message to the buyer
                 success = await line_service.send_message_to_user(
                     buyer_id,
-                    "您的貨品已送達目的地"
+                    "您的貨品已送達目的地，請盡快到指定地點領取😆"
                 )
                 if not success:
                     logger.warning(f"買家 (ID: {buyer_id}) 未綁定 LINE 帳號或發送通知失敗")
@@ -487,11 +476,11 @@ async def complete_order(service: str, order_id: int, conn = Depends(get_db)):
 
             success = False
             if order:
-                buyer_id = order[0]
+                buyer_id = order[1]
                 # Send a message to the buyer
                 success = await line_service.send_message_to_user(
                     buyer_id,
-                    "您的貨品已送達目的地"
+                    "您的貨品已送達目的地，請盡快到指定地點領取😆"
                 )
                 if not success:
                     logger.warning(f"買家 (ID: {buyer_id}) 未綁定 LINE 帳號或發送通知失敗")

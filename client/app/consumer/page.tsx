@@ -130,7 +130,7 @@ export default function Page() {
 
             <Select onValueChange={handleSelect}>
               <SelectTrigger className="w-full h-8 lg:h-12">
-                <SelectValue placeholder="請選擇要查尋的類別" />
+                <SelectValue placeholder="請選擇要查詢的類別" />
               </SelectTrigger>
               <SelectContent>
                 <SelectGroup>
