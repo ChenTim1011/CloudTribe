@@ -78,6 +78,7 @@ const OrderCard: React.FC<{
         }
     };
 
+
     const handleDropOrder = async() => {
         const today = new Date().toISOString().split('T')[0]
         try{
@@ -108,6 +109,17 @@ const OrderCard: React.FC<{
         }
 
     }
+
+    const getImageSrc = (item: any) => {
+        if (item.category === "小木屋鬆餅" || item.category === "金鰭" || item.category === "原丼力") {
+            return `/test/${encodeURIComponent(item.img)}`; // Local image
+        } else if (item.img?.includes('imgur.com')) {
+            return item.img; // Imgur image - direct URL
+        } else {
+            return `https://www.cloudtribe.online${item.img}`; // CloudTribe image
+        }
+    };
+
 
 
     return (
@@ -152,17 +164,13 @@ const OrderCard: React.FC<{
                         {order.items.map((item) => (
                             <li key={item.item_id} className="text-sm text-gray-700 mb-2">
                                 <div className="flex items-center space-x-2">
-                                    <img
-                                        src={
-                                            item.category === "小木屋鬆餅" || item.category === "金鰭" || item.category === "原丼力"
-                                            ? `/test/${encodeURIComponent(item.img)}` // Local image from the public folder
-                                            : `https://www.cloudtribe.online${item.img}` // Online image URL
-                                        }
-                                        alt={item.item_name || '未命名'} 
-                                        width={40} 
-                                        height={40} 
-                                        className="object-cover rounded"
-                                    />
+                                <img
+                                    src={getImageSrc(item)}
+                                    alt={item.item_name || '未命名'} 
+                                    width={40} 
+                                    height={40} 
+                                    className="object-cover rounded"
+                                />
                                     <div>
                                         {/* Display item name, location, price, and quantity */}
                                         <span className="block font-semibold text-black truncate" style={{ maxWidth: '20rem' }}>
