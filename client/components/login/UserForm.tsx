@@ -12,7 +12,6 @@ import UserService from '@/services/user/user'
  * UserForm component for registering and logging in users.
  */
 export function UserForm() {
-  const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
@@ -29,42 +28,6 @@ export function UserForm() {
     }
   }, []);
 
-  /**
-   * Handles the registration process when the user clicks the "註冊" button.
-   */
-  const handleRegister = async () => {
-    console.log("Starting handleRegister");
-
-    // Clear error and success messages
-    setErrorMessage('');
-    setSuccessMessage('');
-
-    // Check if name and phone are valid
-    const namePattern = /^[\u4e00-\u9fa5A-Za-z]+$/;
-    if (!namePattern.test(name)) {
-      setErrorMessage('姓名只能包含英文和中文字');
-      return;
-    }
-
-    // Check if phone is valid
-    const phonePattern = /^\d{7,10}$/;
-    if (!phonePattern.test(phone)) {
-      setErrorMessage('電話號碼必須是 7 到 10 個數字');
-      return;
-    }
-
-    try{
-      const res_register = await UserService.register(name, phone, 'default_location', false)
-      if(res_register == "phone exists")
-        setErrorMessage('電話號碼已經存在')
-      else
-        setSuccessMessage('註冊成功')
-    }
-    catch(e){
-      setErrorMessage('註冊過程中出現錯誤')
-      console.log(e)
-    }
-  };
 
   /**
    * Handles the login process when the user clicks the "登入" button.
@@ -100,97 +63,53 @@ export function UserForm() {
   };
 
   return (
-
     <div className="flex flex-col items-center space-y-4">
       <Button 
         onClick={handleAddLineBot}
         className="w-full max-w-[400px] bg-[#00B900] hover:bg-[#009900] text-white flex items-center justify-center space-x-2"
       >
-        <span>加入 LINE 機器人</span>
+        <span>註冊請加入 LINE 機器人</span>
       </Button>
 
-    <Tabs defaultValue="login" className="lg:w-full max-w-[400px]">
-      <TabsList className="grid w-full max-w-[400px] grid-cols-2"> 
-        <TabsTrigger
-          value="register"
-          className="w-full py-2 text-center border-b-2 border-transparent hover:border-black focus:border-black"
-        >
-          註冊
-        </TabsTrigger>
-        <TabsTrigger
-          value="login"
-          className="w-full py-2 text-center border-b-2 border-transparent hover:border-black focus:border-black"
-        >
-          登入
-        </TabsTrigger>
-      </TabsList>
-      <TabsContent value="register">
-        <Card className="w-full max-w-[400px] min-h-[350px]"> {/* 設置固定寬度 */}
-          <CardHeader>
-            <CardTitle>註冊</CardTitle>
-            <CardDescription>
-              在這裡輸入姓名和電話號碼完成後點擊註冊。
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-2">
-            <div className="space-y-1">
-              <Label htmlFor="name">姓名</Label>
-              <Input id="name" value={name} onChange={(e) => setName(e.target.value)} />
-            </div>
-            <div className="space-y-1">
-              <Label htmlFor="phone">電話</Label>
-              <Input id="phone" value={phone} onChange={(e) => setPhone(e.target.value)} />
-            </div>
-            {errorMessage && (
-              <Alert className="bg-red-500 text-white">
-                <AlertTitle>錯誤</AlertTitle>
-                <AlertDescription>{errorMessage}</AlertDescription>
-              </Alert>
-            )}
-            {successMessage && (
-              <Alert className="bg-green-500 text-white">
-                <AlertTitle>成功</AlertTitle>
-                <AlertDescription>{successMessage}</AlertDescription>
-              </Alert>
-            )}
-          </CardContent>
-          <CardFooter>
-            <Button onClick={handleRegister}>註冊</Button>
-          </CardFooter>
-        </Card>
-      </TabsContent>
-      <TabsContent value="login">
-        <Card className="w-full max-w-[400px] min-h-[350px]"> 
-          <CardHeader>
-            <CardTitle>登入</CardTitle>
-            <CardDescription>
-              請輸入您的電話號碼登入。
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-2">
-            <div className="space-y-2">
-              <Label htmlFor="phone">電話</Label>
-              <Input id="phone" value={phone} onChange={(e) => setPhone(e.target.value)} />
-            </div>
-            {errorMessage && (
-              <Alert className="bg-red-500 text-white">
-                <AlertTitle>錯誤</AlertTitle>
-                <AlertDescription>{errorMessage}</AlertDescription>
-              </Alert>
-            )}
-            {successMessage && (
-              <Alert className="bg-green-500 text-white">
-                <AlertTitle>成功</AlertTitle>
-                <AlertDescription>{successMessage}</AlertDescription>
-              </Alert>
-            )}
-          </CardContent>
-          <CardFooter>
-            <Button onClick={handleLogin}>登入</Button>
-          </CardFooter>
-        </Card>
-      </TabsContent>
-    </Tabs>
+      <Card className="w-full max-w-[400px] min-h-[350px]">
+        <CardHeader>
+          <CardTitle>登入</CardTitle>
+          <CardDescription>
+            請輸入您的電話號碼登入。
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-2">
+          <div className="space-y-2">
+            <Label htmlFor="phone">電話</Label>
+            <Input 
+              id="phone" 
+              value={phone} 
+              onChange={(e) => setPhone(e.target.value)} 
+              placeholder="請輸入電話號碼"
+            />
+          </div>
+          {errorMessage && (
+            <Alert className="bg-red-500 text-white">
+              <AlertTitle>錯誤</AlertTitle>
+              <AlertDescription>{errorMessage}</AlertDescription>
+            </Alert>
+          )}
+          {successMessage && (
+            <Alert className="bg-green-500 text-white">
+              <AlertTitle>成功</AlertTitle>
+              <AlertDescription>{successMessage}</AlertDescription>
+            </Alert>
+          )}
+        </CardContent>
+        <CardFooter>
+          <Button 
+            onClick={handleLogin}
+            className="w-full"
+          >
+            登入
+          </Button>
+        </CardFooter>
+      </Card>
     </div>
   );
 }
