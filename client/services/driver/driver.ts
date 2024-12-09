@@ -40,5 +40,18 @@ class DriverService{
         throw new Error(`Error: ${data.detail}`)
       return data
     }
+    async drop_agricultural_order(driver_id: Number, order_id: Number){
+      const res = await fetch(`/api/drivers/drop_agricultural_order/${driver_id}/${order_id}`,{
+          method: 'DELETE',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+      })
+      const data = await res.json()
+      if(!res.ok){
+        throw new Error(`Error: ${data.detail}`)
+      }
+      return data
+    }
   }
   export default new DriverService()

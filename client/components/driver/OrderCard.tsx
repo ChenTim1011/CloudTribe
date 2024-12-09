@@ -87,12 +87,19 @@ const OrderCard: React.FC<{
             }
             else if(res_driver_times.some(slot => slot.date === today) != true){
                 setDropOrderMessage('今天非運送日期無法棄單')
-                console.log('yes')
             }
             else if(order.is_put == true) {
                 setDropOrderMessage('商品已送達運送地無法棄單')
             }
             else {
+                try {
+                    if(order.id != undefined) 
+                        var res_delete = await DriverService.drop_agricultural_order(driverId, order.id)
+                        console.log(res_delete)
+                }
+                catch(e){
+                    console.log(e)
+                }
                 setDropOrderMessage('棄單成功!')
             }       
         }
