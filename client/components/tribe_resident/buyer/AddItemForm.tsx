@@ -63,7 +63,7 @@ const AddItemForm: React.FC<AddItemFormProps> = ({ onClose, addToCart }) => {
   const [searchInput, setSearchInput] = useState<string>("");
   const [error, setError] = useState("");
   const [predictions, setPredictions] = useState<google.maps.places.AutocompletePrediction[]>([]);
-  
+  const [isManualInput, setIsManualInput] = useState(true);
   // Initialize debounced search term
   const debouncedSearchTerm = useDebounce(searchInput, 1000);
 
@@ -79,7 +79,7 @@ const AddItemForm: React.FC<AddItemFormProps> = ({ onClose, addToCart }) => {
 
   // Fetch predictions when search term changes
   useEffect(() => {
-    if (debouncedSearchTerm && autocompleteService.current) {
+    if (isManualInput && debouncedSearchTerm && autocompleteService.current) {
       const searchQuery = {
         input: debouncedSearchTerm,
         language: 'zh-TW',
@@ -100,7 +100,7 @@ const AddItemForm: React.FC<AddItemFormProps> = ({ onClose, addToCart }) => {
     } else {
       setPredictions([]);
     }
-  }, [debouncedSearchTerm]);
+  }, [debouncedSearchTerm,isManualInput]);
 
   // Initialize Google Places services
   useEffect(() => {
@@ -125,6 +125,7 @@ const AddItemForm: React.FC<AddItemFormProps> = ({ onClose, addToCart }) => {
             const fullLocation = `${place.name} ${place.formatted_address}`;
             setLocation(fullLocation);
             setSearchInput(fullLocation);
+            setIsManualInput(false); 
             setPredictions([]);
             setError("");
           } else {
@@ -139,6 +140,7 @@ const AddItemForm: React.FC<AddItemFormProps> = ({ onClose, addToCart }) => {
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setSearchInput(value);
+    setIsManualInput(true); 
     if (!value) {
       setPredictions([]);
     }

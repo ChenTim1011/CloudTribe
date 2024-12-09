@@ -390,7 +390,6 @@ const DriverPage: React.FC = () => {
                         {/* UnacceptedOrdersList */}
                         {showUnacceptedOrders && (
                             <div className="mb-10">
-                                <h2 className="text-center text-2xl font-bold mb-4 text-white">未接單訂單</h2>
                                 <OrderListWithPagination
                                     orders={unacceptedOrders}
                                     onAccept={handleAcceptOrder}

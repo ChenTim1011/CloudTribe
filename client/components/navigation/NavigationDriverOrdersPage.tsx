@@ -30,21 +30,6 @@ const NavigationDriverOrdersPage: React.FC<DriverOrdersPageProps> = ({
     const [orderStatus, setOrderStatus] = useState<string>("接單");
     const [error, setError] = useState<string>("");
 
-
-    const autocompleteService = useRef<google.maps.places.AutocompleteService | null>(null);
-    const placesService = useRef<google.maps.places.PlacesService | null>(null);
-
-
-    useEffect(() => {
-        if (typeof window !== 'undefined' && (window as any).google) {
-            autocompleteService.current = new google.maps.places.AutocompleteService();
-            const mapDiv = document.createElement('div');
-            const map = new google.maps.Map(mapDiv);
-            placesService.current = new google.maps.places.PlacesService(map);
-        }
-    }, []);
-
-
     /**
      * Fetches the orders assigned to the driver from the server.
      */

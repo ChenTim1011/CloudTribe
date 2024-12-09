@@ -55,6 +55,7 @@ const DriverAvailableTimes: React.FC<{ driverId: number }> = ({ driverId }) => {
   const [openSheet, setOpenSheet] = useState(false);
   const [successMessage, setSuccessMessage] = useState<string | null>(null); 
   const [error, setError] = useState<string | null>(null);
+  const [isManualInput, setIsManualInput] = useState(true);
 
   // Initialize debounced search term
   const debouncedSearchTerm = useDebounce(searchInput, 1000);
@@ -81,7 +82,7 @@ const DriverAvailableTimes: React.FC<{ driverId: number }> = ({ driverId }) => {
 
   // Fetch predictions when search term changes
   useEffect(() => {
-    if (debouncedSearchTerm && autocompleteService.current) {
+    if (isManualInput && debouncedSearchTerm && autocompleteService.current) {
       const searchQuery = {
         input: debouncedSearchTerm,
         language: 'zh-TW',
@@ -102,7 +103,7 @@ const DriverAvailableTimes: React.FC<{ driverId: number }> = ({ driverId }) => {
     } else {
       setPredictions([]);
     }
-  }, [debouncedSearchTerm]);
+  }, [debouncedSearchTerm, isManualInput]);
 
   // Handle place selection
   const handlePlaceSelect = (placeId: string) => {
@@ -117,6 +118,7 @@ const DriverAvailableTimes: React.FC<{ driverId: number }> = ({ driverId }) => {
             const fullAddress = `${place.name} ${place.formatted_address}`;
             setLocation(fullAddress);
             setSearchInput(fullAddress);
+            setIsManualInput(false); 
             setPredictions([]);
             setError(null);
           } else {
@@ -131,6 +133,7 @@ const DriverAvailableTimes: React.FC<{ driverId: number }> = ({ driverId }) => {
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setSearchInput(value);
+    setIsManualInput(true);
     if (!value) {
       setPredictions([]);
     }

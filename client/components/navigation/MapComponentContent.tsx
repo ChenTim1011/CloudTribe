@@ -184,7 +184,7 @@ const MapComponentContent: React.FC = () => {
   const [predictions, setPredictions] = useState<google.maps.places.AutocompletePrediction[]>([]);
   const autocompleteService = useRef<google.maps.places.AutocompleteService | null>(null);
   const placesService = useRef<google.maps.places.PlacesService | null>(null);
-
+  const [isManualInput, setIsManualInput] = useState(true);
   // Initialize debounced search term
   const debouncedSearchTerm = useDebounce(searchInput, 800);
 
@@ -393,7 +393,7 @@ const MapComponentContent: React.FC = () => {
 
     // Fetch predictions when search term changes
     useEffect(() => {
-      if (debouncedSearchTerm && debouncedSearchTerm.length >= 2 && autocompleteService.current) {
+      if (isManualInput && debouncedSearchTerm && debouncedSearchTerm.length >= 2 && autocompleteService.current) {
         const searchQuery = {
           input: debouncedSearchTerm,
           language: 'zh-TW',
@@ -414,11 +414,12 @@ const MapComponentContent: React.FC = () => {
       } else {
         setPredictions([]);
       }
-    }, [debouncedSearchTerm]);
+    }, [debouncedSearchTerm,isManualInput]);
   
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
       const value = e.target.value;
       setSearchInput(value);
+      setIsManualInput(true);
       if (!value) {
         setPredictions([]);
       }
@@ -444,6 +445,7 @@ const MapComponentContent: React.FC = () => {
               }
               
               setSearchInput(fullLocation);
+              setIsManualInput(false); 
               setPredictions([]);
               setError("");
             } else {

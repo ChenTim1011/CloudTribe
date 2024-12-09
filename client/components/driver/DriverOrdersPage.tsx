@@ -69,12 +69,14 @@ const DriverOrdersPage: React.FC<DriverOrdersPageProps> = ({
         location: { lat: number; lng: number };
     } | null>(null);
     
+    const [isManualInput, setIsManualInput] = useState(true);
     const debouncedSearchTerm = useDebounce(searchInput, 800);
     const autocompleteService = useRef<google.maps.places.AutocompleteService | null>(null);
     const placesService = useRef<google.maps.places.PlacesService | null>(null);
 
     useEffect(() => {
-        if (debouncedSearchTerm && debouncedSearchTerm.length >= 2 && autocompleteService.current) {
+        // Only fetch predictions if it's a manual input
+        if (isManualInput && debouncedSearchTerm && debouncedSearchTerm.length >= 2 && autocompleteService.current) {
             const searchQuery = {
                 input: debouncedSearchTerm,
                 language: 'zh-TW',
@@ -95,7 +97,7 @@ const DriverOrdersPage: React.FC<DriverOrdersPageProps> = ({
         } else {
             setPredictions([]);
         }
-    }, [debouncedSearchTerm]);
+    }, [debouncedSearchTerm, isManualInput]);
 
     useEffect(() => {
         if (typeof window !== 'undefined' && (window as any).google) {
@@ -109,6 +111,7 @@ const DriverOrdersPage: React.FC<DriverOrdersPageProps> = ({
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const value = e.target.value;
         setSearchInput(value);
+        setIsManualInput(true);
         if (!value) {
             setPredictions([]); 
         }
@@ -125,6 +128,7 @@ const DriverOrdersPage: React.FC<DriverOrdersPageProps> = ({
                     if (status === google.maps.places.PlacesServiceStatus.OK && place) {
                         const fullLocation = `${place.name} ${place.formatted_address}`;
                         setSearchInput(fullLocation);
+                        setIsManualInput(false);
                         
                         if (place.geometry?.location) {
                             setFinalDestination({

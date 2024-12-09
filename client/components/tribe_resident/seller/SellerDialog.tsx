@@ -8,6 +8,7 @@ import { Label } from '@/components/ui/label'
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import  SellerService from '@/services/seller/seller'
 import { Button } from "@/components/ui/button"
+import { Calendar } from "@/components/ui/calendar"
 import {
   Dialog,
   DialogContent,
@@ -110,10 +111,12 @@ export const SellerDialog = () => {
     setItemUnit(event.target.value);
     setErrorMessage('')
   }
-  const handleDateButton =(date: Date | undefined) => {
-    setDate(date)
+
+  const handleDateChange = (newDate: Date | undefined) => {
+    setDate(newDate)
     setErrorMessage('')
   }
+
   const handleSelector = (isOpen: boolean, value: string) => {
     setIsSelectorOpen(isOpen)
     setSelectedCategory(value)
@@ -141,14 +144,29 @@ export const SellerDialog = () => {
         </Button>
       </DialogTrigger>
 
-      <DialogContent className="lg:max-w-[800px] max-w-[400px] justify-center max-h-[1000px]">
+      <DialogContent className="lg:max-w-[800px] max-w-[400px] justify-center max-h-[1000px] overflow-hidden">
         <DialogHeader>
           <DialogTitle className="lg:text-3xl text-2xl">請輸入上架商品資訊</DialogTitle>
           <DialogDescription className="lg:text-lg text-sm">
             請確實填寫內容
           </DialogDescription>
         </DialogHeader>
-        <div className="grid gap-4">
+        <div className="flex-1 overflow-y-auto">
+          <div className="grid gap-4 px-4">
+            <div className="mb-6 flex flex-col items-center">
+              <Label className="block text-left lg:text-2xl text-md mb-2 self-start">
+                下架日期
+              </Label>
+              <div className="flex justify-center w-full">
+                <Calendar
+                  mode="single"
+                  selected={date}
+                  onSelect={handleDateChange}
+                  className="rounded-md border bg-white"
+                />
+              </div>
+            </div>
+
           <div className="grid grid-cols-4 items-center gap-4">
             <Label htmlFor="name" className="text-left lg:text-2xl text-md">
               商品名稱
@@ -176,12 +194,6 @@ export const SellerDialog = () => {
               商品單位
             </Label>
             <Input id="unit" className="col-span-3" onChange={handleUnitButton}/>
-          </div>
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="date" className="text-left lg:text-2xl text-md">
-              下架日期
-            </Label>
-            <DatePicker handleSendDate={handleDateButton}/>
           </div>
           <CategorySelector handleIsOpen={handleSelector}/>
           <UploadRegion handleSendImg={setImgBase64} handleSendType={setFileType} handleSendError={setErrorMessage} selectorStatus={isSelectorOpen}/>
@@ -213,6 +225,7 @@ export const SellerDialog = () => {
             <Button type="submit" className="lg:text-2xl text-lg w-1/2">關閉</Button>
           </DialogClose>     
         </DialogFooter>} 
+        </div>
       </DialogContent>
     </Dialog>
     </div>

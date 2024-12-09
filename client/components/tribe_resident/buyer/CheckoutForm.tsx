@@ -9,6 +9,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import UserService from '@/services/user/user';  
 import { CheckoutFormProps } from '@/interfaces/tribe_resident/buyer/buyer';
 import { useJsApiLoader, LoadScriptProps } from "@react-google-maps/api";
+import { set } from 'lodash';
 
 const libraries: LoadScriptProps['libraries'] = ["places"];
 
@@ -55,9 +56,9 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onClose, clearCart, cartIte
   const [showAlert, setShowAlert] = useState(false);
   const [error, setError] = useState("");
   const [predictions, setPredictions] = useState<google.maps.places.AutocompletePrediction[]>([]);
-
+  const [isManualInput, setIsManualInput] = useState(true);
   // Initialize debounced search term
-  const debouncedSearchTerm = useDebounce(searchInput, 1000);
+  const debouncedSearchTerm = useDebounce(searchInput, 800);
 
   // Service references for Google Places API
   const autocompleteService = useRef<google.maps.places.AutocompleteService | null>(null);
@@ -89,7 +90,7 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onClose, clearCart, cartIte
 
   // Fetch predictions when search term changes
   useEffect(() => {
-    if (debouncedSearchTerm && autocompleteService.current) {
+    if (isManualInput && debouncedSearchTerm && autocompleteService.current) {
       const searchQuery = {
         input: debouncedSearchTerm,
         language: 'zh-TW',
@@ -110,7 +111,7 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onClose, clearCart, cartIte
     } else {
       setPredictions([]);
     }
-  }, [debouncedSearchTerm]);
+  }, [debouncedSearchTerm,isManualInput]);
 
   // Handle place selection
   const handlePlaceSelect = (placeId: string) => {
@@ -122,10 +123,10 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onClose, clearCart, cartIte
         },
         (place, status) => {
           if (status === google.maps.places.PlacesServiceStatus.OK && place) {
-            // 組合店名和地址
             const fullAddress = `${place.name} ${place.formatted_address}`;
             setLocation(fullAddress);
             setSearchInput(fullAddress);
+            setIsManualInput(false);
             setPredictions([]);
             setError("");
           } else {
@@ -140,6 +141,7 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onClose, clearCart, cartIte
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setSearchInput(value);
+    setIsManualInput(true);
     if (!value) {
       setPredictions([]);
     }
