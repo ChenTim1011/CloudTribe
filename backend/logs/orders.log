@@ -1,0 +1,19 @@
+2024-12-09 13:30:10,568 - INFO - {"timestamp": "2024-12-09T13:30:10.561887", "event_type": "USER_LOGIN_ATTEMPT", "data": {"phone": "1234567891"}}
+2024-12-09 13:30:10,584 - INFO - Logging in user with phone number 1234567891
+2024-12-09 13:30:10,739 - INFO - {"timestamp": "2024-12-09T13:30:10.739462", "event_type": "USER_LOGIN_SUCCESS", "data": {"user_id": 2, "phone": "1234567891", "is_driver": true}}
+2024-12-09 13:30:24,714 - INFO - Get user  whose id is 2 uploaded product information.
+2024-12-09 13:30:24,745 - INFO - start create product list
+2024-12-09 13:30:24,812 - INFO - start create driver time list
+2024-12-09 13:30:25,049 - INFO - Get user  whose id is 2 uploaded product information.
+2024-12-09 13:30:25,068 - INFO - start create product list
+2024-12-09 13:30:25,303 - INFO - start create driver time list
+2024-12-09 13:30:52,846 - INFO - {"timestamp": "2024-12-09T13:30:52.846052", "event_type": "USER_LOGIN_ATTEMPT", "data": {"phone": "1234567890"}}
+2024-12-09 13:30:52,846 - INFO - Logging in user with phone number 1234567890
+2024-12-09 13:30:52,864 - INFO - {"timestamp": "2024-12-09T13:30:52.863056", "event_type": "USER_LOGIN_SUCCESS", "data": {"user_id": 1, "phone": "1234567890", "is_driver": false}}
+2024-12-09 13:34:26,029 - INFO - {"timestamp": "2024-12-09T13:34:26.029198", "event_type": "USER_LOGIN_ATTEMPT", "data": {"phone": "1234567891"}}
+2024-12-09 13:34:26,029 - INFO - Logging in user with phone number 1234567891
+2024-12-09 13:34:26,041 - INFO - {"timestamp": "2024-12-09T13:34:26.041906", "event_type": "USER_LOGIN_SUCCESS", "data": {"user_id": 2, "phone": "1234567891", "is_driver": true}}
+2024-12-09 13:50:42,939 - INFO - Received driver_order: {"driver_id":1,"order_id":3,"action":"接單","timestamp":"2024-12-09T05:50:42.765Z","previous_driver_id":null,"previous_driver_name":null,"previous_driver_phone":null,"service":"necessities"}
+2024-12-09 13:50:42,955 - INFO - {"timestamp": "2024-12-09T13:50:42.950153", "event_type": "ORDER_ACCEPTANCE_STARTED", "data": {"order_id": 3, "driver_id": 1, "service": "necessities"}}
+2024-12-09 13:50:43,238 - WARNING - 買家 (ID: 未接單) 未綁定 LINE 帳號或發送通知失敗
+2024-12-09 13:50:43,298 - INFO - {"timestamp": "2024-12-09T13:50:43.298414", "event_type": "ORDER_ACCEPTED", "data": {"order_id": 3, "driver_id": 1, "service": "necessities", "status": "success"}}

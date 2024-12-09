@@ -160,7 +160,7 @@ async def get_orders(conn: Connection = Depends(get_db)):
         #add
         cur.execute("""
             SELECT agri_p_o.id, agri_p_o.buyer_id, agri_p_o.buyer_name, agri_p_o.buyer_phone, agri_p_o.end_point, agri_p_o.status, agri_p_o.note, 
-                    agri_p.id, agri_p.name, agri_p.price, agri_p_o.quantity, agri_p.img_link, agri_p_o.starting_point, agri_p.category
+                    agri_p.id, agri_p.name, agri_p.price, agri_p_o.quantity, agri_p.img_link, agri_p_o.starting_point, agri_p.category, agri_p_o.is_put
             FROM agricultural_product_order as agri_p_o
             JOIN agricultural_produce as agri_p ON agri_p.id = agri_p_o.produce_id
         """)
@@ -192,7 +192,9 @@ async def get_orders(conn: Connection = Depends(get_db)):
                     "img": agri_order[11],
                     "location": agri_order[12], #司機拿取農產品的地方
                     "category": agri_order[13]
-                }]
+                }],
+                "is_put": agri_order[14]
+
             }
             order_list.append(agri_order_dict)
         return order_list
@@ -383,7 +385,7 @@ async def transfer_order(order_id: int, transfer_request: TransferOrderRequest, 
 @router.get("/{order_id}")
 async def get_order(order_id: int, conn: Connection = Depends(get_db)):
     """
-    Get a specific order by ID.
+    Get a specific necessities' order by ID.
     Args:
         order_id (int): The ID of the order to retrieve.
         conn (Connection): The database connection.

@@ -23,6 +23,7 @@ export interface Order {
     //previous_driver_phone?: string;
     service: string;
     items: OrderItem[];
+    is_put?: boolean; //for agricultural product
 }
 
 
