@@ -80,9 +80,15 @@ const OrderCard: React.FC<{
 
 
     const handleDropOrder = async() => {
-        const today = new Date().toISOString().split('T')[0]
+        let today = new Date().toLocaleDateString('zh-TW', {
+            timeZone: 'Asia/Taipei',
+        });
+        today = today.replace(/\//g,'-')
+        //const today = new Date().toISOString().split('T')[0] // 非台灣時間
+        console.log(today)
         try{
             const res_driver_times: TimeSlot[] = await DriverService.get_specific_driver_times(driverId)
+            console.log(res_driver_times)
             if(res_driver_times.length == 0){
                 setDropOrderMessage('請先填寫可運送時間才可棄單')
             }
