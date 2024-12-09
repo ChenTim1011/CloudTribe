@@ -158,7 +158,13 @@ const DriverAvailableTimes: React.FC<{ driverId: number }> = ({ driverId }) => {
   // add a new time slot
   const handleAddTimeSlot = async () => {
     setError(null);
-    
+    //如果有個司機可用時間是今天的日期，那還可以有一個今天以後的日期
+    //不可以有兩個今天以後的日期
+    if(timeSlots.filter(timeSlot => timeSlot.date > new Date().toLocaleDateString('zh-TW', 
+      {timeZone: 'Asia/Taipei'}).replace(/\//g,'-')).length > 0) {
+        setError("請等最近一次運送結束後再進行設定");
+        return;
+    }
     if (!date) {
       setError("請選擇日期。");
       return;
@@ -184,6 +190,8 @@ const DriverAvailableTimes: React.FC<{ driverId: number }> = ({ driverId }) => {
       setError("請選擇地點。");
       return;
     }
+
+    
   
     try {
       const formattedDate = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
@@ -338,7 +346,8 @@ const DriverAvailableTimes: React.FC<{ driverId: number }> = ({ driverId }) => {
               <h3 className="text-lg font-semibold">目前可用的時間</h3>
               {timeSlots.length > 0 ? (
                 <div className="grid grid-cols-1 gap-4">
-                  {timeSlots.map(slot => (
+                  {timeSlots.filter(timeSlot => timeSlot.date >= new Date().toLocaleDateString('zh-TW', 
+                  {timeZone: 'Asia/Taipei'}).replace(/\//g,'-')).map(slot => (
                     <TimeCard
                       key={slot.id}
                       timeSlot={slot}
