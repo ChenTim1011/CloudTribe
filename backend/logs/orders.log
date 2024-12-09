@@ -1,0 +1,124 @@
+2024-12-09 13:30:10,568 - INFO - {"timestamp": "2024-12-09T13:30:10.561887", "event_type": "USER_LOGIN_ATTEMPT", "data": {"phone": "1234567891"}}
+2024-12-09 13:30:10,584 - INFO - Logging in user with phone number 1234567891
+2024-12-09 13:30:10,739 - INFO - {"timestamp": "2024-12-09T13:30:10.739462", "event_type": "USER_LOGIN_SUCCESS", "data": {"user_id": 2, "phone": "1234567891", "is_driver": true}}
+2024-12-09 13:30:24,714 - INFO - Get user  whose id is 2 uploaded product information.
+2024-12-09 13:30:24,745 - INFO - start create product list
+2024-12-09 13:30:24,812 - INFO - start create driver time list
+2024-12-09 13:30:25,049 - INFO - Get user  whose id is 2 uploaded product information.
+2024-12-09 13:30:25,068 - INFO - start create product list
+2024-12-09 13:30:25,303 - INFO - start create driver time list
+2024-12-09 13:30:52,846 - INFO - {"timestamp": "2024-12-09T13:30:52.846052", "event_type": "USER_LOGIN_ATTEMPT", "data": {"phone": "1234567890"}}
+2024-12-09 13:30:52,846 - INFO - Logging in user with phone number 1234567890
+2024-12-09 13:30:52,864 - INFO - {"timestamp": "2024-12-09T13:30:52.863056", "event_type": "USER_LOGIN_SUCCESS", "data": {"user_id": 1, "phone": "1234567890", "is_driver": false}}
+2024-12-09 13:34:26,029 - INFO - {"timestamp": "2024-12-09T13:34:26.029198", "event_type": "USER_LOGIN_ATTEMPT", "data": {"phone": "1234567891"}}
+2024-12-09 13:34:26,029 - INFO - Logging in user with phone number 1234567891
+2024-12-09 13:34:26,041 - INFO - {"timestamp": "2024-12-09T13:34:26.041906", "event_type": "USER_LOGIN_SUCCESS", "data": {"user_id": 2, "phone": "1234567891", "is_driver": true}}
+2024-12-09 13:50:42,939 - INFO - Received driver_order: {"driver_id":1,"order_id":3,"action":"接單","timestamp":"2024-12-09T05:50:42.765Z","previous_driver_id":null,"previous_driver_name":null,"previous_driver_phone":null,"service":"necessities"}
+2024-12-09 13:50:42,955 - INFO - {"timestamp": "2024-12-09T13:50:42.950153", "event_type": "ORDER_ACCEPTANCE_STARTED", "data": {"order_id": 3, "driver_id": 1, "service": "necessities"}}
+2024-12-09 13:50:43,238 - WARNING - 買家 (ID: 未接單) 未綁定 LINE 帳號或發送通知失敗
+2024-12-09 13:50:43,298 - INFO - {"timestamp": "2024-12-09T13:50:43.298414", "event_type": "ORDER_ACCEPTED", "data": {"order_id": 3, "driver_id": 1, "service": "necessities", "status": "success"}}
+2024-12-09 21:51:31,435 - ERROR - Error deleting driver time: 'NoneType' object is not subscriptable
+2024-12-09 21:53:19,040 - INFO - {"timestamp": "2024-12-09T21:53:19.040915", "event_type": "ORDER_COMPLETION_STARTED", "data": {"order_id": 4, "service": "agricultural_product"}}
+2024-12-09 21:53:19,143 - WARNING - 買家 (ID: 4) 未綁定 LINE 帳號或發送通知失敗
+2024-12-09 21:53:19,170 - INFO - {"timestamp": "2024-12-09T21:53:19.170654", "event_type": "ORDER_COMPLETED", "data": {"order_id": 4, "service": "agricultural_product", "status": "success"}}
+2024-12-09 21:53:27,562 - INFO - Received driver_order: {"driver_id":1,"order_id":5,"action":"接單","timestamp":"2024-12-09T13:53:27.454Z","previous_driver_id":null,"previous_driver_name":null,"previous_driver_phone":null,"service":"agricultural_product"}
+2024-12-09 21:53:27,562 - INFO - {"timestamp": "2024-12-09T21:53:27.562363", "event_type": "ORDER_ACCEPTANCE_STARTED", "data": {"order_id": 5, "driver_id": 1, "service": "agricultural_product"}}
+2024-12-09 21:53:27,656 - WARNING - 買家 (ID: 未接單) 未綁定 LINE 帳號或發送通知失敗
+2024-12-09 21:53:27,667 - INFO - {"timestamp": "2024-12-09T21:53:27.667066", "event_type": "ORDER_ACCEPTED", "data": {"order_id": 5, "driver_id": 1, "service": "agricultural_product", "status": "success"}}
+2024-12-09 21:53:41,099 - ERROR - Error deleting driver time: 'NoneType' object is not subscriptable
+2024-12-09 22:14:37,765 - ERROR - Error deleting driver time: 'NoneType' object is not subscriptable
+2024-12-09 22:22:39,648 - ERROR - Error deleting driver time: local variable 'e' referenced before assignment
+2024-12-09 22:24:46,568 - ERROR - Error deleting driver time: 'NoneType' object is not subscriptable
+2024-12-09 22:29:56,313 - INFO - Received driver_order: {"driver_id":1,"order_id":5,"action":"接單","timestamp":"2024-12-09T14:29:56.105Z","previous_driver_id":null,"previous_driver_name":null,"previous_driver_phone":null,"service":"agricultural_product"}
+2024-12-09 22:29:56,354 - INFO - {"timestamp": "2024-12-09T22:29:56.354038", "event_type": "ORDER_ACCEPTANCE_STARTED", "data": {"order_id": 5, "driver_id": 1, "service": "agricultural_product"}}
+2024-12-09 22:29:56,468 - WARNING - 買家 (ID: 未接單) 未綁定 LINE 帳號或發送通知失敗
+2024-12-09 22:29:56,492 - INFO - {"timestamp": "2024-12-09T22:29:56.492033", "event_type": "ORDER_ACCEPTED", "data": {"order_id": 5, "driver_id": 1, "service": "agricultural_product", "status": "success"}}
+2024-12-09 22:30:25,036 - INFO - Received driver_order: {"driver_id":1,"order_id":5,"action":"接單","timestamp":"2024-12-09T14:30:24.826Z","previous_driver_id":null,"previous_driver_name":null,"previous_driver_phone":null,"service":"agricultural_product"}
+2024-12-09 22:30:25,037 - INFO - {"timestamp": "2024-12-09T22:30:25.037686", "event_type": "ORDER_ACCEPTANCE_STARTED", "data": {"order_id": 5, "driver_id": 1, "service": "agricultural_product"}}
+2024-12-09 22:30:25,133 - WARNING - 買家 (ID: 未接單) 未綁定 LINE 帳號或發送通知失敗
+2024-12-09 22:30:25,142 - INFO - {"timestamp": "2024-12-09T22:30:25.142703", "event_type": "ORDER_ACCEPTED", "data": {"order_id": 5, "driver_id": 1, "service": "agricultural_product", "status": "success"}}
+2024-12-09 22:41:00,679 - INFO - Received driver_order: {"driver_id":1,"order_id":5,"action":"接單","timestamp":"2024-12-09T14:41:00.561Z","previous_driver_id":null,"previous_driver_name":null,"previous_driver_phone":null,"service":"agricultural_product"}
+2024-12-09 22:41:00,689 - INFO - {"timestamp": "2024-12-09T22:41:00.688820", "event_type": "ORDER_ACCEPTANCE_STARTED", "data": {"order_id": 5, "driver_id": 1, "service": "agricultural_product"}}
+2024-12-09 22:41:00,771 - WARNING - 買家 (ID: 未接單) 未綁定 LINE 帳號或發送通知失敗
+2024-12-09 22:41:00,775 - INFO - {"timestamp": "2024-12-09T22:41:00.775739", "event_type": "ORDER_ACCEPTED", "data": {"order_id": 5, "driver_id": 1, "service": "agricultural_product", "status": "success"}}
+2024-12-09 22:53:14,045 - INFO - Received driver_order: {"driver_id":1,"order_id":5,"action":"接單","timestamp":"2024-12-09T14:53:13.944Z","previous_driver_id":null,"previous_driver_name":null,"previous_driver_phone":null,"service":"agricultural_product"}
+2024-12-09 22:53:14,046 - INFO - {"timestamp": "2024-12-09T22:53:14.046090", "event_type": "ORDER_ACCEPTANCE_STARTED", "data": {"order_id": 5, "driver_id": 1, "service": "agricultural_product"}}
+2024-12-09 22:53:14,135 - WARNING - 買家 (ID: 未接單) 未綁定 LINE 帳號或發送通知失敗
+2024-12-09 22:53:14,138 - INFO - {"timestamp": "2024-12-09T22:53:14.138091", "event_type": "ORDER_ACCEPTED", "data": {"order_id": 5, "driver_id": 1, "service": "agricultural_product", "status": "success"}}
+2024-12-09 22:54:39,174 - INFO - Received driver_order: {"driver_id":1,"order_id":5,"action":"接單","timestamp":"2024-12-09T14:54:39.061Z","previous_driver_id":null,"previous_driver_name":null,"previous_driver_phone":null,"service":"agricultural_product"}
+2024-12-09 22:54:39,174 - INFO - {"timestamp": "2024-12-09T22:54:39.174344", "event_type": "ORDER_ACCEPTANCE_STARTED", "data": {"order_id": 5, "driver_id": 1, "service": "agricultural_product"}}
+2024-12-09 22:54:39,266 - WARNING - 買家 (ID: 未接單) 未綁定 LINE 帳號或發送通知失敗
+2024-12-09 22:54:39,271 - INFO - {"timestamp": "2024-12-09T22:54:39.271390", "event_type": "ORDER_ACCEPTED", "data": {"order_id": 5, "driver_id": 1, "service": "agricultural_product", "status": "success"}}
+2024-12-09 23:00:23,465 - INFO - {"timestamp": "2024-12-09T23:00:23.464482", "event_type": "USER_LOGIN_ATTEMPT", "data": {"phone": "1234567895"}}
+2024-12-09 23:00:23,466 - INFO - Logging in user with phone number 1234567895
+2024-12-09 23:00:23,471 - INFO - {"timestamp": "2024-12-09T23:00:23.471482", "event_type": "USER_LOGIN_SUCCESS", "data": {"user_id": 5, "phone": "1234567895", "is_driver": false}}
+2024-12-09 23:00:38,430 - INFO - {"timestamp": "2024-12-09T23:00:38.430992", "event_type": "USER_LOGIN_ATTEMPT", "data": {"phone": "1234567894"}}
+2024-12-09 23:00:38,430 - INFO - Logging in user with phone number 1234567894
+2024-12-09 23:00:38,434 - INFO - {"timestamp": "2024-12-09T23:00:38.434908", "event_type": "USER_LOGIN_SUCCESS", "data": {"user_id": 4, "phone": "1234567894", "is_driver": false}}
+2024-12-09 23:00:45,736 - INFO - {"timestamp": "2024-12-09T23:00:45.736850", "event_type": "USER_LOGIN_ATTEMPT", "data": {"phone": "1234567891"}}
+2024-12-09 23:00:45,736 - INFO - Logging in user with phone number 1234567891
+2024-12-09 23:00:45,741 - INFO - {"timestamp": "2024-12-09T23:00:45.739837", "event_type": "USER_LOGIN_SUCCESS", "data": {"user_id": 2, "phone": "1234567891", "is_driver": true}}
+2024-12-09 23:00:54,939 - INFO - Received driver_order: {"driver_id":1,"order_id":5,"action":"接單","timestamp":"2024-12-09T15:00:54.695Z","previous_driver_id":null,"previous_driver_name":null,"previous_driver_phone":null,"service":"agricultural_product"}
+2024-12-09 23:00:54,947 - INFO - {"timestamp": "2024-12-09T23:00:54.947067", "event_type": "ORDER_ACCEPTANCE_STARTED", "data": {"order_id": 5, "driver_id": 1, "service": "agricultural_product"}}
+2024-12-09 23:00:55,157 - WARNING - 買家 (ID: 未接單) 未綁定 LINE 帳號或發送通知失敗
+2024-12-09 23:00:55,165 - INFO - {"timestamp": "2024-12-09T23:00:55.165386", "event_type": "ORDER_ACCEPTED", "data": {"order_id": 5, "driver_id": 1, "service": "agricultural_product", "status": "success"}}
+2024-12-09 23:01:42,962 - INFO - Received driver_order: {"driver_id":1,"order_id":5,"action":"接單","timestamp":"2024-12-09T15:01:42.870Z","previous_driver_id":null,"previous_driver_name":null,"previous_driver_phone":null,"service":"agricultural_product"}
+2024-12-09 23:01:42,962 - INFO - {"timestamp": "2024-12-09T23:01:42.962513", "event_type": "ORDER_ACCEPTANCE_STARTED", "data": {"order_id": 5, "driver_id": 1, "service": "agricultural_product"}}
+2024-12-09 23:01:43,029 - WARNING - 買家 (ID: 未接單) 未綁定 LINE 帳號或發送通知失敗
+2024-12-09 23:01:43,033 - INFO - {"timestamp": "2024-12-09T23:01:43.033827", "event_type": "ORDER_ACCEPTED", "data": {"order_id": 5, "driver_id": 1, "service": "agricultural_product", "status": "success"}}
+2024-12-09 23:08:00,329 - INFO - Received driver_order: {"driver_id":1,"order_id":5,"action":"接單","timestamp":"2024-12-09T15:08:00.217Z","previous_driver_id":null,"previous_driver_name":null,"previous_driver_phone":null,"service":"agricultural_product"}
+2024-12-09 23:08:00,331 - INFO - {"timestamp": "2024-12-09T23:08:00.330742", "event_type": "ORDER_ACCEPTANCE_STARTED", "data": {"order_id": 5, "driver_id": 1, "service": "agricultural_product"}}
+2024-12-09 23:08:00,534 - WARNING - 買家 (ID: 未接單) 未綁定 LINE 帳號或發送通知失敗
+2024-12-09 23:08:00,540 - INFO - {"timestamp": "2024-12-09T23:08:00.539806", "event_type": "ORDER_ACCEPTED", "data": {"order_id": 5, "driver_id": 1, "service": "agricultural_product", "status": "success"}}
+2024-12-09 23:13:03,825 - INFO - Received driver_order: {"driver_id":1,"order_id":5,"action":"接單","timestamp":"2024-12-09T15:13:03.727Z","previous_driver_id":null,"previous_driver_name":null,"previous_driver_phone":null,"service":"agricultural_product"}
+2024-12-09 23:13:03,826 - INFO - {"timestamp": "2024-12-09T23:13:03.825793", "event_type": "ORDER_ACCEPTANCE_STARTED", "data": {"order_id": 5, "driver_id": 1, "service": "agricultural_product"}}
+2024-12-09 23:13:03,891 - WARNING - 買家 (ID: 未接單) 未綁定 LINE 帳號或發送通知失敗
+2024-12-09 23:13:03,896 - INFO - {"timestamp": "2024-12-09T23:13:03.896532", "event_type": "ORDER_ACCEPTED", "data": {"order_id": 5, "driver_id": 1, "service": "agricultural_product", "status": "success"}}
+2024-12-09 23:24:24,980 - INFO - Received driver_order: {"driver_id":1,"order_id":5,"action":"接單","timestamp":"2024-12-09T15:24:24.644Z","previous_driver_id":null,"previous_driver_name":null,"previous_driver_phone":null,"service":"agricultural_product"}
+2024-12-09 23:24:24,989 - INFO - {"timestamp": "2024-12-09T23:24:24.989515", "event_type": "ORDER_ACCEPTANCE_STARTED", "data": {"order_id": 5, "driver_id": 1, "service": "agricultural_product"}}
+2024-12-09 23:24:25,174 - WARNING - 買家 (ID: 未接單) 未綁定 LINE 帳號或發送通知失敗
+2024-12-09 23:24:25,195 - INFO - {"timestamp": "2024-12-09T23:24:25.195513", "event_type": "ORDER_ACCEPTED", "data": {"order_id": 5, "driver_id": 1, "service": "agricultural_product", "status": "success"}}
+2024-12-09 23:27:13,112 - INFO - Received driver_order: {"driver_id":1,"order_id":5,"action":"接單","timestamp":"2024-12-09T15:27:12.999Z","previous_driver_id":null,"previous_driver_name":null,"previous_driver_phone":null,"service":"agricultural_product"}
+2024-12-09 23:27:13,113 - INFO - {"timestamp": "2024-12-09T23:27:13.113384", "event_type": "ORDER_ACCEPTANCE_STARTED", "data": {"order_id": 5, "driver_id": 1, "service": "agricultural_product"}}
+2024-12-09 23:27:13,336 - WARNING - 買家 (ID: 未接單) 未綁定 LINE 帳號或發送通知失敗
+2024-12-09 23:27:13,356 - INFO - {"timestamp": "2024-12-09T23:27:13.356948", "event_type": "ORDER_ACCEPTED", "data": {"order_id": 5, "driver_id": 1, "service": "agricultural_product", "status": "success"}}
+2024-12-09 23:27:31,596 - INFO - Received driver_order: {"driver_id":1,"order_id":5,"action":"接單","timestamp":"2024-12-09T15:27:31.366Z","previous_driver_id":null,"previous_driver_name":null,"previous_driver_phone":null,"service":"agricultural_product"}
+2024-12-09 23:27:31,596 - INFO - {"timestamp": "2024-12-09T23:27:31.596768", "event_type": "ORDER_ACCEPTANCE_STARTED", "data": {"order_id": 5, "driver_id": 1, "service": "agricultural_product"}}
+2024-12-09 23:27:31,697 - WARNING - 買家 (ID: 未接單) 未綁定 LINE 帳號或發送通知失敗
+2024-12-09 23:27:31,714 - INFO - {"timestamp": "2024-12-09T23:27:31.714402", "event_type": "ORDER_ACCEPTED", "data": {"order_id": 5, "driver_id": 1, "service": "agricultural_product", "status": "success"}}
+2024-12-09 23:33:31,960 - ERROR - Exception in callback _ProactorBasePipeTransport._call_connection_lost(None)
+handle: <Handle _ProactorBasePipeTransport._call_connection_lost(None)>
+Traceback (most recent call last):
+  File "C:\Users\User\AppData\Local\Programs\Python\Python310\lib\asyncio\events.py", line 80, in _run
+    self._context.run(self._callback, *self._args)
+  File "C:\Users\User\AppData\Local\Programs\Python\Python310\lib\asyncio\proactor_events.py", line 162, in _call_connection_lost
+    self._sock.shutdown(socket.SHUT_RDWR)
+ConnectionResetError: [WinError 10054] 遠端主機已強制關閉一個現存的連線。
+2024-12-09 23:33:32,464 - INFO - Get agricultural_product.(today_date: 2024-12-09)
+2024-12-09 23:33:32,509 - INFO - start create product list
+2024-12-09 23:33:32,763 - INFO - Get agricultural_product.(today_date: 2024-12-09)
+2024-12-09 23:33:32,768 - INFO - start create product list
+2024-12-09 23:33:52,820 - INFO - Get purchased items of user whose id is 2.
+2024-12-09 23:33:52,831 - INFO - start create purchased product list
+2024-12-09 23:33:53,170 - INFO - Get purchased items of user whose id is 2.
+2024-12-09 23:33:53,176 - INFO - start create purchased product list
+2024-12-09 23:43:57,120 - INFO - Start delete driver order
+2024-12-09 23:43:57,127 - INFO - Start change status
+2024-12-09 23:54:19,458 - INFO - Received driver_order: {"driver_id":1,"order_id":5,"action":"接單","timestamp":"2024-12-09T15:54:19.367Z","previous_driver_id":null,"previous_driver_name":null,"previous_driver_phone":null,"service":"agricultural_product"}
+2024-12-09 23:54:19,490 - INFO - {"timestamp": "2024-12-09T23:54:19.490860", "event_type": "ORDER_ACCEPTANCE_STARTED", "data": {"order_id": 5, "driver_id": 1, "service": "agricultural_product"}}
+2024-12-09 23:54:19,580 - WARNING - 買家 (ID: 未接單) 未綁定 LINE 帳號或發送通知失敗
+2024-12-09 23:54:19,600 - INFO - {"timestamp": "2024-12-09T23:54:19.600861", "event_type": "ORDER_ACCEPTED", "data": {"order_id": 5, "driver_id": 1, "service": "agricultural_product", "status": "success"}}
+2024-12-09 23:54:50,096 - INFO - Start delete driver order
+2024-12-09 23:54:50,100 - INFO - Start change status
+2024-12-09 23:55:04,935 - INFO - Received driver_order: {"driver_id":1,"order_id":5,"action":"接單","timestamp":"2024-12-09T15:55:04.855Z","previous_driver_id":null,"previous_driver_name":null,"previous_driver_phone":null,"service":"agricultural_product"}
+2024-12-09 23:55:04,936 - INFO - {"timestamp": "2024-12-09T23:55:04.936782", "event_type": "ORDER_ACCEPTANCE_STARTED", "data": {"order_id": 5, "driver_id": 1, "service": "agricultural_product"}}
+2024-12-09 23:55:05,021 - WARNING - 買家 (ID: 未接單) 未綁定 LINE 帳號或發送通知失敗
+2024-12-09 23:55:05,027 - INFO - {"timestamp": "2024-12-09T23:55:05.026789", "event_type": "ORDER_ACCEPTED", "data": {"order_id": 5, "driver_id": 1, "service": "agricultural_product", "status": "success"}}
+2024-12-09 23:55:13,552 - INFO - Start delete driver order
+2024-12-09 23:55:13,556 - INFO - Start change status
+2024-12-09 23:55:20,979 - INFO - Received driver_order: {"driver_id":1,"order_id":5,"action":"接單","timestamp":"2024-12-09T15:55:20.887Z","previous_driver_id":null,"previous_driver_name":null,"previous_driver_phone":null,"service":"agricultural_product"}
+2024-12-09 23:55:20,979 - INFO - {"timestamp": "2024-12-09T23:55:20.979178", "event_type": "ORDER_ACCEPTANCE_STARTED", "data": {"order_id": 5, "driver_id": 1, "service": "agricultural_product"}}
+2024-12-09 23:55:21,174 - WARNING - 買家 (ID: 未接單) 未綁定 LINE 帳號或發送通知失敗
+2024-12-09 23:55:21,180 - INFO - {"timestamp": "2024-12-09T23:55:21.180182", "event_type": "ORDER_ACCEPTED", "data": {"order_id": 5, "driver_id": 1, "service": "agricultural_product", "status": "success"}}
+2024-12-09 23:55:25,960 - INFO - Start delete driver order
+2024-12-09 23:55:25,963 - INFO - Start change status

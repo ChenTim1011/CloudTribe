@@ -5,6 +5,9 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardDescription }
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Order } from '@/interfaces/tribe_resident/buyer/order';
+import DriverService from '@/services/driver/driver'
+import { TimeSlot } from '@/interfaces/driver/driver'
+
 
 /**
  * Represents an order card component.
@@ -33,6 +36,8 @@ const OrderCard: React.FC<{
     const [transferError, setTransferError] = useState("");
     // State for error messages related to accepting the order
     const [acceptError, setAcceptError] = useState("");
+    //state for drop agricultural product(if product is not put in the place that driver takes items)
+    const [dropOrderMessage, setDropOrderMessage] = useState("");
 
     /**
      * Handles the acceptance of an order.
@@ -73,6 +78,38 @@ const OrderCard: React.FC<{
         }
     };
 
+
+    const handleDropOrder = async() => {
+        const today = new Date().toISOString().split('T')[0]
+        try{
+            const res_driver_times: TimeSlot[] = await DriverService.get_specific_driver_times(driverId)
+            if(res_driver_times.length == 0){
+                setDropOrderMessage('請先填寫可運送時間才可棄單')
+            }
+            else if(res_driver_times.some(slot => slot.date === today) != true){
+                setDropOrderMessage('今天非運送日期無法棄單')
+            }
+            else if(order.is_put == true) {
+                setDropOrderMessage('商品已送達運送地無法棄單')
+            }
+            else {
+                try {
+                    if(order.id != undefined) 
+                        var res_delete = await DriverService.drop_agricultural_order(driverId, order.id)
+                        console.log(res_delete)
+                }
+                catch(e){
+                    console.log(e)
+                }
+                setDropOrderMessage('棄單成功!')
+            }       
+        }
+        catch(e){
+            console.log(e)
+        }
+
+    }
+
     const getImageSrc = (item: any) => {
         if (item.category === "小木屋鬆餅" || item.category === "金鰭" || item.category === "原丼力") {
             return `/test/${encodeURIComponent(item.img)}`; // Local image
@@ -82,6 +119,7 @@ const OrderCard: React.FC<{
             return `https://www.cloudtribe.online${item.img}`; // CloudTribe image
         }
     };
+
 
 
     return (
@@ -177,6 +215,9 @@ const OrderCard: React.FC<{
                 {acceptError && (
                     <p className="text-red-600 mt-2">{acceptError}</p>
                 )}
+                {dropOrderMessage && (
+                    <p className="text-red-600 mt-2">{dropOrderMessage}</p>
+                )}
             </CardContent>
             {/* Card footer showing order status and total price */}
             <CardFooter className="bg-gray-100 p-4 rounded-b-md flex justify-between items-center">
@@ -192,7 +233,10 @@ const OrderCard: React.FC<{
                         ) : (
                             <>
                                 <Button className="bg-red-500 text-white" onClick={() => setShowTransferForm(true)}>轉單</Button>
+                                {order.service == 'agricultural_product' &&
+                                    <Button className="bg-black text-white" onClick={handleDropOrder}>棄單</Button>}
                             </>
+                            
                         )}
                     </div>
                 )}

@@ -626,3 +626,57 @@ async def delete_driver_time(id: int, conn: Connection = Depends(get_db)):
         raise HTTPException(status_code=500, detail="伺服器內部錯誤") from e
     finally:
         cur.close()
+
+@router.delete("/drop_agricultural_order/{driver_id}/{order_id}")
+async def delete_received_agricultural_product(driver_id: int, order_id: int, conn: Connection = Depends(get_db)):
+    """
+    Delete received_agricultural_product order.
+
+    Args:
+        driver_id (int): The ID of the driver
+        order_id (int): The id of agricultural order
+        conn (Connection): The database connection.
+
+    Returns:
+        dict: A dictionary containing the success status and a message indicating the deleted driver order id.
+    """
+    cur = conn.cursor()
+    try:
+        # Check if the driver exists
+        cur.execute("SELECT id FROM drivers WHERE id = %s", (driver_id,))
+        if not cur.fetchone():
+            raise HTTPException(status_code=404, detail="司機不存在")
+        # Check if the agricultural order exists
+        cur.execute("SELECT id FROM agricultural_product_order WHERE id = %s", (order_id,))
+        if not cur.fetchone():
+            raise HTTPException(status_code=404, detail="農產品訂單不存在")
+        logging.info("Start delete driver order")
+        cur.execute(
+            """
+            DELETE FROM driver_orders
+            WHERE driver_id = %s and order_id = %s and service = %s
+            """,
+            (driver_id, order_id, 'agricultural_product',)
+        )
+
+        logging.info("Start change status")
+        #change agricultural product status from 接單 to 未接單
+        cur.execute(
+            """
+            UPDATE agricultural_product_order
+            SET status = %s
+            WHERE id = %s
+            """,
+            ('未接單', order_id)
+        )
+        conn.commit()
+        return {"status": "success", "message": f"Deleted driver agricultural order"}
+    except HTTPException as he:
+        conn.rollback()
+        raise he
+    except Exception as e:
+        conn.rollback()
+        logging.error("Error drop agricultural driver order: %s", str(e))
+        raise HTTPException(status_code=500, detail="伺服器內部錯誤") from e
+    finally:
+        cur.close()
