@@ -144,15 +144,17 @@ export const SellerDialog = () => {
         </Button>
       </DialogTrigger>
 
-      <DialogContent className="lg:max-w-[800px] max-w-[400px] justify-center max-h-[1000px] overflow-hidden">
-        <DialogHeader>
+      <DialogContent className="lg:max-w-[800px] max-w-[400px] h-[90vh] flex flex-col">
+        <DialogHeader className="flex-none">
           <DialogTitle className="lg:text-3xl text-2xl">請輸入上架商品資訊</DialogTitle>
           <DialogDescription className="lg:text-lg text-sm">
             請確實填寫內容
           </DialogDescription>
         </DialogHeader>
-        <div className="flex-1 overflow-y-auto">
-          <div className="grid gap-4 px-4">
+
+        
+        <div className="flex-1 overflow-y-auto px-4">
+          <div className="space-y-4">
             <div className="mb-6 flex flex-col items-center">
               <Label className="block text-left lg:text-2xl text-md mb-2 self-start">
                 下架日期
@@ -213,7 +215,7 @@ export const SellerDialog = () => {
         )}
         {closeDialog != true && isUploading != true &&
         <DialogFooter className="items-center">
-          <Button type="submit" className="lg:text-2xl text-lg w-1/2" onClick={handleConfirm} disabled={isSelectorOpen}>確認</Button>
+          <Button type="submit" className=" mt-5 lg:text-2xl text-lg w-1/2" onClick={handleConfirm} disabled={isSelectorOpen}>確認</Button>
         </DialogFooter>}
         {closeDialog &&
         <Alert className="bg-green-500 text-white">
