@@ -364,7 +364,7 @@ const DriverOrdersPage: React.FC<DriverOrdersPageProps> = ({
                         {aggregatedItemsByLocation.map((locationGroup, index) => (
                         <div key={index} className="mb-4">
                             <h3 className="text-sm font-medium mb-2 sticky top-12 bg-white py-1">
-                            {locationGroup.location}
+                            採買地點:{locationGroup.location}
                             </h3>
                             <table className="w-full table-auto mb-2">
                             <thead className="sticky top-20 bg-white">

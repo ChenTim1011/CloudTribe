@@ -941,8 +941,8 @@ return (
                   </div>
                   {aggregatedItemsByLocation.map((locationGroup, index) => {
                     // Calculate item keys for each location
-                    const locationItems = locationGroup.items.map((item, idx) => 
-                      `${locationGroup.location}-${item.name}-${idx}`
+                    const locationItems = locationGroup.items.map((item) => 
+                      `${locationGroup.location}-${item.name}`  
                     );
                     // Calculate checked count
                     const checkedCount = locationItems.filter(key => checkedItems[key]).length;
@@ -952,7 +952,7 @@ return (
                     return (
                       <div key={index} className="mb-4">
                         <div className="flex justify-between items-center mb-2">
-                          <h3 className="text-sm font-medium">{locationGroup.location}</h3>
+                          <h3 className="text-sm font-medium">採買地點: {locationGroup.location}</h3>
                           <Button
                             variant="outline"
                             size="sm"
@@ -978,7 +978,7 @@ return (
                           </thead>
                           <tbody>
                             {locationGroup.items.map((item, idx) => {
-                              const itemKey = `${locationGroup.location}-${item.name}-${idx}`;
+                              const itemKey = `${locationGroup.location}-${item.name}`;
                               return (
                                 <tr key={idx} className={checkedItems[itemKey] ? "bg-gray-50" : ""}>
                                   <td className="py-1">
@@ -1111,54 +1111,96 @@ return (
 
           {/* Destinations List with Move Buttons and Distance/Time */}
           <div className="my-5">
-            <h2 className="text-lg font-bold mb-2">訂單地點</h2>
+            <h2 className="text-lg font-bold mb-2">訂單地點(起點是目前位置)</h2>
             <ul className="space-y-2">
-              {destinations.slice(0, -1).map((dest, index) => (
-                <li
-                  key={`dest-${index}`}
-                  className="p-2 border rounded-md bg-gray-100 flex flex-col sm:flex-row justify-between items-start sm:items-center"
-                >
-                  <div className="flex items-center space-x-2">
-                    <span>{dest.name}</span>
-                    {/* Show direction and time  */}
-                    {legs[index] ? (
-                      <span className="text-sm text-black-600">
-                        距離: {legs[index].distance.text}, 時間: {legs[index].duration.text}
-                      </span>
-                    ) : (
-                      <span className="text-sm text-gray-600">距離和時間正在載入...</span>
-                    )}
-                  </div>
-                  <div className="flex space-x-2 mt-2 sm:mt-0">
-                    <Button
-                      onClick={() => handleMoveUp(index)}
-                      disabled={index === 0}
-                      variant="ghost"
-                      className="p-1"
-                      title="上移"
-                    >
-                      <FontAwesomeIcon icon={faArrowUp} />
-                    </Button>
-                    <Button
-                      onClick={() => handleMoveDown(index)}
-                      disabled={index >= destinations.length - 2}
-                      variant="ghost"
-                      className="p-1"
-                      title="下移"
-                    >
-                      <FontAwesomeIcon icon={faArrowDown} />
-                    </Button>
-                    <Button
-                      onClick={() => handleRemoveDestination(index)}
-                      variant="ghost"
-                      className="p-1 text-black-500"
-                      title="移除"
-                    >
-                      <FontAwesomeIcon icon={faTrash} />
-                    </Button>
-                  </div>
-                </li>
-              ))}
+              {destinations.slice(0, -1).map((dest, index) => {
+                const isOrderLocation = orders.some(order => 
+                  order.location === dest.name
+                );
+                
+                const isItemLocation = orders.some(order => 
+                  order.items.some(item => item.location === dest.name)
+                );
+                
+                const getLocationPriority = () => {
+                  if (isItemLocation) return 1;
+                  if (isOrderLocation) return 2;
+                  return 3;
+                };
+
+                return (
+                  <li
+                    key={`dest-${index}`}
+                    className={`p-4 border rounded-md flex flex-col sm:flex-row justify-between items-start ${
+                      isOrderLocation ? 'bg-red-100' : 
+                      isItemLocation ? 'bg-blue-100' : 
+                      'bg-gray-100'
+                    }`}
+                    data-priority={getLocationPriority()}
+                  >
+                    <div className="flex flex-col space-y-2">
+                      <div className="flex flex-col">
+                        <span className={
+                          isOrderLocation ? 'text-red-600 font-medium' : 
+                          isItemLocation ? 'text-blue-600 font-medium' : 
+                          ''
+                        }>
+                          {dest.name}
+                        </span>
+                        <div className="mt-1">
+                          {isItemLocation && 
+                            <span className="text-sm text-blue-500">(需要購買物品的點)</span>
+                          }
+                          {isOrderLocation && 
+                            <span className="text-sm text-red-500">(貨物到達的點)</span>
+                          }
+                        </div>
+                      </div>
+                      
+                      {/* Show direction and time */}
+                      <div className="flex flex-col text-sm text-gray-600">
+                        {legs[index] ? (
+                          <>
+                            <span>與前一站距離差: {legs[index].distance.text}</span>
+                            <span>與前一站時間差: {legs[index].duration.text}</span>
+                          </>
+                        ) : (
+                          <span>距離和時間正在載入...</span>
+                        )}
+                      </div>
+                    </div>
+
+                    <div className="flex space-x-2 mt-4 sm:mt-0">
+                      <Button
+                        onClick={() => handleMoveUp(index)}
+                        disabled={index === 0}
+                        variant="ghost"
+                        className="p-1"
+                        title="上移"
+                      >
+                        <FontAwesomeIcon icon={faArrowUp} />
+                      </Button>
+                      <Button
+                        onClick={() => handleMoveDown(index)}
+                        disabled={index >= destinations.length - 2}
+                        variant="ghost"
+                        className="p-1"
+                        title="下移"
+                      >
+                        <FontAwesomeIcon icon={faArrowDown} />
+                      </Button>
+                      <Button
+                        onClick={() => handleRemoveDestination(index)}
+                        variant="ghost"
+                        className="p-1 text-black-500"
+                        title="移除"
+                      >
+                        <FontAwesomeIcon icon={faTrash} />
+                      </Button>
+                    </div>
+                  </li>
+                );
+              })}
             </ul>
           </div>
 
@@ -1202,7 +1244,7 @@ return (
                 {/* Show the distance and time about Terminal */}
                 {legs[legs.length - 1] ? (
                   <span className=" text-sm text-black-600">
-                    距離: {legs[legs.length - 1].distance.text}, 時間: {legs[legs.length - 1].duration.text}
+                    與前一站距離差: {legs[legs.length - 1].distance.text}, 與前一站時間差: {legs[legs.length - 1].duration.text}
                   </span>
                 ) : (
                   <span className="text-sm text-gray-600">距離和時間正在載入...</span>
