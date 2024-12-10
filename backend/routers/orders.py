@@ -229,36 +229,113 @@ async def accept_order(service: str, order_id: int, driver_order: DriverOrder, c
 
 
         if service == 'necessities':
-            cur.execute("SELECT order_status,buyer_id  FROM orders WHERE id = %s FOR UPDATE", (order_id,))
-        if service == 'agricultural_product':
-            cur.execute("SELECT status,buyer_id  FROM agricultural_product_order WHERE id = %s FOR UPDATE", (order_id,))
+            # Get order details with items
+            cur.execute("""
+                SELECT o.id, o.buyer_id, o.buyer_name, o.buyer_phone, o.location, 
+                       o.is_urgent, o.total_price, o.order_type, o.order_status, 
+                       o.note, o.timestamp,
+                       oi.item_name, oi.quantity, oi.price,
+                       d.phone as driver_phone
+                FROM orders o
+                LEFT JOIN order_items oi ON o.id = oi.order_id
+                LEFT JOIN drivers d ON d.id = %s
+                WHERE o.id = %s FOR UPDATE
+            """, (driver_order.driver_id, order_id))
+            order_data = cur.fetchall()
 
-        order = cur.fetchone()
-        if order:
-            # Find buyer ID
-            buyer_id = order[1]
-            # Send a message to the buyer
-            success = await line_service.send_message_to_user(
-                buyer_id,
-                "司機已接取您的商品，請等待司機送貨👍🏻"
-            )
+            if not order_data:
+                raise HTTPException(status_code=404, detail="訂單未找到")
+
+            order = order_data[0]
+            if order[8] != '未接單':  # order_status index
+                raise HTTPException(status_code=400, detail="訂單已被接")
+
+            # Format message with order details
+            buyer_id = order[1]  # buyer_id index
+            total_price = float(order[6])  # total_price index
+            delivery_address = order[4]  # location index
+            driver_phone = order[-1] if order[-1] else "無"
+
+            message = "司機已接取您的商品，請等待司機送貨👍🏻\n\n"
+            message += "📦 訂單明細 #" + str(order_id) + "\n"
+            message += f"📍 送貨地點：{delivery_address}\n"
+            message += f"📱 司機電話：{driver_phone}\n"
+            message += "─────────────\n"
+
+            for item in order_data:
+                item_name = item[11]  # item_name from join
+                quantity = int(item[12])  # quantity from join
+                price = float(item[13])  # price from join
+                subtotal = quantity * price
+                message += f"・{item_name}\n"
+                message += f"  ${price} x {quantity} = ${subtotal}\n"
+
+            message += "─────────────\n"
+            message += f"總計: ${total_price}"
+
+            # Send notification to buyer
+            success = await line_service.send_message_to_user(buyer_id, message)
             if not success:
                 logger.warning(f"買家 (ID: {buyer_id}) 未綁定 LINE 帳號或發送通知失敗")
 
-        if not order:
-            raise HTTPException(status_code=404, detail="訂單未找到")
-
-        order_status = order[0]
-        if order_status != '未接單':
-            raise HTTPException(status_code=400, detail="訂單已被接")
-        if service == 'necessities':
+            # Update order status
             cur.execute("UPDATE orders SET order_status = %s WHERE id = %s", ('接單', order_id))
-        if service == 'agricultural_product':
+
+        elif service == 'agricultural_product':
+            # Get order details with items
+            cur.execute("""
+                SELECT o.id, o.buyer_id, o.buyer_name, o.buyer_phone, o.end_point,
+                       o.status, o.note, p.id, p.name, p.price, o.quantity,
+                       p.img_link, o.starting_point, p.category, o.is_put, o.timestamp,
+                       d.phone as driver_phone
+                FROM agricultural_product_order o
+                LEFT JOIN agricultural_produce p ON p.id = o.produce_id
+                LEFT JOIN drivers d ON d.id = %s
+                WHERE o.id = %s FOR UPDATE
+            """, (driver_order.driver_id, order_id))
+            order_data = cur.fetchall()
+
+            if not order_data:
+                raise HTTPException(status_code=404, detail="訂單未找到")
+
+            order = order_data[0]
+            if order[5] != '未接單':  # status index
+                raise HTTPException(status_code=400, detail="訂單已被接")
+
+            # Format message with order details
+            buyer_id = order[1]
+            price = float(order[9])  # price from agricultural_produce
+            quantity = int(order[10])  # quantity from order
+            total_price = price * quantity
+            delivery_address = order[4]  # end_point
+            driver_phone = order[-1] if order[-1] else "無"
+
+            message = "司機已接取您的農產品，請等待司機送貨👍🏻\n\n"
+            message += "📦 訂單明細 #" + str(order_id) + "\n"
+            message += f"📍 送貨地點：{delivery_address}\n"
+            message += f"📱 司機電話：{driver_phone}\n"
+            message += "─────────────\n"
+
+            message += f"・{order[8]}\n"  # product name
+            message += f"  ${price} x {quantity} = ${total_price}\n"
+            message += "─────────────\n"
+            message += f"總計: ${total_price}"
+
+            # Send notification to buyer
+            success = await line_service.send_message_to_user(buyer_id, message)
+            if not success:
+                logger.warning(f"買家 (ID: {buyer_id}) 未綁定 LINE 帳號或發送通知失敗")
+
+            # Update order status
             cur.execute("UPDATE agricultural_product_order SET status = %s WHERE id = %s", ('接單', order_id))
+
+        # Insert driver_orders record
         cur.execute(
             "INSERT INTO driver_orders (driver_id, order_id, action, timestamp, previous_driver_id, previous_driver_name, previous_driver_phone, service) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)",
-            (driver_order.driver_id, order_id, '接單', driver_order.timestamp, driver_order.previous_driver_id, driver_order.previous_driver_name, driver_order.previous_driver_phone, driver_order.service)
+            (driver_order.driver_id, order_id, '接單', driver_order.timestamp, driver_order.previous_driver_id, 
+             driver_order.previous_driver_name, driver_order.previous_driver_phone, driver_order.service)
         )
+
         conn.commit()
         log_event("ORDER_ACCEPTED", {
             "order_id": order_id,
@@ -435,77 +512,132 @@ async def complete_order(service: str, order_id: int, conn = Depends(get_db)):
     """
     cur = conn.cursor()
     try:
-
         log_event("ORDER_COMPLETION_STARTED", {
             "order_id": order_id,
             "service": service
         })
-
-
+        
         if service == 'necessities':
-            # Check if order exists
-            cur.execute("SELECT * FROM orders WHERE id = %s", (order_id,))
-            order = cur.fetchone()
-
-            success = False
-            if order:
-                # order[1] = buyer_id
-                buyer_id = order[1]
-                # Send a message to the buyer
-                success = await line_service.send_message_to_user(
-                    buyer_id,
-                    "您的貨品已送達目的地，請盡快到指定地點領取😆"
-                )
-                if not success:
-                    logger.warning(f"買家 (ID: {buyer_id}) 未綁定 LINE 帳號或發送通知失敗")
-
-            if not order:
+            # Check if order exists and get driver info
+            cur.execute("""
+                SELECT 
+                    o.id, o.buyer_id, o.buyer_name, o.buyer_phone, 
+                    o.seller_id, o.seller_name, o.seller_phone,
+                    o.date, o.time, o.location, o.is_urgent,
+                    o.total_price, o.order_type, o.order_status,
+                    oi.item_name, oi.quantity, oi.price, oi.img,
+                    d.phone as driver_phone
+                FROM orders o
+                LEFT JOIN order_items oi ON o.id = oi.order_id
+                LEFT JOIN driver_orders do ON o.id = do.order_id AND do.service = 'necessities'
+                LEFT JOIN drivers d ON do.driver_id = d.id
+                WHERE o.id = %s
+            """, (order_id,))
+            order_data = cur.fetchall()
+            
+            if not order_data:
                 raise HTTPException(status_code=404, detail="訂單不存在")
-            if order[13] != '接單':
+                
+            order = order_data[0]
+            if order[13] != '接單':  # order_status
                 raise HTTPException(status_code=400, detail="訂單狀態不是接單，無法完成訂單")
             
-            # Update the order status
+            # Format order details message
+            buyer_id = order[1]  # buyer_id
+            total_price = order[11]  # total_price
+            delivery_address = order[9]  # location
+            driver_phone = order[-1] if order[-1] else "無"  # driver_phone
+            
+            message = "您的貨品已送達目的地，請盡快到指定地點領取 😊\n\n"
+            message += "📦 訂單編號 #" + str(order_id) + "\n"
+            message += f"📍 送貨地點：{delivery_address}\n"
+            message += f"📱 司機電話：{driver_phone}\n"
+            message += "─────────────\n"
+            
+            # Process items from order_data
+            for item in order_data:
+                item_name = item[14]  # item_name
+                quantity = int(item[15])  # quantity
+                price = float(item[16])  # price
+                subtotal = quantity * price
+                message += f"・{item_name}\n"
+                message += f"  ${price} x {quantity} = ${subtotal}\n"
+            
+            message += "─────────────\n"
+            message += f"總計: ${total_price}"
+            
+            success = await line_service.send_message_to_user(buyer_id, message)
+            if not success:
+                logger.warning(f"買家 (ID: {buyer_id}) 未綁定 LINE 帳號或發送通知失敗")
+            
             cur.execute("UPDATE orders SET order_status = '已完成' WHERE id = %s", (order_id,))
             
-            # Update the driver_orders action
             cur.execute("""
                 UPDATE driver_orders
                 SET action = '完成'
                 WHERE order_id = %s and service = %s
             """, (order_id, 'necessities'))
-        if service == 'agricultural_product':
-             # Check if order exists
-            cur.execute("SELECT * FROM agricultural_product_order WHERE id = %s", (order_id,))
-            order = cur.fetchone()
-
-            success = False
-            if order:
-                buyer_id = order[1]
-                # Send a message to the buyer
-                success = await line_service.send_message_to_user(
-                    buyer_id,
-                    "您的貨品已送達目的地，請盡快到指定地點領取😆"
-                )
-                if not success:
-                    logger.warning(f"買家 (ID: {buyer_id}) 未綁定 LINE 帳號或發送通知失敗")
-
-            if not order:
+            
+        elif service == 'agricultural_product':
+            # Check if order exists and get driver info
+            cur.execute("""
+                SELECT 
+                    o.id, o.buyer_id, o.buyer_name, o.buyer_phone,
+                    o.end_point, o.status, o.total_price, o.is_put,
+                    o.starting_point, o.note, o.timestamp,
+                    p.name as product_name, p.price, o.quantity,
+                    d.phone as driver_phone
+                FROM agricultural_product_order o
+                LEFT JOIN agricultural_produce p ON p.id = o.produce_id
+                LEFT JOIN driver_orders do ON o.id = do.order_id AND do.service = 'agricultural_product'
+                LEFT JOIN drivers d ON do.driver_id = d.id
+                WHERE o.id = %s
+            """, (order_id,))
+            order_data = cur.fetchall()
+            
+            if not order_data:
                 raise HTTPException(status_code=404, detail="訂單不存在")
-            if order[10] != '接單':
+                
+            order = order_data[0]
+            if order[5] != '接單':  # status
                 raise HTTPException(status_code=400, detail="訂單狀態不是接單，無法完成訂單")
             
-            # Update the order status
+            # Format order details message
+            buyer_id = order[1]
+            total_price = order[6]  # total_price
+            delivery_address = order[4]  # end_point
+            driver_phone = order[-1] if order[-1] else "無"  # driver_phone
+            
+            message = "您的農產品已送達目的地，請盡快到指定地點領取 🌾\n\n"
+            message += "📦 訂單編號 #" + str(order_id) + "\n"
+            message += f"📍 送貨地點：{delivery_address}\n"
+            message += f"📱 司機電話：{driver_phone}\n"
+            message += "─────────────\n"
+            
+            # Process items from order_data
+            for item in order_data:
+                item_name = item[11]  # product_name
+                quantity = int(item[13])  # quantity
+                price = float(item[12])  # price
+                subtotal = quantity * price
+                message += f"・{item_name}\n"
+                message += f"  ${price} x {quantity} = ${subtotal}\n"
+            
+            message += "─────────────\n"
+            message += f"總計: ${total_price}"
+            
+            success = await line_service.send_message_to_user(buyer_id, message)
+            if not success:
+                logger.warning(f"買家 (ID: {buyer_id}) 未綁定 LINE 帳號或發送通知失敗")
+            
             cur.execute("UPDATE agricultural_product_order SET status = '已送達' WHERE id = %s", (order_id,))
             
-            # Update the driver_orders action
             cur.execute("""
                 UPDATE driver_orders
                 SET action = '完成'
                 WHERE order_id = %s and service = %s
             """, (order_id, 'agricultural_product'))
         
-
-
         conn.commit()
         log_event("ORDER_COMPLETED", {
             "order_id": order_id,
@@ -513,6 +645,7 @@ async def complete_order(service: str, order_id: int, conn = Depends(get_db)):
             "status": "success"
         })
         return {"status": "success", "message": "訂單已完成"}
+        
     except Exception as e:
         log_event("ORDER_COMPLETION_ERROR", {
             "order_id": order_id,
