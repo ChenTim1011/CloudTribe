@@ -12,8 +12,17 @@ import { Order } from '@/interfaces/tribe_resident/buyer/order';
 const BuyerOrderCard: React.FC<{
   order: Order; // The order object
 }> = ({ order }) => {
-  // Log the received order object for debugging purposes
-  console.log('BuyerOrderCard received order:', order);
+  
+  // Function to determine the correct image source based on category and URL
+  const getImageSrc = (item: any) => {
+      if (item.category === "小木屋鬆餅" || item.category === "金鰭" || item.category === "原丼力") {
+        return `/test/${encodeURIComponent(item.img)}`; // Local image
+      } else if (item.img?.includes('imgur.com')) {
+        return item.img; // Imgur image - direct URL
+      } else {
+        return `https://www.cloudtribe.online${item.img}`; // CloudTribe image
+      }
+  };
 
   return (
     <Card className="max-w-md mx-auto my-6 shadow-lg">
@@ -39,14 +48,10 @@ const BuyerOrderCard: React.FC<{
                 <div className="flex items-center space-x-2">
                   {/* Image of the item */}
                   <img
-                    src={
-                      item.category === "小木屋鬆餅" || item.category === "金鰭" || item.category === "原丼力"
-                      ? `/test/${encodeURIComponent(item.img)}` // Local image from the public folder
-                      : `https://www.cloudtribe.online${item.img}` // Online image URL
-                    }
-                    alt={item.item_name || '未命名'} 
-                    width={40} 
-                    height={40} 
+                    src={getImageSrc(item)}
+                    alt={item.item_name || '未命名'}
+                    width={40}
+                    height={40}
                     className="object-cover rounded"
                   />
                   <div>
