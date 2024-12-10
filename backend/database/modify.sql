@@ -29,3 +29,7 @@ ALTER TABLE agricultural_produce
 ADD COLUMN unit VARCHAR(10);
 
 ALTER TABLE users ADD COLUMN line_user_id VARCHAR(255);
+
+ALTER TABLE agricultural_product_order ADD COLUMN is_put BOOLEAN DEFAULT FALSE;
+    
+ALTER TABLE orders ADD COLUMN timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP;

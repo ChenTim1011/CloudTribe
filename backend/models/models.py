@@ -31,6 +31,7 @@ class Order(BaseModel):
     note: Optional[str] = None
     service: str
     items: List[OrderItem]
+    timestamp: Optional[datetime] = None 
 
 class DetailedOrder(Order):
     seller_id: int

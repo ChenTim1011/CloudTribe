@@ -24,6 +24,7 @@ export interface Order {
     service: string;
     items: OrderItem[];
     is_put?: boolean; //for agricultural product
+    timestamp?: string;
 }
 
 

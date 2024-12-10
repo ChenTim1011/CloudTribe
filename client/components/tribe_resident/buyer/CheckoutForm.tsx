@@ -187,7 +187,7 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onClose, clearCart, cartIte
       required_orders_count: 1,
       previous_driver_id: null,
       previous_driver_name: null,
-      previous_driver_phone: null,
+      previous_driver_phone: null,    
       items: cartItems.map(item => ({
         item_id: item.id,
         item_name: item.name,
