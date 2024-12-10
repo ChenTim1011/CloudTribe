@@ -236,10 +236,11 @@ async def accept_order(service: str, order_id: int, driver_order: DriverOrder, c
                        o.note, o.timestamp,
                        oi.item_name, oi.quantity, oi.price,
                        d.driver_phone as driver_phone
-                FROM orders o
+                FROM orders o 
                 LEFT JOIN order_items oi ON o.id = oi.order_id
                 LEFT JOIN drivers d ON d.id = %s
-                WHERE o.id = %s FOR UPDATE
+                WHERE o.id = %s
+                FOR UPDATE OF o
             """, (driver_order.driver_id, order_id))
             order_data = cur.fetchall()
 
@@ -288,10 +289,11 @@ async def accept_order(service: str, order_id: int, driver_order: DriverOrder, c
                        o.status, o.note, p.id, p.name, p.price, o.quantity,
                        p.img_link, o.starting_point, p.category, o.is_put, o.timestamp,
                        d.driver_phone as driver_phone
-                FROM agricultural_product_order o
+                FROM agricultural_product_order o 
                 LEFT JOIN agricultural_produce p ON p.id = o.produce_id
                 LEFT JOIN drivers d ON d.id = %s
-                WHERE o.id = %s FOR UPDATE
+                WHERE o.id = %s 
+                FOR UPDATE OF o
             """, (driver_order.driver_id, order_id))
             order_data = cur.fetchall()
 
@@ -529,8 +531,8 @@ async def complete_order(service: str, order_id: int, conn = Depends(get_db)):
                     d.driver_phone as driver_phone
                 FROM orders o
                 LEFT JOIN order_items oi ON o.id = oi.order_id
-                LEFT JOIN driver_orders do ON o.id = do.order_id AND do.service = 'necessities'
-                LEFT JOIN drivers d ON do.driver_id = d.id
+                LEFT JOIN driver_orders dro ON o.id = dro.order_id AND dro.service = 'necessities'
+                LEFT JOIN drivers d ON dro.driver_id = d.id
                 WHERE o.id = %s
             """, (order_id,))
             order_data = cur.fetchall()
@@ -573,7 +575,7 @@ async def complete_order(service: str, order_id: int, conn = Depends(get_db)):
             cur.execute("UPDATE orders SET order_status = '已完成' WHERE id = %s", (order_id,))
             
             cur.execute("""
-                UPDATE driver_orders
+                UPDATE driver_orders dro
                 SET action = '完成'
                 WHERE order_id = %s and service = %s
             """, (order_id, 'necessities'))
@@ -589,8 +591,8 @@ async def complete_order(service: str, order_id: int, conn = Depends(get_db)):
                     d.driver_phone as driver_phone
                 FROM agricultural_product_order o
                 LEFT JOIN agricultural_produce p ON p.id = o.produce_id
-                LEFT JOIN driver_orders do ON o.id = do.order_id AND do.service = 'agricultural_product'
-                LEFT JOIN drivers d ON do.driver_id = d.id
+                LEFT JOIN driver_orders dro ON o.id = dro.order_id AND dro.service = 'agricultural_product'
+                LEFT JOIN drivers d ON dro.driver_id = d.id
                 WHERE o.id = %s
             """, (order_id,))
             order_data = cur.fetchall()
@@ -633,7 +635,7 @@ async def complete_order(service: str, order_id: int, conn = Depends(get_db)):
             cur.execute("UPDATE agricultural_product_order SET status = '已送達' WHERE id = %s", (order_id,))
             
             cur.execute("""
-                UPDATE driver_orders
+                UPDATE driver_orders dro
                 SET action = '完成'
                 WHERE order_id = %s and service = %s
             """, (order_id, 'agricultural_product'))
