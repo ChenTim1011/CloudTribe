@@ -127,8 +127,7 @@ export default function ShoppingCart(){
         }
       })*/
       setMessage('成功訂購商品')
-      setTimeout(() => setMessage('empty'), 2000)
-      router.replace('/consumer')
+      setTimeout(() => setMessage('empty'), 2500)
       
     }
   }
