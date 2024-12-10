@@ -107,5 +107,17 @@ class ConsumerService{
     }
     return data
   }
+  async update_order_status_to_confirmed(orderId: Number){
+    const res = await fetch(`/api/consumer/order/status_confirm/${orderId}`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+    const data = await res.json()
+    if(!res.ok)
+      throw new Error(`Error: ${data.detail}`)
+    return data
+  }
 }
 export default new ConsumerService()

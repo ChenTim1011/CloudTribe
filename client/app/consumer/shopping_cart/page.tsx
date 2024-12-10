@@ -20,6 +20,7 @@ export default function ShoppingCart(){
   const [cart, setCart] = useState<CartItem[]>([])
   const [changedQuantity, setChangedQuantity] = useState([])
   const [check, setCheck] = useState<string[]>([])
+  const [showTip, setShowTip] = useState(true)
   const [message, setMessage] = useState('empty')
   const router = useRouter()
 
@@ -31,7 +32,7 @@ export default function ShoppingCart(){
     setUser(_user)
     setChangedQuantity([])
     get_shopping_cart_items(_user.id)
-  }, [router]) // Add 'router' to the dependency array
+  }, [router, cart]) // Add 'router' to the dependency array
   
   const get_shopping_cart_items = async(userId: Number) => {
     try{
@@ -102,9 +103,9 @@ export default function ShoppingCart(){
         }
       })
       setMessage('成功訂購商品')
-      setTimeout(() => setMessage('empty'), 2000)
-      router.replace('/consumer')
-      
+      if(user != undefined)
+        get_shopping_cart_items(user.id)
+      setTimeout(() => setMessage('empty'), 2500)  
     }
   }
   const handleCheckBox: React.MouseEventHandler<HTMLButtonElement> = (event) => {
@@ -134,6 +135,19 @@ export default function ShoppingCart(){
         
         <Button className="w-fit lg:m-8 m-4 px-4" onClick={handlePurchaseButton}>購買勾選商品</Button>
       </div>
+      {showTip && (
+        <div className="bg-blue-100 border border-blue-500 text-blue-700 px-4 py-3 rounded relative m-4 p-4" role="alert">
+          <strong className="font-bold">提醒：</strong>
+          <span className="block sm:inline">如果要更改取貨地點，可至右上方設定更改</span>
+          <Button
+            className="absolute top-0 bottom-0 right-0 px-4 py-3" 
+            onClick={() => setShowTip(false)}
+          >
+            <span aria-hidden="true">&times;</span>
+          </Button>
+        </div>
+      )}
+      <p className="lg:text-2xl text-lg bg-[#E0EBAF] text-left m-3 text-center">取貨地:{user?.location}</p>
       <div className="grid lg:grid-cols-3 grid-cols-1 items-center">
         {cart.map((item)=>
           <div key={item.id.toString()} className="flex flex-row w-full lg:h-[150px] h-[100px] items-center text-center space-x-2 p-4 lg:border-4">

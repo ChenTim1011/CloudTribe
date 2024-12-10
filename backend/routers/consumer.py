@@ -8,6 +8,7 @@ Endpoints:
 - PATCH /cart/quantity/{itemId}: Update quantity of item with id {itemId}
 - PATCH /cart/status/{itemId}: Update status to '已送單' with id {itemId}
 - DELETE /cart/{itemId}: Delete specific item in shopping cart
+- PATCH /order/status_confirm/{orderId}: Update status to '已確認' with id {orderId}
 
 '''
 from fastapi import APIRouter, HTTPException, Depends
@@ -382,6 +383,34 @@ async def get_purchase_item(userId: int, conn: Connection=Depends(get_db)):
         raise HTTPException(status_code=500, detail=str(e)) from e
     finally:
         cur.close()
+@router.patch("/order/status_confirm/{orderId}")
+async def update_cart_item_status(orderId: int, conn: Connection = Depends(get_db)):
+    """
+    Update status of order with orderId to confirmed .
 
+    Args:
+        orderId (int): The order's id.
+        conn (Connection): The database connection.
+
+    Returns:
+        dict: A success message.
+    """
+    cur = conn.cursor()
+    try:
+        cur.execute(
+            "UPDATE agricultural_product_order SET status = %s WHERE id = %s",
+            ( '已確認', orderId )
+        )
+        if cur.rowcount == 0:
+            raise HTTPException(status_code=404, detail="Item not found")
+        
+        conn.commit()
+        return {"status": "success"}
+    except Exception as e:
+        conn.rollback()
+        logging.error("Error updating cart item status: %s", str(e))
+        raise HTTPException(status_code=500, detail=str(e)) from e
+    finally:
+        cur.close()
 
 
