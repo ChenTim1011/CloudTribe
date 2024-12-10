@@ -1,6 +1,5 @@
-import React, { useState } from "react"
+import React, { useState, useEffect } from "react"
 import { Button } from '@/components/ui/button'
-
 import {
   Table,
   TableBody,
@@ -14,6 +13,8 @@ import { User } from '@/interfaces/user/user';
 import { NavigationBar } from "@/components/NavigationBar"
 import { ProductDetailDialog } from '@/components/consumer/ProductDetailDialog'
 import Link from "next/link"
+import ConsumerService from '@/services/consumer/consumer'
+import { useRouter } from 'next/navigation'
 
 
 interface arrivedProductProp {
@@ -21,6 +22,20 @@ interface arrivedProductProp {
   user: User
 }
 export const ArrivedProductTable:React.FC<arrivedProductProp> = (prop) => {
+  const router = useRouter()
+  const handleConfirm: React.MouseEventHandler<HTMLButtonElement> = async(event) => {
+    const target = event.target as HTMLButtonElement
+    console.log('id', target.id)
+    try{
+      const res = await ConsumerService.update_order_status_to_confirmed(parseInt(target.id))
+      console.log('res', res)
+    }
+    catch(e){
+      console.log(e)
+    }
+    alert('確認商品成功');
+    router.push('/consumer')
+  }
 
   return (
     <div>
@@ -34,13 +49,13 @@ export const ArrivedProductTable:React.FC<arrivedProductProp> = (prop) => {
           </TableRow>
         </TableHeader>
         <TableBody> 
-          {prop.products.map((product) => (
+          {prop.products.filter(product => product.status=='已送達').map((product) => (
             <TableRow key={product.order_id.toString()} className="flex flex-row items-center">
                 <TableCell className="text-center lg:text-lg text-balance w-1/4">{product.order_id.toString()}</TableCell>
                 <TableCell className="text-center lg:text-lg text-balance w-1/4">{product.product_name}</TableCell>
                 <TableCell className="text-center lg:text-lg text-balance w-1/4">{(Number(product.product_price) * Number(product.quantity)).toString()}</TableCell>
                 <TableCell className="w-1/4 text-center">
-                <Button variant='outline' className="hover:bg-black hover:text-white">確認</Button>
+                <Button id={product.order_id.toString()}  variant='outline' className="hover:bg-black hover:text-white" onClick={handleConfirm}>確認</Button>
                 </TableCell>
               </TableRow>
           ))}

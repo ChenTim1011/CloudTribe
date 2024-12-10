@@ -23,6 +23,6 @@ export interface AddCartRequest {
     product_name: string
     product_price: Number
     img_url: string
-    status: string //未接單or已接單or已送達
+    status: string //未接單or已接單or已送達or已確認
     unit: string
   }
