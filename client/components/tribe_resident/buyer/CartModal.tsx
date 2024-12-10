@@ -71,7 +71,17 @@ const CartModal: React.FC<CartModalProps> = ({ cart, onClose, removeFromCart, up
                 
                 <div className="flex-grow">
                   {/* Item name and location */}
-                  <h2 className="text-left text-g font-bold truncate" style={{ maxWidth: "12rem" }}>{item.name}</h2>
+                  <h2 className="text-left font-bold break-words">
+                    {item.name.split('(').map((part, index, array) => (
+                      <React.Fragment key={index}>
+                        {index === 0 ? (
+                          <span className="block text-lg">{part}</span>
+                        ) : (
+                          <span className="block text-sm text-gray-600">({part}</span>
+                        )}
+                      </React.Fragment>
+                    ))}
+                  </h2>
                   <h2 className="text-g font-bold truncate" style={{ maxWidth: "12rem" }}> 地點: {item.location}</h2>
                   
                   {/* Item price and quantity */}

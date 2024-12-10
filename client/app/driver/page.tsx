@@ -288,7 +288,8 @@ const DriverPage: React.FC = () => {
                     {showAddTimeTip && (
                         <div className="bg-blue-100 border border-blue-500 text-blue-700 px-4 py-3 rounded relative mb-4" role="alert">
                             <strong className="font-bold">提醒：</strong>
-                            <span className="block sm:inline">如果有接單，請記得到新增時間去填寫可運送時間</span>
+                            <span className="block sm:inline">1.如果有接單，請記得到新增時間去填寫可運送時間</span>
+                            <span className="block sm:inline">2.接單時請自行評估要運送多少商品(以車子是否放得下為主要考量)</span>
                             <Button
                                 className="absolute top-0 bottom-0 right-0 px-4 py-3" 
                                 onClick={() => setShowAddTimeTip(false)}
