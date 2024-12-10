@@ -84,7 +84,7 @@ async def create_order(order: DetailedOrder, conn: Connection = Depends(get_db))
             "INSERT INTO orders (buyer_id, buyer_name, buyer_phone, seller_id, seller_name, seller_phone, date, time, location, is_urgent, total_price, order_type, order_status, note, shipment_count, required_orders_count, previous_driver_id, previous_driver_name, previous_driver_phone) "
             "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s) RETURNING id",
             (order.buyer_id, order.buyer_name, order.buyer_phone, order.seller_id, order.seller_name, order.seller_phone, order.date,
-            order.time, order.location, order.is_urgent, order.total_price, order.order_type, order.order_status, order.note, order.shipment_count, order.required_orders_count, order.previous_driver_id, 
+            order.time, order.location, order.is_urgent, order.total_price, order.order_type, order.order_status, order.note, order.shipment_count, order.required_orders_count, order.previous_driver_id,
             order.previous_driver_name, order.previous_driver_phone)
         )
         order_id = cur.fetchone()[0]
@@ -127,7 +127,7 @@ async def get_orders(conn: Connection = Depends(get_db)):
     try:
         cur.execute("""
             SELECT id, buyer_id, buyer_name, buyer_phone, location, is_urgent, total_price, 
-                order_type, order_status, note 
+                order_type, order_status, note, timestamp
             FROM orders
         """)
         orders = cur.fetchall()
@@ -146,6 +146,7 @@ async def get_orders(conn: Connection = Depends(get_db)):
                 "order_type": order[7],
                 "order_status": order[8],
                 "note": order[9],
+                "timestamp": order[10],
                 "service":'necessities',
                 "items": [{
                     #"order_id": item[1], 
@@ -160,7 +161,7 @@ async def get_orders(conn: Connection = Depends(get_db)):
         #add
         cur.execute("""
             SELECT agri_p_o.id, agri_p_o.buyer_id, agri_p_o.buyer_name, agri_p_o.buyer_phone, agri_p_o.end_point, agri_p_o.status, agri_p_o.note, 
-                    agri_p.id, agri_p.name, agri_p.price, agri_p_o.quantity, agri_p.img_link, agri_p_o.starting_point, agri_p.category, agri_p_o.is_put
+                    agri_p.id, agri_p.name, agri_p.price, agri_p_o.quantity, agri_p.img_link, agri_p_o.starting_point, agri_p.category, agri_p_o.is_put,agri_p_o.timestamp
             FROM agricultural_product_order as agri_p_o
             JOIN agricultural_produce as agri_p ON agri_p.id = agri_p_o.produce_id
         """)
@@ -193,7 +194,8 @@ async def get_orders(conn: Connection = Depends(get_db)):
                     "location": agri_order[12], #司機拿取農產品的地方
                     "category": agri_order[13]
                 }],
-                "is_put": agri_order[14]
+                "is_put": agri_order[14],
+                "timestamp": agri_order[15]
 
             }
             order_list.append(agri_order_dict)
