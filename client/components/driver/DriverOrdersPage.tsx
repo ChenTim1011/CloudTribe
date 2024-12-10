@@ -344,50 +344,53 @@ const DriverOrdersPage: React.FC<DriverOrdersPageProps> = ({
                         已完成
                     </Button>
                 </div>
-
-              
-             
             </div>
 
             {/* Aggregated Items Button and Popover */}
-            <div className="flex overflow-auto justify-center mb-4">
-                <Popover>
-                    <PopoverTrigger asChild>
-                        <Button variant="secondary">
-                            統計所有需要購買的物品
-                        </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-96 p-4 overflow-auto max-h-80">
-                        {aggregatedItemsByLocation.length > 0 ? (
-                            <div>
-                                <h2 className="text-md font-semibold mb-4">需要購買的物品清單 (按地點分類)</h2>
-                                {aggregatedItemsByLocation.map((locationGroup, index) => (
-                                    <div key={index} className="mb-4">
-                                        <h3 className="text-sm font-medium mb-2">{locationGroup.location}</h3>
-                                        <table className="w-full table-auto mb-2">
-                                            <thead>
-                                                <tr>
-                                                    <th className="text-left border-b pb-1">物品名稱</th>
-                                                    <th className="text-right border-b pb-1">數量</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                {locationGroup.items.map((item, idx) => (
-                                                    <tr key={idx}>
-                                                        <td className="py-1">{item.name}</td>
-                                                        <td className="text-right py-1">{item.quantity}</td>
-                                                    </tr>
-                                                ))}
-                                            </tbody>
-                                        </table>
-                                    </div>
+            <div className="flex justify-center p-4">
+            <Popover>
+                <PopoverTrigger asChild>
+                <Button variant="secondary">
+                    統計所有需要購買的物品
+                </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-96" align="center">
+                <div className="max-h-[60vh] overflow-y-auto px-4">
+                    {aggregatedItemsByLocation.length > 0 ? (
+                    <div>
+                        <h2 className="text-md font-semibold mb-4 sticky top-0 bg-white py-2">
+                        需要購買的物品清單 (按地點分類)
+                        </h2>
+                        {aggregatedItemsByLocation.map((locationGroup, index) => (
+                        <div key={index} className="mb-4">
+                            <h3 className="text-sm font-medium mb-2 sticky top-12 bg-white py-1">
+                            {locationGroup.location}
+                            </h3>
+                            <table className="w-full table-auto mb-2">
+                            <thead className="sticky top-20 bg-white">
+                                <tr>
+                                <th className="text-left border-b pb-1">物品名稱</th>
+                                <th className="text-right border-b pb-1">數量</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {locationGroup.items.map((item, idx) => (
+                                <tr key={idx}>
+                                    <td className="py-1">{item.name}</td>
+                                    <td className="text-right py-1">{item.quantity}</td>
+                                </tr>
                                 ))}
-                            </div>
-                        ) : (
-                            <p>目前沒有需要購買的物品。</p>
-                        )}
-                    </PopoverContent>
-                </Popover>
+                            </tbody>
+                            </table>
+                        </div>
+                        ))}
+                    </div>
+                    ) : (
+                    <p>目前沒有需要購買的物品。</p>
+                    )}
+                </div>
+                </PopoverContent>
+            </Popover>
             </div>
 
             {/* Display total price if there are filtered orders */}
