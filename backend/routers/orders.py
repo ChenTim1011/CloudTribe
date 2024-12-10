@@ -235,7 +235,7 @@ async def accept_order(service: str, order_id: int, driver_order: DriverOrder, c
                        o.is_urgent, o.total_price, o.order_type, o.order_status, 
                        o.note, o.timestamp,
                        oi.item_name, oi.quantity, oi.price,
-                       d.phone as driver_phone
+                       d.driver_phone as driver_phone
                 FROM orders o
                 LEFT JOIN order_items oi ON o.id = oi.order_id
                 LEFT JOIN drivers d ON d.id = %s
@@ -287,7 +287,7 @@ async def accept_order(service: str, order_id: int, driver_order: DriverOrder, c
                 SELECT o.id, o.buyer_id, o.buyer_name, o.buyer_phone, o.end_point,
                        o.status, o.note, p.id, p.name, p.price, o.quantity,
                        p.img_link, o.starting_point, p.category, o.is_put, o.timestamp,
-                       d.phone as driver_phone
+                       d.driver_phone as driver_phone
                 FROM agricultural_product_order o
                 LEFT JOIN agricultural_produce p ON p.id = o.produce_id
                 LEFT JOIN drivers d ON d.id = %s
@@ -526,7 +526,7 @@ async def complete_order(service: str, order_id: int, conn = Depends(get_db)):
                     o.date, o.time, o.location, o.is_urgent,
                     o.total_price, o.order_type, o.order_status,
                     oi.item_name, oi.quantity, oi.price, oi.img,
-                    d.phone as driver_phone
+                    d.driver_phone as driver_phone
                 FROM orders o
                 LEFT JOIN order_items oi ON o.id = oi.order_id
                 LEFT JOIN driver_orders do ON o.id = do.order_id AND do.service = 'necessities'
@@ -586,7 +586,7 @@ async def complete_order(service: str, order_id: int, conn = Depends(get_db)):
                     o.end_point, o.status, o.total_price, o.is_put,
                     o.starting_point, o.note, o.timestamp,
                     p.name as product_name, p.price, o.quantity,
-                    d.phone as driver_phone
+                    d.driver_phone as driver_phone
                 FROM agricultural_product_order o
                 LEFT JOIN agricultural_produce p ON p.id = o.produce_id
                 LEFT JOIN driver_orders do ON o.id = do.order_id AND do.service = 'agricultural_product'
