@@ -23,7 +23,6 @@ class ConsumerService{
     })
     const data = await res.json()
     if(!res.ok){
-      //console.log("res_status:", data.detail)
       if(data.detail.includes('409'))
         return "shopping cart has already had this item"  
       else

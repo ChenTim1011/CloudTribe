@@ -27,16 +27,26 @@ const BuyerOrderCard: React.FC<{
   return (
     <Card className="max-w-md mx-auto my-6 shadow-lg">
       {/* Header of the card displaying the order title */}
-      <CardHeader className="bg-black text-white p-4 rounded-t-md flex justify-between">
-        <div>
-          <CardTitle className="text-lg font-bold">我的訂單</CardTitle>
+      <CardHeader className="bg-black text-white p-4 rounded-t-md flex justify-between items-center">
+      <div className="flex items-center space-x-2">
+          {order.is_urgent && (
+              <span className="bg-red-500 text-white text-xs font-bold px-2 py-1 ">
+                  緊急
+              </span>
+          )}
+          <div>
+          <CardTitle className="text-lg justify-center font-bold">我的訂單</CardTitle>
         </div>
+      </div>
       </CardHeader>
 
       {/* Content section showing order details */}
       <CardContent className="p-4">
+
+
         <div className="mb-2">
           {/* Display order date and time */}
+          <p className="text-sm text-gray-700 font-bold">下單時間: {order.timestamp?.split('.')[0].replace('T', ' ')}</p>
           <p className="text-sm text-gray-700 font-bold">送達地點: {order.location}</p>
         </div>
         <div className="mb-2">

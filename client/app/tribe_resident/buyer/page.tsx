@@ -32,7 +32,6 @@ const BuyerPage: React.FC = () => {
   const [cart, setCart] = useState<CartItem[]>(() => {
     if (typeof window !== "undefined") {
       const savedCart = localStorage.getItem("cart");
-      console.log("Load Card from localStorage:", savedCart);
       try {
         return savedCart ? JSON.parse(savedCart) : [];
       } catch (e) {
@@ -111,7 +110,6 @@ const BuyerPage: React.FC = () => {
 
 
   useEffect(() => {
-    console.log("Saving cart to localStorage:", cart);
     try {
       if (cart.length === 0) {
         localStorage.removeItem('cart');
@@ -227,7 +225,6 @@ const BuyerPage: React.FC = () => {
           throw new Error("Network response was not ok");
         }
         const data: Product[] = await response.json();
-        console.log("Loaded products:", data);
         setProducts(data);
         setInitialLoad(false);
       } catch (error) {

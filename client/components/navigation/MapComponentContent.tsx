@@ -699,11 +699,6 @@ const handleTransferOrder = async (orderId: string, newDriverPhone: string) => {
  * @param orderId - The ID of the order to navigate to.
  * @param driverId - The driver's ID.
  */
-const handleNavigate = (orderId: string, driverId: number) => {
-    console.log("Navigating to order with driverId:", driverId);
-    router.push(`/navigation?orderId=${orderId}&driverId=${driverId}`);
-};
-
 /**
  * Handle completing an order.
  * @param orderId - The ID of the order to complete.

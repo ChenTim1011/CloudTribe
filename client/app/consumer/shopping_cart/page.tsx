@@ -101,31 +101,6 @@ export default function ShoppingCart(){
           }
         }
       })
-      /*
-      check.map(async(checkedItemId)=> {
-        let item = cart.find((item) => item.id.toString() == checkedItemId)
-        if(item != undefined && user != undefined){
-          try{
-            const res_seller = await UserService.get_user(item?.seller_id)
-            let req: PurchasedProductRequest = {
-              seller_id: item?.seller_id,
-              buyer_id: user?.id,
-              buyer_name: user?.name,
-              produce_id: item?.produce_id,
-              quantity: item?.quantity,
-              starting_point: res_seller.location,
-              end_point: user?.location,
-              category: 'agriculture'
-            }
-            const res_order = await ConsumerService.add_product_order(req) 
-            const res_cart_status = await ConsumerService.update_shopping_cart_status(item?.id)
-          
-          }
-          catch(e){
-            console.log(e)
-          }
-        }
-      })*/
       setMessage('成功訂購商品')
       setTimeout(() => setMessage('empty'), 2000)
       router.replace('/consumer')
