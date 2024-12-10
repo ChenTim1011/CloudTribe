@@ -31,7 +31,7 @@ export default function ShoppingCart(){
     setUser(_user)
     setChangedQuantity([])
     get_shopping_cart_items(_user.id)
-  }, [router]) // Add 'router' to the dependency array
+  }, [router, cart]) // Add 'router' to the dependency array
   
   const get_shopping_cart_items = async(userId: Number) => {
     try{
@@ -127,7 +127,9 @@ export default function ShoppingCart(){
         }
       })*/
       setMessage('成功訂購商品')
-      setTimeout(() => setMessage('empty'), 2500)
+      if(user != undefined)
+        get_shopping_cart_items(user.id)
+      setTimeout(() => setMessage('empty'), 2500) 
       
     }
   }
