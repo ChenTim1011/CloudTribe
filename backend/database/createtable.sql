@@ -54,7 +54,8 @@ CREATE TABLE orders (
     required_orders_count INT, -- Number of orders required for shipment
     previous_driver_id INT REFERENCES drivers(id), --drivers(user_id)
     previous_driver_name VARCHAR(255),
-    previous_driver_phone VARCHAR(20)
+    previous_driver_phone VARCHAR(20),
+    timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP --add
 );
 
 -- order_items table

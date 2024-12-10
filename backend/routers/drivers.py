@@ -384,7 +384,8 @@ async def get_driver_orders(driver_id: int, conn: Connection = Depends(get_db)):
                 "previous_driver_name": order[18],
                 "previous_driver_phone": order[19],
                 "service":"necessities",
-                "items": []
+                "items": [],
+                "timestamp": order[20]
             }
             # Retrieve order items
             cur.execute("SELECT item_id, item_name, price, quantity, img, location, category FROM order_items WHERE order_id = %s", (order[0],))
@@ -407,7 +408,7 @@ async def get_driver_orders(driver_id: int, conn: Connection = Depends(get_db)):
         cur.execute("""
             SELECT agri_p_o.id, agri_p_o.buyer_id, agri_p_o.buyer_name, agri_p_o.buyer_phone, agri_p_o.end_point, agri_p_o.status, agri_p_o.note, 
                     driver_o.previous_driver_id, driver_o.previous_driver_name, driver_o.previous_driver_phone, 
-                    agri_p.id, agri_p.name, agri_p.price, agri_p_o.quantity, agri_p.img_link, agri_p_o.starting_point, agri_p.category
+                    agri_p.id, agri_p.name, agri_p.price, agri_p_o.quantity, agri_p.img_link, agri_p_o.starting_point, agri_p.category, agri_p_o.timestamp
             FROM agricultural_product_order as agri_p_o
             JOIN driver_orders as driver_o ON agri_p_o.id = driver_o.order_id
             JOIN agricultural_produce as agri_p on agri_p.id = agri_p_o.produce_id
@@ -439,8 +440,8 @@ async def get_driver_orders(driver_id: int, conn: Connection = Depends(get_db)):
                     "img": agri_order[14],
                     "location": agri_order[15], #司機拿取農產品的地方
                     "category": agri_order[16]
-
-                }]
+                }],
+                "timestamp":agri_order[17]
             }
             order_list.append(agri_order_dict)
         return order_list

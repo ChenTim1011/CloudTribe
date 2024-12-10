@@ -161,7 +161,9 @@ const OrderCard: React.FC<{
                     {order.order_status !== '未接單' && (
                         <p className="text-sm text-gray-700 font-bold">聯絡電話: {order.buyer_phone}</p>
                     )}
+                    <p className="text-sm text-gray-700 font-bold">下單時間: {order.timestamp?.split('.')[0].replace('T', ' ')}</p>
                     <p className="text-sm text-gray-700 font-bold">送達地點: {order.location}</p>
+                    
                 </div>
                 {/* List of items in the order */}
                 <div className="mb-2">

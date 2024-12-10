@@ -122,3 +122,120 @@ ConnectionResetError: [WinError 10054] 遠端主機已強制關閉一個現存的連線。
 2024-12-09 23:55:21,180 - INFO - {"timestamp": "2024-12-09T23:55:21.180182", "event_type": "ORDER_ACCEPTED", "data": {"order_id": 5, "driver_id": 1, "service": "agricultural_product", "status": "success"}}
 2024-12-09 23:55:25,960 - INFO - Start delete driver order
 2024-12-09 23:55:25,963 - INFO - Start change status
+2024-12-10 00:37:19,406 - INFO - Start delete driver order
+2024-12-10 00:37:19,411 - INFO - Start change status
+2024-12-10 00:37:27,637 - INFO - Received driver_order: {"driver_id":1,"order_id":5,"action":"接單","timestamp":"2024-12-09T16:37:27.558Z","previous_driver_id":null,"previous_driver_name":null,"previous_driver_phone":null,"service":"agricultural_product"}
+2024-12-10 00:37:27,641 - INFO - {"timestamp": "2024-12-10T00:37:27.641974", "event_type": "ORDER_ACCEPTANCE_STARTED", "data": {"order_id": 5, "driver_id": 1, "service": "agricultural_product"}}
+2024-12-10 00:37:27,719 - WARNING - 買家 (ID: 1) 未綁定 LINE 帳號或發送通知失敗
+2024-12-10 00:37:27,736 - INFO - {"timestamp": "2024-12-10T00:37:27.736439", "event_type": "ORDER_ACCEPTED", "data": {"order_id": 5, "driver_id": 1, "service": "agricultural_product", "status": "success"}}
+2024-12-10 00:40:01,209 - INFO - Start delete driver order
+2024-12-10 00:40:01,212 - INFO - Start change status
+2024-12-10 00:40:45,598 - INFO - Received driver_order: {"driver_id":1,"order_id":5,"action":"接單","timestamp":"2024-12-09T16:40:45.038Z","previous_driver_id":null,"previous_driver_name":null,"previous_driver_phone":null,"service":"agricultural_product"}
+2024-12-10 00:40:45,601 - INFO - {"timestamp": "2024-12-10T00:40:45.600605", "event_type": "ORDER_ACCEPTANCE_STARTED", "data": {"order_id": 5, "driver_id": 1, "service": "agricultural_product"}}
+2024-12-10 00:40:45,881 - WARNING - 買家 (ID: 1) 未綁定 LINE 帳號或發送通知失敗
+2024-12-10 00:40:45,912 - INFO - {"timestamp": "2024-12-10T00:40:45.912604", "event_type": "ORDER_ACCEPTED", "data": {"order_id": 5, "driver_id": 1, "service": "agricultural_product", "status": "success"}}
+2024-12-10 00:40:54,987 - INFO - Start delete driver order
+2024-12-10 00:40:54,995 - INFO - Start change status
+2024-12-10 00:42:35,564 - INFO - Received driver_order: {"driver_id":1,"order_id":5,"action":"接單","timestamp":"2024-12-09T16:42:35.359Z","previous_driver_id":null,"previous_driver_name":null,"previous_driver_phone":null,"service":"agricultural_product"}
+2024-12-10 00:42:35,564 - INFO - {"timestamp": "2024-12-10T00:42:35.564885", "event_type": "ORDER_ACCEPTANCE_STARTED", "data": {"order_id": 5, "driver_id": 1, "service": "agricultural_product"}}
+2024-12-10 00:42:35,641 - WARNING - 買家 (ID: 1) 未綁定 LINE 帳號或發送通知失敗
+2024-12-10 00:42:35,648 - INFO - {"timestamp": "2024-12-10T00:42:35.648364", "event_type": "ORDER_ACCEPTED", "data": {"order_id": 5, "driver_id": 1, "service": "agricultural_product", "status": "success"}}
+2024-12-10 00:57:23,397 - INFO - Start delete driver order
+2024-12-10 00:57:23,402 - INFO - Start change status
+2024-12-10 13:33:31,777 - INFO - {"timestamp": "2024-12-10T13:33:31.776721", "event_type": "USER_LOGIN_ATTEMPT", "data": {"phone": "1234567890"}}
+2024-12-10 13:33:31,779 - INFO - Logging in user with phone number 1234567890
+2024-12-10 13:33:31,818 - WARNING - User with phone number 1234567890 not found
+2024-12-10 13:33:31,819 - INFO - {"timestamp": "2024-12-10T13:33:31.818025", "event_type": "USER_LOGIN_ERROR", "data": {"phone": "1234567890", "error": "404: User not found"}}
+2024-12-10 13:35:30,366 - INFO - {"timestamp": "2024-12-10T13:35:30.366326", "event_type": "USER_LOGIN_ATTEMPT", "data": {"phone": "0987654321"}}
+2024-12-10 13:35:30,366 - INFO - Logging in user with phone number 0987654321
+2024-12-10 13:35:30,372 - WARNING - User with phone number 0987654321 not found
+2024-12-10 13:35:30,372 - INFO - {"timestamp": "2024-12-10T13:35:30.372862", "event_type": "USER_LOGIN_ERROR", "data": {"phone": "0987654321", "error": "404: User not found"}}
+2024-12-10 13:38:11,088 - INFO - {"timestamp": "2024-12-10T13:38:11.087477", "event_type": "USER_LOGIN_ATTEMPT", "data": {"phone": "1234567890"}}
+2024-12-10 13:38:11,089 - INFO - Logging in user with phone number 1234567890
+2024-12-10 13:38:11,113 - INFO - {"timestamp": "2024-12-10T13:38:11.113146", "event_type": "USER_LOGIN_SUCCESS", "data": {"user_id": 1, "phone": "1234567890", "is_driver": false}}
+2024-12-10 13:38:35,294 - INFO - Get user  whose id is 1 uploaded product information.
+2024-12-10 13:38:35,329 - INFO - start create product list
+2024-12-10 13:38:35,392 - INFO - start create driver time list
+2024-12-10 13:38:35,740 - INFO - Get user  whose id is 1 uploaded product information.
+2024-12-10 13:38:35,746 - INFO - start create product list
+2024-12-10 13:38:35,843 - INFO - start create driver time list
+2024-12-10 13:38:45,960 - INFO - Get user  whose id is 1 uploaded product information.
+2024-12-10 13:38:45,969 - INFO - start create product list
+2024-12-10 13:38:46,037 - INFO - start create driver time list
+2024-12-10 13:38:46,202 - INFO - Get user  whose id is 1 uploaded product information.
+2024-12-10 13:38:46,207 - INFO - start create product list
+2024-12-10 13:38:46,265 - INFO - start create driver time list
+2024-12-10 13:39:32,066 - INFO - {"timestamp": "2024-12-10T13:39:32.064611", "event_type": "IMAGE_UPLOAD_STARTED", "data": {"image_size": 6920}}
+2024-12-10 13:39:36,770 - INFO - {"timestamp": "2024-12-10T13:39:36.770721", "event_type": "IMAGE_UPLOADED", "data": {"img_id": "G8vVlRj", "status": "success"}}
+2024-12-10 13:39:37,284 - INFO - Inserting new item
+2024-12-10 13:39:37,285 - INFO - {"timestamp": "2024-12-10T13:39:37.285075", "event_type": "ITEM_UPLOAD_STARTED", "data": {"seller_id": 1, "name": "\u860b\u679c", "price": "20", "category": "fruit", "quantity": "10"}}
+2024-12-10 13:39:37,302 - INFO - {"timestamp": "2024-12-10T13:39:37.302224", "event_type": "ITEM_UPLOADED", "data": {"seller_id": 1, "name": "\u860b\u679c", "upload_date": "2024-12-10", "status": "success"}}
+2024-12-10 13:40:03,993 - INFO - {"timestamp": "2024-12-10T13:40:03.992384", "event_type": "DRIVER_REGISTRATION_STARTED", "data": {"user_id": 1, "driver_name": "\u5c0f\u660e", "driver_phone": "1234567890"}}
+2024-12-10 13:40:04,043 - INFO - {"timestamp": "2024-12-10T13:40:04.043913", "event_type": "DRIVER_REGISTERED", "data": {"driver_id": 1, "user_id": 1, "status": "success"}}
+2024-12-10 13:40:15,149 - INFO - {"timestamp": "2024-12-10T13:40:15.149959", "event_type": "USER_LOGIN_ATTEMPT", "data": {"phone": "1234567891"}}
+2024-12-10 13:40:15,149 - INFO - Logging in user with phone number 1234567891
+2024-12-10 13:40:15,169 - INFO - {"timestamp": "2024-12-10T13:40:15.169631", "event_type": "USER_LOGIN_SUCCESS", "data": {"user_id": 2, "phone": "1234567891", "is_driver": false}}
+2024-12-10 13:40:38,579 - INFO - start create driver time list
+2024-12-10 13:40:38,647 - INFO - Get user  whose id is 2 uploaded product information.
+2024-12-10 13:40:38,652 - INFO - start create product list
+2024-12-10 13:40:38,855 - INFO - start create driver time list
+2024-12-10 13:40:38,907 - INFO - Get user  whose id is 2 uploaded product information.
+2024-12-10 13:40:38,914 - INFO - start create product list
+2024-12-10 13:40:44,713 - INFO - Get agricultural_product.(today_date: 2024-12-10)
+2024-12-10 13:40:45,005 - INFO - start create product list
+2024-12-10 13:40:45,366 - INFO - Get agricultural_product.(today_date: 2024-12-10)
+2024-12-10 13:40:45,375 - INFO - start create product list
+2024-12-10 13:40:47,680 - INFO - {"timestamp": "2024-12-10T13:40:47.679303", "event_type": "ADD_TO_CART_STARTED", "data": {"buyer_id": 2, "produce_id": 1, "quantity": 1}}
+2024-12-10 13:40:47,680 - INFO - check whether insert the same item
+2024-12-10 13:40:47,705 - INFO - Inserting to cart
+2024-12-10 13:40:47,711 - INFO - {"timestamp": "2024-12-10T13:40:47.711148", "event_type": "ADDED_TO_CART", "data": {"item_id": 1, "buyer_id": 2, "produce_id": 1, "status": "success"}}
+2024-12-10 13:40:55,451 - INFO - Get agricultural_product.(today_date: 2024-12-10)
+2024-12-10 13:40:55,457 - INFO - start create product list
+2024-12-10 13:40:55,718 - INFO - Get agricultural_product.(today_date: 2024-12-10)
+2024-12-10 13:40:55,725 - INFO - start create product list
+2024-12-10 13:41:09,566 - INFO - Get cart items of user whose id is 2.
+2024-12-10 13:41:09,579 - INFO - start create product list
+2024-12-10 13:41:10,249 - INFO - Get cart items of user whose id is 2.
+2024-12-10 13:41:10,272 - INFO - start create product list
+2024-12-10 13:41:12,865 - INFO - {"timestamp": "2024-12-10T13:41:12.865095", "event_type": "PURCHASE_STARTED", "data": {"buyer_id": 2, "seller_id": 1, "produce_id": 1, "quantity": 1}}
+2024-12-10 13:41:12,871 - INFO - Inserting agricultural_product order
+2024-12-10 13:41:12,892 - INFO - {"timestamp": "2024-12-10T13:41:12.892925", "event_type": "PURCHASE_COMPLETED", "data": {"order_id": 1, "buyer_id": 2, "seller_id": 1, "status": "success"}}
+2024-12-10 13:41:13,207 - INFO - Get agricultural_product.(today_date: 2024-12-10)
+2024-12-10 13:41:13,214 - INFO - start create product list
+2024-12-10 13:41:14,072 - INFO - Get agricultural_product.(today_date: 2024-12-10)
+2024-12-10 13:41:14,079 - INFO - start create product list
+2024-12-10 13:41:18,875 - INFO - {"timestamp": "2024-12-10T13:41:18.875240", "event_type": "USER_LOGIN_ATTEMPT", "data": {"phone": "1234567890"}}
+2024-12-10 13:41:18,875 - INFO - Logging in user with phone number 1234567890
+2024-12-10 13:41:18,907 - INFO - {"timestamp": "2024-12-10T13:41:18.907955", "event_type": "USER_LOGIN_SUCCESS", "data": {"user_id": 1, "phone": "1234567890", "is_driver": true}}
+2024-12-10 13:41:47,768 - INFO - Received driver_order: {"driver_id":1,"order_id":1,"action":"接單","timestamp":"2024-12-10T05:41:47.601Z","previous_driver_id":null,"previous_driver_name":null,"previous_driver_phone":null,"service":"agricultural_product"}
+2024-12-10 13:41:47,770 - INFO - {"timestamp": "2024-12-10T13:41:47.769509", "event_type": "ORDER_ACCEPTANCE_STARTED", "data": {"order_id": 1, "driver_id": 1, "service": "agricultural_product"}}
+2024-12-10 13:41:48,701 - WARNING - 買家 (ID: 2) 未綁定 LINE 帳號或發送通知失敗
+2024-12-10 13:41:48,717 - INFO - {"timestamp": "2024-12-10T13:41:48.717142", "event_type": "ORDER_ACCEPTED", "data": {"order_id": 1, "driver_id": 1, "service": "agricultural_product", "status": "success"}}
+2024-12-10 13:46:31,742 - INFO - {"timestamp": "2024-12-10T13:46:31.741903", "event_type": "USER_LOGIN_ATTEMPT", "data": {"phone": "1234567891"}}
+2024-12-10 13:46:31,743 - INFO - Logging in user with phone number 1234567891
+2024-12-10 13:46:31,750 - INFO - {"timestamp": "2024-12-10T13:46:31.750493", "event_type": "USER_LOGIN_SUCCESS", "data": {"user_id": 2, "phone": "1234567891", "is_driver": false}}
+2024-12-10 13:46:35,002 - INFO - Get agricultural_product.(today_date: 2024-12-10)
+2024-12-10 13:46:35,011 - INFO - start create product list
+2024-12-10 13:46:35,183 - INFO - Get agricultural_product.(today_date: 2024-12-10)
+2024-12-10 13:46:35,197 - INFO - start create product list
+2024-12-10 13:46:40,151 - INFO - {"timestamp": "2024-12-10T13:46:40.151894", "event_type": "ADD_TO_CART_STARTED", "data": {"buyer_id": 2, "produce_id": 1, "quantity": 2}}
+2024-12-10 13:46:40,152 - INFO - check whether insert the same item
+2024-12-10 13:46:40,170 - INFO - Inserting to cart
+2024-12-10 13:46:40,173 - INFO - {"timestamp": "2024-12-10T13:46:40.173924", "event_type": "ADDED_TO_CART", "data": {"item_id": 2, "buyer_id": 2, "produce_id": 1, "status": "success"}}
+2024-12-10 13:46:40,678 - INFO - {"timestamp": "2024-12-10T13:46:40.678824", "event_type": "ADD_TO_CART_STARTED", "data": {"buyer_id": 2, "produce_id": 1, "quantity": 2}}
+2024-12-10 13:46:40,679 - INFO - check whether insert the same item
+2024-12-10 13:46:40,695 - INFO - {"timestamp": "2024-12-10T13:46:40.694743", "event_type": "ADD_TO_CART_ERROR", "data": {"buyer_id": 2, "produce_id": 1, "error": "409: \u91cd\u8907\u65b0\u589e\u76f8\u540c\u5546\u54c1"}}
+2024-12-10 13:46:42,509 - INFO - Get cart items of user whose id is 2.
+2024-12-10 13:46:42,536 - INFO - start create product list
+2024-12-10 13:46:42,864 - INFO - Get cart items of user whose id is 2.
+2024-12-10 13:46:42,873 - INFO - start create product list
+2024-12-10 13:46:45,851 - INFO - {"timestamp": "2024-12-10T13:46:45.851919", "event_type": "PURCHASE_STARTED", "data": {"buyer_id": 2, "seller_id": 1, "produce_id": 1, "quantity": 2}}
+2024-12-10 13:46:45,870 - INFO - Inserting agricultural_product order
+2024-12-10 13:46:45,877 - INFO - {"timestamp": "2024-12-10T13:46:45.877390", "event_type": "PURCHASE_COMPLETED", "data": {"order_id": 2, "buyer_id": 2, "seller_id": 1, "status": "success"}}
+2024-12-10 13:46:45,985 - INFO - Get agricultural_product.(today_date: 2024-12-10)
+2024-12-10 13:46:46,001 - INFO - start create product list
+2024-12-10 13:46:46,236 - INFO - Get agricultural_product.(today_date: 2024-12-10)
+2024-12-10 13:46:46,241 - INFO - start create product list
+2024-12-10 13:46:51,282 - INFO - {"timestamp": "2024-12-10T13:46:51.280531", "event_type": "USER_LOGIN_ATTEMPT", "data": {"phone": "1234567890"}}
+2024-12-10 13:46:51,282 - INFO - Logging in user with phone number 1234567890
+2024-12-10 13:46:51,289 - INFO - {"timestamp": "2024-12-10T13:46:51.288054", "event_type": "USER_LOGIN_SUCCESS", "data": {"user_id": 1, "phone": "1234567890", "is_driver": true}}
