@@ -62,7 +62,7 @@ export const ArrivedProductTable:React.FC<arrivedProductProp> = (prop) => {
         </TableBody>
         
       </Table>
-      <p className="lg:text-2xl text-lg bg-[#E0EBAF] text-left m-3 text-center">商品取貨地:{prop.user.location}</p>
+      {/*<p className="lg:text-2xl text-lg bg-[#E0EBAF] text-left m-3 text-center">商品取貨地:{prop.user.location}</p>*/}
     </div>
   )
 }
