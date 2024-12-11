@@ -761,39 +761,123 @@ const handleWaypointsOptimized = useCallback((waypointOrder: number[]) => {
   triggerForceUpdate(); 
 },[destinations]);
 
-
-// Add this aggregation function inside MapComponentContent before the return statement
-const aggregatedItemsByLocation = useMemo(() => {
-
-  if (!driverData?.id) return [];
-  
-  const locationMap: { [location: string]: { [itemName: string]: number } } = {};
-
-  orders.forEach(order => { 
-    if (order.order_status === "接單") {
-      order.items.forEach(item => {
-        const location = item.location || "未指定地點";
-        if (!locationMap[location]) {
-          locationMap[location] = {};
-        }
-        if (locationMap[location][item.item_name]) {
-          locationMap[location][item.item_name] += item.quantity;
-        } else {
-          locationMap[location][item.item_name] = item.quantity;
-        }
-      });
-    }
-  });
-
-  // Convert locationMap to array
-  const result: { location: string; items: { name: string; quantity: number }[] }[] = [];
-  for (const [location, items] of Object.entries(locationMap)) {
-    const itemList = Object.entries(items).map(([name, quantity]) => ({ name, quantity }));
-    result.push({ location, items: itemList });
+const searchNearestCarrefour = async (currentLocation: LatLng): Promise<{name: string; location: LatLng} | null> => {
+  if (!placesService.current) {
+    console.error('Places service not initialized');
+    return null;
   }
 
-  return result;
-}, [orders]);
+  return new Promise((resolve, reject) => {
+    const request: google.maps.places.PlaceSearchRequest = {
+      location: new google.maps.LatLng(currentLocation.lat, currentLocation.lng),
+      radius: 20000, // search within 20km
+      keyword: '家樂福',
+      type: 'supermarket'
+    };
+
+    placesService.current?.nearbySearch(request, (results, status) => {
+      if (status === google.maps.places.PlacesServiceStatus.OK && results && results.length > 0) {
+        // Get the nearest Carrefour
+        const nearest = results[0];
+        if (nearest.geometry && nearest.geometry.location) {
+          resolve({
+            name: nearest.name || '家樂福',
+            location: {
+              lat: nearest.geometry.location.lat(),
+              lng: nearest.geometry.location.lng()
+            }
+          });
+        } else {
+          reject(new Error('無法獲取地點資訊'));
+        }
+      } else {
+        reject(new Error('找不到附近的家樂福'));
+      }
+    });
+  });
+};
+
+// Add this aggregation function inside MapComponentContent before the return statement
+interface AggregatedItem {
+  name: string;
+  quantity: number;
+}
+
+interface AggregatedLocation {
+  location: string;
+  items: AggregatedItem[];
+}
+
+const aggregatedItemsByLocation: AggregatedLocation[] = useMemo(() => {
+  const processLocations = async () => {
+    if (!driverData?.id || !currentLocation) return [];
+    
+    const locationMap: { [location: string]: { [itemName: string]: number } } = {};
+    const processedCarrefour = new Set<string>(); // 追蹤已處理的家樂福位置
+
+    for (const order of orders) {
+      if (order.order_status === "接單") {
+        for (const item of order.items) {
+          let location = item.location || "未指定地點";
+          
+          // Detect Carrefour locations
+          if (location.toLowerCase().includes('家樂福')) {
+            try {
+              // Check if the Carrefour location is already processed
+              if (!processedCarrefour.has(location)) {
+                const nearestCarrefour = await searchNearestCarrefour(currentLocation);
+                
+                if (nearestCarrefour) {
+                  location = nearestCarrefour.name;
+                  processedCarrefour.add(location);
+
+                  // Check if the nearest Carrefour is already added to destinations
+                  const isCarrefourAdded = destinations.some(
+                    dest => dest.name === nearestCarrefour.name
+                  );
+                  
+                  if (!isCarrefourAdded) {
+                    const updatedDestinations = [...destinations];
+                    const terminal = updatedDestinations.pop();
+                    updatedDestinations.push({
+                      name: nearestCarrefour.name,
+                      location: nearestCarrefour.location
+                    });
+                    if (terminal) {
+                      updatedDestinations.push(terminal);
+                    }
+                    setDestinations(updatedDestinations);
+                  }
+                }
+              }
+            } catch (error) {
+              console.error('搜尋家樂福時發生錯誤:', error);
+            }
+          }
+
+          // Update locationMap
+          if (!locationMap[location]) {
+            locationMap[location] = {};
+          }
+          if (locationMap[location][item.item_name]) {
+            locationMap[location][item.item_name] += item.quantity;
+          } else {
+            locationMap[location][item.item_name] = item.quantity;
+          }
+        }
+      }
+    }
+
+    return Object.entries(locationMap).map(([location, items]) => ({
+      location,
+      items: Object.entries(items).map(([name, quantity]) => ({ name, quantity }))
+    }));
+  };
+
+  processLocations().catch(console.error);
+
+  return [];
+}, [orders, currentLocation, destinations, driverData?.id]);
 return (
   <Suspense fallback={<div>正在加載地圖...</div>}>
     <div className="max-w-full mx-auto space-y-6">
@@ -1012,11 +1096,17 @@ return (
                   <div className="mt-4 pt-4 border-t border-gray-200">
                     <p className="text-sm font-medium text-gray-600">
                       {(() => {
-                        const totalItems = aggregatedItemsByLocation.reduce((acc, group) => 
-                          acc + group.items.length, 0
-                        );
-                        const totalChecked = Object.values(checkedItems).filter(Boolean).length;
-                        const percentage = Math.round((totalChecked / totalItems) * 100);
+                      const uniqueItemKeys = new Set(
+                        aggregatedItemsByLocation.flatMap(group => 
+                          group.items.map(item => `${group.location}-${item.name}`)
+                        )
+                      );
+
+
+                        const totalItems = uniqueItemKeys.size; 
+                      
+                        const totalChecked = Array.from(uniqueItemKeys).filter(key => checkedItems[key]).length;
+                        const percentage = totalItems > 0 ? Math.round((totalChecked / totalItems) * 100):0;
                         return `總體完成進度: ${totalChecked}/${totalItems} (${percentage}%)`;
                       })()}
                     </p>
@@ -1113,9 +1203,12 @@ return (
                 );
                 
                 const isItemLocation = orders.some(order => 
-                  order.items.some(item => item.location === dest.name)
+                  order.items.some(item => 
+                    item.location === dest.name ||
+                    (dest.name.includes('家樂福') && item.location?.includes('家樂福'))
+                  )
                 );
-                
+
                 const getLocationPriority = () => {
                   if (isItemLocation) return 1;
                   if (isOrderLocation) return 2;
