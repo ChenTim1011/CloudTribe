@@ -188,6 +188,8 @@ const MapComponentContent: React.FC = () => {
   // Initialize debounced search term
   const debouncedSearchTerm = useDebounce(searchInput, 800);
 
+  const [aggregatedItemsByLocation, setAggregatedItemsByLocation] = useState<AggregatedLocation[]>([]);
+
 
   // Map ref
   const mapRef = useRef<google.maps.Map | null>(null);
@@ -808,22 +810,20 @@ interface AggregatedLocation {
   items: AggregatedItem[];
 }
 
-const aggregatedItemsByLocation: AggregatedLocation[] = useMemo(() => {
+useEffect(() => {
   const processLocations = async () => {
     if (!driverData?.id || !currentLocation) return [];
     
     const locationMap: { [location: string]: { [itemName: string]: number } } = {};
-    const processedCarrefour = new Set<string>(); // 追蹤已處理的家樂福位置
+    const processedCarrefour = new Set<string>();
 
     for (const order of orders) {
       if (order.order_status === "接單") {
         for (const item of order.items) {
           let location = item.location || "未指定地點";
           
-          // Detect Carrefour locations
           if (location.toLowerCase().includes('家樂福')) {
             try {
-              // Check if the Carrefour location is already processed
               if (!processedCarrefour.has(location)) {
                 const nearestCarrefour = await searchNearestCarrefour(currentLocation);
                 
@@ -831,7 +831,6 @@ const aggregatedItemsByLocation: AggregatedLocation[] = useMemo(() => {
                   location = nearestCarrefour.name;
                   processedCarrefour.add(location);
 
-                  // Check if the nearest Carrefour is already added to destinations
                   const isCarrefourAdded = destinations.some(
                     dest => dest.name === nearestCarrefour.name
                   );
@@ -855,7 +854,6 @@ const aggregatedItemsByLocation: AggregatedLocation[] = useMemo(() => {
             }
           }
 
-          // Update locationMap
           if (!locationMap[location]) {
             locationMap[location] = {};
           }
@@ -868,16 +866,17 @@ const aggregatedItemsByLocation: AggregatedLocation[] = useMemo(() => {
       }
     }
 
-    return Object.entries(locationMap).map(([location, items]) => ({
+    const result = Object.entries(locationMap).map(([location, items]) => ({
       location,
       items: Object.entries(items).map(([name, quantity]) => ({ name, quantity }))
     }));
+
+    setAggregatedItemsByLocation(result);
   };
 
   processLocations().catch(console.error);
-
-  return [];
 }, [orders, currentLocation, destinations, driverData?.id]);
+
 return (
   <Suspense fallback={<div>正在加載地圖...</div>}>
     <div className="max-w-full mx-auto space-y-6">
