@@ -66,12 +66,18 @@ export default function Page() {
 
   const renderRoleVideoContent = () => {
     if (!role) return null;
-
+    /*
     const videoUrls = {
       seller: "https://drive.google.com/file/d/1GUbCEWnjVAVEYf5XwSkaVw-taDZpFY8d/preview",
       tribebuyer: "https://drive.google.com/file/d/1GUbCEWnjVAVEYf5XwSkaVw-taDZpFY8d/preview",
       driver: "https://drive.google.com/file/d/1GUbCEWnjVAVEYf5XwSkaVw-taDZpFY8d/preview",
       buyer: "https://drive.google.com/file/d/1GUbCEWnjVAVEYf5XwSkaVw-taDZpFY8d/preview"
+    };*/
+    const videoUrls = {
+      seller: "/tutorialVideos/seller.mp4",
+      tribebuyer: "/tutorialVideos/tribe_consumer.mp4",
+      driver: "/tutorialVideos/driver.mp4",
+      buyer: "/tutorialVideos/consumer.mp4"
     };
 
     return role ? (
