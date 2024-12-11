@@ -41,7 +41,7 @@ export default function Page(){
           <TabsTrigger value="arrived" className="w-1/2">待收貨商品</TabsTrigger>
         </TabsList>
         <TabsContent value="ordered" className="justify-items-center text-center" >
-          <OrderedProductTable products={purchasedItems.filter((item) => item.status != '已送達')}/>
+          <OrderedProductTable products={purchasedItems.filter((item) => item.status != '已送達' && item.status !='已確認')}/>
         </TabsContent>
         <TabsContent value="arrived" className="justify-items-center text-center">
           <ArrivedProductTable products={purchasedItems.filter((item) => item.status == '已送達')} user={user != undefined?user:{id:0, name:'empty', phone: 'empty', location:'empty',is_driver:false}}/>
