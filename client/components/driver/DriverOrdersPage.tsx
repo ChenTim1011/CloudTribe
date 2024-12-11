@@ -61,6 +61,7 @@ const DriverOrdersPage: React.FC<DriverOrdersPageProps> = ({
     const router = useRouter();
     const [orderStatus, setOrderStatus] = useState<string>("接單");
     const [error, setError] = useState<string>("");
+    const [isLoading, setIsLoading] = useState(true);
 
     const [searchInput, setSearchInput] = useState<string>("");
     const [predictions, setPredictions] = useState<google.maps.places.AutocompletePrediction[]>([]);
@@ -73,6 +74,10 @@ const DriverOrdersPage: React.FC<DriverOrdersPageProps> = ({
     const debouncedSearchTerm = useDebounce(searchInput, 800);
     const autocompleteService = useRef<google.maps.places.AutocompleteService | null>(null);
     const placesService = useRef<google.maps.places.PlacesService | null>(null);
+
+    const hasInitialized = useRef(false);
+    const isMounted = useRef(true);
+    const isFetching = useRef(false);
 
     useEffect(() => {
         // Only fetch predictions if it's a manual input
@@ -185,18 +190,44 @@ const DriverOrdersPage: React.FC<DriverOrdersPageProps> = ({
      * Fetches the orders assigned to the driver from the server.
      */
     const fetchDriverOrders = useCallback(async () => {
+        if (isFetching.current) return;
+        
         try {
+
+            isFetching.current = true;
+            setIsLoading(true);
+
             const response = await fetch(`/api/drivers/${driverData.id}/orders`);
             if (!response.ok) {
                 throw new Error('Failed to fetch driver orders');
             }
             const data: Order[] = await response.json();
-            setOrders(data);
+            if (isMounted.current) {
+                setOrders(data);
+                setError('');
+            }
+
         } catch (error) {
             console.error('Error fetching driver orders:', error);
-            setError('獲取訂單失敗');
+            if (isMounted.current) {
+                setError('獲取訂單失敗');
+            }
+        } finally {
+            if (isMounted.current) {
+                setIsLoading(false);
+            }
+            isFetching.current = false;
         }
     }, [driverData.id]);
+
+
+    useEffect(() => {
+        isMounted.current = true;
+        
+        return () => {
+            isMounted.current = false;
+        };
+    }, []);
 
     /**
      * Fetch orders when the component mounts or driverData changes.
@@ -207,6 +238,7 @@ const DriverOrdersPage: React.FC<DriverOrdersPageProps> = ({
             return;
         }
 
+        hasInitialized.current = true;
         fetchDriverOrders();
     }, [driverData, fetchDriverOrders]);
 
@@ -219,7 +251,7 @@ const DriverOrdersPage: React.FC<DriverOrdersPageProps> = ({
             setOrders(prevOrders => prevOrders.filter(order => order.id !== parseInt(orderId)));
         } catch (error) {
             console.error('Error in handleLocalTransfer:', error);
-            setError('轉單失敗');
+            setError('轉單失敗，填寫電話號碼的司機未註冊');
         }
     };
 

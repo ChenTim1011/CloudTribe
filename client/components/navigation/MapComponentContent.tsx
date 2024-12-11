@@ -590,7 +590,6 @@ const MapComponentContent: React.FC = () => {
         throw new Error("Failed to fetch driver data");
       }
       const data: Driver = await response.json();
-      console.log("Fetched Driver Data:", data);
       setDriverData(data);
     } catch (error) {
       console.error("Error fetching driver data:", error);
@@ -690,7 +689,7 @@ const handleTransferOrder = async (orderId: string, newDriverPhone: string) => {
 
     } catch (error) {
         console.error('Error transferring order:', error);
-        alert('轉單失敗');
+        alert('轉單失敗，填寫電話號碼的司機未註冊');
     }
 };
 
@@ -1081,7 +1080,7 @@ return (
             onClick={handleGenerateNavigationLinkFromCurrentLocation}
             className="my-5 bg-black text-white max-w-xs w-1/2 mx-auto block"
           >
-            生成導航連結
+            導航連結更好的體驗
           </Button>
 
           {/* Total Distance and Time */}

@@ -73,7 +73,6 @@ const DriverPage: React.FC = () => {
                 }
             } else {
                 const data: Driver = await response.json();
-                console.log('Fetched driver data:', data);
                 setDriverData(data);
                 handleFetchDriverOrders(data.id);
             }
@@ -121,7 +120,6 @@ const DriverPage: React.FC = () => {
                 throw new Error('Failed to fetch driver orders');
             }
             const data = await response.json();
-            console.log('Fetched driver orders:', data);
             setAcceptedOrders(data);
         } catch (error) {
             console.error('Error fetching driver orders:', error);
