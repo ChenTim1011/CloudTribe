@@ -106,7 +106,7 @@ const CartModal: React.FC<CartModalProps> = ({ cart, onClose, removeFromCart, up
 
           {/* Display the total price and a checkout button */}
           <div className="flex justify-between items-center font-bold text-xl">
-            <span>總計: {totalPrice} 元</span>
+            <span>總計: {totalPrice} 元 </span>         
             <Button 
               className="bg-black text-white" 
               onClick={() => {
@@ -121,6 +121,9 @@ const CartModal: React.FC<CartModalProps> = ({ cart, onClose, removeFromCart, up
               結帳
             </Button>
           </div>
+          <span className="text-sm text-gray-500 font-normal">
+              (這裡為參考價格，實際價格以司機拿發票為主)
+            </span>
         </div>
         <SheetFooter></SheetFooter>
       </SheetContent>

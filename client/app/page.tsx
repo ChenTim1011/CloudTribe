@@ -3,6 +3,8 @@ import React, { useState } from "react";
 import Link from 'next/link';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from '@/components/ui/card';
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Info } from "lucide-react";
 import TribeBuyerTutorial from '@/components/tutorials/TribeBuyerTutorial';
 import DriverTutorial from '@/components/tutorials/DriverTutorial';
 import TribeSellerTutorial from '@/components/tutorials/TribeSellerTutorial';
@@ -66,20 +68,13 @@ export default function Page() {
 
   const renderRoleVideoContent = () => {
     if (!role) return null;
-    /*
+    
     const videoUrls = {
-      seller: "https://drive.google.com/file/d/1GUbCEWnjVAVEYf5XwSkaVw-taDZpFY8d/preview",
-      tribebuyer: "https://drive.google.com/file/d/1GUbCEWnjVAVEYf5XwSkaVw-taDZpFY8d/preview",
-      driver: "https://drive.google.com/file/d/1GUbCEWnjVAVEYf5XwSkaVw-taDZpFY8d/preview",
-      buyer: "https://drive.google.com/file/d/1GUbCEWnjVAVEYf5XwSkaVw-taDZpFY8d/preview"
-    };*/
-    const videoUrls = {
-      seller: "/tutorialVideos/seller.mp4",
-      tribebuyer: "/tutorialVideos/tribe_consumer.mp4",
-      driver: "/tutorialVideos/driver.mp4",
-      buyer: "/tutorialVideos/consumer.mp4"
+      seller: "https://drive.google.com/file/d/1WPpysJXWSrtgVCgSlJG0PpyufxOplA3u/preview",
+      tribebuyer: "https://drive.google.com/file/d/1kbM2IvsJRHWVkJKU6hLl2lJOrng6wSzV/preview",
+      driver: "https://drive.google.com/file/d/1kaX1pwhKc1jnpME_7R5xzVLwEKO0edit/preview",
+      buyer: "https://drive.google.com/file/d/1Qf_3_rxyQa6j5amyLpe-MXgSkfQR-VMH/preview"
     };
-
     return role ? (
       <div className="mt-8 flex justify-center">
         <iframe
@@ -87,6 +82,7 @@ export default function Page() {
           width="640"
           height="360"
           allow="autoplay"
+          allowFullScreen
           className={`rounded-xl shadow-lg ${role ? 'animate__animated animate__fadeIn' : ''}`}
         ></iframe>
       </div>
@@ -106,6 +102,19 @@ export default function Page() {
             給 您 最 簡 單 的 購 物 體 驗
           </p>
         </div>
+
+        {/* Announcement Area */}
+        <Alert className="mt-8 bg-blue-50 border-blue-200">
+          <Info className="h-5 w-5 text-blue-600" />
+          <AlertDescription className="ml-2 text-blue-800">
+            <p className="font-medium mb-2">
+              歡迎來到順路經濟平台！ 很高興看到您的到來！
+            </p>
+            <p className="font-medium">
+              如果是第一次使用平台，請點選「立即體驗」，並進入「首次註冊與登入」頁面完成註冊！
+            </p>
+          </AlertDescription>
+        </Alert>
 
         {/* Main Button Area */}
         <div className="mt-8 flex flex-row gap-6 justify-center">
@@ -141,7 +150,7 @@ export default function Page() {
         {mainSection === 'experience' && (
           <div className="mt-8 grid lg:grid-cols-3 grid-cols-1 gap-6">
             {[
-              { title: "註冊與登入", link: "/login" },
+              { title: "首次註冊與登入", link: "/login" },
               { title: "部落居民專區-購買服務", link: "/tribe_resident/buyer" },
               { title: "部落居民專區-商品上架服務", link: "/tribe_resident/seller" },
               { title: "購買農產品專區", link: "/consumer" },
