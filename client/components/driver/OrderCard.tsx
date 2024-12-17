@@ -84,7 +84,6 @@ const OrderCard: React.FC<{
         });
         today = today.replace(/\//g,'-')
         //const today = new Date().toISOString().split('T')[0] // 非台灣時間
-        console.log(today)
         try{
             const res_driver_times: TimeSlot[] = await DriverService.get_specific_driver_times(driverId)
             console.log(res_driver_times)

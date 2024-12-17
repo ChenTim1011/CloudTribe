@@ -193,7 +193,6 @@ const DriverPage: React.FC = () => {
      * @param driverId - The driver's ID.
      */
     const handleNavigate = (orderId: string, driverId: number) => {
-        console.log("Navigating to order with driverId:", driverId);
         router.push(`/navigation?orderId=${orderId}&driverId=${driverId}`);
     };
 
@@ -203,7 +202,6 @@ const DriverPage: React.FC = () => {
      */
     const handleCompleteOrder = async (orderId: string, service: string) => {
         try {
-            console.log('service=', service)
             const response = await fetch(`/api/orders/${service}/${orderId}/complete`, {
                 method: 'POST',
                 headers: {
@@ -239,7 +237,6 @@ const DriverPage: React.FC = () => {
      * @param data - Updated driver data.
      */
     const handleUpdateSuccess = (data: Driver): void => {
-        console.log("Updating driverData with:", data);
         setDriverData(data);
 
         // Update user to driver

@@ -47,7 +47,6 @@ export const ProductDetailTable = ()=> {
       setCheck(check.filter((element) => element != id))
     else
       check.push(id)
-    console.log(id)
   }
   const handleConfirmCheck = () =>{
     try{

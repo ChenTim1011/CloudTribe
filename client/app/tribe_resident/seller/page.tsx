@@ -41,7 +41,6 @@ export default function Page(){
     try{
       const res_times = await DriverService.get_all_driver_times()
       var _times: DriverTimeDetail[] = res_times
-      console.log('times', res_times)
       setDriverTimes(_times)
     }
     catch(e){

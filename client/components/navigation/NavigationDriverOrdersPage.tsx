@@ -147,7 +147,6 @@ const NavigationDriverOrdersPage: React.FC<DriverOrdersPageProps> = ({
                             order={order}
                             driverId={driverData.id}
                             onAccept={async (orderId: string) => {
-                                console.log(`Order ${orderId} accepted`);
                                 await onAccept(orderId, order.service);
                             }}
                             onTransfer={(orderId: string, newDriverPhone: string) => handleLocalTransfer(orderId, newDriverPhone)}

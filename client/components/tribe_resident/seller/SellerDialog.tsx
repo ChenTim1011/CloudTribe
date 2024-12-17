@@ -48,7 +48,6 @@ export const SellerDialog = () => {
   }, [])
 
   const handleConfirm = async() => {
-    console.log('test')
     //get image URL
     if(itemName == '' || itemPrice == '' || date == null || selectedCategory == null || itemQuantity == '' || itemUnit == '')
       setErrorMessage("上面的所有欄位都必須要填寫喔!!") 
@@ -65,7 +64,6 @@ export const SellerDialog = () => {
     else if(fileType == 'notImage')
       setErrorMessage("上傳的檔案非圖片")
     else{
-      console.log('test2')
       setIsUploading(true)
       try{
         var res_img = await SellerService.upload_image(imgBase64)

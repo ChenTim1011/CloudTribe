@@ -153,7 +153,6 @@ const BuyerPage: React.FC = () => {
    */
   const handleSearch = useCallback(
     (query: string) => {
-      console.log("Search query:", query);
       const filtered = products.filter((product) =>
         product.name.toLowerCase().includes(query.toLowerCase())
       );

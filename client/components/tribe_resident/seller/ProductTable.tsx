@@ -23,7 +23,6 @@ export const ProductTable:React.FC<sellerProp> = (prop) => {
   const handleCheckDetail:React.MouseEventHandler<HTMLButtonElement> = (event) => {
     const target = event.target as HTMLButtonElement
     const id = target.id.split('-')[1]
-    console.log('id',id)
     
     // Ensure localStorage is only accessed on the client-side
     if (typeof window !== 'undefined') {

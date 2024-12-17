@@ -370,7 +370,6 @@ const MapComponentContent: React.FC = () => {
  
   // Fetch driver data
   useEffect(() => {
-    console.log("useEffect: fetchDriverData");
     if (driverIdParam) {
       fetchDriverData(driverIdParam);
     }
@@ -703,7 +702,6 @@ const handleTransferOrder = async (orderId: string, newDriverPhone: string) => {
  */
 const handleCompleteOrder = async (orderId: string, service: string) => {
     try {
-        console.log('service=', service)
         const response = await fetch(`/api/orders/${service}/${orderId}/complete`, {
             method: 'POST',
             headers: {
