@@ -53,7 +53,7 @@ const TribeBuyerTutorial = () => {
   return (
     <div className="w-full space-y-6">
       <div className="text-center mb-8">
-        <h1 className="text-2xl font-bold text-green-600 mb-2">山上買家使用教學</h1>
+        <h1 className="text-2xl font-bold text-green-600 mb-2">部落買家使用教學</h1>
         <p className="text-gray-600 font-bold">完整購物流程指南</p>
       </div>
       

@@ -112,7 +112,7 @@ export default function Page() {
             </p>
             <p className="font-medium">
               如果是第一次使用平台，請點選「立即體驗」，
-              並進入「首次註冊與登入」頁面完成註冊！
+              並進入「首次註冊與登入」頁面按下首次註冊按鈕！
             </p>
           </AlertDescription>
         </Alert>
@@ -152,9 +152,9 @@ export default function Page() {
           <div className="mt-8 grid lg:grid-cols-3 grid-cols-1 gap-6">
             {[
               { title: "首次註冊與登入", link: "/login" },
-              { title: "部落居民專區-購買服務", link: "/tribe_resident/buyer" },
-              { title: "部落居民專區-商品上架服務", link: "/tribe_resident/seller" },
-              { title: "購買農產品專區", link: "/consumer" },
+              { title: "部落買家專區-購買生活用品", link: "/tribe_resident/buyer" },
+              { title: "部落賣家專區-農產品上架", link: "/tribe_resident/seller" },
+              { title: "團購農產品專區", link: "/consumer" },
               { title: "司機專區", link: "/driver" },
             ].map((item, index) => (
               <Link
@@ -225,7 +225,7 @@ export default function Page() {
                   } border-2 border-green-500 shadow-lg hover:bg-green-50 hover:scale-105 transform transition duration-200 text-green-600`}
                   onClick={() => setRole(role === 'tribebuyer' ? null : 'tribebuyer')}
                 >
-                  山上買家
+                  部落買家
                 </Button>
                 <Button
                   className={`lg:w-1/4 w-full h-12 rounded-xl ${
