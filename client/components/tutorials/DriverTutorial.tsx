@@ -31,7 +31,7 @@ const DriverTutorial = () => {
     {
         title: "6. 轉單功能介紹",
         description: "• 沒有棄單設計，必須輸入已存在司機的電話\n• 與對方司機聯絡好確定可以轉單\n• 輸入對方司機電話確認轉單",
-        image: "/driverTutorial/7.png"
+        image: "/driverTutorial/7-2.png"
     },
     {
       title: "7. 轉單訊息通知",
@@ -46,12 +46,12 @@ const DriverTutorial = () => {
     {
       title: "9. 輸入目的地",
       description: "• 司機輸入目的地，決定最終自己要去哪裡\n",
-      image: "/driverTutorial/14.png"
+      image: "/driverTutorial/14-1.png"
     },
     {
         title: "10. 導航系統",
         description: "• 選擇交通方式：汽車、步行或機車\n• 顯示總路程距離和預計時間\n• 查看詳細取貨和配送地點\n• 可新增額外配送點\n• 讓司機確認是否所有東西都有購買到，可以部份勾選也可以全部勾選，還有完成進度讓司機確認",
-        image: "/driverTutorial/9.png"
+        image: "/driverTutorial/9-1.png"
     },
     {
       title: "11. 可以調整想去的地點",
@@ -71,7 +71,7 @@ const DriverTutorial = () => {
     {
       title: "14. 貨品已到達目的地",
       description: "• 當司機把貨運送到目的地，就可以按下貨品已到達目的地",
-      image: "/driverTutorial/13.png"
+      image: "/driverTutorial/13-1.png"
     },
     {
       title: "15. Linebot 通知",
