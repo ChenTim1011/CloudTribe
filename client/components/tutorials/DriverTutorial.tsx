@@ -34,39 +34,49 @@ const DriverTutorial = () => {
         image: "/driverTutorial/7.png"
     },
     {
-        title: "7. 導航路線規劃",
+      title: "7. 轉單訊息通知",
+      description: "•轉單後 Linebot 會通知對方司機有新的單子",
+      image: "/driverTutorial/7-1.png"
+    },
+    {
+        title: "8. 導航路線規劃",
         description: "• 查看目前位置到目的地的地圖\n• 檢視最佳配送路線\n• 確認預計送達時間\n",
         image: "/driverTutorial/8.png"
     },
     {
-      title: "8. 輸入目的地",
+      title: "9. 輸入目的地",
       description: "• 司機輸入目的地，決定最終自己要去哪裡\n",
       image: "/driverTutorial/14.png"
     },
     {
-        title: "9. 導航系統",
+        title: "10. 導航系統",
         description: "• 選擇交通方式：汽車、步行或機車\n• 顯示總路程距離和預計時間\n• 查看詳細取貨和配送地點\n• 可新增額外配送點\n• 讓司機確認是否所有東西都有購買到，可以部份勾選也可以全部勾選，還有完成進度讓司機確認",
         image: "/driverTutorial/9.png"
     },
     {
-      title: "10. 可以調整想去的地點",
+      title: "11. 可以調整想去的地點",
       description: "• 起點終點固定，但是中間點可以自己加\n• 即時顯示總距離和時間，也有各段距離\n系統會自動抓取所有接單的地點\n紅色: 貨品到達的點\n藍色: 需要去購買物品的地點\n司機也可以根據喜好自己去\n增加地點或刪除地點\n也可以改變地點順序,\n",
       image: "/driverTutorial/10.png"
     },
     {
-      title: "11. 推薦路線",
+      title: "12. 推薦路線",
       description: "• 按下推薦路線自己排序出最短路徑和時間\n• 讓司機知道怎麼走比較快，但按下生成導航連結體驗更好",
       image: "/driverTutorial/11.png"
     },
     {
-      title: "12. 生成導航連結",
+      title: "13. 生成導航連結",
       description: "• 直接依照選擇模式和路線，幫你整理好Google 路徑連結\n• 讓 Google 導航告訴要你要怎麼走",
       image: "/driverTutorial/12.png"
     },
     {
-      title: "13. 貨品已到達目的地",
+      title: "14. 貨品已到達目的地",
       description: "• 當司機把貨運送到目的地，就可以按下貨品已到達目的地",
       image: "/driverTutorial/13.png"
+    },
+    {
+      title: "15. Linebot 通知",
+      description: "•按下貨品已到達目的地，Linebot 會通知購買者",
+      image: "/driverTutorial/15.png"
     }
   ];
 

@@ -47,6 +47,11 @@ const TribeBuyerTutorial = () => {
       title: "9. 完成訂購",
       description: "• 填寫基本資料後\n• 如果比較緊急可以勾是否緊急\n• 提交訂單等待出貨通知",
       image: "/tribeBuyerTutorial/9.png"
+    },
+    {
+      title: "10. 司機接單通知訊息",
+      description: "• 當司機接單會有訊息通知買家",
+      image: "/tribeBuyerTutorial/10.png"
     }
   ];
 
