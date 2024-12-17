@@ -298,7 +298,32 @@ async def check_is_put(req: IsPutRequest, conn = Depends(get_db)):
         raise HTTPException(status_code=500, detail=str(e)) from e
     finally:
         cur.close()
+@router.delete('/{productId}')
+async def delete_agri_product(productId: int, conn: Connection=Depends(get_db)):
+    """
+    Delete agricultural product
 
+    Args:
+        productId(int):The product id
+        conn(Connection): The database connection.
+
+    Returns:
+        Dict: Success message.
+    """
+    cur = conn.cursor()
+    try:
+        logging.info("Delete product with id %s.", productId)
+        cur.execute(
+            """DELETE FROM agricultural_produce
+            WHERE id = %s""", (productId, ))
+        conn.commit()
+        return {"success":"delete"}
+    except Exception as e:
+        conn.rollback()
+        logging.error("Error occurred: %s", str(e))
+        raise HTTPException(status_code=500, detail=str(e)) from e
+    finally:
+        cur.close()
 
 
 

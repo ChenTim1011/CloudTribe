@@ -77,6 +77,18 @@ class SellerService {
       throw new Error(`Error: ${data.detail}`)
     return data
   }
-  
+  async delete_agri_product(productId: Number){
+    const res = await fetch(`/api/seller/${productId}`,{
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+    })
+    const data = await res.json()
+    if(!res.ok){
+      throw new Error(`Error: ${data.detail}`)
+    }
+    return data
+  }
 }
 export default new SellerService()
