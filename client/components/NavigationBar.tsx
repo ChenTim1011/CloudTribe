@@ -62,7 +62,7 @@ const AuthComponent: React.FC<authProps> = (prop) => {
 export const NavigationBar = () => {
   // Array of navigation links for different sections
   const components = [
-    { title: "首次註冊和登入", href : "/login" },
+    { title: "回到主頁面", href : "/" },
     { title: "購買農產品", href: "/consumer" },
     { title: "上架農產品", href: "/tribe_resident/seller" },
     { title: "購買生活用品", href: "/tribe_resident/buyer" },

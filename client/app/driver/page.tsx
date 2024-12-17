@@ -131,8 +131,6 @@ const DriverPage: React.FC = () => {
     //New Version to handle accepting an order
     
     const handleAcceptOrder = async (orderId: string, service: string) => {
-        console.log("handleAcceptOrder called with driverId:", driverData?.id);
-        console.log("Accepting order with orderId:", orderId);
         if (!driverData || !driverData.id) {
             console.error("Driver data is missing or incomplete");
             return;

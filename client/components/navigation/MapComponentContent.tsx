@@ -238,7 +238,6 @@ const MapComponentContent: React.FC = () => {
 
   // Memoized waypoints for Directions component
   const memoizedWaypoints = useMemo(() => {
-    console.log("useMemo: memoizedWaypoints");
     return destinations.slice(0, -1).map(dest => ({
       location: dest.location,
       stopover: true,
@@ -636,8 +635,6 @@ const MapComponentContent: React.FC = () => {
 
   // Define handler functions for DriverOrdersPage
   const handleAcceptOrder = async (orderId: string, service: string) => {
-    console.log("handleAcceptOrder called with driverId:", driverData?.id);
-    console.log("Accepting order with orderId:", orderId);
     if (!driverData || !driverData.id) {
         console.error("Driver data is missing or incomplete");
         return;

@@ -35,18 +35,18 @@ export const CATEGORIES = [
 export const LOCATIONS = [
   {
     id:'place-1',
-    value:'部落地點一'
+    value:'飛鼠不渴山上學校露營農場'
   },
   {
     id:'place-2',
-    value:'部落地點二'
+    value:'戀戀雅渡農場'
   },
   {
     id:'place-3',
-    value:'部落地點三'
+    value:'樹不老休閒莊園'
   },
   {
     id:'place-4',
-    value:'山下地點一'
+    value:'國立政治大學員生消費合作社'
   }
 ]

@@ -136,7 +136,6 @@ const Directions: React.FC<DirectionsProps> = React.memo(({
     const requestKey = JSON.stringify(request);
 
     if (prevRequestRef.current === requestKey) {
-      console.log("Same request, skipping...");
       return;
     }
 

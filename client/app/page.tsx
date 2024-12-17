@@ -108,10 +108,11 @@ export default function Page() {
           <Info className="h-5 w-5 text-blue-600" />
           <AlertDescription className="ml-2 text-blue-800">
             <p className="font-medium mb-2">
-              歡迎來到順路經濟平台！ 很高興看到您的到來！
+              歡迎來到順路經濟平台！ 
             </p>
             <p className="font-medium">
-              如果是第一次使用平台，請點選「立即體驗」，並進入「首次註冊與登入」頁面完成註冊！
+              如果是第一次使用平台，請點選「立即體驗」，
+              並進入「首次註冊與登入」頁面完成註冊！
             </p>
           </AlertDescription>
         </Alert>

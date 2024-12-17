@@ -68,7 +68,7 @@ export function UserForm() {
         onClick={handleAddLineBot}
         className="w-full max-w-[400px] bg-[#00B900] hover:bg-[#009900] text-white flex items-center justify-center space-x-2"
       >
-        <span>註冊請加入 LINE 機器人</span>
+        <span>首次註冊</span>
       </Button>
 
       <Card className="w-full max-w-[400px] min-h-[350px]">

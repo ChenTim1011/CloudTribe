@@ -140,9 +140,7 @@ const BuyerPage: React.FC = () => {
    */
   const handleFilterCategory = useCallback(
     (category: string) => {
-      console.log("Selected Category:", category);
       const filtered = products.filter((product) => product.category === category);
-      console.log("Filtered products:", filtered);
       setFilteredProducts(filtered);
       setSelectedCategory(category);
     },

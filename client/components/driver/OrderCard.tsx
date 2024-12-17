@@ -26,7 +26,6 @@ const OrderCard: React.FC<{
     onTransfer: (orderId: string, newDriverPhone: string) => Promise<void>;
     onComplete: (orderId: string, service: string) => Promise<void>;
 }> = ({ order, driverId, onAccept, onTransfer, onComplete }) => {
-    console.log('OrderCard received order:', order);
 
     // State for managing the visibility of the transfer form
     const [showTransferForm, setShowTransferForm] = useState(false);
