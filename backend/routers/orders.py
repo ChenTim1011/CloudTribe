@@ -672,7 +672,7 @@ async def complete_order(service: str, order_id: int, conn: Connection = Depends
             cur.execute("""
                 SELECT 
                     o.id, o.buyer_id, o.buyer_name, o.buyer_phone,
-                    o.end_point, o.status, o.total_price, o.is_put,
+                    o.end_point, o.status, o.is_put,
                     o.starting_point, o.note, o.timestamp,
                     p.name as product_name, p.price, o.quantity,
                     d.driver_phone as driver_phone
