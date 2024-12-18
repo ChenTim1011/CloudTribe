@@ -329,11 +329,27 @@ async def accept_order(service: str, order_id: int, driver_order: DriverOrder, c
             delivery_address = order[4]  # end_point
             driver_phone = order[-1] if order[-1] else "無"
 
+
             message = "司機已接取您的農產品，請等待司機送貨👍🏻\n\n"
             message += "📦 訂單明細 #" + str(order_id) + "\n"
             message += f"📍 送貨地點：{delivery_address}\n"
             message += f"📱 司機電話：{driver_phone}\n"
             message += "─────────────\n"
+
+            
+            total_price = 0
+            # Process items from order_data
+            for item in order_data:
+                item_name = item[10]  # product_name
+                price = float(item[11])  # price
+                quantity = int(item[12])  # quantity
+                subtotal = price * quantity
+                total_price+=subtotal
+                message += f"・{item_name}\n"
+                message += f"  ${price} x {quantity} = ${subtotal}\n"
+            
+            message += "─────────────\n"
+            message += f"總計: ${total_price} 元"
 
             message += f"・{order[8]}\n"  # product name
             message += f"  ${price} x {quantity} = ${total_price}\n"
@@ -693,7 +709,6 @@ async def complete_order(service: str, order_id: int, conn: Connection = Depends
             
             # Format order details message
             buyer_id = order[1]
-            total_price = float(order[6])  # total_price
             delivery_address = order[4]  # end_point
             driver_phone = order[-1] if order[-1] else "無"  # driver_phone
             
@@ -703,17 +718,19 @@ async def complete_order(service: str, order_id: int, conn: Connection = Depends
             message += f"📱 司機電話：{driver_phone}\n"
             message += "─────────────\n"
             
+            total_price = 0
             # Process items from order_data
             for item in order_data:
                 item_name = item[10]  # product_name
                 price = float(item[11])  # price
                 quantity = int(item[12])  # quantity
-                subtotal = quantity * price
+                subtotal = price * quantity
+                total_price+=subtotal
                 message += f"・{item_name}\n"
                 message += f"  ${price} x {quantity} = ${subtotal}\n"
             
             message += "─────────────\n"
-            message += f"總計: ${total_price}"
+            message += f"總計: ${total_price} 元"
             
             success = await line_service.send_message_to_user(buyer_id, message)
             if not success:
