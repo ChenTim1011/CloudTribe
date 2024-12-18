@@ -8,7 +8,7 @@ Endpoints:
 - POST /{service}/{order_id}/accept: Accept an order.
 - POST /{order_id}/transfer: Transfer an order to a new driver.
 - GET /{order_id}: Retrieve a specific order by ID.
-- POST /{service}/{order_id}: Complete an order.
+- POST /{service}/{order_id}/complete: Complete an order.
 """
 
 from typing import List
@@ -17,7 +17,7 @@ from datetime import datetime
 import json
 from backend.handlers.send_message import LineMessageService
 from psycopg2.extensions import connection as Connection
-from fastapi import APIRouter, HTTPException, Depends
+from fastapi import APIRouter, HTTPException, Depends, Request
 from backend.models.models import Order, DriverOrder, TransferOrderRequest, DetailedOrder
 from backend.database import get_db_connection
 import os
@@ -60,14 +60,15 @@ def get_db():
         conn.close()
 
 @router.post("/", response_model=Order)
-async def create_order(order: DetailedOrder, conn: Connection = Depends(get_db)):
+async def create_order(order: DetailedOrder, conn: Connection = Depends(get_db), request: Request = None):
     """
     Create a new order.
     Args:
-        order (Order): The order data to be created.
+        order (DetailedOrder): The order data to be created.
         conn (Connection): The database connection.
+        request (Request): The incoming request.
     Returns:
-        dict: A success message with the order ID.
+        Order: The created order with its ID.
     """
     logging.info("Order data received: %s", order.model_dump_json())
     cur = conn.cursor()
@@ -77,15 +78,17 @@ async def create_order(order: DetailedOrder, conn: Connection = Depends(get_db))
             "buyer_id": order.buyer_id,
             "total_price": order.total_price,
             "is_urgent": order.is_urgent,
-            "items_count": len(order.items)
+            "items_count": len(order.items),
+            "endpoint": str(request.url) if request else "N/A",
+            "client_ip": request.client.host if request else "N/A"
         })
             
         cur.execute(
             "INSERT INTO orders (buyer_id, buyer_name, buyer_phone, seller_id, seller_name, seller_phone, date, time, location, is_urgent, total_price, order_type, order_status, note, shipment_count, required_orders_count, previous_driver_id, previous_driver_name, previous_driver_phone) "
             "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s) RETURNING id",
             (order.buyer_id, order.buyer_name, order.buyer_phone, order.seller_id, order.seller_name, order.seller_phone, order.date,
-            order.time, order.location, order.is_urgent, order.total_price, order.order_type, order.order_status, order.note, order.shipment_count, order.required_orders_count, order.previous_driver_id,
-            order.previous_driver_name, order.previous_driver_phone)
+             order.time, order.location, order.is_urgent, order.total_price, order.order_type, order.order_status, order.note, order.shipment_count, order.required_orders_count, order.previous_driver_id,
+             order.previous_driver_name, order.previous_driver_phone)
         )
         order_id = cur.fetchone()[0]
         for item in order.items:
@@ -114,17 +117,21 @@ async def create_order(order: DetailedOrder, conn: Connection = Depends(get_db))
         cur.close()
 
 @router.get("/", response_model=List[Order])
-async def get_orders(conn: Connection = Depends(get_db)):
+async def get_orders(conn: Connection = Depends(get_db), request: Request = None):
     """
     Get all unaccepted orders.
     Args:
         conn (Connection): The database connection.
-
+        request (Request): The incoming request.
     Returns:
         List[Order]: A list of unaccepted orders.
     """
     cur = conn.cursor()
     try:
+        log_event("FETCH_ORDERS_STARTED", {
+            "endpoint": str(request.url) if request else "N/A",
+            "client_ip": request.client.host if request else "N/A"
+        })
         cur.execute("""
             SELECT id, buyer_id, buyer_name, buyer_phone, location, is_urgent, total_price, 
                 order_type, order_status, note, timestamp
@@ -158,7 +165,7 @@ async def get_orders(conn: Connection = Depends(get_db)):
                     "location": str(item[7]),
                     "category":str(item[8])} for item in items]  
             })
-        #add
+        # Add agricultural_product orders
         cur.execute("""
             SELECT agri_p_o.id, agri_p_o.buyer_id, agri_p_o.buyer_name, agri_p_o.buyer_phone, agri_p_o.end_point, agri_p_o.status, agri_p_o.note, 
                     agri_p.id, agri_p.name, agri_p.price, agri_p_o.quantity, agri_p.img_link, agri_p_o.starting_point, agri_p.category, agri_p_o.is_put,agri_p_o.timestamp
@@ -199,21 +206,29 @@ async def get_orders(conn: Connection = Depends(get_db)):
 
             }
             order_list.append(agri_order_dict)
+        log_event("FETCH_ORDERS_SUCCESS", {
+            "total_orders": len(order_list)
+        })
         return order_list
     except Exception as e:
         logging.error("Error fetching orders: %s", str(e))
+        log_event("FETCH_ORDERS_ERROR", {
+            "error": str(e)
+        })
         raise HTTPException(status_code=500, detail=str(e)) from e
     finally:
         cur.close()
 
 @router.post("/{service}/{order_id}/accept")
-async def accept_order(service: str, order_id: int, driver_order: DriverOrder, conn: Connection = Depends(get_db)):
+async def accept_order(service: str, order_id: int, driver_order: DriverOrder, conn: Connection = Depends(get_db), request: Request = None):
     """
     Accept an order.
     Args:
+        service (str): The service type ('necessities' or 'agricultural_product').
         order_id (int): The ID of the order to be accepted.
         driver_order (DriverOrder): The driver order data.
         conn (Connection): The database connection.
+        request (Request): The incoming request.
     Returns:
         dict: A success message.
     """
@@ -224,7 +239,9 @@ async def accept_order(service: str, order_id: int, driver_order: DriverOrder, c
         log_event("ORDER_ACCEPTANCE_STARTED", {
             "order_id": order_id,
             "driver_id": driver_order.driver_id,
-            "service": service
+            "service": service,
+            "endpoint": str(request.url) if request else "N/A",
+            "client_ip": request.client.host if request else "N/A"
         })
 
 
@@ -351,14 +368,27 @@ async def accept_order(service: str, order_id: int, driver_order: DriverOrder, c
         conn.rollback()
         if e.status_code == 400:
             logging.error("訂單已被接")
+            log_event("ORDER_ACCEPTANCE_FAILED", {
+                "order_id": order_id,
+                "driver_id": driver_order.driver_id,
+                "service": service,
+                "reason": "訂單已被接"
+            })
         elif e.status_code == 404:
             logging.error("訂單未找到")
+            log_event("ORDER_ACCEPTANCE_FAILED", {
+                "order_id": order_id,
+                "driver_id": driver_order.driver_id,
+                "service": service,
+                "reason": "訂單未找到"
+            })
         raise e
     except Exception as e:
         conn.rollback()
         log_event("ORDER_ACCEPTANCE_ERROR", {
             "order_id": order_id,
             "driver_id": driver_order.driver_id,
+            "service": service,
             "error": str(e)
         })
         raise HTTPException(status_code=500, detail="伺服器內部錯誤，請稍後再試") from e
@@ -367,14 +397,14 @@ async def accept_order(service: str, order_id: int, driver_order: DriverOrder, c
 
 
 @router.post("/{order_id}/transfer")
-async def transfer_order(order_id: int, transfer_request: TransferOrderRequest, conn: Connection = Depends(get_db)):
+async def transfer_order(order_id: int, transfer_request: TransferOrderRequest, conn: Connection = Depends(get_db), request: Request = None):
     """
     Transfer an order to a new driver.
     Args:
         order_id (int): The ID of the order to be transferred.
         transfer_request (TransferOrderRequest): The transfer request data.
         conn (Connection): The database connection.
-
+        request (Request): The incoming request.
     Returns:
         dict: A success message.
     """
@@ -384,10 +414,12 @@ async def transfer_order(order_id: int, transfer_request: TransferOrderRequest, 
         log_event("ORDER_TRANSFER_STARTED", {
             "order_id": order_id,
             "current_driver_id": transfer_request.current_driver_id,
-            "new_driver_phone": transfer_request.new_driver_phone
+            "new_driver_phone": transfer_request.new_driver_phone,
+            "endpoint": str(request.url) if request else "N/A",
+            "client_ip": request.client.host if request else "N/A"
         })
 
-        
+        # Get current driver details
         cur.execute(
             "SELECT driver_name, driver_phone FROM drivers WHERE id = %s",
             (transfer_request.current_driver_id,)
@@ -401,7 +433,7 @@ async def transfer_order(order_id: int, transfer_request: TransferOrderRequest, 
 
         
         # Find new driver by phone
-        cur.execute("SELECT id,user_id, driver_name, driver_phone FROM drivers WHERE driver_phone = %s", (transfer_request.new_driver_phone,))
+        cur.execute("SELECT id, user_id, driver_name, driver_phone FROM drivers WHERE driver_phone = %s", (transfer_request.new_driver_phone,))
         new_driver = cur.fetchone()
 
         if not new_driver:
@@ -412,7 +444,7 @@ async def transfer_order(order_id: int, transfer_request: TransferOrderRequest, 
             raise HTTPException(status_code=400, detail="不能將訂單轉給自己")
 
         if new_driver:
-            # send notification to new driver
+            # Send notification to new driver
             notification_message = (
                 f"您有一筆新的轉單訂單 (訂單編號: {order_id})\n"
                 f"轉單來自司機: {current_driver_name}\n"
@@ -420,8 +452,7 @@ async def transfer_order(order_id: int, transfer_request: TransferOrderRequest, 
             )
             
             success = await line_service.send_message_to_user(
-                # new_driver[1]=user_id
-                new_driver[1],
+                new_driver[1],  # new_driver[1]=user_id
                 notification_message
             )
             if not success:
@@ -430,10 +461,10 @@ async def transfer_order(order_id: int, transfer_request: TransferOrderRequest, 
         # Ensure current driver is assigned to the order
         cur.execute("SELECT driver_id FROM driver_orders WHERE order_id = %s AND action = '接單' FOR UPDATE", (order_id,))
         order = cur.fetchone()
-        if order[0] != transfer_request.current_driver_id:
+        if not order or order[0] != transfer_request.current_driver_id:
             raise HTTPException(status_code=400, detail="當前司機無法轉交此訂單")
 
-        # Get current driver details
+        # Get current driver details again for logging
         cur.execute("SELECT driver_name, driver_phone FROM drivers WHERE id = %s", (transfer_request.current_driver_id,))
         current_driver = cur.fetchone()
         
@@ -444,25 +475,63 @@ async def transfer_order(order_id: int, transfer_request: TransferOrderRequest, 
             (new_driver_id, transfer_request.current_driver_id, current_driver[0], current_driver[1], order_id, transfer_request.current_driver_id)
         )
         conn.commit()
-        return {"status": "success"}
+        log_event("ORDER_TRANSFER_COMPLETED", {
+            "order_id": order_id,
+            "current_driver_id": transfer_request.current_driver_id,
+            "new_driver_id": new_driver_id,
+            "service": transfer_request.service,
+            "status": "success"
+        })
+        return {"status": "success", "message": "訂單已成功轉移給新司機"}
+    except HTTPException as e:
+        conn.rollback()
+        if e.status_code == 400:
+            logging.error("當前司機無法轉交此訂單")
+            log_event("ORDER_TRANSFER_FAILED", {
+                "order_id": order_id,
+                "current_driver_id": transfer_request.current_driver_id,
+                "new_driver_phone": transfer_request.new_driver_phone,
+                "reason": "當前司機無法轉交此訂單"
+            })
+        elif e.status_code == 404:
+            logging.error("司機資訊未找到")
+            log_event("ORDER_TRANSFER_FAILED", {
+                "order_id": order_id,
+                "current_driver_id": transfer_request.current_driver_id,
+                "new_driver_phone": transfer_request.new_driver_phone,
+                "reason": "司機資訊未找到"
+            })
+        raise e
     except Exception as e:
         conn.rollback()
+        log_event("ORDER_TRANSFER_ERROR", {
+            "order_id": order_id,
+            "current_driver_id": transfer_request.current_driver_id,
+            "new_driver_phone": transfer_request.new_driver_phone,
+            "error": str(e)
+        })
         raise HTTPException(status_code=500, detail=str(e)) from e
     finally:
         cur.close()
 
 @router.get("/{order_id}")
-async def get_order(order_id: int, conn: Connection = Depends(get_db)):
+async def get_order(order_id: int, conn: Connection = Depends(get_db), request: Request = None):
     """
-    Get a specific necessities' order by ID.
+    Get a specific order by ID.
     Args:
         order_id (int): The ID of the order to retrieve.
         conn (Connection): The database connection.
+        request (Request): The incoming request.
     Returns:
         dict: The order data.
     """
     cur = conn.cursor()
     try:
+        log_event("FETCH_ORDER_STARTED", {
+            "order_id": order_id,
+            "endpoint": str(request.url) if request else "N/A",
+            "client_ip": request.client.host if request else "N/A"
+        })
         cur.execute("SELECT * FROM orders WHERE id = %s", (order_id,))
         order = cur.fetchone()
         if not order:
@@ -483,7 +552,7 @@ async def get_order(order_id: int, conn: Connection = Depends(get_db)):
             "time": order[8].isoformat(),  # str
             "location": order[9],
             "is_urgent": bool(order[10]),  # bool
-            "total_price": (order[11]),  # float
+            "total_price": float(order[11]),  # float
             "order_type": order[12],
             "order_status": order[13],
             "note": order[14],
@@ -492,23 +561,39 @@ async def get_order(order_id: int, conn: Connection = Depends(get_db)):
             "previous_driver_id": order[17],
             "previous_driver_name": order[18],
             "previous_driver_phone": order[19],
-            "items": [{"order_id": item[1], "item_id": item[2], "item_name": item[3], "price": (item[4]), "quantity": int(item[5]), 
+            "items": [{"order_id": item[1], "item_id": item[2], "item_name": item[3], "price": float(item[4]), "quantity": int(item[5]), 
                        "img": str(item[6]),"location": str(item[7]),"category":str(item[8])} for item in items]
         }
+        log_event("FETCH_ORDER_SUCCESS", {
+            "order_id": order_id,
+            "status": "success"
+        })
         return order_data
+    except HTTPException as e:
+        log_event("FETCH_ORDER_FAILED", {
+            "order_id": order_id,
+            "reason": "訂單不存在"
+        })
+        raise e
     except Exception as e:
+        log_event("FETCH_ORDER_ERROR", {
+            "order_id": order_id,
+            "error": str(e)
+        })
         raise HTTPException(status_code=500, detail=str(e)) from e
     finally:
         cur.close()
 
 
 @router.post("/{service}/{order_id}/complete")
-async def complete_order(service: str, order_id: int, conn = Depends(get_db)):
+async def complete_order(service: str, order_id: int, conn: Connection = Depends(get_db), request: Request = None):
     """
     Complete an order.
     Args:
+        service (str): The service type ('necessities' or 'agricultural_product').
         order_id (int): The ID of the order to be completed.
         conn (Connection): The database connection.
+        request (Request): The incoming request.
     Returns:
         dict: A success message.
     """
@@ -516,7 +601,9 @@ async def complete_order(service: str, order_id: int, conn = Depends(get_db)):
     try:
         log_event("ORDER_COMPLETION_STARTED", {
             "order_id": order_id,
-            "service": service
+            "service": service,
+            "endpoint": str(request.url) if request else "N/A",
+            "client_ip": request.client.host if request else "N/A"
         })
         
         if service == 'necessities':
@@ -546,7 +633,7 @@ async def complete_order(service: str, order_id: int, conn = Depends(get_db)):
             
             # Format order details message
             buyer_id = order[1]  # buyer_id
-            total_price = order[11]  # total_price
+            total_price = float(order[11])  # total_price
             delivery_address = order[9]  # location
             driver_phone = order[-1] if order[-1] else "無"  # driver_phone
             
@@ -606,7 +693,7 @@ async def complete_order(service: str, order_id: int, conn = Depends(get_db)):
             
             # Format order details message
             buyer_id = order[1]
-            total_price = order[6]  # total_price
+            total_price = float(order[6])  # total_price
             delivery_address = order[4]  # end_point
             driver_phone = order[-1] if order[-1] else "無"  # driver_phone
             
@@ -648,6 +735,23 @@ async def complete_order(service: str, order_id: int, conn = Depends(get_db)):
         })
         return {"status": "success", "message": "訂單已完成"}
         
+    except HTTPException as e:
+        conn.rollback()
+        if e.status_code == 400:
+            logging.error("訂單狀態不正確，無法完成訂單")
+            log_event("ORDER_COMPLETION_FAILED", {
+                "order_id": order_id,
+                "service": service,
+                "reason": "訂單狀態不正確"
+            })
+        elif e.status_code == 404:
+            logging.error("訂單不存在")
+            log_event("ORDER_COMPLETION_FAILED", {
+                "order_id": order_id,
+                "service": service,
+                "reason": "訂單不存在"
+            })
+        raise e
     except Exception as e:
         log_event("ORDER_COMPLETION_ERROR", {
             "order_id": order_id,
