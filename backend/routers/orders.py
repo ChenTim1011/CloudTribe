@@ -650,14 +650,14 @@ async def complete_order(service: str, order_id: int, conn: Connection = Depends
             message += f"📱 司機電話：{driver_phone}\n"
             message += "─────────────\n"
             
-            # Process items from order_data
-            item_name = order[10]     # product_name
-            price = float(order[11])  # price
-            quantity = int(order[12]) # quantity
-            total_price = price * quantity
+            for item in order_data:
+                item_name = item[14]       # item_name
+                quantity = int(item[15])   # quantity
+                price = float(item[16])    # price
+                subtotal = price * quantity
+                message += f"・{item_name}\n"
+                message += f"  ${price} x {quantity} = ${subtotal}\n"
             
-            message += f"・{item_name}\n"
-            message += f"  ${price} x {quantity} = ${total_price}\n"
             message += "─────────────\n"
             message += f"總計: ${total_price} 元"
             
