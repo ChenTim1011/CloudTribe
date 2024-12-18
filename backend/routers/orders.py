@@ -303,7 +303,8 @@ async def accept_order(service: str, order_id: int, driver_order: DriverOrder, c
             # Get order details with items
             cur.execute("""
                 SELECT o.id, o.buyer_id, o.buyer_name, o.buyer_phone, o.end_point,
-                       o.status, o.note, p.id, p.name, p.price, o.quantity,
+                       o.status, o.note, 
+                       p.id, p.name, p.price, o.quantity,
                        p.img_link, o.starting_point, p.category, o.is_put, o.timestamp,
                        d.driver_phone as driver_phone
                 FROM agricultural_product_order o 
@@ -327,7 +328,7 @@ async def accept_order(service: str, order_id: int, driver_order: DriverOrder, c
             quantity = int(order[10])  # quantity from order
             total_price = price * quantity
             delivery_address = order[4]  # end_point
-            driver_phone = order[-1] if order[-1] else "無"
+            driver_phone = order[16] if order[16] else "無"
 
 
             message = "司機已接取您的農產品，請等待司機送貨👍🏻\n\n"
@@ -337,16 +338,12 @@ async def accept_order(service: str, order_id: int, driver_order: DriverOrder, c
             message += "─────────────\n"
 
             
-            total_price = 0
             # Process items from order_data
-            for item in order_data:
-                item_name = item[10]  # product_name
-                price = float(item[11])  # price
-                quantity = int(item[12])  # quantity
-                subtotal = price * quantity
-                total_price+=subtotal
-                message += f"・{item_name}\n"
-                message += f"  ${price} x {quantity} = ${subtotal}\n"
+            item_name = order[8]  # 商品名稱 (p.name)
+            message += f"・{item_name}\n"
+            message += f"  ${price} x {quantity} = ${total_price}\n"
+            message += "─────────────\n"
+            message += f"總計: ${total_price}"
             
             message += "─────────────\n"
             message += f"總計: ${total_price} 元"
@@ -660,16 +657,15 @@ async def complete_order(service: str, order_id: int, conn: Connection = Depends
             message += "─────────────\n"
             
             # Process items from order_data
-            for item in order_data:
-                item_name = item[14]  # item_name
-                quantity = int(item[15])  # quantity
-                price = float(item[16])  # price
-                subtotal = quantity * price
-                message += f"・{item_name}\n"
-                message += f"  ${price} x {quantity} = ${subtotal}\n"
+            item_name = order[10]     # product_name
+            price = float(order[11])  # price
+            quantity = int(order[12]) # quantity
+            total_price = price * quantity
             
+            message += f"・{item_name}\n"
+            message += f"  ${price} x {quantity} = ${total_price}\n"
             message += "─────────────\n"
-            message += f"總計: ${total_price}"
+            message += f"總計: ${total_price} 元"
             
             success = await line_service.send_message_to_user(buyer_id, message)
             if not success:
