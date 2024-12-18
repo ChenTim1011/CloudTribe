@@ -48,5 +48,14 @@ export const LOCATIONS = [
   {
     id:'place-4',
     value:'國立政治大學員生消費合作社'
+  },
+  {
+    id:'place-5',
+    value:'國立政治大學達賢圖書館'
+  },
+  {
+    id:'place-6',
+    value:'國立政治大學大仁樓'
   }
+
 ]

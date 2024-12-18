@@ -705,9 +705,9 @@ async def complete_order(service: str, order_id: int, conn: Connection = Depends
             
             # Process items from order_data
             for item in order_data:
-                item_name = item[11]  # product_name
-                quantity = int(item[13])  # quantity
-                price = float(item[12])  # price
+                item_name = item[10]  # product_name
+                price = float(item[11])  # price
+                quantity = int(item[12])  # quantity
                 subtotal = quantity * price
                 message += f"・{item_name}\n"
                 message += f"  ${price} x {quantity} = ${subtotal}\n"
