@@ -482,13 +482,6 @@ async def transfer_order(order_id: int, transfer_request: TransferOrderRequest, 
             (new_driver_id, transfer_request.current_driver_id, current_driver[0], current_driver[1], order_id, transfer_request.current_driver_id)
         )
         conn.commit()
-        log_event("ORDER_TRANSFER_COMPLETED", {
-            "order_id": order_id,
-            "current_driver_id": transfer_request.current_driver_id,
-            "new_driver_id": new_driver_id,
-            "service": transfer_request.service,
-            "status": "success"
-        })
         return {"status": "success", "message": "訂單已成功轉移給新司機"}
     except HTTPException as e:
         conn.rollback()
