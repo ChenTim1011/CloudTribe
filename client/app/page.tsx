@@ -1,5 +1,5 @@
 'use client';
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from 'next/link';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from '@/components/ui/card';
@@ -23,6 +23,23 @@ export default function Page() {
   const [mainSection, setMainSection] = useState<MainSection>(null);
   const [guideSection, setGuideSection] = useState<GuideSection>(null);
   const [role, setRole] = useState<Role>(null);
+  const [showScrollMessage, setShowScrollMessage] = useState<boolean>(false); // New state
+
+  // Handler for role selection
+  const handleRoleSelection = (selectedRole: Role) => {
+    setRole(prevRole => (prevRole === selectedRole ? null : selectedRole));
+    if (mainSection === 'guide') {
+      setShowScrollMessage(true);
+    }
+  };
+
+  // Auto-hide the scroll message after 5 seconds
+  useEffect(() => {
+    if (showScrollMessage) {
+      const timer = setTimeout(() => setShowScrollMessage(false), 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [showScrollMessage]);
 
   // Function to render picture content based on selected role
   const renderRolePictureContent = () => {
@@ -128,6 +145,7 @@ export default function Page() {
             onClick={() => {
               setMainSection(mainSection === 'experience' ? null : 'experience');
               setGuideSection(null);
+              setShowScrollMessage(false); // Reset scroll message
             }}
           >
             立即體驗
@@ -141,6 +159,7 @@ export default function Page() {
             onClick={() => {
               setMainSection(mainSection === 'guide' ? null : 'guide');
               setGuideSection(null);
+              setShowScrollMessage(false); // Reset scroll message
             }}
           >
             使用指南
@@ -194,61 +213,69 @@ export default function Page() {
           </div>
         )}
 
-          {/* Role Selection after selecting guide */}
-          {(guideSection === 'guideText' || guideSection === 'guideVideo') && (
-            <div className="mt-8 space-y-4">
-              {/* First Row: Seller and Driver */}
-              <div className="flex gap-6 justify-center">
-                <Button
-                  className={`lg:w-1/4 w-full h-12 rounded-xl ${
-                    role === 'seller' ? 'bg-green-100' : 'bg-white'
-                  } border-2 border-green-500 shadow-lg hover:bg-green-50 hover:scale-105 transform transition duration-200 text-green-600`}
-                  onClick={() => setRole(role === 'seller' ? null : 'seller')}
-                >
-                  部落賣家
-                </Button>
-                <Button
-                  className={`lg:w-1/4 w-full h-12 rounded-xl ${
-                    role === 'driver' ? 'bg-green-100' : 'bg-white'
-                  } border-2 border-green-500 shadow-lg hover:bg-green-50 hover:scale-105 transform transition duration-200 text-green-600`}
-                  onClick={() => setRole(role === 'driver' ? null : 'driver')}
-                >
-                  司機
-                </Button>
-              </div>
-              
-              {/* Second Row: Tribe Buyer and Buyer */}
-              <div className="flex gap-6 justify-center">
-                <Button
-                  className={`lg:w-1/4 w-full h-12 rounded-xl ${
-                    role === 'tribebuyer' ? 'bg-green-100' : 'bg-white'
-                  } border-2 border-green-500 shadow-lg hover:bg-green-50 hover:scale-105 transform transition duration-200 text-green-600`}
-                  onClick={() => setRole(role === 'tribebuyer' ? null : 'tribebuyer')}
-                >
-                  部落買家
-                </Button>
-                <Button
-                  className={`lg:w-1/4 w-full h-12 rounded-xl ${
-                    role === 'buyer' ? 'bg-green-100' : 'bg-white'
-                  } border-2 border-green-500 shadow-lg hover:bg-green-50 hover:scale-105 transform transition duration-200 text-green-600`}
-                  onClick={() => setRole(role === 'buyer' ? null : 'buyer')}
-                >
-                  團購買家
-                </Button>
-              </div>
-            </div>
-          )}
+        {/* Scroll Prompt Message */}
+        {showScrollMessage && (
+          <Alert className="mt-4 bg-yellow-50 border-yellow-200">
+            <Info className="h-5 w-5 text-yellow-600" />
+            <AlertDescription className="ml-2 text-yellow-800">
+              請往下滑收看相關內容。
+            </AlertDescription>
+          </Alert>
+        )}
 
- 
+        {/* Role Selection after selecting guide */}
+        {(guideSection === 'guideText' || guideSection === 'guideVideo') && (
+          <div className="mt-8 space-y-4">
+            {/* First Row: Seller and Driver */}
+            <div className="flex gap-6 justify-center">
+              <Button
+                className={`lg:w-1/4 w-full h-12 rounded-xl ${
+                  role === 'seller' ? 'bg-green-100' : 'bg-white'
+                } border-2 border-green-500 shadow-lg hover:bg-green-50 hover:scale-105 transform transition duration-200 text-green-600`}
+                onClick={() => handleRoleSelection('seller')}
+              >
+                部落賣家
+              </Button>
+              <Button
+                className={`lg:w-1/4 w-full h-12 rounded-xl ${
+                  role === 'driver' ? 'bg-green-100' : 'bg-white'
+                } border-2 border-green-500 shadow-lg hover:bg-green-50 hover:scale-105 transform transition duration-200 text-green-600`}
+                onClick={() => handleRoleSelection('driver')}
+              >
+                司機
+              </Button>
+            </div>
+            
+            {/* Second Row: Tribe Buyer and Buyer */}
+            <div className="flex gap-6 justify-center">
+              <Button
+                className={`lg:w-1/4 w-full h-12 rounded-xl ${
+                  role === 'tribebuyer' ? 'bg-green-100' : 'bg-white'
+                } border-2 border-green-500 shadow-lg hover:bg-green-50 hover:scale-105 transform transition duration-200 text-green-600`}
+                onClick={() => handleRoleSelection('tribebuyer')}
+              >
+                部落買家
+              </Button>
+              <Button
+                className={`lg:w-1/4 w-full h-12 rounded-xl ${
+                  role === 'buyer' ? 'bg-green-100' : 'bg-white'
+                } border-2 border-green-500 shadow-lg hover:bg-green-50 hover:scale-105 transform transition duration-200 text-green-600`}
+                onClick={() => handleRoleSelection('buyer')}
+              >
+                團購買家
+              </Button>
+            </div>
+          </div>
+        )}
 
         {/* Guide Text Content */}
         {guideSection === 'guideText' && (
-            renderRolePictureContent()
+          renderRolePictureContent()
         )}
 
         {/* Guide Video Content */}
         {guideSection === 'guideVideo' && (
-            renderRoleVideoContent()
+          renderRoleVideoContent()
         )}
       </div>
     </main>
