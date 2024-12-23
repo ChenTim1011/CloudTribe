@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useRef, useCallback, useEffect } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
@@ -12,8 +12,6 @@ import {
 } from "@/components/ui/sheet";
 import { AddItemFormProps } from "@/interfaces/tribe_resident/buyer/buyer";
 import {
-  GoogleMap,
-  Autocomplete,
   useJsApiLoader,
   LoadScriptProps,
 } from "@react-google-maps/api";
@@ -43,15 +41,17 @@ const useDebounce = (value: string, delay: number) => {
 };
 
 // Format prediction description to highlight business name
-const formatPredictionDisplay = (prediction: google.maps.places.AutocompletePrediction) => {
+const formatPredictionDisplay = (
+  prediction: google.maps.places.AutocompletePrediction
+) => {
   // Use structured_formatting to access main_text and secondary_text
   const businessName = prediction.structured_formatting.main_text;
   // secondary_text is usually the address
   const address = prediction.structured_formatting.secondary_text;
 
   return {
-    businessName: businessName || '',
-    address: address || ''
+    businessName: businessName || "",
+    address: address || "",
   };
 };
 
@@ -62,13 +62,19 @@ const AddItemForm: React.FC<AddItemFormProps> = ({ onClose, addToCart }) => {
   const [location, setLocation] = useState<string>("");
   const [searchInput, setSearchInput] = useState<string>("");
   const [error, setError] = useState("");
-  const [predictions, setPredictions] = useState<google.maps.places.AutocompletePrediction[]>([]);
+  const [predictions, setPredictions] = useState<
+    google.maps.places.AutocompletePrediction[]
+  >([]);
   const [isManualInput, setIsManualInput] = useState(true);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null); // State for success message
+
   // Initialize debounced search term
   const debouncedSearchTerm = useDebounce(searchInput, 1000);
 
   // Service references for Google Places API
-  const autocompleteService = useRef<google.maps.places.AutocompleteService | null>(null);
+  const autocompleteService = useRef<
+    google.maps.places.AutocompleteService | null
+  >(null);
   const placesService = useRef<google.maps.places.PlacesService | null>(null);
 
   const { isLoaded, loadError } = useJsApiLoader({
@@ -82,15 +88,18 @@ const AddItemForm: React.FC<AddItemFormProps> = ({ onClose, addToCart }) => {
     if (isManualInput && debouncedSearchTerm && autocompleteService.current) {
       const searchQuery = {
         input: debouncedSearchTerm,
-        language: 'zh-TW',
-        componentRestrictions: { country: 'tw' },
-        types: ['establishment'] // Focus on businesses and establishments
+        language: "zh-TW",
+        componentRestrictions: { country: "tw" },
+        types: ["establishment"], // Focus on businesses and establishments
       };
 
       autocompleteService.current.getPlacePredictions(
         searchQuery,
         (results, status) => {
-          if (status === google.maps.places.PlacesServiceStatus.OK && results) {
+          if (
+            status === google.maps.places.PlacesServiceStatus.OK &&
+            results
+          ) {
             setPredictions(results);
           } else {
             setPredictions([]);
@@ -100,13 +109,13 @@ const AddItemForm: React.FC<AddItemFormProps> = ({ onClose, addToCart }) => {
     } else {
       setPredictions([]);
     }
-  }, [debouncedSearchTerm,isManualInput]);
+  }, [debouncedSearchTerm, isManualInput]);
 
   // Initialize Google Places services
   useEffect(() => {
     if (isLoaded && !autocompleteService.current) {
       autocompleteService.current = new google.maps.places.AutocompleteService();
-      const mapDiv = document.createElement('div');
+      const mapDiv = document.createElement("div");
       const map = new google.maps.Map(mapDiv);
       placesService.current = new google.maps.places.PlacesService(map);
     }
@@ -118,14 +127,17 @@ const AddItemForm: React.FC<AddItemFormProps> = ({ onClose, addToCart }) => {
       placesService.current.getDetails(
         {
           placeId: placeId,
-          fields: ['formatted_address', 'name']
+          fields: ["formatted_address", "name"],
         },
         (place, status) => {
-          if (status === google.maps.places.PlacesServiceStatus.OK && place) {
+          if (
+            status === google.maps.places.PlacesServiceStatus.OK &&
+            place
+          ) {
             const fullLocation = `${place.name} ${place.formatted_address}`;
             setLocation(fullLocation);
             setSearchInput(fullLocation);
-            setIsManualInput(false); 
+            setIsManualInput(false);
             setPredictions([]);
             setError("");
           } else {
@@ -140,7 +152,7 @@ const AddItemForm: React.FC<AddItemFormProps> = ({ onClose, addToCart }) => {
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setSearchInput(value);
-    setIsManualInput(true); 
+    setIsManualInput(true);
     if (!value) {
       setPredictions([]);
     }
@@ -149,6 +161,7 @@ const AddItemForm: React.FC<AddItemFormProps> = ({ onClose, addToCart }) => {
   // Form submission handler
   const handleSubmit = () => {
     setError("");
+    setSuccessMessage(null); // Reset success message
 
     if (!name.trim()) {
       setError("商品名稱不能是空的");
@@ -177,7 +190,21 @@ const AddItemForm: React.FC<AddItemFormProps> = ({ onClose, addToCart }) => {
       location: location.trim(),
       img: "/external-image/on/demandware.static/-/Sites-carrefour-tw-m-inner/default/dwa27eb49f/images/large/3270236800101.jpg",
     });
-    onClose();
+
+    setSuccessMessage("商品已成功加入購物車！"); // Set the success message
+
+    // Optionally, reset the form fields
+    setName("");
+    setQuantity("");
+    setPrice("");
+    setLocation("");
+    setSearchInput("");
+
+    // Automatically close the form after a delay to allow users to see the message
+    setTimeout(() => {
+      setSuccessMessage(null); // Clear the message
+      onClose(); // Close the form
+    }, 2000); // 3 seconds delay
   };
 
   if (loadError) {
@@ -195,9 +222,23 @@ const AddItemForm: React.FC<AddItemFormProps> = ({ onClose, addToCart }) => {
           <SheetTitle>如果找不到，想要買的東西</SheetTitle>
         </SheetHeader>
         <div className="p-4">
-          {error && <div className="text-red-500 mb-10">{error}</div>}
+          {/* Success Message */}
+          {successMessage && (
+            <div
+              className="mb-4 p-2 bg-green-100 text-green-700 rounded"
+              aria-live="polite"
+            >
+              {successMessage}
+            </div>
+          )}
+
+          {/* Error Message */}
+          {error && (
+            <div className="text-red-500 mb-4">{error}</div>
+          )}
+
           <div className="mb-10">
-            <label className="mb-5 block text-sm font-medium text-gray-700">
+            <label className="mb-2 block text-sm font-medium text-gray-700">
               商品名稱(品牌/名稱/大小)
             </label>
             <Input
@@ -207,7 +248,7 @@ const AddItemForm: React.FC<AddItemFormProps> = ({ onClose, addToCart }) => {
             />
           </div>
           <div className="mb-10">
-            <label className="mb-5 block text-sm font-medium text-gray-700">
+            <label className="mb-2 block text-sm font-medium text-gray-700">
               購買數量
             </label>
             <Input
@@ -219,7 +260,7 @@ const AddItemForm: React.FC<AddItemFormProps> = ({ onClose, addToCart }) => {
             />
           </div>
           <div className="mb-10">
-            <label className="mb-5 block text-sm font-medium text-gray-700">
+            <label className="mb-2 block text-sm font-medium text-gray-700">
               購買價格
             </label>
             <Input
@@ -231,7 +272,7 @@ const AddItemForm: React.FC<AddItemFormProps> = ({ onClose, addToCart }) => {
             />
           </div>
           <div className="mb-10 relative">
-            <label className="mb-5 block text-sm font-medium text-gray-700">
+            <label className="mb-2 block text-sm font-medium text-gray-700">
               地點
             </label>
             <div className="relative">
@@ -245,15 +286,22 @@ const AddItemForm: React.FC<AddItemFormProps> = ({ onClose, addToCart }) => {
               {predictions.length > 0 && (
                 <div className="absolute z-50 w-full bg-white mt-1 rounded-md shadow-lg max-h-60 overflow-auto">
                   {predictions.map((prediction) => {
-                    const { businessName, address } = formatPredictionDisplay(prediction);
+                    const { businessName, address } =
+                      formatPredictionDisplay(prediction);
                     return (
                       <div
                         key={prediction.place_id}
                         className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
-                        onClick={() => handlePlaceSelect(prediction.place_id)}
+                        onClick={() =>
+                          handlePlaceSelect(prediction.place_id)
+                        }
                       >
-                        <div className="font-medium text-gray-900">{businessName}</div>
-                        <div className="text-sm text-gray-500">{address}</div>
+                        <div className="font-medium text-gray-900">
+                          {businessName}
+                        </div>
+                        <div className="text-sm text-gray-500">
+                          {address}
+                        </div>
                       </div>
                     );
                   })}
@@ -268,7 +316,11 @@ const AddItemForm: React.FC<AddItemFormProps> = ({ onClose, addToCart }) => {
           </div>
         </div>
         <SheetFooter>
-          <Button className="bg-black text-white" onClick={handleSubmit}>
+          <Button
+            className="bg-black text-white"
+            onClick={handleSubmit}
+            disabled={!!successMessage} // Disable button while showing success message
+          >
             加入購物車
           </Button>
         </SheetFooter>

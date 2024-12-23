@@ -287,7 +287,7 @@ const BuyerPage: React.FC = () => {
                   onClick={() => setIsAddItemFormOpen(true)}
                   className="w-full sm:w-80"
                 >
-                  如果商品找不到，請點此新增
+                  如果想要商品找不到，請點此加入購物車
                 </Button>
               </div>
             </div>

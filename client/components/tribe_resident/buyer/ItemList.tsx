@@ -19,6 +19,7 @@ const ItemList: React.FC<ItemListProps> = ({ products, itemsPerPage, addToCart }
   const [currentPage, setCurrentPage] = useState(1);
   const [sortedProducts, setSortedProducts] = useState<Product[]>(products);
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
+  const [addedMessage, setAddedMessage] = useState<string | null>(null); // State for notification message
 
   useEffect(() => {
     // Sort the products based on the current sort order.
@@ -47,13 +48,32 @@ const ItemList: React.FC<ItemListProps> = ({ products, itemsPerPage, addToCart }
   const currentData = sortedProducts.slice(startIdx, endIdx);
 
   return (
-    <div>
+    <div className="relative">
       <div className="flex justify-end mb-4">
         <Button onClick={toggleSortOrder}>
           <FontAwesomeIcon icon={faSortAmountDown} className="mr-2" />
           {sortOrder === 'asc' ? '價格由小到大' : '價格由大到小'}
         </Button>
       </div>
+
+      {/* Notification Overlay */}
+      {addedMessage && (
+        <div 
+          className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50"
+          aria-live="assertive"
+        >
+          <div className="bg-white p-6 rounded-lg shadow-lg text-center">
+            <p className="text-lg font-semibold text-green-700">{addedMessage}</p>
+            <Button 
+              className="mt-4 bg-green-600 text-white"
+              onClick={() => setAddedMessage(null)}
+            >
+              關閉
+            </Button>
+          </div>
+        </div>
+      )}
+
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         {currentData.map((product) => (
           <div key={product.id} className="card p-4 bg-white shadow-md rounded-lg">
@@ -93,8 +113,12 @@ const ItemList: React.FC<ItemListProps> = ({ products, itemsPerPage, addToCart }
                 <Button
                   className="flex items-center justify-center mb-2"
                   onClick={() => {
-                    const quantity = parseInt((document.getElementById(`quantity-${product.id}`) as HTMLInputElement)?.value || '1', 10);
+                    const quantityInput = document.getElementById(`quantity-${product.id}`) as HTMLInputElement;
+                    const quantity = parseInt(quantityInput?.value || '1', 10);
                     addToCart(product, quantity);
+                    setAddedMessage(`${product.name} 已經加入購物車`); // Set the notification message
+                    // Clear the message after 2 seconds
+                    setTimeout(() => setAddedMessage(null), 2000);
                   }}
                 >
                   <FontAwesomeIcon icon={faShoppingCart} className="mr-2" />
@@ -103,7 +127,7 @@ const ItemList: React.FC<ItemListProps> = ({ products, itemsPerPage, addToCart }
 
                 {/* Product link to check the actual price */}
                 <a 
-                  href={`https://online.carrefour.com.tw/zh/search/?q=${product.name.replace(/\(.*?\)|※.*$|因.*$/g, '').trim()}`}   
+                  href={`https://online.carrefour.com.tw/zh/search/?q=${encodeURIComponent(product.name.replace(/\(.*?\)|※.*$|因.*$/g, '').trim())}`}   
                   target="_blank"
                   rel="noopener noreferrer"
                   className="mt-4"
