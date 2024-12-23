@@ -85,20 +85,22 @@ export default function Page() {
 
   const renderRoleVideoContent = () => {
     if (!role) return null;
+
     
     const videoUrls = {
-      seller: "https://drive.google.com/file/d/1WPpysJXWSrtgVCgSlJG0PpyufxOplA3u/preview",
-      tribebuyer: "https://drive.google.com/file/d/1kbM2IvsJRHWVkJKU6hLl2lJOrng6wSzV/preview",
-      driver: "https://drive.google.com/file/d/1kaX1pwhKc1jnpME_7R5xzVLwEKO0edit/preview",
-      buyer: "https://drive.google.com/file/d/1Qf_3_rxyQa6j5amyLpe-MXgSkfQR-VMH/preview"
+      seller: "https://www.youtube.com/embed/29SxFI6WWD4",
+      tribebuyer: "https://www.youtube.com/embed/hjn2Sm5dd9s",
+      driver: "https://www.youtube.com/embed/wcOt4QaqB3g",
+      buyer: "https://www.youtube.com/embed/Q4g4HAuLtNw"
     };
+
     return role ? (
       <div className="mt-8 flex justify-center">
         <iframe
           src={videoUrls[role]}
           width="640"
           height="360"
-          allow="autoplay"
+          allow="autoplay; fullscreen"
           allowFullScreen
           className={`rounded-xl shadow-lg ${role ? 'animate__animated animate__fadeIn' : ''}`}
         ></iframe>
