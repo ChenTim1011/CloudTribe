@@ -1,5 +1,26 @@
 # CloudTribe  USR計畫之部落團購與順路經濟平台實做
 
+### Demo Video for tribe residents 、 drivers 、 buyers 、 sellers 
+
+1. tribe residents
+   
+[![tribe residents](https://img.youtube.com/vi/hjn2Sm5dd9s/0.jpg)](https://youtube.com/shorts/hjn2Sm5dd9s)
+
+2. drivers
+   
+[![drivers](https://img.youtube.com/vi/wcOt4QaqB3g/0.jpg)](https://youtu.be/wcOt4QaqB3g)
+
+3. buyers
+   
+[![buyers](https://img.youtube.com/vi/Q4g4HAuLtNw/0.jpg)](https://youtube.com/shorts/Q4g4HAuLtNw)
+
+4. sellers
+  
+[![sellers](https://img.youtube.com/vi/29SxFI6WWD4/0.jpg)](https://youtube.com/shorts/29SxFI6WWD4)
+
+
+
+
 ## Project Description
 
 During the winter break of 2024, we visited the Sbunaw tribe(雪霧鬧部落) in Taoyuan, a small community with around 200 residents. The local economy is primarily based on agriculture, guesthouses, and camping. The area is difficult to access due to steep, winding mountain roads, making external transportation challenging. Due to these transportation issues, no logistics companies are willing to make deliveries to the mountain. This has led to the development of a "convenience economy," where residents who go down to the town for supplies also bring back goods for other residents, reducing the need for multiple trips. This system is usually based on mutual help among familiar residents.
