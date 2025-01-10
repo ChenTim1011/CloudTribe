@@ -2,12 +2,12 @@
     "name": "cloudtribe",
     "version": "1.0.0",
     "scripts": {
-        "dev": "concurrently \"npm run dev:frontend\" \"npm run dev:backend\"",
-        "dev:frontend": "cd client && npm run dev",
-        "dev:backend": "cross-env PYTHONPATH=backend dotenv -e backend/.env uvicorn backend.main:app --host 0.0.0.0 --port 8000 --reload",
-        "prod:frontend": "cd client && sudo rm -rf .next && npm run build",
-        "prod:backend": "cd .. && . ~/CloudTribe/fastapi-env/bin/activate && pm2 start ~/CloudTribe/fastapi-env/bin/uvicorn --name fastapi-app --interpreter ~/CloudTribe/fastapi-env/bin/python3 -- backend.main:app --host 0.0.0.0 --port 8001 ",
-        "prod": "npm run prod:frontend && npm run prod:backend"       
+      "dev": "concurrently \"npm run dev:frontend\" \"npm run dev:backend\"",
+      "dev:frontend": "cd client && npm run dev",
+      "dev:backend": "cross-env PYTHONPATH=backend dotenv -e backend/.env uvicorn backend.main:app --host 0.0.0.0 --port 8000 --reload",
+      "prod:frontend": "cd client && sudo rm -rf .next && npm install && npm run build",
+      "prod:backend": "cd ~/CloudTribe && . ~/CloudTribe/fastapi-env/bin/activate && PYTHONPATH=backend pm2 start ~/CloudTribe/fastapi-env/bin/uvicorn --name fastapi-app --interpreter ~/CloudTribe/fastapi-env/bin/python3 -- backend.main:app --host 0.0.0.0 --port 8001",
+      "prod": "npm run prod:frontend && npm run prod:backend"
     },
     "devDependencies": {
         "concurrently": "^8.2.2",
