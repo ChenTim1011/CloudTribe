@@ -5,8 +5,8 @@ CREATE TABLE users (
     name VARCHAR(255) NOT NULL,
     phone VARCHAR(20) UNIQUE NOT NULL,
     location VARCHAR(15) DEFAULT '未選擇', -- New: add location column to users table
-    is_driver BOOLEAN DEFAULT FALSE    -- New: add is_driver column to users table
-    line_user_id VARCHAR(255);
+    is_driver BOOLEAN DEFAULT FALSE,    -- New: add is_driver column to users table
+    line_user_id VARCHAR(255)
 );
 
 -- drivers table
@@ -124,16 +124,7 @@ CREATE TABLE agricultural_product_order(
     is_put BOOLEAN DEFAULT FALSE,
     note VARCHAR(255)
 );
-'''
-CREATE TABLE driver_order (
-    id SERIAL PRIMARY KEY,
-    driver_id INTEGER NOT NULL,
-    product_order_id INTEGER, --if service is pick up people, can be null
-    starting_point VARCHAR(25) NOT NULL,
-    end_point VARCHAR(25) NOT NULL,
-    service VARCHAR(20) NOT NULL --kind: 1.pick up people, 2.carry products
-);
-'''
+
 
 
 
