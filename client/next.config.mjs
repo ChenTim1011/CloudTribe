@@ -25,9 +25,6 @@ export default async (phase) => {
       NEXT_PUBLIC_GOOGLE_MAPS_API_KEY:
         process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY,
       NEXT_PUBLIC_MAP_ID: process.env.NEXT_PUBLIC_MAP_ID,
-      NEXT_PUBLIC_LINE_CLIENT_ID: process.env.NEXT_PUBLIC_LINE_CLIENT_ID,
-      LINE_CLIENT_SECRET: process.env.LINE_CLIENT_SECRET,
-      NEXT_PUBLIC_LINE_CALLBACK_URL: process.env.NEXT_PUBLIC_LINE_CALLBACK_URL,
     },
 
     images: {
