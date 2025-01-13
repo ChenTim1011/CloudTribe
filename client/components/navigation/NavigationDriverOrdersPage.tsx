@@ -102,8 +102,7 @@ const NavigationDriverOrdersPage: React.FC<DriverOrdersPageProps> = ({
 
     return (
         <div className="p-4">
-   
-            <h1 className="text-lg text-center font-bold mb-4">只有找到下一位司機才可以轉單</h1>
+
 
             {/* Filter controls for order status and date range */}
             <div className="mb-4">

@@ -263,7 +263,7 @@ const DriverAvailableTimes: React.FC<{ driverId: number }> = ({ driverId }) => {
           className="w-full sm:max-w-2xl p-0 sm:p-6"
         >
           <SheetHeader className="p-6 sm:p-0">
-            <SheetTitle>新增可用時間</SheetTitle>
+            <SheetTitle>新增可用時間讓賣家知道</SheetTitle>
           </SheetHeader>
           <div className="overflow-y-auto h-[calc(100vh-80px)] p-6 sm:p-0">
           <div className="mt-4">
@@ -343,7 +343,7 @@ const DriverAvailableTimes: React.FC<{ driverId: number }> = ({ driverId }) => {
           </div>
 
             <div className="mt-6">
-              <h3 className="text-lg font-semibold">目前可用的時間</h3>
+              <h3 className="text-lg font-semibold">目前可用的時間(一次只能新增一個時間段)</h3>
               {timeSlots.length > 0 ? (
                 <div className="grid grid-cols-1 gap-4">
                   {timeSlots.filter(timeSlot => timeSlot.date >= new Date().toLocaleDateString('zh-TW', 

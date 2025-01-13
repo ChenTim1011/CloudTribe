@@ -313,9 +313,17 @@ const DriverOrdersPage: React.FC<DriverOrdersPageProps> = ({
     }, [finalFilteredOrders]);
 
     return (
-        <div className="p-4">
+        <div className="h-screen overflow-y-auto p-4" style={{
+            /* For Chrome, Safari and Opera */
+            scrollbarWidth: 'none', /* For Firefox */
+        }}>
+          <style jsx>{`
+            div::-webkit-scrollbar {
+              display: none;
+            }
+          `}</style>
             <div className="mb-6">
-                <h2 className="text-lg font-bold mb-2">設定最終目的地</h2>
+                <h2 className="text-lg font-bold mb-2">司機最後要去哪裡</h2>
                 <div className="relative">
                     <Input
                         type="text"
@@ -345,7 +353,7 @@ const DriverOrdersPage: React.FC<DriverOrdersPageProps> = ({
                 
                 <Button 
                     onClick={handleNavigate}
-                    className="w-full bg-black text-white"
+                    className="mb-10 w-full bg-black text-white"
                     disabled={!finalDestination}
                 >
                     開始導航
@@ -357,7 +365,6 @@ const DriverOrdersPage: React.FC<DriverOrdersPageProps> = ({
                 )}
             </div>
 
-            <h1 className="text-lg text-center font-bold mb-4">只有找到下一位司機才可以轉單</h1>
 
             {/* Filter controls for order status and date range */}
             <div className="mb-4">
@@ -387,7 +394,7 @@ const DriverOrdersPage: React.FC<DriverOrdersPageProps> = ({
                 </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-96" align="center">
-                <div className="max-h-[60vh] overflow-y-auto px-4">
+                <div className="overflow-y-auto px-4">
                     {aggregatedItemsByLocation.length > 0 ? (
                     <div>
                         <h2 className="text-md font-semibold mb-4 sticky top-0 bg-white py-2">
@@ -436,7 +443,7 @@ const DriverOrdersPage: React.FC<DriverOrdersPageProps> = ({
             {error && <div className="text-red-600 text-center mb-4">{error}</div>}
 
             {/* Display the list of orders */}
-            <div className="overflow-y-auto max-h-[calc(100vh-200px)]">
+            <div>
                 {finalFilteredOrders.length > 0 ? (
                     finalFilteredOrders.map(order => (
                         <OrderCard

@@ -875,7 +875,15 @@ useEffect(() => {
 
 return (
   <Suspense fallback={<div>正在加載地圖...</div>}>
-    <div className="max-w-full mx-auto space-y-6">
+    <div className="h-screen overflow-y-auto p-4" style={{
+            /* For Chrome, Safari and Opera */
+            scrollbarWidth: 'none', /* For Firefox */
+        }}>
+          <style jsx>{`
+            div::-webkit-scrollbar {
+              display: none;
+            }
+          `}</style>
       {/* Back Button */}
       <div className="w-full flex justify-start p-4">
         <Button variant="outline" onClick={() => window.history.back()}>

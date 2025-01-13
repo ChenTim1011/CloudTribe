@@ -221,7 +221,8 @@ const OrderCard: React.FC<{
                 {/* Transfer form for entering new driver's phone number */}
                 {showTransferForm && (
                     <div className="mt-4">
-                        <p className="text-sm text-gray-700 font-bold">請輸入新司機的電話號碼:</p>
+                        <p className="text-sm text-gray-700 font-bold">(沒有棄單，只有找到新司機才可以轉單)
+                            請輸入新司機的電話號碼:</p>
                         <Input
                             type="text"
                             value={newDriverPhone}

@@ -116,7 +116,7 @@ export const NavigationBar = () => {
     return (
       <Menubar className="px-2 py-2 justify-between bg-[#E0EBAF] text-black w-full text-sm">
         <div className="flex items-center space-x-4">
-          <FontAwesomeIcon icon={faMountain} className="text-white h-6 w-6" />
+          <FontAwesomeIcon icon={faMountain} className="text-black h-6 w-6" />
           <Link href="/" className="font-bold text-lg">順路經濟平台</Link>
         </div>
         <div className="flex flex-row space-x-12">
