@@ -85,7 +85,7 @@ const CartModal: React.FC<CartModalProps> = ({ cart, onClose, removeFromCart, up
                   <h2 className="text-g font-bold truncate" style={{ maxWidth: "12rem" }}> 地點: {item.location}</h2>
                   
                   {/* Item price and quantity */}
-                  <p> {item.price} 元 x {item.quantity} = {(item.price * item.quantity)} 元</p>
+                  <p> {Math.floor(item.price)} 元 x {item.quantity} = {Math.floor(item.price * item.quantity)} 元</p>
                   <div className="flex items-center justify-between">
                     {/* Buttons to update the item quantity */}
                     <Button variant="outline" onClick={() => updateQuantity(item.id, -1)}>-</Button>
@@ -93,7 +93,20 @@ const CartModal: React.FC<CartModalProps> = ({ cart, onClose, removeFromCart, up
                       title="Quantity"
                       type="number"
                       value={item.quantity}
-                      onChange={(e) => updateQuantity(item.id, parseInt(e.target.value) - item.quantity)}
+                      onChange={(e) => {                     
+                        const inputValue = e.target.value.trim();
+                        if (inputValue === "") {
+                          // If the input is empty, set the quantity to 1
+                          updateQuantity(item.id, 1 - item.quantity);
+                          return;
+                        }
+                        const newQuantity = parseInt(inputValue, 10);
+                        if (!isNaN(newQuantity) && newQuantity >= 1) {
+                          updateQuantity(item.id, newQuantity - item.quantity);
+                        } else {
+                          setError("請輸入有效的數量");
+                        }
+                      }}
                       className="w-12 text-center mx-2 border rounded"
                       min={1}
                     />
@@ -106,7 +119,7 @@ const CartModal: React.FC<CartModalProps> = ({ cart, onClose, removeFromCart, up
 
           {/* Display the total price and a checkout button */}
           <div className="flex justify-between items-center font-bold text-xl">
-            <span>總計: {totalPrice} 元 </span>         
+            <span>總計: {Math.floor(totalPrice)} 元 </span>         
             <Button 
               className="bg-black text-white" 
               onClick={() => {

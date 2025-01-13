@@ -258,11 +258,17 @@ const BuyerPage: React.FC = () => {
               {/* Shopping cart button */}
               <div className="w-full flex justify-center">
                 {isMounted && (
-                  <Button
-                    variant="outline"
-                    onClick={handleApplyBuyerClick}
-                    className="w-full sm:w-80 px-4 py-2 text-lg font-bold border-2 border-black-500 text-black-500 hover:bg-blue-500 hover:text-white"
-                  >
+                <Button
+                variant="outline"
+                onClick={handleApplyBuyerClick}
+                style={{
+                  position: "fixed",
+                  bottom: "20px",
+                  right: "20px",
+                  zIndex: 1000, 
+                }}
+                className="px-4 py-2 text-lg font-bold"
+              >
                     <FontAwesomeIcon icon={faShoppingCart} className="mr-2" />
                     {`購物車 (${cart.reduce((total, item) => total + item.quantity, 0)})`}
                   </Button>
