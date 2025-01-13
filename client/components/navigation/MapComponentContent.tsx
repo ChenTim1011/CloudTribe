@@ -190,6 +190,8 @@ const MapComponentContent: React.FC = () => {
 
   const [aggregatedItemsByLocation, setAggregatedItemsByLocation] = useState<AggregatedLocation[]>([]);
 
+  const [removedCarrefour, setRemovedCarrefour] = useState<Set<string>>(new Set());
+
 
   // Map ref
   const mapRef = useRef<google.maps.Map | null>(null);
@@ -556,6 +558,16 @@ const MapComponentContent: React.FC = () => {
       return;
     }
 
+    const removed = destinations[index];
+    // If the removed destination contains '家樂福', record it so it's not auto added again
+    if (removed.name.includes("家樂福")) {
+      setRemovedCarrefour(prev => {
+        const newSet = new Set(prev);
+        newSet.add("家樂福");
+        return newSet;
+      });
+    }
+
     const updated = Array.from(destinations);
     updated.splice(index, 1);
     setDestinations(updated);
@@ -768,7 +780,7 @@ const searchNearestCarrefour = async (currentLocation: LatLng): Promise<{name: s
   return new Promise((resolve, reject) => {
     const request: google.maps.places.PlaceSearchRequest = {
       location: new google.maps.LatLng(currentLocation.lat, currentLocation.lng),
-      radius: 20000, // search within 20km
+      radius: 10000, // search within 20km
       keyword: '家樂福',
       type: 'supermarket'
     };
@@ -818,7 +830,7 @@ useEffect(() => {
         for (const item of order.items) {
           let location = item.location || "未指定地點";
           
-          if (location.toLowerCase().includes('家樂福')) {
+          if (location.toLowerCase().includes('家樂福') && !removedCarrefour.has('家樂福')) {
             try {
               if (!processedCarrefour.has(location)) {
                 const nearestCarrefour = await searchNearestCarrefour(currentLocation);
@@ -871,7 +883,7 @@ useEffect(() => {
   };
 
   processLocations().catch(console.error);
-}, [orders, currentLocation, destinations, driverData?.id]);
+}, [orders, currentLocation, destinations, driverData?.id,, removedCarrefour]);
 
 return (
   <Suspense fallback={<div>正在加載地圖...</div>}>
@@ -896,7 +908,7 @@ return (
       {showLinkTip && (
         <div className="bg-blue-100 border border-blue-500 text-blue-700 px-4 py-3 rounded relative mb-4" role="alert">
             <strong className="font-bold">提醒：</strong>
-            <span className="block sm:inline">請點擊導航連結，有更好的導航體驗。</span>
+            <span className="block sm:inline">請確認允許應用程式取得位置，地圖才會跑出來!還有請點擊導航連結，有更好的導航體驗。</span>
             <Button
                 className="absolute top-0 bottom-0 right-0 px-4 py-3" 
                 onClick={() => setShowLinkTip(false)}
