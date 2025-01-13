@@ -5,10 +5,12 @@ This module provides endpoints to create and retrieve user information.
 It uses FastAPI for defining the API routes and psycopg2 for database interactions.
 
 Endpoints:
-- POST /users: Create a new user.
-- POST /users/login: Login user by phone number.
-- GET /users/{user_id}: Retrieve a user by ID.
-
+- POST /login: Login user by phone number.
+- POST /: Create a new user.
+- POST /bind-line: Bind LINE account to user.
+- GET /{user_id}: Retrieve a user by ID.
+- PATCH /location/{userId}: Update user information by userId.
+- PATCH /driver/{user_id}: Update the user's is_driver status to True
 """
 from fastapi import APIRouter, HTTPException, Depends
 from pydantic import BaseModel

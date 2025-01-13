@@ -1,13 +1,13 @@
 '''
 Endpoints:
-- POST /: Create a new driver
-- POST /cart: Add item to shopping cart
-- POST /order: Add agricultural item order //may change later to add necessity
 - GET /: Get on sell items
+- POST /cart: Add item to shopping cart
 - GET /cart/{userId}:  Get user shopping cart items 
-- PATCH /cart/quantity/{itemId}: Update quantity of item with id {itemId}
-- PATCH /cart/status/{itemId}: Update status to '已送單' with id {itemId}
 - DELETE /cart/{itemId}: Delete specific item in shopping cart
+- PATCH /cart/quantity/{itemId}: Update quantity of item with id {itemId}
+- POST /order: Add agricultural item order 
+- PATCH /cart/status/{itemId}: Update status to '已送單' with id {itemId}
+- GET /purchased/{userId}: Get user purchsaed item
 - PATCH /order/status_confirm/{orderId}: Update status to '已確認' with id {orderId}
 
 '''

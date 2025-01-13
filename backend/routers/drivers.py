@@ -12,9 +12,10 @@ Endpoints:
 - PATCH /{phone}: Update driver information by phone number.
 - GET /{driver_id}/orders: Get orders assigned to a driver.
 - POST /time: Add a new available time slot for a driver.
+- GET /all/times: Retrieve available time slots for all driver.
 - GET /{driver_id}/times: Retrieve available time slots for a specific driver.
 - DELETE /time/{id}: Delete an available time slot for a driver.
-
+- DELETE /drop_agricultural_order/{driver_id}/{order_id}:Delete received agricultural product order.
 """
 
 import logging
