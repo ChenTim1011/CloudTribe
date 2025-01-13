@@ -1,3 +1,18 @@
+"""
+Seller management API using FastAPI and PostgreSQL.
+
+This module provides endpoints to create and retrieve seller information.
+It uses FastAPI for defining the API routes and psycopg2 for database interactions.
+
+Endpoints:
+- POST /upload_image: Upload photo which is base 64 data
+- POST /: Upload item
+- GET /{sellerId}: Get seller's product information with {sellerId}
+- GET /product/{productId}: Get seller's product information with {productId}
+- GET /product/order/{productId}: Get orders of seller product with {productId}
+- POST /agricultural_product/is_put: Check is put checkbox.
+- DELETE /{productId}: Delete product with {productId}.
+"""
 from fastapi import APIRouter, HTTPException, Depends
 from psycopg2.extensions import connection as Connection
 from backend.models.seller import UploadImageResponse, UploadImageRequset, UploadItemRequest, ProductBasicInfo, ProductInfo, ProductOrderInfo, IsPutRequest
