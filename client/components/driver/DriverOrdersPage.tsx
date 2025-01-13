@@ -79,6 +79,10 @@ const DriverOrdersPage: React.FC<DriverOrdersPageProps> = ({
     const isMounted = useRef(true);
     const isFetching = useRef(false);
 
+      // State for date range filtering (in YYYY-MM-DD format)
+  const [startDate, setStartDate] = useState<string>("");
+  const [endDate, setEndDate] = useState<string>("");
+
     useEffect(() => {
         // Only fetch predictions if it's a manual input
         if (isManualInput && debouncedSearchTerm && debouncedSearchTerm.length >= 2 && autocompleteService.current) {
@@ -270,12 +274,31 @@ const DriverOrdersPage: React.FC<DriverOrdersPageProps> = ({
 
 
 
-    const finalFilteredOrders = useMemo(() => {
-        return orders.filter((order) => {
-            const matchesStatus = order.order_status === orderStatus;
-            return matchesStatus;
-        });
-    }, [orders, orderStatus]);
+  // Filter orders based on order status and date range; and sort "已完成" orders by timestamp descending.
+  const finalFilteredOrders = useMemo(() => {
+    let filtered = orders.filter(order => order.order_status === orderStatus);
+    if (startDate) {
+      filtered = filtered.filter(order => {
+        if (!order.timestamp) return false;
+        const orderDate = new Date(order.timestamp).toISOString().split('T')[0];
+        return orderDate >= startDate;
+      });
+    }
+    if (endDate) {
+      filtered = filtered.filter(order => {
+        if (!order.timestamp) return false;
+        const orderDate = new Date(order.timestamp).toISOString().split('T')[0];
+        return orderDate <= endDate;
+      });
+    }
+    if (orderStatus === "已完成") {
+      filtered = filtered.sort((a, b) => {
+        if (!b.timestamp || !a.timestamp) return 0;
+        return new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime();
+      });
+    }
+    return filtered;
+  }, [orders, orderStatus, startDate, endDate]);
 
     /**
      * Calculates the total price of the filtered orders.
@@ -311,6 +334,14 @@ const DriverOrdersPage: React.FC<DriverOrdersPageProps> = ({
 
         return result;
     }, [finalFilteredOrders]);
+
+    const handleStartDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setStartDate(e.target.value);
+    };
+
+    const handleEndDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setEndDate(e.target.value);
+    };
 
     return (
         <div className="h-screen overflow-y-auto p-4" style={{
@@ -385,6 +416,29 @@ const DriverOrdersPage: React.FC<DriverOrdersPageProps> = ({
                 </div>
             </div>
 
+
+           {/* Date range selectors */}
+           <div className="flex justify-center space-x-4">
+                <div className="flex flex-col">
+                    <label htmlFor="start-date" className="text-sm font-semibold mb-1">開始日期:</label>
+                       <Input
+                         type="date"
+                         id="start-date"
+                         value={startDate}
+                         onChange={handleStartDateChange}
+                       />
+                </div>
+                <div className="flex flex-col">
+                    <label htmlFor="end-date" className="text-sm font-semibold mb-1">結束日期:</label>
+                      <Input
+                        type="date"
+                        id="end-date"
+                        value={endDate}
+                        onChange={handleEndDateChange}
+                      />
+                </div>
+            </div>
+
             {/* Aggregated Items Button and Popover */}
             <div className="flex justify-center p-4">
             <Popover>
@@ -456,6 +510,7 @@ const DriverOrdersPage: React.FC<DriverOrdersPageProps> = ({
                             }}
                             onTransfer={(orderId: string, newDriverPhone: string) => handleLocalTransfer(orderId, newDriverPhone)}
                             onComplete={(orderId: string) => handleLocalComplete(orderId, order.service)}
+                            showCompleteButton={false} 
                         />
                     ))
                 ) : (

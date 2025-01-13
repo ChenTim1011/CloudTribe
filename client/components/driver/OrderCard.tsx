@@ -25,7 +25,8 @@ const OrderCard: React.FC<{
     onAccept: (orderId: string, service: string) => Promise<void>;
     onTransfer: (orderId: string, newDriverPhone: string) => Promise<void>;
     onComplete: (orderId: string, service: string) => Promise<void>;
-}> = ({ order, driverId, onAccept, onTransfer, onComplete }) => {
+    showCompleteButton?: boolean;
+}> = ({ order, driverId, onAccept, onTransfer, onComplete,showCompleteButton }) => {
 
     // State for managing the visibility of the transfer form
     const [showTransferForm, setShowTransferForm] = useState(false);
@@ -151,7 +152,7 @@ const OrderCard: React.FC<{
                         <CardDescription className="text-lg text-white font-semibold">消費者姓名: {order.buyer_name}</CardDescription>
                     </div>
                 </div>
-                {order.order_status === '接單' && (
+                {order.order_status === '接單' && showCompleteButton && (
                 <div>
                 <Button
                     className="bg-white text-black border border-black hover:text-black hover:bg-white transition-all duration-300"
@@ -164,7 +165,7 @@ const OrderCard: React.FC<{
                         }
                     }}
                 >
-                    各別訂單貨物已到達目的地
+                    各別訂單物品已到達目的地
                 </Button>
             </div>
             )}  
