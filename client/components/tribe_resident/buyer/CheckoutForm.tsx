@@ -310,7 +310,7 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onClose, clearCart, cartIte
             )}
           </div>
           <div className="mb-4">
-            <Label htmlFor="urgent" className="block text-sm font-medium text-gray-700">是否緊急</Label>
+            <Label htmlFor="urgent" className="block text-sm font-medium text-gray-700">是否是急件</Label>
             <Checkbox id="urgent" checked={is_urgent} onCheckedChange={(checked: boolean) => setIsUrgent(checked)} />
           </div>
           <div className="mb-4">

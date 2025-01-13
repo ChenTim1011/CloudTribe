@@ -97,7 +97,7 @@ const ItemList: React.FC<ItemListProps> = ({ products, itemsPerPage, addToCart }
               >
                 {product.name}
               </h2>
-              <p className="text-2xl font-bold text-red-500 mb-4">參考價格: {product.price} 元</p>
+              <p className="text-2xl font-bold text-red-500 mb-4">參考價格: {Math.floor(product.price)} 元</p>
               <div className="flex justify-center items-center mb-4">
                 <label htmlFor={`quantity-${product.id}`} className="mr-2">購買數量:</label>
                 <input
@@ -115,16 +115,22 @@ const ItemList: React.FC<ItemListProps> = ({ products, itemsPerPage, addToCart }
                   onClick={() => {
                     const quantityInput = document.getElementById(`quantity-${product.id}`) as HTMLInputElement;
                     const quantity = parseInt(quantityInput?.value || '1', 10);
-                    addToCart(product, quantity);
-                    setAddedMessage(`${product.name} 已經加入購物車`); // Set the notification message
-                    // Clear the message after 2 seconds
-                    setTimeout(() => setAddedMessage(null), 2000);
+
+                    if (quantity > 0) {
+                      addToCart(product, quantity);
+                      setAddedMessage(`${product.name} (${quantity} 件) 已經加入購物車`); // 包含商品件數的通知訊息
+
+                      // Clear the quantity input
+                      setTimeout(() => setAddedMessage(null), 2000);
+                    } else {
+                      setAddedMessage("購買數量必須大於 0");
+                      setTimeout(() => setAddedMessage(null), 2000);
+                    }
                   }}
                 >
                   <FontAwesomeIcon icon={faShoppingCart} className="mr-2" />
                   加入購物車
                 </Button>
-
                 {/* Product link to check the actual price */}
                 <a 
                   href={`https://online.carrefour.com.tw/zh/search/?q=${encodeURIComponent(product.name.replace(/\(.*?\)|※.*$|因.*$/g, '').trim())}`}   

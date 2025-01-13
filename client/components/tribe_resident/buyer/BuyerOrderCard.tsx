@@ -31,7 +31,7 @@ const BuyerOrderCard: React.FC<{
       <div className="flex items-center space-x-2">
           {order.is_urgent && (
               <span className="bg-red-500 text-white text-xs font-bold px-2 py-1 ">
-                  緊急
+                  急件
               </span>
           )}
           <div>

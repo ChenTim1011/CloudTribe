@@ -684,10 +684,11 @@ const handleTransferOrder = async (orderId: string, newDriverPhone: string) => {
         }
 
         alert('轉單成功，已交給目標的司機');
+        await fetchDriverOrders();
 
     } catch (error) {
         console.error('Error transferring order:', error);
-        alert('轉單失敗，填寫電話號碼的司機未註冊');
+        alert('轉單失敗，填寫電話號碼的司機未註冊，請重新整理頁面讓表單重新出現');
     }
 };
 

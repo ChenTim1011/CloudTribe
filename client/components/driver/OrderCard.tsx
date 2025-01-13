@@ -63,13 +63,19 @@ const OrderCard: React.FC<{
      * Handles the transfer of an order to a new driver.
      */
     const handleTransfer = async () => {
-        // Validate the new driver's phone number
         if (/^\d{7,10}$/.test(newDriverPhone)) {
+            const confirmedFirst = window.confirm("請確認新司機電話號碼無誤，確定要轉單？");
+            if (!confirmedFirst) return;
+      
+            const confirmedSecond = window.confirm("轉單後將無法撤回，確定要轉單？");
+            if (!confirmedSecond) return;
+    
             try {
                 await onTransfer(order.id?.toString() || "", newDriverPhone);
-                setTransferError(""); // Clear error on success
-                setShowTransferForm(false); // Hide the transfer form
+                setTransferError("");
+                setShowTransferForm(false);
             } catch (err: Error | any) {
+                console.error('轉單錯誤，請重新整理頁面讓表單出現：', err);
                 setTransferError(err.message);
             }
         } else {
@@ -137,7 +143,7 @@ const OrderCard: React.FC<{
                 <div className="flex items-center space-x-2">
                     {order.is_urgent && (
                         <span className="bg-red-500 text-white text-xs font-bold px-2 py-1 ">
-                            緊急
+                            急件
                         </span>
                     )}
                     <div>
@@ -146,12 +152,22 @@ const OrderCard: React.FC<{
                     </div>
                 </div>
                 {order.order_status === '接單' && (
-                    <div>
-                        <Button className="bg-white text-black" onClick={() => onComplete(order.id?.toString() || "", order.service)}>
-                            各別訂單貨物已到達目的地
-                        </Button>
-                    </div>
-                )}
+                <div>
+                <Button
+                    className="bg-white text-black border border-black hover:text-black hover:bg-white transition-all duration-300"
+                    onClick={() => {
+                        const confirmedFirst = window.confirm("請確認該訂單貨物已到達目的地，確定要完成訂單？");
+                        if (!confirmedFirst) return;
+                        const confirmedSecond = window.confirm("確認後將無法更改，確定要完成訂單？");
+                        if (confirmedSecond) {
+                            onComplete(order.id?.toString() || "", order.service);
+                        }
+                    }}
+                >
+                    各別訂單貨物已到達目的地
+                </Button>
+            </div>
+            )}  
             </CardHeader>
             <CardContent className="p-4">
                 {/* Order details including buyer phone, date, time, and location */}

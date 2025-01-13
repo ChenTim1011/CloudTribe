@@ -251,7 +251,7 @@ const DriverOrdersPage: React.FC<DriverOrdersPageProps> = ({
             setOrders(prevOrders => prevOrders.filter(order => order.id !== parseInt(orderId)));
         } catch (error) {
             console.error('Error in handleLocalTransfer:', error);
-            setError('轉單失敗，填寫電話號碼的司機未註冊');
+            setError('轉單失敗，填寫電話號碼的司機未註冊，請重新整理頁面讓表單重新出現');
         }
     };
 

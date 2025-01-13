@@ -131,6 +131,14 @@ const DriverPage: React.FC = () => {
     //New Version to handle accepting an order
     
     const handleAcceptOrder = async (orderId: string, service: string) => {
+        // First confirmation
+        const confirmFirst = window.confirm("您確定要接單嗎？");
+        if (!confirmFirst) return;
+
+        // Second confirmation
+        const confirmSecond = window.confirm("請再次確認：確定接單？");
+        if (!confirmSecond) return;
+        
         if (!driverData || !driverData.id) {
             console.error("Driver data is missing or incomplete");
             return;
@@ -162,7 +170,7 @@ const DriverPage: React.FC = () => {
      * @param orderId - The ID of the order to transfer.
      * @param newDriverPhone - The phone number of the new driver.
      */
-    const handleTransferOrder = async (orderId: string, newDriverPhone: string) => {
+    const handleTransferOrder = async (orderId: string, newDriverPhone: string) => {      
         try {
             const response = await fetch(`/api/orders/${orderId}/transfer`, {
                 method: 'POST',
@@ -178,12 +186,13 @@ const DriverPage: React.FC = () => {
             }
     
             alert('轉單成功，已成功交給目標司機');
+            await handleFetchUnacceptedOrders();
 
         } catch (error) {
 
 
             console.error('Error transferring order:', error);
-            alert('轉單失敗');
+            alert('轉單失敗，請重新整理頁面讓表單重新出現');
         }
     };
 
@@ -200,7 +209,7 @@ const DriverPage: React.FC = () => {
      * Handle completing an order.
      * @param orderId - The ID of the order to complete.
      */
-    const handleCompleteOrder = async (orderId: string, service: string) => {
+    const handleCompleteOrder = async (orderId: string, service: string) => {     
         try {
             const response = await fetch(`/api/orders/${service}/${orderId}/complete`, {
                 method: 'POST',
