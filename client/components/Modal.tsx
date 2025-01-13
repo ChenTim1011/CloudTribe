@@ -1,4 +1,3 @@
-// components/Modal.tsx
 'use client';
 import React, { ReactNode, useEffect } from 'react';
 import { X } from 'lucide-react'; 
@@ -27,7 +26,7 @@ export default function Modal({ isOpen, onClose, children }: ModalProps) {
         className="absolute inset-0 bg-black opacity-50"
         onClick={onClose}
       ></div>
-      <div className="relative bg-white p-4 rounded shadow-xl z-50">
+      <div className="relative bg-white p-4 rounded shadow-xl z-50 max-w-xs w-full">
         <Button
           className="absolute top-2 right-2 text-gray-600 hover:text-gray-800"
           onClick={onClose}
