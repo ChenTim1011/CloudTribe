@@ -43,7 +43,7 @@ export function UserForm() {
       else {
         setUser(res_login)
         localStorage.setItem('@user', JSON.stringify(res_login))
-        setSuccessMessage('登入成功')
+        setSuccessMessage('登入成功，請點選上方的選單')
       }  
     }
     catch(e){

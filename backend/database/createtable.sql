@@ -16,10 +16,6 @@ CREATE TABLE drivers (
     user_id INT UNIQUE REFERENCES users(id) ON DELETE CASCADE,
     driver_name VARCHAR(255) NOT NULL,
     driver_phone VARCHAR(20) UNIQUE NOT NULL,
-    direction VARCHAR(255),
-    available_date DATE,
-    start_time TIME,
-    end_time TIME
 );
 
 -- add 24/10/1

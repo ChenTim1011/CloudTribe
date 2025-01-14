@@ -11,11 +11,10 @@ import { Driver } from '@/interfaces/driver/driver';
  * Represents the form for creating or updating a driver.
  * @param onClose - Callback function to close the form.
  * @param onUpdateSuccess - Callback function to handle successful update.
- * @param initialData - Initial data for pre-filling the form (optional).
  */
-const DriverForm: React.FC<{ onClose: () => void, onUpdateSuccess: (data: Driver) => void, initialData?: Driver }> = ({ onClose, onUpdateSuccess, initialData }) => {
-    const [name, setName] = useState<string>(initialData?.driver_name || "");
-    const [phone, setPhone] = useState<string>(initialData?.driver_phone || "");
+const DriverForm: React.FC<{ onClose: () => void, onUpdateSuccess: (data: Driver) => void}> = ({ onClose, onUpdateSuccess}) => {
+    const [name, setName] = useState<string>("");
+    const [phone, setPhone] = useState<string>("");
     const [showAlert, setShowAlert] = useState(false);
     const [error, setError] = useState("");
 
@@ -28,7 +27,7 @@ const DriverForm: React.FC<{ onClose: () => void, onUpdateSuccess: (data: Driver
             setPhone(user.phone); 
         }
 
-    }, [initialData]);
+    }, );
 
     /**
      * Handles form submission.
@@ -62,8 +61,8 @@ const DriverForm: React.FC<{ onClose: () => void, onUpdateSuccess: (data: Driver
         };
 
         try {
-            const response = await fetch(initialData ? `/api/drivers/${phone}` : '/api/drivers', {
-                method: initialData ? 'PATCH' : 'POST',
+            const response = await fetch('/api/drivers', {
+                method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
@@ -149,7 +148,7 @@ const DriverForm: React.FC<{ onClose: () => void, onUpdateSuccess: (data: Driver
                 placeholder="輸入您的電話" />
             </div>                                                      
 
-            <Button className="bg-black text-white w-full" onClick={handleSubmit}>{initialData ? "更新" : "我確定要當司機"}</Button>
+            <Button className="bg-black text-white w-full" onClick={handleSubmit}>{"我確定要當司機"}</Button>
         </>
     );
 };

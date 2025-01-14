@@ -21,8 +21,6 @@ CREATE INDEX idx_driver_time_date ON driver_time (date);
 -- Indexes for orders table
 -- ====================================
 CREATE INDEX idx_orders_buyer_id ON orders (buyer_id);
-CREATE INDEX idx_orders_date ON orders (date);
-CREATE INDEX idx_orders_time ON orders (time);
 
 -- ====================================
 -- Indexes for order_items table

@@ -8,8 +8,6 @@ Endpoints:
 - POST /: Create a new driver.
 - GET /user/{user_id}: Get driver information by user ID.
 - GET /{driver_id}: Get driver information by driver ID.
-- GET /{phone}: Get driver information by phone number.
-- PATCH /{phone}: Update driver information by phone number.
 - GET /{driver_id}/orders: Get orders assigned to a driver.
 - POST /time: Add a new available time slot for a driver.
 - GET /all/times: Retrieve available time slots for all driver.
@@ -105,18 +103,14 @@ async def create_driver(driver: Driver, conn: Connection = Depends(get_db)):
         # Insert the new driver
         cur.execute(
             """
-            INSERT INTO drivers (user_id, driver_name, driver_phone, direction, available_date, start_time, end_time)
-            VALUES (%s, %s, %s, %s, %s, %s, %s)
+            INSERT INTO drivers (user_id, driver_name, driver_phone)
+            VALUES (%s, %s, %s)
             RETURNING id;
             """,
             (
                 driver.user_id,
                 driver.driver_name,
                 driver.driver_phone,
-                driver.direction,
-                driver.available_date,
-                driver.start_time,
-                driver.end_time
             )
         )
         new_driver_id = cur.fetchone()[0]
@@ -156,7 +150,7 @@ async def get_driver_by_user(user_id: int, conn: Connection = Depends(get_db)):
     try:
         cur.execute(
             """
-            SELECT id, user_id, driver_name, driver_phone, direction, available_date, start_time, end_time
+            SELECT id, user_id, driver_name, driver_phone
             FROM drivers
             WHERE user_id = %s
             """,
@@ -173,10 +167,6 @@ async def get_driver_by_user(user_id: int, conn: Connection = Depends(get_db)):
             "user_id": driver[1],
             "driver_name": driver[2],
             "driver_phone": driver[3],
-            "direction": driver[4],
-            "available_date": driver[5].isoformat() if driver[5] else None,
-            "start_time": driver[6].isoformat() if driver[6] else None,
-            "end_time": driver[7].isoformat() if driver[7] else None,
         }
     except HTTPException as he:
         raise he
@@ -203,7 +193,7 @@ async def get_driver_by_id(driver_id: int, conn: Connection = Depends(get_db)):
         # Check if driver_id exists in the database
         cur.execute(
             """
-            SELECT id, user_id, driver_name, driver_phone, direction, available_date, start_time, end_time
+            SELECT id, user_id, driver_name, driver_phone
             FROM drivers
             WHERE id = %s
             """,
@@ -221,115 +211,9 @@ async def get_driver_by_id(driver_id: int, conn: Connection = Depends(get_db)):
             "user_id": driver[1],
             "driver_name": driver[2],
             "driver_phone": driver[3],
-            "direction": driver[4],
-            "available_date": driver[5].isoformat() if driver[5] else None,
-            "start_time": driver[6].isoformat() if driver[6] else None,
-            "end_time": driver[7].isoformat() if driver[7] else None,
         }
     except Exception as e:
         logging.error("Error fetching driver by ID: %s", str(e))
-        raise HTTPException(status_code=500, detail="伺服器內部錯誤") from e
-    finally:
-        cur.close()
-
-@router.get("/{phone}")
-async def get_driver(phone: str, conn: Connection = Depends(get_db)):
-    """
-    Get driver information by phone number.
-
-    Args:
-        phone (str): The driver's phone number.
-        conn (Connection): The database connection.
-
-    Returns:
-        dict: The driver information.
-    """
-    cur = conn.cursor()
-    try:
-        cur.execute("SELECT id, driver_name, driver_phone, direction, available_date, start_time, end_time FROM drivers WHERE driver_phone = %s", (phone,))
-        driver = cur.fetchone()
-        if not driver:
-            raise HTTPException(status_code=404, detail="電話號碼未註冊")
-        return {
-            "id": driver[0],
-            "driver_name": driver[1],
-            "driver_phone": driver[2],
-            "direction": driver[3] or None,
-            "available_date": driver[4].isoformat() if driver[4] else None,
-            "start_time": driver[5].isoformat() if driver[5] else None,
-            "end_time": driver[6].isoformat() if driver[6] else None,
-        }
-    except Exception as e:
-        logging.error("Error fetching driver: %s", str(e))
-        raise HTTPException(status_code=500, detail=str(e)) from e
-    finally:
-        cur.close()
-
-@router.patch("/{phone}")
-async def update_driver(phone: str, driver: Driver, conn: Connection = Depends(get_db)):
-    """
-    Update driver information by phone number.
-
-    Args:
-        phone (str): The driver's phone number.
-        driver (Driver): The updated driver information.
-        conn (Connection): The database connection.
-
-    Returns:
-        dict: A success message.
-    """
-    cur = conn.cursor()
-    try:
-        # Retrieve driver_id and user_id
-        cur.execute(
-            """
-            SELECT id, user_id FROM drivers
-            WHERE driver_phone = %s
-            """,
-            (phone,)
-        )
-        driver_record = cur.fetchone()
-        if not driver_record:
-            raise HTTPException(status_code=404, detail="司機不存在")
-
-        driver_id = driver_record[0]
-        user_id = driver_record[1]
-
-        # Check if driver_phone needs to be updated and if it already exists
-        if driver.driver_phone != phone:
-            cur.execute(
-                "SELECT id FROM drivers WHERE driver_phone = %s",
-                (driver.driver_phone,)
-            )
-            if cur.fetchone():
-                raise HTTPException(status_code=409, detail="新的電話號碼已存在")
-
-        # Update driver information
-        cur.execute(
-            """
-            UPDATE drivers
-            SET driver_name = %s, driver_phone = %s, direction = %s, available_date = %s, start_time = %s, end_time = %s
-            WHERE driver_phone = %s
-            """,
-            (
-                driver.driver_name,
-                driver.driver_phone,
-                driver.direction,
-                driver.available_date,
-                driver.start_time,
-                driver.end_time,
-                phone
-            )
-        )
-
-        conn.commit()
-        return {"status": "success"}
-    except HTTPException as he:
-        conn.rollback()
-        raise he
-    except Exception as e:
-        conn.rollback()
-        logging.error("Error updating driver: %s", str(e))
         raise HTTPException(status_code=500, detail="伺服器內部錯誤") from e
     finally:
         cur.close()

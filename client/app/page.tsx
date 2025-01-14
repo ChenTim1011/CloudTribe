@@ -103,7 +103,7 @@ export default function Page() {
       <NavigationBar />
       <div className="w-full h-full lg:p-8 p-2">
         {/* Header Section */}
-        <div className="lg:h-96 h-52 relative w-full overflow-hidden bg-green-600 flex flex-col items-center justify-center rounded-xl shadow-2xl transition hover:bg-green-400">
+        <div className="mb-20 lg:h-96 h-52 relative w-full overflow-hidden bg-green-600 flex flex-col items-center justify-center rounded-xl shadow-2xl transition hover:bg-green-400">
           <div className="absolute inset-0 w-full h-full bg-slate-600 z-20 [mask-image:radial-gradient(transparent,white)] pointer-events-none" />
           <div className="lg:text-4xl text-3xl flex flex-col items-center justify-center text-white font-mono lg:text-5xl font-extrabold">
             順 路 經 濟 平 台
@@ -114,7 +114,7 @@ export default function Page() {
         </div>
 
         {/* Announcement Area */}
-        <Alert className="mt-8 bg-blue-50 border-blue-200">
+        <Alert className="bg-blue-50 border-blue-200">
           <Info className="h-5 w-5 text-blue-600" />
           <AlertDescription className="ml-2 text-blue-800">
             <p className="font-medium mb-2">

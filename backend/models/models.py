@@ -55,10 +55,6 @@ class Driver(BaseModel):
     user_id: int
     driver_name: str
     driver_phone: str
-    direction: Optional[str] = None
-    available_date: Optional[str] = None
-    start_time: Optional[str] = None
-    end_time: Optional[str] = None
 
 
 class DriverTime(BaseModel):
