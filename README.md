@@ -1,20 +1,20 @@
 # CloudTribe  USR計畫之部落團購與順路經濟平台實做
 
-### Demo Video for tribe residents 、 drivers 、 buyers 、 sellers 
+### Demo for tribe residents 、 drivers 、 buyers 、 sellers 
 
-1. tribe residents
+### 1. tribe residents
    
 [![tribe residents](https://img.youtube.com/vi/hjn2Sm5dd9s/0.jpg)](https://youtube.com/shorts/hjn2Sm5dd9s)
 
-2. drivers
+### 2. drivers
    
 [![drivers](https://img.youtube.com/vi/wcOt4QaqB3g/0.jpg)](https://youtu.be/wcOt4QaqB3g)
 
-3. buyers
+### 3. buyers
    
 [![buyers](https://img.youtube.com/vi/Q4g4HAuLtNw/0.jpg)](https://youtube.com/shorts/Q4g4HAuLtNw)
 
-4. sellers
+### 4. sellers
   
 [![sellers](https://img.youtube.com/vi/29SxFI6WWD4/0.jpg)](https://youtube.com/shorts/29SxFI6WWD4)
 
@@ -40,17 +40,51 @@ We aim to scale up this model, allowing residents to earn money by helping more 
 
 # Technology Stack
 
-1. **Frontend: Typescript+ React**
+1. **Frontend: Nextjs + Typescript + TailwindCSS + React**
 2. **Backend:  Python + FastAPI**
 3. **Database: PostgreSQL**
 4. **Maps and Route Planning: Google Maps API**
-5. **LineBOT**
+5. **LineBOT for notification**
+6. **AWS EC2 and AWS RDS for deployment**
 
+# System Diagram
+![system diagram](https://github.com/user-attachments/assets/2235e7d6-e912-409a-9810-c952205bee2a)
 
 
 # CloudTribe Setup Instructions
 
-## Database Setup
+### [Deployment_document](https://github.com/user-attachments/files/18440830/deploy_document.pdf)
+
+## Frontend: Google Maps API Setup
+
+1. Create a `.env.local_template` file in the `client` directory and add the following code:
+   ```plaintext
+   NEXT_PUBLIC_GOOGLE_MAPS_API_KEY=
+   NEXT_PUBLIC_MAP_ID=
+   ```
+
+2. Change the file name .env_template to .env
+
+3. Get the API key from [Google Maps Developers](https://developers.google.com/maps?hl=zh-tw).
+
+4. Create a new project and enable the Maps JavaScript API.
+
+5. Go to the Credentials page and create a new API key.
+
+6. Go to Map management to get Map ID.
+
+7. Copy the API key and Map ID. Paste it into the `.env.local` file.
+
+8. Go to the APIs & Services > Library page and enable the following APIs:
+   - Maps JavaScript API
+   - Places API
+   - Geocoding API
+   - Directions API
+
+---
+
+
+## Backend: Database Setup
 
 1. Download and install pgAdmin4 from [pgAdmin4 Download Page](https://www.pgadmin.org/download/).
 
@@ -81,31 +115,9 @@ We aim to scale up this model, allowing residents to earn money by helping more 
 
 ![alt text](img/setting.png)
 
-## Google Maps API Setup
 
-1. Create a `.env.local` file in the `client` directory and add the following code:
-   ```plaintext
-   NEXT_PUBLIC_GOOGLE_MAPS_API_KEY=
-   NEXT_PUBLIC_MAP_ID=
-   ```
 
-2. Get the API key from [Google Maps Developers](https://developers.google.com/maps?hl=zh-tw).
-
-3. Create a new project and enable the Maps JavaScript API.
-
-4. Go to the Credentials page and create a new API key.
-
-5. Copy the API key and paste it into the `.env.local` file.
-
-6. Go to the APIs & Services > Library page and enable the following APIs:
-   - Maps JavaScript API
-   - Places API
-   - Geocoding API
-   - Directions API
-
----
-
-## LINE Bot Setup Steps
+## Backend: LINE Bot Setup Steps
 
 1. **Create a LINE Bot Account**
 
@@ -119,6 +131,37 @@ We aim to scale up this model, allowing residents to earn money by helping more 
    LINE_BOT_TOKEN=
    LINE_BOT_SECRET=
    DATABASE_URL=
+
+
+## Backend: Imgur Setup Steps
+
+```
+// IMGUR setting
+IMGUR_ALBUM_ID=
+IMGUR_CLIENT_ID=
+IMGUR_CLIENT_SECRET=
+IMGUR_ACCESS_TOKEN=
+IMGUR_REFRESH_TOKEN=
+```
+
+Steps to generate the token required by Imgur (for sellers to upload product images)
+
+1. [Register an account](https://imgur.com/signin?redirect=https%3A%2F%2Fapi.imgur.com%2Foauth2%2Faddclient)
+   
+2.Register the imgur app (you can get the client_id and client_secret in this step)
+
+3. Enter [the following URL](https://api.imgur.com/oauth2/addclient) in your browser and replace YOUR_CLIENT_ID with the client id obtained in the previous step
+```
+   https://api.imgur.com/oauth2/authorize?client_id=YOUR_CLIENT_ID&response_type=token
+```
+4.Copy the URL of the page where you will get access_token and refresh_token. The URL example is as follows: 
+```
+   https://imgur.com/#access_token=xxxxx&expires_in=315360000&token_type=bearer&refresh_token=xxxx&account_username=xxx&account_id=xxxx
+```
+
+How to generate IMGUR_ALBUM_ID: First create an album, then follow the following reference URL to get the album ID
+
+[Reference URL](https://dev.to/codingcoach/get-your-album-id-in-imgur-b6c)
 
 ## How to start
 
@@ -135,13 +178,9 @@ We aim to scale up this model, allowing residents to earn money by helping more 
          npm run dev
    
 
-## Deploy TBD 
+## Deploy 
 
-Now we use AWS EC2 to deploy our project.
+We use AWS EC2 (t2.micro) and AWS RDS to deploy our project.
 
 
-## Set the LINE Webhook URL
 
-After the deployment on Render is complete, you will get a URL. Go to your LINE Developer Console and set the Webhook URL to 
-
-      https://{your-website-url}/callback
