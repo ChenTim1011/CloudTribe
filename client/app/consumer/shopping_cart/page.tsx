@@ -161,9 +161,8 @@ export default function ShoppingCart(){
               <img
                 src={item.img_url} 
                 alt={item.name} 
-                width={150} 
-                height={100} 
-                className="w-full py-2"
+   
+                className="w-full py-2 lg:h-[145px] h-[95px]"
               />
             </div> 
             <div className="flex flex-col w-5/12 text-center">
