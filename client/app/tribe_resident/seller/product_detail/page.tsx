@@ -125,7 +125,7 @@ export default function Page(){
 
               <DialogContent className="lg:max-w-[800px] max-w-[400px] h-[90vh] flex flex-col">
                 <DialogHeader className="flex-none">
-                 
+                  <DialogTitle className="lg:text-2xl text-lg">修改下架日期</DialogTitle>
                   <DialogDescription className="lg:text-lg text-sm">
                     其他商品資訊無法修改，如果尚未有購買者，請刪除商品並重新上架。
                     如果已有購買者，請自行更改下架日期並重新上架商品。
