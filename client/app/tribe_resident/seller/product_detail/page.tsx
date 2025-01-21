@@ -66,14 +66,17 @@ export default function Page(){
     }
   }
   const handleConfirm = () =>{
+
     try{
-      if(productInfo != undefined && date != undefined)
+      if(productInfo != undefined && date != undefined){
         var res = SellerService.update_offshelf_date(productInfo.id, date.toLocaleDateString().replaceAll("/", "-"))
+        setCloseDialog(true)
+      }    
     }
     catch(e){
       console.log(e)
     }
-    setCloseDialog(true)
+    
   }
   return(
     <div>
@@ -89,6 +92,7 @@ export default function Page(){
             className="lg:w-2/12 w-1/2"
           />
           <div className="flex flex-col text-md lg:text-2xl leading-normal lg:leading-relaxed">
+
             <Link href = '/tribe_resident/seller' className="underline">
               返回上架商品頁面
             </Link>
