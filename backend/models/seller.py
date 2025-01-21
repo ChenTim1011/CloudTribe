@@ -59,6 +59,9 @@ class ProductOrderInfo(BaseModel):
 class IsPutRequest(BaseModel):
     order_ids:List[int]
 
+class UpdateOffShelfDateRequest(BaseModel):
+    date: str
+
     
 
 

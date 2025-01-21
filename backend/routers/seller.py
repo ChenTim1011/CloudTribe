@@ -12,10 +12,11 @@ Endpoints:
 - GET /product/order/{productId}: Get orders of seller product with {productId}
 - POST /agricultural_product/is_put: Check is put checkbox.
 - DELETE /{productId}: Delete product with {productId}.
+- PATCH /product/offshelf_date/{productId}: Update offshelf date with id {productId}
 """
 from fastapi import APIRouter, HTTPException, Depends
 from psycopg2.extensions import connection as Connection
-from backend.models.seller import UploadImageResponse, UploadImageRequset, UploadItemRequest, ProductBasicInfo, ProductInfo, ProductOrderInfo, IsPutRequest
+from backend.models.seller import UploadImageResponse, UploadImageRequset, UploadItemRequest, ProductBasicInfo, ProductInfo, ProductOrderInfo, IsPutRequest, UpdateOffShelfDateRequest
 from backend.database import get_db_connection
 from dotenv import load_dotenv
 import os
@@ -339,6 +340,38 @@ async def delete_agri_product(productId: int, conn: Connection=Depends(get_db)):
         raise HTTPException(status_code=500, detail=str(e)) from e
     finally:
         cur.close()
+
+@router.patch("/product/offshelf_date/{productId}")
+async def update_offshelf_date(productId: int, req: UpdateOffShelfDateRequest, conn: Connection = Depends(get_db)):
+    """
+    Update offshelf date of product.
+
+    Args:
+        itemId (int): The item's id.
+        req (UpdateOffShelfDateRequest): The updated date.
+        conn (Connection): The database connection.
+
+    Returns:
+        dict: A success message.
+    """
+    cur = conn.cursor()
+    try:
+        cur.execute(
+            "UPDATE agricultural_produce SET off_shelf_date = %s WHERE id = %s",
+            ( req.date, productId )
+        )
+        if cur.rowcount == 0:
+            raise HTTPException(status_code=404, detail="Item not found")
+        
+        conn.commit()
+        return {"status": "success"}
+    except Exception as e:
+        conn.rollback()
+        logging.error("Error updating user nearest location: %s", str(e))
+        raise HTTPException(status_code=500, detail=str(e)) from e
+    finally:
+        cur.close()
+
 
 
 

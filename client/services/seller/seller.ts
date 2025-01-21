@@ -90,5 +90,18 @@ class SellerService {
     }
     return data
   }
+  async update_offshelf_date(productId: Number, date: string){
+    const res = await fetch(`/api/seller/product/offshelf_date/${productId}`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({date: date}),
+    });
+    const data = await res.json()
+    if(!res.ok)
+      throw new Error(`Error: ${data.detail}`)
+    return data
+  }
 }
 export default new SellerService()
