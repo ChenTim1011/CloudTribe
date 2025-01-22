@@ -52,6 +52,7 @@ export default function Page(){
       <div className="h-5"/>
       <div className="grid gap-4 ">
         <p>{user?.name}的基本資料</p>
+      {/* 
         <Select onValueChange={setSelectedLocation}>
           <div className="grid grid-cols-4 mx-5">
             <div className="col-span-2 flex items-center text-left">
@@ -73,10 +74,10 @@ export default function Page(){
               </SelectItem>)}
             </SelectGroup>
           </SelectContent>
-        </Select>
+        </Select>*/}
         
       </div>
-
+{/*
       {!isUpdating && 
       <Button className="my-5" onClick={() => setisUpdating(true)}>
         更改資訊
@@ -85,6 +86,8 @@ export default function Page(){
       <Button className="my-5" onClick={handleSaveButton}>
         儲存
       </Button>}
+*/}
+
     </div>
   )
 
