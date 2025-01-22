@@ -1,11 +1,19 @@
 from pydantic import BaseModel
-from backend.models.seller import UploadItemRequest
-class ProductInfo(UploadItemRequest):
+class ProductInfo(BaseModel):
     """
     the class extends UploadItemRequest:
     Model representing presented agricultural.
     """
     id: int
+    name: str
+    price: str
+    category: str
+    total_quantity: str
+    off_shelf_date: str
+    img_link: str
+    img_id: str
+    seller_id: int
+    unit: str
     upload_date: str
     
 class AddCartRequest(BaseModel):
@@ -22,6 +30,7 @@ class CartItem(BaseModel):
     quantity: int
     seller_id: int
     unit: str
+    location: str
 
 class UpdateCartQuantityRequest(BaseModel):
     quantity: int

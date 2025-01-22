@@ -12,10 +12,11 @@ Endpoints:
 - GET /product/order/{productId}: Get orders of seller product with {productId}
 - POST /agricultural_product/is_put: Check is put checkbox.
 - DELETE /{productId}: Delete product with {productId}.
+- PATCH /product/offshelf_date/{productId}: Update offshelf date with id {productId}
 """
 from fastapi import APIRouter, HTTPException, Depends
 from psycopg2.extensions import connection as Connection
-from backend.models.seller import UploadImageResponse, UploadImageRequset, UploadItemRequest, ProductBasicInfo, ProductInfo, ProductOrderInfo, IsPutRequest
+from backend.models.seller import UploadImageResponse, UploadImageRequset, UploadItemRequest, ProductBasicInfo, ProductInfo, ProductOrderInfo, IsPutRequest, UpdateOffShelfDateRequest
 from backend.database import get_db_connection
 from dotenv import load_dotenv
 import os
@@ -130,9 +131,9 @@ async def upload_item(req: UploadItemRequest, conn: Connection = Depends(get_db)
         })
 
         cur.execute(
-            """INSERT INTO agricultural_produce (name, price, total_quantity, category, upload_date, off_shelf_date, img_link, img_id, seller_id, unit) 
-            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)""",
-            (req.name, req.price, req.total_quantity, req.category, str(datetime.date.today()), req.off_shelf_date, req.img_link, req.img_id, req.seller_id, req.unit)
+            """INSERT INTO agricultural_produce (name, price, total_quantity, category, upload_date, off_shelf_date, img_link, img_id, seller_id, unit, location) 
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)""",
+            (req.name, req.price, req.total_quantity, req.category, str(datetime.date.today()), req.off_shelf_date, req.img_link, req.img_id, req.seller_id, req.unit, req.location)
         )
         conn.commit()
         log_event("ITEM_UPLOADED", {
@@ -204,7 +205,7 @@ async def get_product_info(productId: int, conn: Connection=Depends(get_db)):
     try:
         logging.info("Get item information with id is %s.", productId)
         cur.execute(
-            """SELECT id, name, price, category, total_quantity, upload_date, off_shelf_date, img_link, img_id, unit
+            """SELECT id, name, price, category, total_quantity, upload_date, off_shelf_date, img_link, img_id, unit, location
             FROM agricultural_produce WHERE id = %s""", (productId,))
  
         product = cur.fetchone()
@@ -218,7 +219,8 @@ async def get_product_info(productId: int, conn: Connection=Depends(get_db)):
             "off_shelf_date": str(product[6]),
             "img_link": product[7],
             "img_id": product[8],
-            "unit":product[9]
+            "unit":product[9],
+            "location":product[10]
         }
         return _product
     except Exception as e:
@@ -339,6 +341,38 @@ async def delete_agri_product(productId: int, conn: Connection=Depends(get_db)):
         raise HTTPException(status_code=500, detail=str(e)) from e
     finally:
         cur.close()
+
+@router.patch("/product/offshelf_date/{productId}")
+async def update_offshelf_date(productId: int, req: UpdateOffShelfDateRequest, conn: Connection = Depends(get_db)):
+    """
+    Update offshelf date of product.
+
+    Args:
+        itemId (int): The item's id.
+        req (UpdateOffShelfDateRequest): The updated date.
+        conn (Connection): The database connection.
+
+    Returns:
+        dict: A success message.
+    """
+    cur = conn.cursor()
+    try:
+        cur.execute(
+            "UPDATE agricultural_produce SET off_shelf_date = %s WHERE id = %s",
+            ( req.date, productId )
+        )
+        if cur.rowcount == 0:
+            raise HTTPException(status_code=404, detail="Item not found")
+        
+        conn.commit()
+        return {"status": "success"}
+    except Exception as e:
+        conn.rollback()
+        logging.error("Error updating user nearest location: %s", str(e))
+        raise HTTPException(status_code=500, detail=str(e)) from e
+    finally:
+        cur.close()
+
 
 
 

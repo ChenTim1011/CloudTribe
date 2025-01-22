@@ -5,6 +5,11 @@ import { ProductDetailTable } from "@/components/tribe_resident/seller/ProductDe
 import SellerService from '@/services/seller/seller'
 import { ProductInfo } from '@/interfaces/tribe_resident/seller/seller';
 import { Button } from "@/components/ui/button"
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Calendar } from "@/components/ui/calendar"
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { CategorySelector } from "@/components/tribe_resident/seller/CategorySelector";
 import Link from 'next/link'
 import {
   AlertDialog,
@@ -17,11 +22,24 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  DialogClose
+} from "@/components/ui/dialog"
 import { useRouter } from 'next/navigation'
 
 export default function Page(){
   const [productInfo, setProductInfo] = useState<ProductInfo>()
+  const [date, setDate] = useState<Date>()
+  const [closeDialog, setCloseDialog] = useState(false)
   const router = useRouter()
+  
   useEffect(()=>{
     if (typeof window !== 'undefined') {
       let product_id = localStorage.getItem('@current_seller_product_id')
@@ -46,6 +64,18 @@ export default function Page(){
       router.push('/tribe_resident/seller')
 
     }
+  }
+  const handleConfirm = () =>{
+
+    try{
+      if(productInfo != undefined && date != undefined){
+        var res = SellerService.update_offshelf_date(productInfo.id, date.toLocaleDateString().replaceAll("/", "-"))
+        setCloseDialog(true)
+      }    
+    }
+    catch(e){
+      console.log(e)
+    }
     
   }
   return(
@@ -62,6 +92,7 @@ export default function Page(){
             className="lg:w-2/12 w-1/2"
           />
           <div className="flex flex-col text-md lg:text-2xl leading-normal lg:leading-relaxed">
+
             <Link href = '/tribe_resident/seller' className="underline">
               返回上架商品頁面
             </Link>
@@ -85,6 +116,63 @@ export default function Page(){
                 </AlertDialogFooter>
               </AlertDialogContent>
             </AlertDialog>
+
+            <Dialog>
+              <DialogTrigger asChild>
+                <Button 
+                  variant="outline" 
+                  className="bg-black w-28 text-white p-1 my-2"
+                  onClick={()=>setCloseDialog(false)}>
+                    修改下架日期
+                </Button>
+              </DialogTrigger>
+
+              <DialogContent className="lg:max-w-[800px] max-w-[400px] h-[90vh] flex flex-col">
+                <DialogHeader className="flex-none">
+                  <DialogTitle className="lg:text-2xl text-lg">修改下架日期</DialogTitle>
+                  <DialogDescription className="lg:text-lg text-sm">
+                    其他商品資訊無法修改，如果尚未有購買者，請刪除商品並重新上架。
+                    如果已有購買者，請自行更改下架日期並重新上架商品。
+                  </DialogDescription>
+                </DialogHeader>
+
+                
+                <div className="flex-1 overflow-y-auto px-4">
+                  <div className="space-y-4">
+                    <div className="mb-6 flex flex-col items-center">
+                      <Label className="block text-left lg:text-2xl text-md mb-2 self-start">
+                        下架日期
+                      </Label>
+                      <div className="flex justify-center w-full">
+                        <Calendar
+                          mode="single"
+                          selected={date}
+                          onSelect={setDate}
+                          className="rounded-md border bg-white"
+                        />
+                      </div>
+                    </div>
+                </div>
+                {closeDialog != true &&
+                <DialogFooter className="items-center">
+                 <Button type="submit" className=" mt-5 lg:text-2xl text-lg w-1/2" onClick={handleConfirm}>確認修改</Button>
+                </DialogFooter>}
+                {closeDialog &&
+                <div>
+                  <Alert className="text-center bg-yellow-100 my-2">
+                    <AlertDescription className=" text-black text-2xl">
+                    修改成功!!
+                  </AlertDescription>
+                  </Alert>
+                  <DialogFooter className="items-center">
+                    <DialogClose asChild>
+                      <Button type="submit" className="lg:text-2xl text-lg w-1/2">關閉</Button>
+                    </DialogClose>     
+                  </DialogFooter>
+                </div>}
+                </div>
+              </DialogContent>
+            </Dialog>
           </div>
         </div>
       </div>

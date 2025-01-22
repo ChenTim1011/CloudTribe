@@ -29,6 +29,7 @@ class UploadItemRequest(BaseModel):
     img_id: str
     seller_id: int
     unit: str
+    location: str #location where item will be put
 
 class ProductBasicInfo(BaseModel):
     id: int
@@ -46,6 +47,7 @@ class ProductInfo(BaseModel):
     img_link: str
     img_id: str
     unit: str
+    location: str #the location seller put items
 
 class ProductOrderInfo(BaseModel):
     order_id: int
@@ -58,6 +60,9 @@ class ProductOrderInfo(BaseModel):
 
 class IsPutRequest(BaseModel):
     order_ids:List[int]
+
+class UpdateOffShelfDateRequest(BaseModel):
+    date: str
 
     
 

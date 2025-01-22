@@ -49,7 +49,7 @@ const AuthComponent: React.FC<authProps> = (prop) => {
       }
       {/* If the user is logged in, show the settings icon */}
       {prop.userInfo?.id != 0 &&
-        <Link href='/setting'><FontAwesomeIcon icon={faGear} /></Link>
+        <Link href='/setting' className='ml-8'><FontAwesomeIcon icon={faGear} /></Link>
       }
     </div>
   );
