@@ -30,6 +30,7 @@ class CartItem(BaseModel):
     quantity: int
     seller_id: int
     unit: str
+    location: str
 
 class UpdateCartQuantityRequest(BaseModel):
     quantity: int

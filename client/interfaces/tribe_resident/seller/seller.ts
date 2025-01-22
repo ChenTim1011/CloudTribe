@@ -29,6 +29,7 @@ export interface UploadItem {
     quantity: Number
     seller_id: Number
     unit: string
+    location: string
   }
 
 

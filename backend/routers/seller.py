@@ -205,7 +205,7 @@ async def get_product_info(productId: int, conn: Connection=Depends(get_db)):
     try:
         logging.info("Get item information with id is %s.", productId)
         cur.execute(
-            """SELECT id, name, price, category, total_quantity, upload_date, off_shelf_date, img_link, img_id, unit
+            """SELECT id, name, price, category, total_quantity, upload_date, off_shelf_date, img_link, img_id, unit, location
             FROM agricultural_produce WHERE id = %s""", (productId,))
  
         product = cur.fetchone()
@@ -219,7 +219,8 @@ async def get_product_info(productId: int, conn: Connection=Depends(get_db)):
             "off_shelf_date": str(product[6]),
             "img_link": product[7],
             "img_id": product[8],
-            "unit":product[9]
+            "unit":product[9],
+            "location":product[10]
         }
         return _product
     except Exception as e:

@@ -47,6 +47,7 @@ class ProductInfo(BaseModel):
     img_link: str
     img_id: str
     unit: str
+    location: str #the location seller put items
 
 class ProductOrderInfo(BaseModel):
     order_id: int
