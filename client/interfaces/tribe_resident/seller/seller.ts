@@ -10,6 +10,7 @@ export interface UploadItem {
     img_id: string
     seller_id: Number | null
     unit: string
+    location: string
   }
   export interface BasicProductInfo{
     id: Number

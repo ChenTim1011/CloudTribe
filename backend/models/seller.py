@@ -29,6 +29,7 @@ class UploadItemRequest(BaseModel):
     img_id: str
     seller_id: int
     unit: str
+    location: str #location where item will be put
 
 class ProductBasicInfo(BaseModel):
     id: int
