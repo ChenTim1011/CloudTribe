@@ -112,33 +112,39 @@ export const SellerDialog = () => {
     }
   }, [debouncedSearchTerm, isManualInput]);
 
-  const handleConfirm = async() => {
+  const handleConfirm = async () => {
     //get image URL
-    if(itemName == '' || itemPrice == '' || date == null || selectedCategory == null || itemQuantity == '' || itemUnit == '')
-      setErrorMessage("上面的所有欄位都必須要填寫喔!!") 
-    else if(itemName.length > 20)
-      setErrorMessage("商品名稱大於20字")
-    else if(isNaN(parseInt(itemPrice)) || (parseInt(itemPrice)) <= 0)
-      setErrorMessage("金額欄位輸入錯誤")
-    else if(isNaN(parseInt(itemQuantity)) || (parseInt(itemQuantity)) <= 0)
-      setErrorMessage("數量欄位輸入錯誤")
-    else if(new Date(date) < new Date())
-      setErrorMessage("時間選擇有誤")
-    else if(fileType == '')
-      setErrorMessage("未選擇任何檔案")
-    else if(fileType == 'notImage')
-      setErrorMessage("上傳的檔案非圖片")
-    else if(location == 'empty')
-      setErrorMessage("未設定放置地點")
-    else{
-      setIsUploading(true)
-      try{
-        var res_img = await SellerService.upload_image(imgBase64)
-      }
-      catch(e){
-        console.log(e)
-      }
-    
+    if (itemName == '' || itemPrice == '' || date == null || selectedCategory == null || itemQuantity == '' || itemUnit == '') {
+      setErrorMessage("上面的所有欄位都必須要填寫喔!!");
+      return;
+    }
+
+    else if (itemName.length > 20) {
+      setErrorMessage("商品名稱大於20字");
+      return;
+    } else if (isNaN(parseInt(itemPrice)) || parseInt(itemPrice) <= 0) {
+      setErrorMessage("金額欄位輸入錯誤");
+      return;
+    } else if (isNaN(parseInt(itemQuantity)) || parseInt(itemQuantity) <= 0) {
+      setErrorMessage("數量欄位輸入錯誤");
+      return;
+    } else if (new Date(date) < new Date()) {
+      setErrorMessage("時間選擇有誤");
+      return;
+    } else if (fileType == '') {
+      setErrorMessage("未選擇任何檔案");
+      return;
+    } else if (fileType == 'notImage') {
+      setErrorMessage("上傳的檔案非圖片");
+      return;
+    } else if (location == 'empty') {
+      setErrorMessage("未設定放置地點");
+      return;
+    }
+
+    setIsUploading(true);
+    try {
+      const res_img = await SellerService.upload_image(imgBase64);
       const item: UploadItem = {
         name: itemName,
         price: itemPrice,
@@ -149,18 +155,15 @@ export const SellerDialog = () => {
         img_id: res_img.img_id,
         seller_id: user && user.id ? Number(user.id) : null,
         unit: itemUnit,
-        location: location
-      }
-      try{
-        const res_item = await SellerService.upload_item(item)
-        setCloseDialog(true)
-      }
-      catch(e){
-        setErrorMessage('上傳發生錯誤，請再試一次') 
-        setIsUploading(false)
-      } 
-    }   
-  }
+        location: location,
+      };
+      const res_item = await SellerService.upload_item(item);
+      setCloseDialog(true);
+    } catch (e: any) {
+      setErrorMessage(e.message || '上傳發生錯誤，請再試一次');
+      setIsUploading(false);
+    }
+  };
   const handleNameButton: React.ChangeEventHandler<HTMLInputElement> = (event) => {
     setItemName(event.target.value);
     setErrorMessage('')

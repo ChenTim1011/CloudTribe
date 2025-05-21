@@ -133,35 +133,15 @@ We aim to scale up this model, allowing residents to earn money by helping more 
    DATABASE_URL=
 
 
-## Backend: Imgur Setup Steps
+## Backend: ImgBB Setup Steps
 
 ```
-// IMGUR setting
-IMGUR_ALBUM_ID=
-IMGUR_CLIENT_ID=
-IMGUR_CLIENT_SECRET=
-IMGUR_ACCESS_TOKEN=
-IMGUR_REFRESH_TOKEN=
-```
+// IMGNBB setting
 
-Steps to generate the token required by Imgur (for sellers to upload product images)
+IMGBB_API_KEY=
 
-1. [Register an account](https://imgur.com/signin?redirect=https%3A%2F%2Fapi.imgur.com%2Foauth2%2Faddclient)
-   
-2.Register the imgur app (you can get the client_id and client_secret in this step)
+[To get IMGBB API KEY](https://api.imgbb.com/)
 
-3. Enter [the following URL](https://api.imgur.com/oauth2/addclient) in your browser and replace YOUR_CLIENT_ID with the client id obtained in the previous step
-```
-   https://api.imgur.com/oauth2/authorize?client_id=YOUR_CLIENT_ID&response_type=token
-```
-4.Copy the URL of the page where you will get access_token and refresh_token. The URL example is as follows: 
-```
-   https://imgur.com/#access_token=xxxxx&expires_in=315360000&token_type=bearer&refresh_token=xxxx&account_username=xxx&account_id=xxxx
-```
-
-How to generate IMGUR_ALBUM_ID: First create an album, then follow the following reference URL to get the album ID
-
-[Reference URL](https://dev.to/codingcoach/get-your-album-id-in-imgur-b6c)
 
 ## How to start
 

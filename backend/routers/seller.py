@@ -14,7 +14,7 @@ Endpoints:
 - DELETE /{productId}: Delete product with {productId}.
 - PATCH /product/offshelf_date/{productId}: Update offshelf date with id {productId}
 """
-from fastapi import APIRouter, HTTPException, Depends
+from fastapi import APIRouter, HTTPException, Depends, Request
 from psycopg2.extensions import connection as Connection
 from backend.models.seller import UploadImageResponse, UploadImageRequset, UploadItemRequest, ProductBasicInfo, ProductInfo, ProductOrderInfo, IsPutRequest, UpdateOffShelfDateRequest
 from backend.database import get_db_connection
@@ -66,8 +66,8 @@ def get_db():
     finally:
         conn.close()
 
-@router.post("/upload_image", response_model = UploadImageResponse)
-async def upload_image(request: UploadImageRequset):
+@router.post("/upload_image", response_model=UploadImageResponse)
+async def upload_image(request: UploadImageRequset, req: Request):
     """
     Upload photo which is base 64 data
 
@@ -78,33 +78,49 @@ async def upload_image(request: UploadImageRequset):
     Returns:
         dict: The image data.
     """
-
-    accessToken = os.environ.get('IMGUR_ACCESS_TOKEN')
-    albumId = os.environ.get('IMGUR_ALBUM_ID')
-    url = "https://api.imgur.com/3/image"
-    headers = {"Authorization": f"Bearer {accessToken}"}
+    logging.info(f"Received request: {req.method} {req.url} Headers: {req.headers}")
+    api_key = os.environ.get('IMGBB_API_KEY')
+    if not api_key:
+        raise HTTPException(status_code=500, detail="IMGBB_API_KEY not set")
+    url = "https://api.imgbb.com/1/upload"
     img = request.img
 
-    # Upload image to Imgur and get URL
+    if img.startswith('data:image'):
+        img = img.split(',')[1]
+
     try:
+        import base64
+        base64.b64decode(img, validate=True)  
         log_event("IMAGE_UPLOAD_STARTED", {
-            "image_size": len(request.img) if request.img else 0
+            "image_size": len(img) if img else 0
         })
-        response = requests.post(url, headers=headers, data={'image': img, 'album': albumId})
-        print('response:', response)
+        response = requests.post(url, data={
+            'key': api_key,
+            'image': img
+        })
         response_data = response.json()
-        if response_data["success"] is True:
+        logging.info(f"ImgBB API response: {response.text}")
+        if response.status_code == 200 and response_data.get("data"):
             log_event("IMAGE_UPLOADED", {
                 "img_id": response_data["data"]["id"],
                 "status": "success"
             })
-            return {"img_id": response_data["data"]["id"] , "img_link": response_data["data"]["link"]}
-    except Exception as e:
+            return {
+                "img_id": response_data["data"]["id"],
+                "img_link": response_data["data"]["url"]
+            }
+        else:
+            error_msg = response_data.get("error", {}).get("message", "Unknown ImgBB API error")
+            log_event("IMAGE_UPLOAD_FAILED", {
+                "status_code": response.status_code,
+                "error": error_msg
+            })
+            raise HTTPException(status_code=response.status_code, detail=f"ImgBB API error: {error_msg}")
+    except requests.RequestException as e:
         log_event("IMAGE_UPLOAD_ERROR", {
-            "error": str(e)
+            "error": f"Network error: {str(e)}"
         })
-        logging.error("Error occurred during upload photo: %s", str(e))
-        raise HTTPException(status_code=500, detail=str(e)) from e
+        raise HTTPException(status_code=500, detail=f"Network error: {str(e)}")
 
 @router.post('/')
 async def upload_item(req: UploadItemRequest, conn: Connection = Depends(get_db)):

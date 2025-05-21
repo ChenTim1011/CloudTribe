@@ -15,7 +15,7 @@ CREATE TABLE drivers (
     id SERIAL PRIMARY KEY,
     user_id INT UNIQUE REFERENCES users(id) ON DELETE CASCADE,
     driver_name VARCHAR(255) NOT NULL,
-    driver_phone VARCHAR(20) UNIQUE NOT NULL,
+    driver_phone VARCHAR(20) UNIQUE NOT NULL
 );
 
 -- add 24/10/1
@@ -94,7 +94,8 @@ CREATE TABLE agricultural_produce (
     img_link VARCHAR(255) NOT NULL,
     img_id VARCHAR(36) NOT NULL,
     seller_id INTEGER NOT NULL,
-    unit VARCHAR(10) NOT NULL
+    unit VARCHAR(10) NOT NULL,
+    location VARCHAR(100) NOT NULL DEFAULT 'unknown'
 );
 
 CREATE TABLE agricultural_shopping_cart (

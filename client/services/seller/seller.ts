@@ -1,19 +1,27 @@
 import { UploadItem, IsPutRequest } from '@/interfaces/tribe_resident/seller/seller';
 
 class SellerService {
-  async upload_image(img: string){
-    const res = await fetch('/api/seller/upload_image',{
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({ img:img }),
-    })
-    const data = await res.json()
-    if(!res.ok)
-      throw new Error(`Error: ${data.detail}`)
-    return data
- }
+  async upload_image(img: string) {
+    const res = await fetch('/api/seller/upload_image', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ img }),
+    });
+    if (!res.ok) {
+      let errorMessage = 'Unknown error';
+      try {
+        const data = await res.json();
+        errorMessage = data.detail || `HTTP ${res.status} error`;
+      } catch (e) {
+        errorMessage = await res.text(); // 處理非 JSON 回應
+      }
+      throw new Error(`Error: ${errorMessage}`);
+    }
+    const data = await res.json();
+    return data;
+  }
   async upload_item(req: UploadItem){
     const res = await fetch('/api/seller/',{
     method: 'POST',

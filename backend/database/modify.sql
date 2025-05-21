@@ -33,3 +33,7 @@ ALTER TABLE users ADD COLUMN line_user_id VARCHAR(255);
 ALTER TABLE agricultural_product_order ADD COLUMN is_put BOOLEAN DEFAULT FALSE;
     
 ALTER TABLE orders ADD COLUMN timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
+
+-- add location column to agricultural_produce table
+ALTER TABLE agricultural_produce
+ADD COLUMN location VARCHAR(100) NOT NULL DEFAULT 'unknown';
